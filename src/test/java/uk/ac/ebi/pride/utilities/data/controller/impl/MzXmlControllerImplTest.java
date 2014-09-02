@@ -42,7 +42,7 @@ public class MzXmlControllerImplTest {
     @Test
     public void testGetSpectrumIds() throws Exception {
         List<Comparable> ids = new ArrayList<Comparable>(mzXmlController.getSpectrumIds());
-        assertTrue("There should be four Spectras", ids.size() == 9181);
+        assertTrue("There should be four Spectras", ids.size() == 6449);
         assertTrue("The id of the first spectra should be", ids.contains("1"));
         assertTrue("The id of the Four spectra should be", ids.contains("4"));
     }
