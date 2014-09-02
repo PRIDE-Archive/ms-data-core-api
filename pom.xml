@@ -1,0 +1,361 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>uk.ac.ebi.pride.toolsuite</groupId>
+    <artifactId>ms-data-core-api</artifactId>
+    <version>0.11.25-SNAPSHOT</version>
+    <name>Open-source Data Model for computational proteomics</name>
+    <url>http://github.com/PRIDE-EBI/PRIDE-toolsuite/ms-data-core-api/</url>
+    <description>Open-source java library to handle different file format standards for proteomics. Specially ms-data-core-api is good for MetaData representation.</description>
+
+
+    <licenses>
+        <license>
+            <name>Apache 2</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+            <comments>A business-friendly OSS license</comments>
+        </license>
+    </licenses>
+
+    <organization>
+        <name>European Bioinformatics Institute</name>
+        <url>http://www.ebi.ac.uk</url>
+    </organization>
+
+    <developers>
+        <developer>
+            <id>yperez</id>
+            <name>Yasset Perez-Riverol</name>
+            <url>http://computationalproteomic.blogspot.co.uk/</url>
+            <organization>Proteomics Services Team, PANDA Group, EMBL-European Bioinformatics Institute</organization>
+            <organizationUrl>http://www.ebi.ac.uk/pride</organizationUrl>
+            <roles>
+                <role>developer</role>
+                <role>researcher</role>
+                <role>tester</role>
+            </roles>
+            <timezone>0</timezone>
+        </developer>
+
+        <developer>
+            <id>rwang</id>
+            <name>Rui Wang</name>
+            <organization>Proteomics Services Team, PANDA Group, EMBL-European Bioinformatics Institute</organization>
+            <organizationUrl>http://www.ebi.ac.uk/pride</organizationUrl>
+            <roles>
+                <role>developer</role>
+                <role>architect</role>
+            </roles>
+            <timezone>0</timezone>
+        </developer>
+    </developers>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <assembly.dir>${name}-${version}</assembly.dir>
+        <junit.version>4.11</junit.version>
+        <slf4j-api.version>1.7.5</slf4j-api.version>
+        <logback-core.version>1.0.11</logback-core.version>
+        <jmzml.version>1.7.1.pride</jmzml.version>
+        <jmzidentml.version>1.1.10-SNAPSHOT</jmzidentml.version>
+        <xmlschemavalidator.version>2.1</xmlschemavalidator.version>
+        <jmztab.version>3.0.0</jmztab.version>
+
+        <jmzreader.version>1.2.0</jmzreader.version>
+        <mzxml.parser.version>1.3.1</mzxml.parser.version>
+        <pkl.parser.version>1.2.1</pkl.parser.version>
+        <apl.parser.version>1.0.0</apl.parser.version>
+        <ms2.parser.version>1.2.1</ms2.parser.version>
+        <dta.parser.version>1.2.1</dta.parser.version>
+        <mgf.parser.version>1.2.6-SNAPSHOT</mgf.parser.version>
+        <mzdata.parser.version>1.2.1</mzdata.parser.version>
+
+        <xxindex.version>0.14</xxindex.version>
+        <commonscode.version>1.7</commonscode.version>
+
+        <pride.jaxb.version>1.0.12</pride.jaxb.version>
+        <mysql.connector.java>5.1.24</mysql.connector.java>
+        <jdom.version>2.0.2</jdom.version>
+        <c3p0.version>0.9.1.2</c3p0.version>
+        <springframewrok.version>3.2.3.RELEASE</springframewrok.version>
+        <pride-utilities.version>2.0.0-SNAPSHOT</pride-utilities.version>
+        <json.version>20090211</json.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- logging dependencies -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j-api.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>1.0.11</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback-core.version}</version>
+        </dependency>
+
+        <!-- mzML dependencies -->
+        <dependency>
+            <groupId>uk.ac.ebi.jmzml</groupId>
+            <artifactId>jmzml</artifactId>
+            <version>${jmzml.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>lennart</groupId>
+                    <artifactId>lmjunit</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!-- End -->
+
+        <!-- mzIdentML File dependencies -->
+        <dependency>
+            <groupId>uk.ac.ebi.jmzidml</groupId>
+            <artifactId>jmzidentml</artifactId>
+            <version>${jmzidentml.version}</version>
+        </dependency>
+
+        <!-- End -->
+
+        <!-- Validator xml -->
+        <dependency>
+            <groupId>uk.ac.ebi.pride.tools</groupId>
+            <artifactId>xmlSchemaValidator</artifactId>
+            <version>${xmlschemavalidator.version}</version>
+        </dependency>
+        <!-- End -->
+
+        <!-- mzTab dependencies   -->
+        <dependency>
+            <groupId>uk.ac.ebi.pride</groupId>
+            <artifactId>jmztab-modular-model</artifactId>
+            <version>${jmztab.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>uk.ac.ebi.pride</groupId>
+            <artifactId>jmztab-modular-util</artifactId>
+            <version>${jmztab.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>uk.ac.ebi.pride</groupId>
+            <artifactId>jmztab-modular-converters</artifactId>
+            <version>${jmztab.version}</version>
+        </dependency>
+       <!-- End  -->
+
+
+        <!-- Begin of the jmzReader Dependencies. MzML and Pride XML files will be parse
+          with jaxb and jmzml directly in order to keep more matadata -->
+        <dependency>
+            <groupId>uk.ac.ebi.pride.tools</groupId>
+            <artifactId>jmzreader</artifactId>
+            <version>${jmzreader.version}</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+        <!-- mzXML file dependencies -->
+        <dependency>
+            <groupId>uk.ac.ebi.pride.tools</groupId>
+            <artifactId>mzxml-parser</artifactId>
+            <version>${mzxml.parser.version}</version>
+        </dependency>
+        <!-- pkl file dependencies -->
+        <dependency>
+            <groupId>uk.ac.ebi.pride.tools</groupId>
+            <artifactId>pkl-parser</artifactId>
+            <version>${pkl.parser.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>uk.ac.ebi.pride.tools</groupId>
+            <artifactId>apl-parser</artifactId>
+            <version>${apl.parser.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>uk.ac.ebi.pride.tools</groupId>
+            <artifactId>dta-parser</artifactId>
+            <version>${dta.parser.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>uk.ac.ebi.pride.tools</groupId>
+            <artifactId>ms2-parser</artifactId>
+            <version>${ms2.parser.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>uk.ac.ebi.pride.tools</groupId>
+            <artifactId>mgf-parser</artifactId>
+            <version>${mgf.parser.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>uk.ac.ebi.pride.tools</groupId>
+            <artifactId>mzdata-parser</artifactId>
+            <version>${mzdata.parser.version}</version>
+        </dependency>
+        <!-- End of the jmzReader Dependencies -->
+
+        <dependency>
+            <groupId>psidev.psi.tools</groupId>
+            <artifactId>xxindex</artifactId>
+            <version>${xxindex.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+            <version>${commonscode.version}</version>
+        </dependency>
+
+        <!-- PRIDE XML dependency -->
+        <dependency>
+            <groupId>uk.ac.ebi.pride.jaxb</groupId>
+            <artifactId>pride-jaxb</artifactId>
+            <version>${pride.jaxb.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>${mysql.connector.java}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jdom</groupId>
+            <artifactId>jdom</artifactId>
+            <version>${jdom.version}</version>
+        </dependency>
+        <!-- db connection pool -->
+        <dependency>
+            <groupId>c3p0</groupId>
+            <artifactId>c3p0</artifactId>
+            <version>${c3p0.version}</version>
+        </dependency>
+        <!--spring jdbc template-->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
+            <version>${springframewrok.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>uk.ac.ebi.pride.utilities</groupId>
+            <artifactId>pride-utilities</artifactId>
+            <version>${pride-utilities.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>${json.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>**/db/*.java</exclude>
+                        <exclude>**/MzIdentMLControllerIterativeTest.java</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <configuration>
+                    <outputDirectory>${basedir}/lib</outputDirectory>
+                    <overWriteReleases>true</overWriteReleases>
+                    <overWriteSnapshots>true</overWriteSnapshots>
+                    <excludeTransitive>false</excludeTransitive>
+                    <artifactItems/>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-source</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <repositories>
+        <!-- EBI repo -->
+        <repository>
+            <id>nexus-ebi-repo</id>
+            <name>The EBI internal repository</name>
+            <url>http://www.ebi.ac.uk/intact/maven/nexus/content/repositories/ebi-repo/</url>
+            <releases>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+
+        <!-- EBI SNAPSHOT repo -->
+        <repository>
+            <id>nexus-ebi-snapshot-repo</id>
+            <name>The EBI internal snapshot repository</name>
+            <url>http://www.ebi.ac.uk/intact/maven/nexus/content/repositories/ebi-repo-snapshots/</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+            </snapshots>
+        </repository>
+
+        <!-- Compomics Genesis Maven 2 repository -->
+        <repository>
+            <id>genesis-maven2-repository</id>
+            <name>Genesis maven2 repository</name>
+            <url>http://genesis.UGent.be/maven2</url>
+            <layout>default</layout>
+        </repository>
+    </repositories>
+
+    <distributionManagement>
+        <!-- EBI repo -->
+        <repository>
+            <id>nexus-ebi-repo</id>
+            <url>http://www.ebi.ac.uk/intact/maven/nexus/content/repositories/ebi-repo</url>
+        </repository>
+        <!-- EBI SNAPSHOT repo -->
+        <snapshotRepository>
+            <id>nexus-ebi-repo-snapshots</id>
+            <url>http://www.ebi.ac.uk/intact/maven/nexus/content/repositories/ebi-repo-snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+</project>
