@@ -5,30 +5,27 @@ ms-data-core-api
 
 The primary purpose of ms-data-core-api library is to provide commonly used classes and Object Model for Proteomics Experiments. You may also find it useful for your own computational proteomics projects.
 
+# License
+
+ms-data-core-api is a PRIDE API licensed under [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt).
+
 # How to cite it:
 
  * Wang, R., Fabregat, A., Ríos, D., Ovelleiro, D., Foster, J. M., Côté, R. G., ... & Vizcaíno, J. A. (2012). PRIDE Inspector: a tool to visualize and validate MS proteomics data. Nature biotechnology, 30(2), 135-137. [PDF File](http://www.nature.com/nbt/journal/v30/n2/pdf/nbt.2112.pdf), [Pubmed Record](http://www.ncbi.nlm.nih.gov/pubmed/22318026)
  * Perez-Riverol, Y., Wang, R., Hermjakob, H., Müller, M., Vesada, V., & Vizcaíno, J. A. (2014). Open source libraries and frameworks for mass spectrometry based proteomics: A developer's perspective. Biochimica et Biophysica Acta (BBA)-Proteins and Proteomics, 1844(1), 63-76. [PDF File](http://www.ncbi.nlm.nih.gov/pmc/articles/PMC3898926/) [Pubmed Record](http://www.ncbi.nlm.nih.gov/pubmed/23467006)
 
 # Main Features
-* Data Structures to represent AminoAcids, Mass Table, etc.
-* Functions to compute different Properties such as isoelectric point, retention time, sequence length and masses.
-* Reference table of the main Ontology terms used in PRIDE-toolsuite. 
-* General functionalities and data structures classes missing in JDK, such as: Tuple.
-* General functionalities like checking email format and availability.
-
-# The library provides four key modules:
-
-* mol: contains classes describing entities at the molecular level, such as: amino acids, neutrual losses, peptides and fragment ions.
-* gui: contains several GUI components, you can use them if you want to replicate some of the features in PRIDE Inspector.
-* data: contains data structures classes are missing from JDK, such as: Tuple.
-* util: contains a selection of convenient classes. For examples: for formatting protein related informations, for checking Internet availability or for verify email addresses.
+* Common Object Model for different proteomics experiments, with classes to represent proteins, peptides, psms, psectrums 
+* DataAccessControllers for mzTab, mzIdentML, PRIDE XML, PRIDE Database, mzML, mzXML, mgf, pkl, apl, ms2, dta files
+* Proteomics Standard compleint Data model with classes for Ontologies and User params 
+* Read different file formats in proteomics in a common Object Model
+* Export the current model to mzTab files in for Identification Experiments.
 
 **Note**: the library is still evolving, we are committed to expand this library and add more useful classes.
 
 # Getting ms-data-core-api
 
-The zip file in the releases section contains the PRIDE Utilities jar file and all other required libraries.
+The zip file in the releases section contains the ms-data-core-api jar file and all other required libraries.
 
 Maven Dependency
 
@@ -38,7 +35,7 @@ PRIDE Utilities library can be used in Maven projects, you can include the follo
  <dependency>
    <groupId>uk.ac.ebi.pride.utilities</groupId>
    <artifactId>ms-data-core-api</artifactId>
-   <version>0.1.23-SNAPSHOT</version>
+   <version>x.x.x</version>
  </dependency> 
  ```
  ```maven
@@ -74,37 +71,54 @@ How to use ms-data-core-api
 
 # Using ms-data-core-api 
 
-Here we will show you how to use the ms-data-core-api library to calculate m/z delta and calculate theoretical mass of a given peptide.
+### Reading a mzIdentML file:
 
-### Calculate m/z Delta:
-
-You can find the method for calculating m/z delta from MoleculeUtilities in uk.ac.ebi.pride.mol package. It requires four input parameters:
-
-```java 
-/*
- * sequence is the peptide sequence in String,
- * precursorMz is the precusor m/z in double,
- * precursorCharge is the precursor charge in double,
- *ptmMasses is a list of post translational modifications in double.
-*/
-
-// Direct call on the method
-Double mzDelta = MolecularUtilitites.calculateDeltaMz(sequence, precursorMz, precursorCharge, ptmMasses);
-```
-
-### Calculate Theoretical Mass
-
-You can also find the method for calculating theoretical mass value from MoleculeUtilities. It needs two input parameters:
+This example shows how to read an mzIdentML file and retrieve the information from them:
 
 ```java
- /*
-  *sequence is the peptide sequence in String,  
-  *masses is a optional list array of masses you want to add as extras.
-  The following lines of code shows you how:
- */
+//Open an inputFile mzIdentml File using memory 
+MzIdentMLControllerImpl mzIdentMlController = new MzIdentMLControllerImpl(inputFile, true);
 
- // Direct call on the method
- double result = MolecularUtilitites.calculateTheoreticalMass(sequence, masses);
+//Print size of the Sample List
+List<Sample> samples = mzIdentMlController.getSamples();
+System.out.println(samples.size());
 
- // Tip: Take a close look at other methods within MoleculeUtilitites, you might find them useful. 
+//Print the Id of the first sample
+System.out.println(samples.get(0).getId());
+
+//Print size of the Software List
+System.out.println(software.size());
+
+//Print the Name of the first Software
+System.out.println(software.get(0).getName());
+
+//Retrieve the Identification Metadata    
+IdentificationMetaData experiment = mzIdentMlController.getIdentificationMetaData();
+// test SearchDatabase
+List<SearchDataBase> databases = experiment.getSearchDataBases();
+        
+// test SpectrumIdentificationProtocol
+List<SpectrumIdentificationProtocol> spectrumIdentificationProtocol = experiment.getSpectrumIdentificationProtocols();
+
+// Retrieve the Protein Identification Protocol
+Protocol proteinDetectionProtocol = experiment.getProteinDetectionProtocol();
+
+//Retrieve all Protein Identifications
+List<Comparable> identifications = new ArrayList<Comparable>(mzIdentMlController.getProteinIds());
 ```
+
+### Reading a PRIDE XML file:
+
+This example shows how to read an PRIDE XML file and retrieve the information from them:
+
+```java
+//Open an inputFile mzIdentml File using memory 
+PrideXmlControllerImpl prideXMLController = new PrideXmlControllerImpl(inputFile);
+
+// You can use the example above and the same functions to retrieve the data using this controller for example:
+//Print size of the Sample List
+List<Sample> samples = prideXMLController.getSamples();
+System.out.println(samples.size());
+```
+
+
