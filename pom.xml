@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>uk.ac.ebi.pride.toolsuite</groupId>
+    <groupId>uk.ac.ebi.pride.utilities</groupId>
     <artifactId>ms-data-core-api</artifactId>
     <version>0.11.25-SNAPSHOT</version>
     <name>Open-source Data Model for computational proteomics</name>
@@ -28,7 +28,7 @@
 
     <developers>
         <developer>
-            <id>yperez</id>
+            <id>ypriverol</id>
             <name>Yasset Perez-Riverol</name>
             <url>http://computationalproteomic.blogspot.co.uk/</url>
             <organization>Proteomics Services Team, PANDA Group, EMBL-European Bioinformatics Institute</organization>
