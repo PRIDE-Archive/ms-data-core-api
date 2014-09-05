@@ -601,8 +601,10 @@ public class MzIdentMLControllerImpl extends CachedDataAccessController {
                 Spectrum spectrum = peptide.getSpectrum();
                 if (hasSpectrum()) {
                     spectrum = getSpectrumById(peptide.getSpectrumIdentification().getId());
-                    spectrum.setPeptide(peptide);
-                    peptide.setSpectrum(spectrum);
+                    if(spectrum != null){
+                        spectrum.setPeptide(peptide);
+                        peptide.setSpectrum(spectrum);
+                    }
                 }
                 if (spectrum != null) {
                     getCache().store(CacheEntry.SPECTRUM_LEVEL_PRECURSOR_CHARGE, spectrum.getId(), DataAccessUtilities.getPrecursorChargeParamGroup(spectrum));

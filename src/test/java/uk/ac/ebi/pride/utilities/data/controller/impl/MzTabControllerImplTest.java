@@ -11,6 +11,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.net.URL;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -62,6 +63,15 @@ public class MzTabControllerImplTest {
         assertTrue("There should be only one software", software.size() == 1);
         assertEquals("Software ID should be Xcalibur", software.get(0).getName(), "analysis software");
         assertEquals("Software version should be 1.2 SP1", software.get(0).getVersion(), "Matrix Science Mascot v2.3.01");
+    }
+
+    @Test
+    public void testProteinIdentification() throws Exception{
+        Collection<Comparable> ids = mzTabController.getProteinIds();
+        assertTrue("The number of Proteins is", ids.size() == 1249);
+
+        Protein protein = mzTabController.getProteinById(ids.iterator().next());
+        assertTrue("The first protein has ", protein.getPeptides().size() == 100);
     }
 
     @Test

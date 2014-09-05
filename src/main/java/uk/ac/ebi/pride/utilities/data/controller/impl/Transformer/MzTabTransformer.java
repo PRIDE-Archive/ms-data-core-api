@@ -2,6 +2,7 @@ package uk.ac.ebi.pride.utilities.data.controller.impl.Transformer;
 
 
 
+import uk.ac.ebi.pride.jmztab.model.Peptide;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessUtilities;
 import uk.ac.ebi.pride.utilities.data.core.*;
 import uk.ac.ebi.pride.utilities.data.core.CvParam;
@@ -221,7 +222,163 @@ public class MzTabTransformer {
         return null;
     }
 
-    public static Protein transformIdentification(uk.ac.ebi.pride.jmztab.model.Protein protein) {
+    /**
+     * Convert protein identification
+     *
+     * @param identification pride xml protein identification
+     * @return Identification  protein identification
+     */
+    public static Protein transformIdentification(uk.ac.ebi.pride.jmztab.model.Protein identification) {
+        //Todo: Check how in mztab gel information is annotated
+        return transformGelFreeIdent(identification);
+    }
+
+    /**
+     * Convert two dimensional identification
+     * <p/>
+     * ToDo: there are code duplication between transformTwoDimIdent and transformGelFreeIdent
+     *
+     * @param rawIdent pride xml two dimensional identification
+     * @return TwoDimIdentification    two dimentional identification
+     */
+    public static Protein transformTwoDimIdent(uk.ac.ebi.pride.jaxb.model.TwoDimensionalIdentification rawIdent) {
+
+        /**Protein ident = null;
+
+        if (rawIdent != null) {
+            // peptides
+
+            SearchDataBase searchDataBase = new SearchDataBase(rawIdent.getDatabase(), rawIdent.getDatabaseVersion());
+            DBSequence dbSequence = new DBSequence(rawIdent.getAccession(), searchDataBase, rawIdent.getAccessionVersion(), rawIdent.getSpliceIsoform());
+            dbSequence.setId(rawIdent.getAccession());
+
+            List<uk.ac.ebi.pride.jaxb.model.PeptideItem> rawPeptides = rawIdent.getPeptideItem();
+            List<Peptide> peptides = null;
+            int peptideIndex = 0;
+            if (rawPeptides != null) {
+                peptides = new ArrayList<Peptide>();
+                for (uk.ac.ebi.pride.jaxb.model.PeptideItem rawPeptide : rawPeptides) {
+                   // peptides.add(transformPeptide(rawPeptide, dbSequence, peptideIndex));
+                    peptideIndex++;
+                }
+            }
+
+            // params
+            ParamGroup params = transformParamGroup(rawIdent.getAdditional());
+
+            // gel
+            uk.ac.ebi.pride.jaxb.model.SimpleGel rawGel = rawIdent.getGel();
+            Gel gel = null;
+
+            if (rawGel != null) {
+                gel = transformGel(rawGel, rawIdent.getGelLocation(), rawIdent.getMolecularWeight(), rawIdent.getPI());
+            }
+
+            Double seqConverage = rawIdent.getSequenceCoverage();
+            double seqConverageVal = seqConverage == null ? -1 : seqConverage;
+
+            Double threshold = rawIdent.getThreshold();
+            double thresholdVal = threshold == null ? -1 : threshold;
+
+
+            Score score = DataAccessUtilities.getScore(params);
+
+            //Todo: We need to define the best way to retrieve the SearchEngine value for PRIDE XML
+            if(score == null)
+                score = new Score();
+            Number scoreValue = (rawIdent.getScore() != null)? rawIdent.getScore(): null;
+            score.addScore(SearchEngineType.getByName(rawIdent.getSearchEngine()),CvTermReference.MS_SEARCH_ENGINE_SPECIFIC_SCORE,scoreValue);
+
+            ident = new Protein(params, rawIdent.getId(), null, dbSequence, false, peptides, score, thresholdVal, seqConverageVal, gel);
+        } **/
+
+       // return ident;
+        return null;
+    }
+
+    /**
+     * Convert gel free protein identification
+     *
+     * @param rawIdent pride xml protein identification
+     * @return GelFreeIdentification   gel free identification
+     */
+    public static Protein transformGelFreeIdent(uk.ac.ebi.pride.jmztab.model.Protein rawIdent) {
+        Protein ident = null;
+
+        /**if (rawIdent != null) {
+            // peptides
+            List<Peptide> rawPeptides = rawIdent.getPeptideItem();
+            CvParam cvParam = CvUtilities.getCVTermFromCvReference(CvTermReference.MS_DATABASE, rawIdent.getDatabase());
+            ParamGroup paramGroup = new ParamGroup(cvParam, null);
+            SearchDataBase searchDataBase = new SearchDataBase(rawIdent.getDatabase(), rawIdent.getDatabaseVersion(), paramGroup);
+            DBSequence dbSequence = new DBSequence(rawIdent.getAccession(), searchDataBase, rawIdent.getAccessionVersion(), rawIdent.getSpliceIsoform());
+            dbSequence.setId(rawIdent.getAccession());
+
+            List<Peptide> peptides = null;
+            int peptideIndex = 0;
+            if (rawPeptides != null) {
+                peptides = new ArrayList<Peptide>();
+                for (uk.ac.ebi.pride.jaxb.model.PeptideItem rawPeptide : rawPeptides) {
+                    peptides.add(transformPeptide(rawPeptide, dbSequence, peptideIndex));
+                    peptideIndex++;
+                }
+            }
+
+            // params
+            ParamGroup params = transformParamGroup(rawIdent.getAdditional());
+
+            Double seqConverage = rawIdent.getSequenceCoverage();
+            double seqConverageVal = seqConverage == null ? -1 : seqConverage;
+            Double threshold = rawIdent.getThreshold();
+            double thresholdVal = threshold == null ? -1 : threshold;
+            Score score = DataAccessUtilities.getScore(params);
+
+            //Todo: We need to define the best way to retrieve the SearchEngine value for PRIDE XML
+            if(score == null)
+                score = new Score();
+            Number scoreValue = (rawIdent.getScore() != null)? rawIdent.getScore(): null;
+            score.addScore(SearchEngineType.getByName(rawIdent.getSearchEngine()),CvTermReference.MS_SEARCH_ENGINE_SPECIFIC_SCORE,scoreValue);
+
+            return new Protein(params, rawIdent.getId(), null, dbSequence, false, peptides, score, thresholdVal, seqConverageVal, null);
+
+        }**/
+
+        return ident;
+    }
+
+    /**
+     * Transform gel from pride xml to core data model.
+     *
+     * @param rawGel      gel in pride xml format.
+     * @param gelLocation gel location in pride xml format.
+     * @param mw          molecular weight in pride xml.
+     * @param pI          pI in pride xml.
+     * @return Gel  gel in core data model.
+     */
+    private static Gel transformGel(uk.ac.ebi.pride.jaxb.model.SimpleGel rawGel,
+                                    uk.ac.ebi.pride.jaxb.model.GelLocation gelLocation,
+                                    Double mw, Double pI) {
+       /**
+        String gelLink = null;
+        ParamGroup params = null;
+
+        if (rawGel != null) {
+            gelLink = rawGel.getGelLink();
+            params = transformParamGroup(rawGel.getAdditional());
+        }
+        double xCoordinate = -1;
+        double yCoordinate = -1;
+
+        if (gelLocation != null) {
+            xCoordinate = gelLocation.getXCoordinate();
+            yCoordinate = gelLocation.getYCoordinate();
+        }
+
+        double molWeight = mw == null ? -1 : mw;
+        double pi = pI == null ? -1 : pI;
+
+        return new Gel(params, gelLink, xCoordinate, yCoordinate, molWeight, pi);
+        **/
         return null;
     }
 
