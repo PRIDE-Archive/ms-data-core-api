@@ -2,23 +2,28 @@ package uk.ac.ebi.pride.utilities.data.controller.impl.Transformer;
 
 
 
-import uk.ac.ebi.pride.jmztab.model.Peptide;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessUtilities;
 import uk.ac.ebi.pride.utilities.data.core.*;
 import uk.ac.ebi.pride.utilities.data.core.CvParam;
+import uk.ac.ebi.pride.utilities.data.core.Modification;
+import uk.ac.ebi.pride.utilities.data.core.Peptide;
 import uk.ac.ebi.pride.utilities.data.core.Protein;
 import uk.ac.ebi.pride.utilities.data.core.Reference;
 import uk.ac.ebi.pride.utilities.data.core.Sample;
 import uk.ac.ebi.pride.utilities.data.core.Software;
 import uk.ac.ebi.pride.utilities.data.core.SourceFile;
 import uk.ac.ebi.pride.utilities.data.core.UserParam;
+import uk.ac.ebi.pride.utilities.data.utils.CvUtilities;
+import uk.ac.ebi.pride.utilities.data.utils.MzIdentMLUtils;
 import uk.ac.ebi.pride.utilities.data.utils.MzTabUtils;
 import uk.ac.ebi.pride.jmztab.model.*;
 import uk.ac.ebi.pride.jmztab.model.Contact;
 import uk.ac.ebi.pride.jmztab.model.Instrument;
 import uk.ac.ebi.pride.jmztab.model.Param;
 import uk.ac.ebi.pride.utilities.term.CvTermReference;
+import uk.ac.ebi.pride.utilities.util.NumberUtilities;
 
+import java.math.BigInteger;
 import java.util.*;
 
 /**
@@ -29,7 +34,6 @@ import java.util.*;
 public class MzTabTransformer {
 
     private final static String PROTOCOL_ID = "protocol1";
-
 
     public static List<SourceFile> transformSourceFiles(Map<Integer, uk.ac.ebi.pride.jmztab.model.MsRun> msRunMap) {
         List<SourceFile> sourceFiles = new ArrayList<SourceFile>();
@@ -225,161 +229,291 @@ public class MzTabTransformer {
     /**
      * Convert protein identification
      *
-     * @param identification pride xml protein identification
-     * @return Identification  protein identification
+     * @param  identification mzTab protein identification
+     * @return Identification  ms-data-core-api protein identification
      */
-    public static Protein transformIdentification(uk.ac.ebi.pride.jmztab.model.Protein identification) {
-        //Todo: Check how in mztab gel information is annotated
-        return transformGelFreeIdent(identification);
-    }
+    public static Protein transformIdentification(uk.ac.ebi.pride.jmztab.model.Protein identification,
+                                                  Integer rawIndex,
+                                                  Map<Integer, uk.ac.ebi.pride.jmztab.model.PSM> psms,
+                                                  uk.ac.ebi.pride.jmztab.model.Metadata metadata) {
+       //Todo: In the future it would be great to retrieve the information of the GEl for those files with Gel
+        return transformGelFreeIdent(identification,rawIndex, psms, metadata);
 
-    /**
-     * Convert two dimensional identification
-     * <p/>
-     * ToDo: there are code duplication between transformTwoDimIdent and transformGelFreeIdent
-     *
-     * @param rawIdent pride xml two dimensional identification
-     * @return TwoDimIdentification    two dimentional identification
-     */
-    public static Protein transformTwoDimIdent(uk.ac.ebi.pride.jaxb.model.TwoDimensionalIdentification rawIdent) {
-
-        /**Protein ident = null;
-
-        if (rawIdent != null) {
-            // peptides
-
-            SearchDataBase searchDataBase = new SearchDataBase(rawIdent.getDatabase(), rawIdent.getDatabaseVersion());
-            DBSequence dbSequence = new DBSequence(rawIdent.getAccession(), searchDataBase, rawIdent.getAccessionVersion(), rawIdent.getSpliceIsoform());
-            dbSequence.setId(rawIdent.getAccession());
-
-            List<uk.ac.ebi.pride.jaxb.model.PeptideItem> rawPeptides = rawIdent.getPeptideItem();
-            List<Peptide> peptides = null;
-            int peptideIndex = 0;
-            if (rawPeptides != null) {
-                peptides = new ArrayList<Peptide>();
-                for (uk.ac.ebi.pride.jaxb.model.PeptideItem rawPeptide : rawPeptides) {
-                   // peptides.add(transformPeptide(rawPeptide, dbSequence, peptideIndex));
-                    peptideIndex++;
-                }
-            }
-
-            // params
-            ParamGroup params = transformParamGroup(rawIdent.getAdditional());
-
-            // gel
-            uk.ac.ebi.pride.jaxb.model.SimpleGel rawGel = rawIdent.getGel();
-            Gel gel = null;
-
-            if (rawGel != null) {
-                gel = transformGel(rawGel, rawIdent.getGelLocation(), rawIdent.getMolecularWeight(), rawIdent.getPI());
-            }
-
-            Double seqConverage = rawIdent.getSequenceCoverage();
-            double seqConverageVal = seqConverage == null ? -1 : seqConverage;
-
-            Double threshold = rawIdent.getThreshold();
-            double thresholdVal = threshold == null ? -1 : threshold;
-
-
-            Score score = DataAccessUtilities.getScore(params);
-
-            //Todo: We need to define the best way to retrieve the SearchEngine value for PRIDE XML
-            if(score == null)
-                score = new Score();
-            Number scoreValue = (rawIdent.getScore() != null)? rawIdent.getScore(): null;
-            score.addScore(SearchEngineType.getByName(rawIdent.getSearchEngine()),CvTermReference.MS_SEARCH_ENGINE_SPECIFIC_SCORE,scoreValue);
-
-            ident = new Protein(params, rawIdent.getId(), null, dbSequence, false, peptides, score, thresholdVal, seqConverageVal, gel);
-        } **/
-
-       // return ident;
-        return null;
     }
 
     /**
      * Convert gel free protein identification
      *
-     * @param rawIdent pride xml protein identification
+     * @param rawIdent mzTab protein identification
      * @return GelFreeIdentification   gel free identification
      */
-    public static Protein transformGelFreeIdent(uk.ac.ebi.pride.jmztab.model.Protein rawIdent) {
+    public static Protein transformGelFreeIdent(uk.ac.ebi.pride.jmztab.model.Protein rawIdent,
+                                                Integer rawIndex,
+                                                Map<Integer, uk.ac.ebi.pride.jmztab.model.PSM> rawPsms,
+                                                uk.ac.ebi.pride.jmztab.model.Metadata metadata) {
+
         Protein ident = null;
 
-        /**if (rawIdent != null) {
+        if (rawIdent != null) {
             // peptides
-            List<Peptide> rawPeptides = rawIdent.getPeptideItem();
             CvParam cvParam = CvUtilities.getCVTermFromCvReference(CvTermReference.MS_DATABASE, rawIdent.getDatabase());
             ParamGroup paramGroup = new ParamGroup(cvParam, null);
             SearchDataBase searchDataBase = new SearchDataBase(rawIdent.getDatabase(), rawIdent.getDatabaseVersion(), paramGroup);
-            DBSequence dbSequence = new DBSequence(rawIdent.getAccession(), searchDataBase, rawIdent.getAccessionVersion(), rawIdent.getSpliceIsoform());
+            DBSequence dbSequence = new DBSequence(rawIdent.getAccession(), searchDataBase, null, null);
             dbSequence.setId(rawIdent.getAccession());
 
             List<Peptide> peptides = null;
-            int peptideIndex = 0;
-            if (rawPeptides != null) {
+            if (rawPsms != null) {
                 peptides = new ArrayList<Peptide>();
-                for (uk.ac.ebi.pride.jaxb.model.PeptideItem rawPeptide : rawPeptides) {
-                    peptides.add(transformPeptide(rawPeptide, dbSequence, peptideIndex));
-                    peptideIndex++;
+                for (Map.Entry rawPeptide : rawPsms.entrySet()) {
+                    Integer rawPsmIndex = (Integer) rawPeptide.getKey();
+                    uk.ac.ebi.pride.jmztab.model.PSM rawPSM = (uk.ac.ebi.pride.jmztab.model.PSM) rawPeptide.getValue();
+                    peptides.add(transformPeptide(rawPSM, dbSequence, rawPsmIndex.toString(), metadata));
                 }
             }
+            List<CvParam> proteinScores = transformSearchEngineProteinScores(rawIdent, metadata);
+            // add score parameters
+            paramGroup.addCvParams(proteinScores);
 
-            // params
-            ParamGroup params = transformParamGroup(rawIdent.getAdditional());
-
-            Double seqConverage = rawIdent.getSequenceCoverage();
+            Double seqConverage = rawIdent.getProteinCoverage();
             double seqConverageVal = seqConverage == null ? -1 : seqConverage;
-            Double threshold = rawIdent.getThreshold();
+            Double threshold = null;
             double thresholdVal = threshold == null ? -1 : threshold;
-            Score score = DataAccessUtilities.getScore(params);
+            Score score = DataAccessUtilities.getScore(paramGroup);
 
-            //Todo: We need to define the best way to retrieve the SearchEngine value for PRIDE XML
-            if(score == null)
-                score = new Score();
-            Number scoreValue = (rawIdent.getScore() != null)? rawIdent.getScore(): null;
-            score.addScore(SearchEngineType.getByName(rawIdent.getSearchEngine()),CvTermReference.MS_SEARCH_ENGINE_SPECIFIC_SCORE,scoreValue);
+            if(rawIdent.getOptionColumnValue(MzTabUtils.OPTIONAL_SEQUENCE_COLUMN) != null && !rawIdent.getOptionColumnValue(MzTabUtils.OPTIONAL_SEQUENCE_COLUMN).isEmpty())
+                dbSequence.setSequence(rawIdent.getOptionColumnValue(MzTabUtils.OPTIONAL_SEQUENCE_COLUMN));
 
-            return new Protein(params, rawIdent.getId(), null, dbSequence, false, peptides, score, thresholdVal, seqConverageVal, null);
+            if(rawIdent.getOptionColumnValue(MzTabUtils.OPTIONAL_DECOY_COLUMN) != null && !rawIdent.getOptionColumnValue(MzTabUtils.OPTIONAL_DECOY_COLUMN).isEmpty())
+                paramGroup.addCvParam(CvUtilities.getCVTermFromCvReference(CvTermReference.PRIDE_DECOY_HIT, rawIdent.getOptionColumnValue(MzTabUtils.OPTIONAL_DECOY_COLUMN)));
 
-        }**/
+            return new Protein(paramGroup, rawIndex.toString(), null, dbSequence, false, peptides, score, thresholdVal, seqConverageVal, null);
+
+        }
 
         return ident;
+
     }
 
     /**
-     * Transform gel from pride xml to core data model.
+     * Transform peptide from pride xml to core data model.
      *
-     * @param rawGel      gel in pride xml format.
-     * @param gelLocation gel location in pride xml format.
-     * @param mw          molecular weight in pride xml.
-     * @param pI          pI in pride xml.
-     * @return Gel  gel in core data model.
+     * @param rawPeptide peptide in pride xml format.
+     * @return Peptide  peptide in core data model.
      */
-    private static Gel transformGel(uk.ac.ebi.pride.jaxb.model.SimpleGel rawGel,
-                                    uk.ac.ebi.pride.jaxb.model.GelLocation gelLocation,
-                                    Double mw, Double pI) {
-       /**
-        String gelLink = null;
-        ParamGroup params = null;
+    public static Peptide transformPeptide(uk.ac.ebi.pride.jmztab.model.PSM rawPeptide,
+                                           DBSequence dbSequence,
+                                           Comparable index,
+                                           Metadata metadata) {
 
-        if (rawGel != null) {
-            gelLink = rawGel.getGelLink();
-            params = transformParamGroup(rawGel.getAdditional());
+        // spectrum is reference from external
+        Spectrum spectrum = null;
+        // modifications
+
+        List<uk.ac.ebi.pride.jmztab.model.Modification> rawMods = rawPeptide.getModifications();
+        List<Modification> modifications = transformModification(rawMods, metadata);
+
+        // fragmentIons information is not supported in mzTab
+        List<FragmentIon> fragmentIons = null;
+
+        // retrieve the scores
+        ParamGroup params = new ParamGroup();
+        params.addCvParams(transformPSMSearchEngineScoreCvTerm(rawPeptide, metadata));
+
+        // start and stop position
+        int startPos = -1;
+        int stopPos = -1;
+        Integer start = rawPeptide.getStart();
+        if (start != null) {
+            startPos = start.intValue();
         }
-        double xCoordinate = -1;
-        double yCoordinate = -1;
 
-        if (gelLocation != null) {
-            xCoordinate = gelLocation.getXCoordinate();
-            yCoordinate = gelLocation.getYCoordinate();
+        Integer stop = rawPeptide.getEnd();
+        if (stop != null) {
+            stopPos = stop.intValue();
         }
 
-        double molWeight = mw == null ? -1 : mw;
-        double pi = pI == null ? -1 : pI;
+        PeptideSequence peptideSequence = new PeptideSequence(null, null, rawPeptide.getSequence(), modifications);
+        List<PeptideEvidence> peptideEvidences = new ArrayList<PeptideEvidence>();
+        PeptideEvidence peptideEvidence = new PeptideEvidence(null, null, startPos, stopPos, false, peptideSequence, dbSequence);
+        peptideEvidences.add(peptideEvidence);
 
-        return new Gel(params, gelLink, xCoordinate, yCoordinate, molWeight, pi);
-        **/
-        return null;
+        //Retrieve Experimental Mass and Charge.
+        // todo: need to review this bit of code to set charge
+        Integer charge = rawPeptide.getCharge();
+        double mz = DataAccessUtilities.getPrecursorMz(params);
+        if (charge == null && spectrum != null) {
+            charge = DataAccessUtilities.getPrecursorChargeParamGroup(spectrum);
+            if (charge == null) {
+                charge = DataAccessUtilities.getPrecursorCharge(spectrum.getPrecursors());
+            }
+        }
+        // Retrieve Score
+        Score score = DataAccessUtilities.getScore(params);
+
+        if(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_DECOY_COLUMN) != null && !rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_DECOY_COLUMN).isEmpty())
+            params.addCvParam(CvUtilities.getCVTermFromCvReference(CvTermReference.MS_DECOY_PEPTIDE, rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_DECOY_COLUMN)));
+
+        int rank = -1;
+        if(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_RANK_COLUMN) != null && !rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_RANK_COLUMN).isEmpty() && NumberUtilities.isInteger(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_RANK_COLUMN)))
+          rank = Integer.parseInt(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_RANK_COLUMN));
+
+        SpectrumIdentification spectrumIdentification = new SpectrumIdentification(params, index, null, (charge == null ? -1 : charge), mz, rawPeptide.getCalcMassToCharge(), -1, peptideSequence, rank, false, null, null, peptideEvidences, fragmentIons, score, spectrum, null);
+        return new Peptide(peptideEvidence, spectrumIdentification);
+
+    }
+
+    private static List<CvParam> transformPSMSearchEngineScoreCvTerm(PSM rawPeptide, Metadata metadata) {
+        List<CvParam> scoreParams = new ArrayList<CvParam>();
+        for (PSMSearchEngineScore psmSearchEngineScore : metadata.getPsmSearchEngineScoreMap().values()) {
+            CvParam cvParam = MzTabUtils.convertCVParamToCvParam(psmSearchEngineScore.getParam());
+            Double searchEngineScore = rawPeptide.getSearchEngineScore(psmSearchEngineScore.getId());
+            if (searchEngineScore != null) {
+                cvParam.setValue(searchEngineScore.toString());
+                scoreParams.add(cvParam);
+            }
+        }
+        return scoreParams;
+    }
+
+    /**
+     * Transform modification from pride xml to core data model
+     *
+     * @param rawMods a java.util.List<uk.ac.ebi.pride.jmztab.model.Modification> modification in mzTab format.
+     * @return Modification modification in core data model.
+     */
+    private static List<Modification> transformModification(List<uk.ac.ebi.pride.jmztab.model.Modification> rawMods, Metadata metadata) {
+
+        List<Modification> modifications = new ArrayList<Modification>();
+
+        //Look in Fixed Modifications
+        for(Map.Entry modFixed: metadata.getFixedModMap().entrySet()){
+           FixedMod mod = (FixedMod) modFixed.getValue();
+           for(uk.ac.ebi.pride.jmztab.model.Modification rawMod: rawMods){
+
+               String rawModAccession = getAccesion(rawMod);
+               if(rawModAccession.equalsIgnoreCase(mod.getParam().getAccession())){
+                   List<Double> monoDelta = null;
+                   if(mod.getParam().getValue() != null && NumberUtilities.isNumber(mod.getParam().getValue())){
+                       monoDelta = new ArrayList<Double>();
+                       monoDelta.add(new Double(mod.getParam().getValue()));
+                   }
+                   List<Double> avgDelta = null;
+                   //Add the name of the modification
+                   ParamGroup params = new ParamGroup();
+                   if(mod.getParam() != null)
+                       params.addCvParam(MzTabUtils.convertCVParamToCvParam(mod.getParam()));
+
+                   String name = getModificationName(params, rawMod.getAccession());
+
+                   //If the modification is annotated in more than one aminoacid (ambiguity modification we will replicate the modification in more than one aminoacid
+                   //add all the scores in the CVTerm)
+
+                   Map<Integer, CVParam> rawLocation = rawMod.getPositionMap();
+
+                   if(rawLocation.size() == 1){
+                       int location = rawLocation.keySet().iterator().next();
+                       if(rawLocation.values().iterator().next() != null)
+                           params.addCvParam(MzTabUtils.convertCVParamToCvParam(rawLocation.values().iterator().next()));
+                       Modification modification = new Modification(params, rawMod.getAccession(), name,location,null,avgDelta,monoDelta,null,null);
+                       modifications.add(modification);
+                   }else if(rawLocation.size() > 1){
+                       for(Map.Entry entry: rawLocation.entrySet()){
+                           int location = (Integer) entry.getKey();
+                           Param param = (Param) entry.getValue();
+                           ParamGroup paramGroup = new ParamGroup();
+                           paramGroup.addCvParams(params.getCvParams());
+                           if(param != null)
+                               paramGroup.addCvParam(MzTabUtils.convertCVParamToCvParam(param));
+                           Modification modification = new Modification(paramGroup, rawMod.getAccession(), name, location,null,avgDelta,monoDelta,null,null);
+                           modifications.add(modification);
+                       }
+                   }
+               }
+           }
+        }
+        // Look in variable modifications
+        for(Map.Entry modVariable: metadata.getVariableModMap().entrySet()){
+            VariableMod mod = (VariableMod) modVariable.getValue();
+            for(uk.ac.ebi.pride.jmztab.model.Modification rawMod: rawMods){
+                String rawModAccession = getAccesion(rawMod);
+                if(rawModAccession.equalsIgnoreCase(mod.getParam().getAccession())){
+                    List<Double> monoDelta = null;
+                    if(mod.getParam().getValue() != null && NumberUtilities.isNumber(mod.getParam().getValue())){
+                        monoDelta = new ArrayList<Double>();
+                        monoDelta.add(new Double(mod.getParam().getValue()));
+                    }
+                    List<Double> avgDelta = null;
+                    //Add the name of the modification
+                    ParamGroup params = new ParamGroup();
+                    if(mod.getParam() != null)
+                        params.addCvParam(MzTabUtils.convertCVParamToCvParam(mod.getParam()));
+
+                    String name = getModificationName(params, rawMod.getAccession());
+
+                    //If the modification is annotated in more than one aminoacid (ambiguity modification we will replicate the modification in more than one aminoacid
+                    //add all the scores in the CVTerm)
+
+                    Map<Integer, CVParam> rawLocation = rawMod.getPositionMap();
+
+                    if(rawLocation.size() == 1){
+                        int location = rawLocation.keySet().iterator().next();
+                        if(rawLocation.values().iterator().next() != null)
+                            params.addCvParam(MzTabUtils.convertCVParamToCvParam(rawLocation.values().iterator().next()));
+                        Modification modification = new Modification(params, rawMod.getAccession(), name,location,null,avgDelta,monoDelta,null,null);
+                        modifications.add(modification);
+                    }else if(rawLocation.size() > 1){
+                        for(Map.Entry entry: rawLocation.entrySet()){
+                            int location = (Integer) entry.getKey();
+                            Param param = (Param) entry.getValue();
+                            ParamGroup paramGroup = new ParamGroup();
+                            paramGroup.addCvParams(params.getCvParams());
+                            if(param != null)
+                                paramGroup.addCvParam(MzTabUtils.convertCVParamToCvParam(param));
+                            Modification modification = new Modification(paramGroup, rawMod.getAccession(), name, location,null,avgDelta,monoDelta,null,null);
+                            modifications.add(modification);
+                        }
+                    }
+                }
+            }
+        }
+        return modifications;
+    }
+
+    private static String getAccesion(uk.ac.ebi.pride.jmztab.model.Modification rawMod) {
+        if (!rawMod.getType().equals(uk.ac.ebi.pride.utilities.term.CvTermReference.MS_NEUTRAL_LOSS))
+            return  rawMod.getType().name() + ":" + rawMod.getAccession();
+        return rawMod.getAccession();
+    }
+
+    private static String getModificationName(ParamGroup paramGroup, String accession) {
+        String name = null;
+        if (paramGroup != null) {
+            List<CvParam> cvParams = paramGroup.getCvParams();
+            if (cvParams != null) {
+                for (CvParam cvParam : cvParams) {
+                    if (cvParam.getAccession().equals(accession)) {
+                        name = cvParam.getName();
+                    }
+                }
+            }
+        }
+        return name;
+    }
+
+    private static List<CvParam> transformSearchEngineProteinScores(uk.ac.ebi.pride.jmztab.model.Protein rawIdent, Metadata metadata) {
+        List<CvParam> scoreParams = new ArrayList<CvParam>();
+        for (ProteinSearchEngineScore proteinSearchEngineScore : metadata.getProteinSearchEngineScoreMap().values()) {
+            CvParam cvParam = MzTabUtils.convertCVParamToCvParam(proteinSearchEngineScore.getParam());
+            for (MsRun msRun : metadata.getMsRunMap().values()) {
+                Double searchEngineScore = rawIdent.getSearchEngineScore(proteinSearchEngineScore.getId(), msRun);
+                if (searchEngineScore != null) {
+                    cvParam.setValue(searchEngineScore.toString());
+                    scoreParams.add(cvParam);
+                }
+            }
+        }
+        return scoreParams;
     }
 
     public static ExperimentProtocol transformProtocol(SortedMap<Integer, SplitList<Param>> sampleProcession) {
@@ -396,7 +530,6 @@ public class MzTabTransformer {
             protocol = new ExperimentProtocol(null,MzTabTransformer.PROTOCOL_ID , null, protocolSteps);
         }
         return protocol;
-
     }
 
     public static Map<Integer, SpectraData> transformMsRunMap(Map<Integer, MsRun> mRunMap) {
@@ -416,7 +549,7 @@ public class MzTabTransformer {
         if(msRun.getIdFormat() != null)
             idFormat = MzTabUtils.convertCVParamToCvParam(msRun.getIdFormat());
 
-        spectraData = new SpectraData(msRun.getId().toString(),msRun.getReference(),msRun.getLocation().getFile(),paramFormat,null, idFormat);
+        spectraData = new SpectraData(msRun.getId().toString(),msRun.getReference(),msRun.getLocation().getPath(),paramFormat,null, idFormat);
         return spectraData;
 
     }

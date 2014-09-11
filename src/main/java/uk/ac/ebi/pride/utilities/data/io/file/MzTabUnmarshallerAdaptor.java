@@ -3,6 +3,8 @@ package uk.ac.ebi.pride.utilities.data.io.file;
 import uk.ac.ebi.pride.utilities.data.utils.MzTabUtils;
 import uk.ac.ebi.pride.jmztab.model.*;
 import uk.ac.ebi.pride.jmztab.utils.MZTabFileParser;
+import uk.ac.ebi.pride.utilities.util.NumberUtilities;
+import uk.ac.ebi.pride.utilities.util.Tuple;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,12 +19,14 @@ import java.util.*;
  */
 public class MzTabUnmarshallerAdaptor extends MZTabFileParser{
 
+    //Todo: mzTab do not have a way to retrieve for each Protein the PSM of peptides
 
-    private List databases;
-    private Map<Integer, Param> protocol;
+    Map<Comparable, List<Comparable>> proteinPSMMap;
 
     public MzTabUnmarshallerAdaptor(File tabFile, OutputStream out) throws IOException {
         super(tabFile, out);
+
+        proteinPSMMap = new HashMap<Comparable, List<Comparable>>();
     }
 
     public Map<Integer,MsRun> getSourceFiles(){
@@ -77,41 +81,13 @@ public class MzTabUnmarshallerAdaptor extends MZTabFileParser{
         return 0;
     }
 
-    public Protein getIdentById(String s) {
-        for(Protein protein: getMZTabFile().getProteins())
-          if(protein.getAccession().equalsIgnoreCase(s))
-            return protein;
-        return null;
-    }
-
-    public void getPeptide(String s, int i) {
-
-    }
-
     public boolean hasProteinSequence() {
         return getMZTabFile().getProteinColumnFactory().isOptionalColumn(MzTabUtils.OPTIONAL_SEQUENCE_COLUMN);
-    }
-
-    public Collection<Comparable> getSpectrumIds() {
-        List<Comparable> spectrumIds = new ArrayList<Comparable>();
-        Iterator<PSM> psmIterator = getMZTabFile().getPSMs().iterator();
-        return spectrumIds;
-    }
-
-    public Collection<Comparable> PSMIds() {
-        List<Comparable> psmIds = new ArrayList<Comparable>();
-        Iterator<PSM> psmIterator = getMZTabFile().getPSMs().iterator();
-        while(psmIterator.hasNext()){
-            PSM psm = psmIterator.next();
-            psmIds.add(psm.getPSM_ID());
-        }
-        return psmIds;
     }
 
     public Map<Integer, MsRun> getMRunMap() {
         return getMZTabFile().getMetadata().getMsRunMap();
     }
-
 
     public Map<Integer, List<String>> getPSMtoMsRunMap() {
         Map<Integer, List<String>> psmIds = new HashMap<Integer, List<String>>();
@@ -133,15 +109,13 @@ public class MzTabUnmarshallerAdaptor extends MZTabFileParser{
         return psmIds;
     }
 
-    public Collection<PSM> getPSMs() {
-        return getMZTabFile().getPSMs();
+    public Map<Integer, PSM> getPSMs() {
+        return getMZTabFile().getPSMsWithLineNumber();
     }
-
+    //Todo: The concept of ambiguity members in mzTab is more simple that the concept of mzIdentML for that reason the
+    //Todo: present version of ms-data-core-api do not handle this concept as ProteinAmbiguity
+    //
     public boolean hasProteinGroup() {
-        Collection<Protein> proteins = getMZTabFile().getProteins();
-        for(Protein protein: proteins)
-            if(protein.getAmbiguityMembers() != null)
-                return true;
         return false;
     }
 
@@ -153,10 +127,31 @@ public class MzTabUnmarshallerAdaptor extends MZTabFileParser{
         return accessions;
     }
 
-    public Collection<String> getAllProteinAccessions() {
-        Set<String> proteinIds = new HashSet<String>();
-        for(PSM psm: getMZTabFile().getPSMs())
-            proteinIds.add(psm.getAccession());
+    /**
+     * Retrieve the Map of proteins with the corresponding list of PSMs for each protein.
+     * //Todo: We need to figure it out How the peptides will be included in the near future. Also some protein Ids included in the file
+     * // Todo: will be missing because the reference for them do not exist.
+     * @return
+     */
+    public Map<String, List<String>> getAllProteinAccessions() {
+        Map<String, List<String>> proteinIds = new HashMap<String, List<String>>();
+        Map<Integer, Protein> proteinMap = getMZTabFile().getProteinsWithLineNumber();
+        for(Map.Entry proteinEntry: proteinMap.entrySet()){
+            String proteinId = proteinEntry.getKey().toString();
+            Protein protein   = (Protein) proteinEntry.getValue();
+
+            for(Map.Entry psmEntry: getMZTabFile().getPSMsWithLineNumber().entrySet()){
+                Integer psmId = (Integer) psmEntry.getKey();
+                PSM psm       = (PSM) psmEntry.getValue();
+                List<String> psmIds = new ArrayList<String>();
+                if(psm.getAccession().equalsIgnoreCase(protein.getAccession())){
+                    if(proteinIds.containsKey(proteinId))
+                        psmIds = proteinIds.get(proteinId);
+                    psmIds.add(psmId.toString());
+                    proteinIds.put(proteinId,psmIds);
+                }
+            }
+        }
         return proteinIds;
     }
 
@@ -179,5 +174,33 @@ public class MzTabUnmarshallerAdaptor extends MZTabFileParser{
 
     public SortedMap<Integer, SplitList<Param>> getProtocol() {
         return getMZTabFile().getMetadata().getSampleProcessingMap();
+    }
+
+    /**
+     * It would look if the protein is in the file and retrieve the data, if the accession is not in the file with information
+     * it would create an empty entry Protein for it.
+     * @param proteinId
+     * @return
+     */
+    public Tuple<Integer, Protein> getProteinById(Comparable proteinId) {
+        if(proteinId != null && NumberUtilities.isInteger(proteinId.toString()))
+            return new Tuple<Integer, Protein>(Integer.parseInt(proteinId.toString()), getMZTabFile().getProteinsWithLineNumber().get(Integer.parseInt(proteinId.toString())));
+        return null;
+    }
+
+    public Map<Integer, PSM> getSpectrumIdentificationsByIds(List<Comparable> spectrumIdentIds) {
+        Map<Integer, PSM> psmList = new HashMap<Integer, PSM>();
+        for(Comparable id: spectrumIdentIds){
+           if(id != null && NumberUtilities.isInteger(id.toString())){
+               PSM psm = getMZTabFile().getPSMsWithLineNumber().get(Integer.parseInt(id.toString()));
+               if(psm != null)
+                   psmList.put(Integer.parseInt(id.toString()),psm);
+           }
+        }
+        return psmList;
+    }
+
+    public Metadata getMetadata(){
+        return getMZTabFile().getMetadata();
     }
 }

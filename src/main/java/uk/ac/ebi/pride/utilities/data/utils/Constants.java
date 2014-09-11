@@ -1,6 +1,15 @@
 package uk.ac.ebi.pride.utilities.data.utils;
 
+import uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl.*;
+import uk.ac.ebi.pride.utilities.data.core.SpectraData;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
+ * Constants contain a set of functions for SpectraData validation and also the constants used by mzTab and mzIdentML
+ * to reference the Ids and type file formats.
  * @author rwang
  * @version $Id$
  */
@@ -24,6 +33,7 @@ public class Constants {
     public static final String APL_EXT   = ".apl";
     public static final String XML_EXT   = ".xml";
     public static final String MZML_EXT  = ".mzML";
+    public static final String MZTAB_EXT     = ".mztab";
 
     /**
      * Supported id format used in the spectrum file.
@@ -53,6 +63,11 @@ public class Constants {
         NONE
     }
 
+    /**
+     * Retrieve the Spectrum File format for an specific fileformat.
+     * @param fileFormat file format such mgf ms2, mzid or other file formats
+     * @return the SpectrumFile format such as MZXML or PKL
+     */
     public static SpecFileFormat getSpecFileFormat(String fileFormat) {
         if (fileFormat != null && fileFormat.length() > 0) {
             if (SpecFileFormat.MZXML.toString().equalsIgnoreCase(fileFormat))
@@ -71,6 +86,11 @@ public class Constants {
         return SpecFileFormat.NONE;
     }
 
+    /**
+     * Return the SpectrumFile format for an specific path such as: /myppath/spectrum_file.mgf
+     * @param path the specific path
+     * @return the SpectrumFile format such as MZXML or PKL
+     */
     public static SpecFileFormat getSpecFileFormatFromLocation(String path){
         if (path != null && path.length() > 0) {
 
@@ -88,8 +108,132 @@ public class Constants {
                 return SpecFileFormat.PKL;
         }
         return SpecFileFormat.NONE;
-
     }
+
+    /**
+     * This function returns the Spectrum File format for an specific SpectraData ob object
+     * @param spectraData The SpectraData object
+     * @return the Spectrum File format
+     */
+    public static Constants.SpecFileFormat getSpectraDataFormat(SpectraData spectraData) {
+        uk.ac.ebi.pride.utilities.data.core.CvParam specFileFormat = spectraData.getFileFormat();
+        if (specFileFormat != null) {
+            if (specFileFormat.getAccession().equals("MS:1000613"))
+                return Constants.SpecFileFormat.DTA;
+            if (specFileFormat.getAccession().equals("MS:1001062"))
+                return Constants.SpecFileFormat.MGF;
+            if (specFileFormat.getAccession().equals("MS:1000565"))
+                return Constants.SpecFileFormat.PKL;
+            if (specFileFormat.getAccession().equals("MS:1000584") || specFileFormat.getAccession().equals("MS:1000562"))
+                return Constants.SpecFileFormat.MZML;
+            if (specFileFormat.getAccession().equals("MS:1000566"))
+                return Constants.SpecFileFormat.MZXML;
+        }
+        return Constants.SpecFileFormat.NONE;
+    }
+
+    /**
+     * Spectrum Id format for an specific CVterm accession
+     * @param accession CvTerm Accession
+     * @return Specific Spectrum Id Format
+     */
+    public static Constants.SpecIdFormat getSpectraDataIdFormat(String accession) {
+        if (accession.equals("MS:1001528"))
+            return Constants.SpecIdFormat.MASCOT_QUERY_NUM;
+        if (accession.equals("MS:1000774"))
+            return Constants.SpecIdFormat.MULTI_PEAK_LIST_NATIVE_ID;
+        if (accession.equals("MS:1000775"))
+            return Constants.SpecIdFormat.SINGLE_PEAK_LIST_NATIVE_ID;
+        if (accession.equals("MS:1001530"))
+            return Constants.SpecIdFormat.MZML_ID;
+        if (accession.equals("MS:1000776"))
+            return Constants.SpecIdFormat.SCAN_NUMBER_NATIVE_ID;
+        if (accession.equals("MS:1000770"))
+            return Constants.SpecIdFormat.WIFF_NATIVE_ID;
+        if (accession.equals("MS:1000777"))
+            return Constants.SpecIdFormat.MZDATA_ID;
+        if(accession.equals(("MS:1000768")))
+            return Constants.SpecIdFormat.SPECTRUM_NATIVE_ID;
+        return Constants.SpecIdFormat.NONE;
+    }
+
+    /**
+     * Return the set of file format supported for an ambiguous SpectraData Object
+     * @param spectraData SpectraData Object
+     * @return Set of file formats supported
+     */
+    public static List<SpecFileFormat> getFileTypeSupported(SpectraData spectraData) {
+        List<Constants.SpecFileFormat> fileFormats = new ArrayList<SpecFileFormat>();
+
+        Constants.SpecFileFormat spectraDataFormat = getSpectraDataFormat(spectraData);
+
+        if (spectraDataFormat == Constants.SpecFileFormat.NONE) {
+            Constants.SpecIdFormat spectIdFormat = MzIdentMLUtils.getSpectraDataIdFormat(spectraData);
+            if (spectIdFormat == Constants.SpecIdFormat.MASCOT_QUERY_NUM) {
+                fileFormats.add(Constants.SpecFileFormat.MGF);
+            } else if (spectIdFormat == Constants.SpecIdFormat.MULTI_PEAK_LIST_NATIVE_ID || spectIdFormat == Constants.SpecIdFormat.SINGLE_PEAK_LIST_NATIVE_ID) {
+                spectraDataFormat = getDataFormatFromFileExtension(spectraData);
+                fileFormats.add(spectraDataFormat);
+                if(spectraDataFormat != Constants.SpecFileFormat.DTA)  fileFormats.add(Constants.SpecFileFormat.DTA);
+                if(spectraDataFormat != Constants.SpecFileFormat.MGF)  fileFormats.add(Constants.SpecFileFormat.MGF);
+                if(spectraDataFormat != Constants.SpecFileFormat.PKL)  fileFormats.add(Constants.SpecFileFormat.PKL);
+                if(spectraDataFormat != Constants.SpecFileFormat.NONE) fileFormats.add(Constants.SpecFileFormat.NONE);
+            }else if (spectIdFormat == Constants.SpecIdFormat.MZML_ID) {
+                fileFormats.add(Constants.SpecFileFormat.MZML);
+            } else if (spectIdFormat == Constants.SpecIdFormat.SCAN_NUMBER_NATIVE_ID) {
+                fileFormats.add(Constants.SpecFileFormat.MZXML);
+            } else if (spectIdFormat == Constants.SpecIdFormat.MZDATA_ID) {
+                fileFormats.add(Constants.SpecFileFormat.MZDATA);
+            }
+        } else {
+            fileFormats.add(spectraDataFormat);
+        }
+        return fileFormats;
+    }
+
+    /**
+     * Return the Spectrum File format beased onf the SpectraData object name
+     * @param spectradata SpectraData Object
+     * @return Spectrum File Format
+     */
+    public static Constants.SpecFileFormat getDataFormatFromFileExtension(SpectraData spectradata){
+        Constants.SpecFileFormat fileFormat = Constants.SpecFileFormat.NONE;
+        if(spectradata.getLocation() !=null){
+            fileFormat = Constants.getSpecFileFormatFromLocation(spectradata.getLocation());
+        }else if(spectradata.getName() != null){
+            fileFormat = Constants.getSpecFileFormatFromLocation(spectradata.getName());
+        }
+        return fileFormat;
+    }
+
+    /**
+     * Check the file type
+     *
+     * @param file input file
+     * @return Class    the class type of the data access controller
+     */
+
+    public static Class getFileType(File file) {
+        Class classType = null;
+
+        // check file type
+        if (MzMLControllerImpl.isValidFormat(file)) {
+            classType = MzMLControllerImpl.class;
+        } else if (PrideXmlControllerImpl.isValidFormat(file)) {
+            classType = PrideXmlControllerImpl.class;
+        } else if (MzIdentMLControllerImpl.isValidFormat(file)) {
+            classType = MzIdentMLControllerImpl.class;
+        } else if (MzXmlControllerImpl.isValidFormat(file)) {
+            classType = MzXmlControllerImpl.class;
+        } else if (MzDataControllerImpl.isValidFormat(file)) {
+            classType = MzDataControllerImpl.class;
+        } else if (PeakControllerImpl.isValidFormat(file) != null) {
+            classType = PeakControllerImpl.class;
+        }
+        return classType;
+    }
+
+
 
 
 }

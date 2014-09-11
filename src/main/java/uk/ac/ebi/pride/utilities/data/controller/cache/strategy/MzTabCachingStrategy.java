@@ -11,10 +11,14 @@ import uk.ac.ebi.pride.utilities.data.utils.MzTabUtils;
 import uk.ac.ebi.pride.jmztab.model.PSM;
 import uk.ac.ebi.pride.jmztab.model.SpectraRef;
 import uk.ac.ebi.pride.jmztab.model.SplitList;
+import uk.ac.ebi.pride.utilities.util.Tuple;
 
 import java.util.*;
 
 /**
+ * Cache the mzTab structures such as proteins, peptide evidences and spectrum references
+ * //Todo: No way to match PSMs and Peptides which means that the current model is only for Protein+ PMSs
+ *
  * @author ypriverol
  */
 public class MzTabCachingStrategy extends AbstractCachingStrategy {
@@ -62,11 +66,16 @@ public class MzTabCachingStrategy extends AbstractCachingStrategy {
             cache.clear(CacheEntry.PROTEIN_GROUP_ID);
             cache.storeInBatch(CacheEntry.PROTEIN_GROUP_ID, new ArrayList<Comparable>(proteinAmbiguityGroupIds));
 
-            List<Comparable> proteinHIds = new ArrayList<Comparable>(unmarshaller.getAllProteinAccessions());
+            Map<String, List<String>> proteinHIds = unmarshaller.getAllProteinAccessions();
 
             if (!proteinHIds.isEmpty()) {
+                List<String> ids = new ArrayList<String>(proteinHIds.keySet());
                 cache.clear(CacheEntry.PROTEIN_ID);
-                cache.storeInBatch(CacheEntry.PROTEIN_ID, proteinHIds);
+                cache.storeInBatch(CacheEntry.PROTEIN_ID, ids);
+
+                cache.clear(CacheEntry.PROTEIN_TO_PEPTIDE_EVIDENCES);
+                cache.storeInBatch(CacheEntry.PROTEIN_TO_PEPTIDE_EVIDENCES, proteinHIds);
+
             }
         }
     }
@@ -77,35 +86,36 @@ public class MzTabCachingStrategy extends AbstractCachingStrategy {
      */
     private void cacheSpectrumIds(MzTabUnmarshallerAdaptor unmarshaller){
 
-        Map<Comparable, List<String[]>> identSpectrumMap = new HashMap<Comparable, List<String[]>>();
+        Map<Comparable, String[]> identSpectrumMap = new HashMap<Comparable, String[]>();
 
         Map<Integer, List<String>> spectraDataMap = new HashMap<Integer, List<String>>();
 
         Map<Integer, SpectraData> spectraDataIds = MzTabTransformer.transformMsRunMap(unmarshaller.getMRunMap());
 
-        for (PSM psm : unmarshaller.getPSMs()) {
+
+        for (Map.Entry psmEntry : unmarshaller.getPSMs().entrySet()) {
+            Integer psmId = (Integer) psmEntry.getKey();
+
+            PSM psm       = (PSM) psmEntry.getValue();
 
             SplitList<SpectraRef> refs = psm.getSpectraRef();
+
             for(SpectraRef ref:refs){
+
                 Integer msRunId = ref.getMsRun().getId();
                 String reference = ref.getReference();
+
                 if(spectraDataMap.containsKey(msRunId))
-                    spectraDataMap.get(msRunId).add(psm.getPSM_ID());
+                    spectraDataMap.get(msRunId).add(psmId.toString());
                 else{
                     List<String> psmIDs = new ArrayList<String>();
-                    psmIDs.add(psm.getPSM_ID());
+                    psmIDs.add(psmId.toString());
                     spectraDataMap.put(msRunId, psmIDs);
                 }
                 // extract the spectrum ID from the provided identifier
                 String formattedSpectrumID = MzTabUtils.getSpectrumId(spectraDataIds.get(msRunId), reference);
                 String[] spectrumFeatures = {formattedSpectrumID, msRunId.toString()};
-                if(identSpectrumMap.containsKey(psm.getPSM_ID()))
-                     identSpectrumMap.get(psm.getPSM_ID()).add(spectrumFeatures);
-                else{
-                    List<String[]> spectrums = new ArrayList<String[]>();
-                    spectrums.add(spectrumFeatures);
-                    identSpectrumMap.put(psm.getPSM_ID(),spectrums);
-                }
+                identSpectrumMap.put(psmId.toString(), spectrumFeatures);
             }
         }
 
@@ -125,11 +135,16 @@ public class MzTabCachingStrategy extends AbstractCachingStrategy {
      */
     private void cacheProteins(MzTabUnmarshallerAdaptor unmarshaller){
 
-        List<Comparable> proteinHIds = new ArrayList<Comparable>(unmarshaller.getAllProteinAccessions());
+        Map<String, List<String>> proteinHIds = unmarshaller.getAllProteinAccessions();
 
         if (!proteinHIds.isEmpty()) {
+            List<String> ids = new ArrayList<String>(proteinHIds.keySet());
             cache.clear(CacheEntry.PROTEIN_ID);
-            cache.storeInBatch(CacheEntry.PROTEIN_ID, proteinHIds);
+            cache.storeInBatch(CacheEntry.PROTEIN_ID, ids);
+
+            cache.clear(CacheEntry.PROTEIN_TO_PEPTIDE_EVIDENCES);
+            cache.storeInBatch(CacheEntry.PROTEIN_TO_PEPTIDE_EVIDENCES, proteinHIds);
+
         }
 
     }

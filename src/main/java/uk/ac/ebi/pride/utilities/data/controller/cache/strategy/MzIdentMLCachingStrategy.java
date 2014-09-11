@@ -117,7 +117,7 @@ public class MzIdentMLCachingStrategy extends AbstractCachingStrategy {
 
     private boolean isSpectraDataSupported(uk.ac.ebi.pride.utilities.data.core.SpectraData spectraData) {
         return (!(MzIdentMLUtils.getSpectraDataIdFormat(spectraData) == Constants.SpecIdFormat.NONE ||
-                MzIdentMLUtils.getSpectraDataFormat(spectraData) == Constants.SpecFileFormat.NONE));
+                Constants.getSpectraDataFormat(spectraData) == Constants.SpecFileFormat.NONE));
     }
 
 
@@ -139,6 +139,7 @@ public class MzIdentMLCachingStrategy extends AbstractCachingStrategy {
     }
 
     private void cacheSpectrumIds(MzIdentMLUnmarshallerAdaptor unmarshaller) throws ConfigurationException {
+
         Map<Comparable, String[]> identSpectrumMap = new HashMap<Comparable, String[]>();
 
 

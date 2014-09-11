@@ -3,15 +3,12 @@ package uk.ac.ebi.pride.utilities.data.utils;
 
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
-import uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl.*;
 import uk.ac.ebi.pride.utilities.data.core.CvParam;
-import uk.ac.ebi.pride.utilities.data.core.SpectraData;
 import uk.ac.ebi.pride.jmztab.utils.convert.SearchEngineParam;
 import uk.ac.ebi.pride.jmztab.utils.convert.SearchEngineScoreParam;
 import uk.ac.ebi.pride.tools.ErrorHandlerIface;
 import uk.ac.ebi.pride.tools.GenericSchemaValidator;
 import uk.ac.ebi.pride.tools.ValidationErrorHandler;
-//Todo: check this library
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -44,50 +41,14 @@ public final class MzIdentMLUtils {
 
     public static Constants.SpecIdFormat getSpectraDataIdFormat(uk.ac.ebi.pride.utilities.data.core.SpectraData spectraData) {
         uk.ac.ebi.pride.utilities.data.core.CvParam specIdFormat = spectraData.getSpectrumIdFormat();
-        return getSpectraDataIdFormat(specIdFormat.getAccession());
+        return Constants.getSpectraDataIdFormat(specIdFormat.getAccession());
     }
 
     public static Constants.SpecIdFormat getSpectraDataIdFormat(uk.ac.ebi.jmzidml.model.mzidml.SpectraData spectraData) {
         uk.ac.ebi.jmzidml.model.mzidml.CvParam specIdFormat = spectraData.getSpectrumIDFormat().getCvParam();
-        return getSpectraDataIdFormat(specIdFormat.getAccession());
+        return Constants.getSpectraDataIdFormat(specIdFormat.getAccession());
     }
 
-    public static Constants.SpecFileFormat getSpectraDataFormat(uk.ac.ebi.pride.utilities.data.core.SpectraData spectraData) {
-        uk.ac.ebi.pride.utilities.data.core.CvParam specFileFormat = spectraData.getFileFormat();
-        if (specFileFormat != null) {
-            if (specFileFormat.getAccession().equals("MS:1000613"))
-                return Constants.SpecFileFormat.DTA;
-            if (specFileFormat.getAccession().equals("MS:1001062"))
-                return Constants.SpecFileFormat.MGF;
-            if (specFileFormat.getAccession().equals("MS:1000565"))
-                return Constants.SpecFileFormat.PKL;
-            if (specFileFormat.getAccession().equals("MS:1000584") || specFileFormat.getAccession().equals("MS:1000562"))
-                return Constants.SpecFileFormat.MZML;
-            if (specFileFormat.getAccession().equals("MS:1000566"))
-                return Constants.SpecFileFormat.MZXML;
-        }
-        return Constants.SpecFileFormat.NONE;
-    }
-
-    private static Constants.SpecIdFormat getSpectraDataIdFormat(String accession) {
-        if (accession.equals("MS:1001528"))
-            return Constants.SpecIdFormat.MASCOT_QUERY_NUM;
-        if (accession.equals("MS:1000774"))
-            return Constants.SpecIdFormat.MULTI_PEAK_LIST_NATIVE_ID;
-        if (accession.equals("MS:1000775"))
-            return Constants.SpecIdFormat.SINGLE_PEAK_LIST_NATIVE_ID;
-        if (accession.equals("MS:1001530"))
-            return Constants.SpecIdFormat.MZML_ID;
-        if (accession.equals("MS:1000776"))
-            return Constants.SpecIdFormat.SCAN_NUMBER_NATIVE_ID;
-        if (accession.equals("MS:1000770"))
-            return Constants.SpecIdFormat.WIFF_NATIVE_ID;
-        if (accession.equals("MS:1000777"))
-            return Constants.SpecIdFormat.MZDATA_ID;
-        if(accession.equals(("MS:1000768")))
-            return Constants.SpecIdFormat.SPECTRUM_NATIVE_ID;
-        return Constants.SpecIdFormat.NONE;
-    }
 
     public static String getSpectrumId(uk.ac.ebi.jmzidml.model.mzidml.SpectraData spectraData, String spectrumID) {
         Constants.SpecIdFormat fileIdFormat = getSpectraDataIdFormat(spectraData);
@@ -115,72 +76,6 @@ public final class MzIdentMLUtils {
         } else {
             return spectrumID;
         }
-    }
-
-    public static List<Constants.SpecFileFormat> getFileTypeSupported(SpectraData spectraData) {
-        List<Constants.SpecFileFormat> fileFormats = new ArrayList<Constants.SpecFileFormat>();
-
-        Constants.SpecFileFormat spectraDataFormat = MzIdentMLUtils.getSpectraDataFormat(spectraData);
-
-        if (spectraDataFormat == Constants.SpecFileFormat.NONE) {
-            Constants.SpecIdFormat spectIdFormat = MzIdentMLUtils.getSpectraDataIdFormat(spectraData);
-            if (spectIdFormat == Constants.SpecIdFormat.MASCOT_QUERY_NUM) {
-                fileFormats.add(Constants.SpecFileFormat.MGF);
-            } else if (spectIdFormat == Constants.SpecIdFormat.MULTI_PEAK_LIST_NATIVE_ID || spectIdFormat == Constants.SpecIdFormat.SINGLE_PEAK_LIST_NATIVE_ID) {
-                spectraDataFormat = MzIdentMLUtils.getDataFormatFromFileExtension(spectraData);
-                fileFormats.add(spectraDataFormat);
-                if(spectraDataFormat != Constants.SpecFileFormat.DTA)  fileFormats.add(Constants.SpecFileFormat.DTA);
-                if(spectraDataFormat != Constants.SpecFileFormat.MGF)  fileFormats.add(Constants.SpecFileFormat.MGF);
-                if(spectraDataFormat != Constants.SpecFileFormat.PKL)  fileFormats.add(Constants.SpecFileFormat.PKL);
-                if(spectraDataFormat != Constants.SpecFileFormat.NONE) fileFormats.add(Constants.SpecFileFormat.NONE);
-            }else if (spectIdFormat == Constants.SpecIdFormat.MZML_ID) {
-                fileFormats.add(Constants.SpecFileFormat.MZML);
-            } else if (spectIdFormat == Constants.SpecIdFormat.SCAN_NUMBER_NATIVE_ID) {
-                fileFormats.add(Constants.SpecFileFormat.MZXML);
-            } else if (spectIdFormat == Constants.SpecIdFormat.MZDATA_ID) {
-                fileFormats.add(Constants.SpecFileFormat.MZDATA);
-            }
-        } else {
-            fileFormats.add(spectraDataFormat);
-        }
-        return fileFormats;
-    }
-
-    /**
-     * Check the file type
-     *
-     * @param file input file
-     * @return Class    the class type of the data access controller
-     */
-
-    public static Class getFileType(File file) {
-        Class classType = null;
-
-        // check file type
-        if (MzMLControllerImpl.isValidFormat(file)) {
-            classType = MzMLControllerImpl.class;
-        } else if (PrideXmlControllerImpl.isValidFormat(file)) {
-            classType = PrideXmlControllerImpl.class;
-        } else if (MzIdentMLControllerImpl.isValidFormat(file)) {
-            classType = MzIdentMLControllerImpl.class;
-        } else if (MzXmlControllerImpl.isValidFormat(file)) {
-            classType = MzXmlControllerImpl.class;
-        } else if (MzDataControllerImpl.isValidFormat(file)) {
-            classType = MzDataControllerImpl.class;
-        } else if (PeakControllerImpl.isValidFormat(file) != null) {
-            classType = PeakControllerImpl.class;
-        }
-        return classType;
-    }
-
-    public static Constants.SpecFileFormat getDataFormatFromFileExtension(SpectraData spectradata){
-        Constants.SpecFileFormat fileFormat = Constants.SpecFileFormat.NONE;
-        if(spectradata.getLocation() !=null){
-            fileFormat = Constants.getSpecFileFormatFromLocation(spectradata.getLocation());
-        }else if(spectradata.getName() != null){
-            fileFormat = Constants.getSpecFileFormatFromLocation(spectradata.getName());
-        }
-        return fileFormat;
     }
 
     public static List<String> validateMzIdentMLSchema(File resultFile) throws SAXException, FileNotFoundException, URISyntaxException, MalformedURLException {
