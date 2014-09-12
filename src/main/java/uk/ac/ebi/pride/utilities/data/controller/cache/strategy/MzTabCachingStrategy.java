@@ -88,9 +88,9 @@ public class MzTabCachingStrategy extends AbstractCachingStrategy {
 
         Map<Comparable, String[]> identSpectrumMap = new HashMap<Comparable, String[]>();
 
-        Map<Integer, List<String>> spectraDataMap = new HashMap<Integer, List<String>>();
+        Map<Comparable, List<String>> spectraDataMap = new HashMap<Comparable, List<String>>();
 
-        Map<Integer, SpectraData> spectraDataIds = MzTabTransformer.transformMsRunMap(unmarshaller.getMRunMap());
+        Map<Comparable, SpectraData> spectraDataIds = MzTabTransformer.transformMsRunMap(unmarshaller.getMRunMap());
 
 
         for (Map.Entry psmEntry : unmarshaller.getPSMs().entrySet()) {
@@ -102,7 +102,7 @@ public class MzTabCachingStrategy extends AbstractCachingStrategy {
 
             for(SpectraRef ref:refs){
 
-                Integer msRunId = ref.getMsRun().getId();
+                String msRunId = ref.getMsRun().getId().toString();
                 String reference = ref.getReference();
 
                 if(spectraDataMap.containsKey(msRunId))
@@ -114,7 +114,7 @@ public class MzTabCachingStrategy extends AbstractCachingStrategy {
                 }
                 // extract the spectrum ID from the provided identifier
                 String formattedSpectrumID = MzTabUtils.getSpectrumId(spectraDataIds.get(msRunId), reference);
-                String[] spectrumFeatures = {formattedSpectrumID, msRunId.toString()};
+                String[] spectrumFeatures = {formattedSpectrumID, msRunId};
                 identSpectrumMap.put(psmId.toString(), spectrumFeatures);
             }
         }

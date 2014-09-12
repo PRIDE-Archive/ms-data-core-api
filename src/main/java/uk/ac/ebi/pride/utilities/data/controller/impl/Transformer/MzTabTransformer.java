@@ -45,7 +45,7 @@ public class MzTabTransformer {
     }
 
     /**
-     * Conver an msRun to SourceFile
+     * Convert an msRun to SourceFile
      * @param msRun msRun
      * @return     SourceFile in in ms-data-core api
      */
@@ -404,7 +404,7 @@ public class MzTabTransformer {
                    if(mod.getParam() != null)
                        params.addCvParam(MzTabUtils.convertCVParamToCvParam(mod.getParam()));
 
-                   String name = getModificationName(params, rawMod.getAccession());
+                   String name = getModificationName(params, rawModAccession);
 
                    //If the modification is annotated in more than one aminoacid (ambiguity modification we will replicate the modification in more than one aminoacid
                    //add all the scores in the CVTerm)
@@ -415,7 +415,7 @@ public class MzTabTransformer {
                        int location = rawLocation.keySet().iterator().next();
                        if(rawLocation.values().iterator().next() != null)
                            params.addCvParam(MzTabUtils.convertCVParamToCvParam(rawLocation.values().iterator().next()));
-                       Modification modification = new Modification(params, rawMod.getAccession(), name,location,null,avgDelta,monoDelta,null,null);
+                       Modification modification = new Modification(params, rawModAccession, name,location,null,avgDelta,monoDelta,null,null);
                        modifications.add(modification);
                    }else if(rawLocation.size() > 1){
                        for(Map.Entry entry: rawLocation.entrySet()){
@@ -425,7 +425,7 @@ public class MzTabTransformer {
                            paramGroup.addCvParams(params.getCvParams());
                            if(param != null)
                                paramGroup.addCvParam(MzTabUtils.convertCVParamToCvParam(param));
-                           Modification modification = new Modification(paramGroup, rawMod.getAccession(), name, location,null,avgDelta,monoDelta,null,null);
+                           Modification modification = new Modification(paramGroup, rawModAccession, name, location,null,avgDelta,monoDelta,null,null);
                            modifications.add(modification);
                        }
                    }
@@ -449,7 +449,7 @@ public class MzTabTransformer {
                     if(mod.getParam() != null)
                         params.addCvParam(MzTabUtils.convertCVParamToCvParam(mod.getParam()));
 
-                    String name = getModificationName(params, rawMod.getAccession());
+                    String name = getModificationName(params, rawModAccession);
 
                     //If the modification is annotated in more than one aminoacid (ambiguity modification we will replicate the modification in more than one aminoacid
                     //add all the scores in the CVTerm)
@@ -460,7 +460,7 @@ public class MzTabTransformer {
                         int location = rawLocation.keySet().iterator().next();
                         if(rawLocation.values().iterator().next() != null)
                             params.addCvParam(MzTabUtils.convertCVParamToCvParam(rawLocation.values().iterator().next()));
-                        Modification modification = new Modification(params, rawMod.getAccession(), name,location,null,avgDelta,monoDelta,null,null);
+                        Modification modification = new Modification(params, rawModAccession, name,location,null,avgDelta,monoDelta,null,null);
                         modifications.add(modification);
                     }else if(rawLocation.size() > 1){
                         for(Map.Entry entry: rawLocation.entrySet()){
@@ -470,7 +470,7 @@ public class MzTabTransformer {
                             paramGroup.addCvParams(params.getCvParams());
                             if(param != null)
                                 paramGroup.addCvParam(MzTabUtils.convertCVParamToCvParam(param));
-                            Modification modification = new Modification(paramGroup, rawMod.getAccession(), name, location,null,avgDelta,monoDelta,null,null);
+                            Modification modification = new Modification(paramGroup, rawModAccession, name, location,null,avgDelta,monoDelta,null,null);
                             modifications.add(modification);
                         }
                     }
@@ -532,10 +532,10 @@ public class MzTabTransformer {
         return protocol;
     }
 
-    public static Map<Integer, SpectraData> transformMsRunMap(Map<Integer, MsRun> mRunMap) {
-        Map<Integer, SpectraData> spectraDataMap = new HashMap<Integer, SpectraData>();
+    public static Map<Comparable, SpectraData> transformMsRunMap(Map<Integer, MsRun> mRunMap) {
+        Map<Comparable, SpectraData> spectraDataMap = new HashMap<Comparable, SpectraData>();
         for (Map.Entry entry : mRunMap.entrySet())
-            spectraDataMap.put((Integer)entry.getKey(), transformMsRunToSpectraData((MsRun) entry.getValue()));
+            spectraDataMap.put((entry.getKey()).toString(), transformMsRunToSpectraData((MsRun) entry.getValue()));
         return spectraDataMap;
     }
 

@@ -71,7 +71,7 @@ public class MzTabControllerImpl extends ReferencedIdentificationController{
         // set data source description
         this.setName(file.getName());
         // set the type
-        this.setType(Type.XML_FILE);
+        this.setType(Type.MZTAB);
 
         // init ms data accession controller map
         this.msDataAccessControllers = new HashMap<Comparable, DataAccessController>();
