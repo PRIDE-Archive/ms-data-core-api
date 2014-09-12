@@ -23,6 +23,11 @@ public class MzTabUnmarshallerAdaptor extends MZTabFileParser{
 
     Map<Comparable, List<Comparable>> proteinPSMMap;
 
+    private static Integer NUMBER_PROTEIN_LOOP = 10;
+
+
+    private int numIdentifiedPeptides;
+
     public MzTabUnmarshallerAdaptor(File tabFile, OutputStream out) throws IOException {
         super(tabFile, out);
 
@@ -74,10 +79,6 @@ public class MzTabUnmarshallerAdaptor extends MZTabFileParser{
     }
 
     public int getNumberOfPeptides(int rank) {
-        return 0;
-    }
-
-    public int getNumberOfPeptides() {
         return 0;
     }
 
@@ -161,11 +162,14 @@ public class MzTabUnmarshallerAdaptor extends MZTabFileParser{
 
     public Set<String[]> getDatabases() {
         Set<String[]> databases = new HashSet<String[]>();
-        for(PSM psm: getMZTabFile().getPSMs()){
-            if(psm.getDatabase() != null){
+        Iterator<Protein> proteinIterator = getMZTabFile().getProteinsWithLineNumber().values().iterator();
+        int countLoop = 0;
+        while(proteinIterator.hasNext() && countLoop < NUMBER_PROTEIN_LOOP){
+           Protein protein = proteinIterator.next();
+            if(protein.getDatabase() != null){
                 String[] database = new String[2];
-                database[0] = psm.getDatabase();
-                database[1] = psm.getDatabaseVersion();
+                database[0] = protein.getDatabase();
+                database[1] = protein.getDatabaseVersion();
                 databases.add(database);
             }
         }
@@ -194,7 +198,7 @@ public class MzTabUnmarshallerAdaptor extends MZTabFileParser{
            if(id != null && NumberUtilities.isInteger(id.toString())){
                PSM psm = getMZTabFile().getPSMsWithLineNumber().get(Integer.parseInt(id.toString()));
                if(psm != null)
-                   psmList.put(Integer.parseInt(id.toString()),psm);
+                   psmList.put(Integer.parseInt(id.toString()), psm);
            }
         }
         return psmList;
@@ -202,5 +206,9 @@ public class MzTabUnmarshallerAdaptor extends MZTabFileParser{
 
     public Metadata getMetadata(){
         return getMZTabFile().getMetadata();
+    }
+
+    public int getNumIdentifiedPeptides() {
+        return getMZTabFile().getPSMsWithLineNumber().size();
     }
 }

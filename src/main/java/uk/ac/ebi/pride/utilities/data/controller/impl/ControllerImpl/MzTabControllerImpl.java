@@ -13,6 +13,7 @@ import uk.ac.ebi.pride.utilities.data.controller.cache.strategy.MzTabCachingStra
 import uk.ac.ebi.pride.utilities.data.controller.impl.Transformer.MzTabTransformer;
 import uk.ac.ebi.pride.utilities.data.core.*;
 import uk.ac.ebi.pride.utilities.data.io.file.MzTabUnmarshallerAdaptor;
+import uk.ac.ebi.pride.utilities.data.utils.Constants;
 import uk.ac.ebi.pride.utilities.data.utils.MD5Utils;
 import uk.ac.ebi.pride.utilities.util.Tuple;
 
@@ -81,8 +82,8 @@ public class MzTabControllerImpl extends ReferencedIdentificationController{
                 ContentCategory.SAMPLE,
                 ContentCategory.SOFTWARE,
                 ContentCategory.PROTEIN_GROUPS,
-                ContentCategory.SPECTRUM,
-                ContentCategory.QUANTIFICATION);
+                ContentCategory.SPECTRUM);
+        //Todo: first cases only support identification
         // set cache builder
         setCachingStrategy(new MzTabCachingStrategy());
         // populate cache
@@ -413,23 +414,6 @@ public class MzTabControllerImpl extends ReferencedIdentificationController{
     }
 
     /**
-     * Get the number of peptides.
-     *
-     * @return int  the number of peptides.
-     */
-    @Override
-    public int getNumberOfPeptides() {
-        int num;
-        try {
-            // this method is overridden to use the reader directly
-            num = reader.getNumberOfPeptides();
-        } catch (Exception ex) {
-            throw new DataAccessException("Failed to retrieve number of peptides", ex);
-        }
-        return num;
-    }
-
-    /**
      * Get the number of peptides by Rank, in MzTab all peptides are rank 1.
      *
      * @return int  the number of peptides.
@@ -454,6 +438,7 @@ public class MzTabControllerImpl extends ReferencedIdentificationController{
     }
 
     public List<SearchDataBase> getSearchDataBases() {
+
         IdentificationMetaData metaData = super.getIdentificationMetaData();
 
         if (metaData == null) {
@@ -505,11 +490,11 @@ public class MzTabControllerImpl extends ReferencedIdentificationController{
     public static boolean isValidFormat(File file) {
         boolean valid = false;
         BufferedReader reader = null;
-        try {
+        /*try {
             reader = new BufferedReader(new FileReader(file));
-            // read the first ten lines
+            // read the first 70 lines
             StringBuilder content = new StringBuilder();
-            for (int i = 0; i < 10; i++) {
+            for (int i = 0; i < 70; i++) {
                 content.append(reader.readLine());
             }
             // check file type
@@ -525,8 +510,10 @@ public class MzTabControllerImpl extends ReferencedIdentificationController{
                     // do nothing here
                 }
             }
-        }
-
+        }*/
+        String filename = file.getName().toLowerCase();
+        if (filename.endsWith(Constants.MZTAB_EXT))
+            return true;
         return valid;
     }
 
@@ -570,5 +557,22 @@ public class MzTabControllerImpl extends ReferencedIdentificationController{
     @Override
     public boolean hasProteinSequence() {
         return reader.hasProteinSequence();
+    }
+
+    /**
+     * Get the number of peptides.
+     *
+     * @return int  the number of peptides.
+     */
+    @Override
+    public int getNumberOfPeptides() {
+        int num;
+        try {
+            // this method is overridden to use the reader directly
+            num = reader.getNumIdentifiedPeptides();
+        } catch (Exception ex) {
+            throw new DataAccessException("Failed to retrieve number of peptides", ex);
+        }
+        return num;
     }
 }

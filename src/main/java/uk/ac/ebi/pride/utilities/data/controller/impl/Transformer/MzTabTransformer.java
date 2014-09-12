@@ -633,12 +633,17 @@ public class MzTabTransformer {
     }
 
     public static List<SearchDataBase> transformDatabases(Set<String[]> oldDatabases) {
+
+
         List<SearchDataBase> databases = new ArrayList<SearchDataBase>();
-        if(oldDatabases != null && oldDatabases.size() > 0){
+        if(oldDatabases != null && oldDatabases .size() > 0){
             for(String[] databaseString: oldDatabases){
                 String name = databaseString[0];
                 String version = databaseString[1];
-                databases.add(new SearchDataBase(name,version));
+                ParamGroup params = new ParamGroup();
+                CvParam databaseName = CvUtilities.getCVTermFromCvReference(CvTermReference.MS_DATABASE,name);
+                params.addCvParam(databaseName);
+                databases.add(new SearchDataBase(name,version,params));
             }
         }
         return databases;
