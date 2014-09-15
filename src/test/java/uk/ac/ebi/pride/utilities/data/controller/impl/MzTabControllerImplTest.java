@@ -154,4 +154,10 @@ public class MzTabControllerImplTest {
         mzTabController.close();
     }
 
+    @Test
+    public void isValid() throws Exception {
+//        assertTrue("The number of spectrum should be 100", mzTabController.getSpectrumIds().size() == 100);
+        assertTrue("Is a valid file:", MzTabControllerImpl.isValidFormat((File)mzTabController.getSource()));
+    }
+
 }

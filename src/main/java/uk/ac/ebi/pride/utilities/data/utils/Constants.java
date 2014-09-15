@@ -10,6 +10,8 @@ import java.util.List;
 /**
  * Constants contain a set of functions for SpectraData validation and also the constants used by mzTab and mzIdentML
  * to reference the Ids and type file formats.
+ *    
+ * @author ypriverol
  * @author rwang
  * @version $Id$
  */

@@ -36,7 +36,13 @@ import java.util.regex.Pattern;
 public class MzTabControllerImpl extends ReferencedIdentificationController{
 
     private static final Logger logger = LoggerFactory.getLogger(MzTabControllerImpl.class);
-    private static Pattern mzTabMLHeaderPattern =  Pattern.compile("^[MTD]*(mzTab-version\t1.0)", Pattern.MULTILINE);;
+
+    private static Pattern mzTabVersion = Pattern.compile(".*(mzTab-version).*(1.0)");
+
+    private static Pattern mzTabProteinSection    = Pattern.compile(".*(protein_search_engine_score).*");
+
+    private static Pattern mzTabPSMSection    = Pattern.compile(".*(psm_search_engine_score).*");
+
 
     /**
      * Reader to get information from MzTab file
@@ -82,7 +88,8 @@ public class MzTabControllerImpl extends ReferencedIdentificationController{
                 ContentCategory.SAMPLE,
                 ContentCategory.SOFTWARE,
                 ContentCategory.PROTEIN_GROUPS,
-                ContentCategory.SPECTRUM);
+                ContentCategory.SPECTRUM,
+                ContentCategory.QUANTIFICATION);
         //Todo: first cases only support identification
         // set cache builder
         setCachingStrategy(new MzTabCachingStrategy());
@@ -482,7 +489,8 @@ public class MzTabControllerImpl extends ReferencedIdentificationController{
     }
 
     /**
-     * Check a file is mzTab File is supported
+     * Check a file is mzTab File is supported, it should contain the protein and psm sections, it must be mztab version 1.0 and finally it should be
+     * mzTab extension file.
      *
      * @param file input file
      * @return boolean true means the file is an mztab
@@ -490,16 +498,20 @@ public class MzTabControllerImpl extends ReferencedIdentificationController{
     public static boolean isValidFormat(File file) {
         boolean valid = false;
         BufferedReader reader = null;
-        /*try {
+        int count = 0;
+
+        /**
+         * To validate  the mzTab if is supported or not we will read the header line by line until the type appear
+         * It should contains Proteins and PSMs to be a supported file.
+         */
+        try {
             reader = new BufferedReader(new FileReader(file));
             // read the first 70 lines
-            StringBuilder content = new StringBuilder();
-            for (int i = 0; i < 70; i++) {
-                content.append(reader.readLine());
+            for (int i = 0; i < 200; i++) {
+                String line = reader.readLine();
+                if(mzTabVersion.matcher(line).find() || mzTabProteinSection.matcher(line).find() || mzTabPSMSection.matcher(line).find())
+                    count++;
             }
-            // check file type
-            Matcher matcher = mzTabMLHeaderPattern.matcher(content);
-            valid = matcher.find();
         } catch (Exception e) {
             logger.error("Failed to read file", e);
         } finally {
@@ -510,10 +522,11 @@ public class MzTabControllerImpl extends ReferencedIdentificationController{
                     // do nothing here
                 }
             }
-        }*/
+        }
         String filename = file.getName().toLowerCase();
-        if (filename.endsWith(Constants.MZTAB_EXT))
+        if (filename.endsWith(Constants.MZTAB_EXT) && count == 3)
             return true;
+
         return valid;
     }
 
