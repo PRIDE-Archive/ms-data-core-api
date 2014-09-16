@@ -4,9 +4,9 @@ import uk.ac.ebi.pride.utilities.data.controller.DataAccessController;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessUtilities;
 import uk.ac.ebi.pride.utilities.data.core.*;
 import uk.ac.ebi.pride.utilities.data.utils.CollectionUtils;
-import uk.ac.ebi.pride.utilities.data.utils.QuantCvTermReference;
 import uk.ac.ebi.pride.utilities.engine.SearchEngineType;
 import uk.ac.ebi.pride.utilities.term.CvTermReference;
+import uk.ac.ebi.pride.utilities.term.QuantCvTermReference;
 
 import java.util.*;
 
@@ -882,7 +882,7 @@ public abstract class AbstractDataAccessController implements DataAccessControll
             // iterate over each sample
             List<CvParam> cvParams = additionals.getCvParams();
             for (CvParam cvParam : cvParams) {
-                if (QuantCvTermReference.isLabelFreeMethod(cvParam)) {
+                if (QuantCvTermReference.isLabelFreeMethod(cvParam.getAccession())) {
                     return true;
                 }
             }
@@ -901,7 +901,7 @@ public abstract class AbstractDataAccessController implements DataAccessControll
             List<CvParam> cvParams = additionals.getCvParams();
             if (!cvParams.isEmpty()) {
                 for (CvParam cvParam : cvParams) {
-                    if (QuantCvTermReference.isIsotopeLabellingMethodParam(cvParam)) {
+                    if (QuantCvTermReference.isIsotopeLabellingMethodParam(cvParam.getAccession())) {
                         return true;
                     }
                 }
@@ -923,8 +923,8 @@ public abstract class AbstractDataAccessController implements DataAccessControll
             List<CvParam> cvParams = additionals.getCvParams();
             if (!cvParams.isEmpty()) {
                 for (CvParam cvParam : cvParams) {
-                    if (QuantCvTermReference.isQuantitativeMethodParam(cvParam)) {
-                        methods.add(QuantCvTermReference.getQuantitativeMethodParam(cvParam));
+                    if (QuantCvTermReference.isQuantitativeMethodParam(cvParam.getAccession())) {
+                        methods.add(QuantCvTermReference.getQuantitativeMethodParam(cvParam.getAccession()));
                     }
                 }
             }
@@ -944,8 +944,8 @@ public abstract class AbstractDataAccessController implements DataAccessControll
             List<CvParam> cvParams = additionals.getCvParams();
             if (!cvParams.isEmpty()) {
                 for (CvParam cvParam : cvParams) {
-                    if (QuantCvTermReference.isLabelFreeMethod(cvParam)) {
-                        methods.add(QuantCvTermReference.getQuantitativeMethodParam(cvParam));
+                    if (QuantCvTermReference.isLabelFreeMethod(cvParam.getAccession())) {
+                        methods.add(QuantCvTermReference.getQuantitativeMethodParam(cvParam.getAccession()));
                     }
                 }
             }
@@ -995,8 +995,8 @@ public abstract class AbstractDataAccessController implements DataAccessControll
             List<CvParam> cvParams = additionals.getCvParams();
             if (!cvParams.isEmpty()) {
                 for (CvParam cvParam : cvParams) {
-                    if (QuantCvTermReference.isIsotopeLabellingMethodParam(cvParam)) {
-                        methods.add(QuantCvTermReference.getQuantitativeMethodParam(cvParam));
+                    if (QuantCvTermReference.isIsotopeLabellingMethodParam(cvParam.getAccession())) {
+                        methods.add(QuantCvTermReference.getQuantitativeMethodParam(cvParam.getAccession()));
                     }
                 }
             }
@@ -1045,7 +1045,7 @@ public abstract class AbstractDataAccessController implements DataAccessControll
                 for (Sample sample : samples) {
                     List<CvParam> cvParams = sample.getCvParams();
                     for (CvParam cvParam : cvParams) {
-                        if (QuantCvTermReference.isReagent(cvParam)) {
+                        if (QuantCvTermReference.isReagent(cvParam.getAccession())) {
                             num++;
                         }
                     }
@@ -1129,9 +1129,9 @@ public abstract class AbstractDataAccessController implements DataAccessControll
                         sampleDesc.setGOTerm(cvParam);
                     } else if ("doid".equals(cvLabel)) {
                         sampleDesc.setDisease(cvParam);
-                    } else if (QuantCvTermReference.isSubSampleDescription(cvParam)) {
+                    } else if (QuantCvTermReference.isSubSampleDescription(cvParam.getAccession())) {
                         sampleDesc.setDescription(cvParam);
-                    } else if (QuantCvTermReference.isReagent(cvParam)) {
+                    } else if (QuantCvTermReference.isReagent(cvParam.getAccession())) {
                         sampleDesc.setReagent(cvParam);
                     }
                 }

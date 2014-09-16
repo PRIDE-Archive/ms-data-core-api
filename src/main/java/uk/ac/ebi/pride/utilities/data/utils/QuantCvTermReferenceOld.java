@@ -6,9 +6,11 @@ import uk.ac.ebi.pride.utilities.data.core.CvParam;
  * Holds the cvParams to report quantitative information
  * in PRIDE XML files.
  *
- * @author ypriverol, jg, rwang
+ * @author ypriverol,
+ * @author jg
+ * @author rwang
  */
-public enum QuantCvTermReference {
+public enum QuantCvTermReferenceOld {
     /**
      * QUANTIFICATION VALUES
      */
@@ -111,10 +113,10 @@ public enum QuantCvTermReference {
     private final String name;
     private final String parentAccession;
 
-    private QuantCvTermReference(String cvLabel,
-                                 String accession,
-                                 String name,
-                                 String parentAccession) {
+    private QuantCvTermReferenceOld(String cvLabel,
+                                    String accession,
+                                    String name,
+                                    String parentAccession) {
         this.cvLabel = cvLabel;
         this.accession = accession;
         this.name = name;
@@ -141,8 +143,8 @@ public enum QuantCvTermReference {
         return isIsotopeLabellingMethodParam(cvParam) || isLabelFreeMethod(cvParam);
     }
 
-    public static QuantCvTermReference getQuantitativeMethodParam(CvParam cvParam) {
-        QuantCvTermReference cvTerm = getIsotopeLabellingMethodParam(cvParam);
+    public static QuantCvTermReferenceOld getQuantitativeMethodParam(CvParam cvParam) {
+        QuantCvTermReferenceOld cvTerm = getIsotopeLabellingMethodParam(cvParam);
         if (cvTerm == null) {
             cvTerm = getLabelFreeMethod(cvParam);
         }
@@ -160,7 +162,7 @@ public enum QuantCvTermReference {
                 SILAC_QUANTIFIED.getAccession().equals(accession);
     }
 
-    public static QuantCvTermReference getIsotopeLabellingMethodParam(CvParam cvParam) {
+    public static QuantCvTermReferenceOld getIsotopeLabellingMethodParam(CvParam cvParam) {
         String accession = cvParam.getAccession();
         if (ITRAQ_QUANTIFIED.getAccession().equals(accession)) {
             return ITRAQ_QUANTIFIED;
@@ -293,7 +295,7 @@ public enum QuantCvTermReference {
                 TIC_QUANTIFIED.getAccession().equals(accession);
     }
 
-    public static QuantCvTermReference getLabelFreeMethod(CvParam cvParam) {
+    public static QuantCvTermReferenceOld getLabelFreeMethod(CvParam cvParam) {
         String accession = cvParam.getAccession();
 
         if (EMPAI_VALUE.getAccession().equals(accession) || EMPAI_QUANTIFIED.getAccession().equals(accession)) {
@@ -310,7 +312,7 @@ public enum QuantCvTermReference {
         return UNIT_RATIO.getAccession().equals(accession) || UNIT_COPIES_PER_CELL.getAccession().equals(accession);
     }
 
-    public static QuantCvTermReference getUnit(CvParam cvParam) {
+    public static QuantCvTermReferenceOld getUnit(CvParam cvParam) {
         String accession = cvParam.getAccession();
 
         if (UNIT_RATIO.getAccession().equals(accession)) {
@@ -324,8 +326,7 @@ public enum QuantCvTermReference {
 
     public static boolean isReagent(CvParam cvParam) {
         String accession = cvParam.getAccession();
-
-        return ITRAQ_113_REAGENT.getAccession().equals(accession) ||
+        return  ITRAQ_113_REAGENT.getAccession().equals(accession) ||
                 ITRAQ_114_REAGENT.getAccession().equals(accession) ||
                 ITRAQ_115_REAGENT.getAccession().equals(accession) ||
                 ITRAQ_116_REAGENT.getAccession().equals(accession) ||
@@ -350,7 +351,7 @@ public enum QuantCvTermReference {
                 ICPL_10_REAGENT.getAccession().equals(accession);
     }
 
-    public static QuantCvTermReference getReagent(CvParam cvParam) {
+    public static QuantCvTermReferenceOld getReagent(CvParam cvParam) {
         String accession = cvParam.getAccession();
 
         if (ITRAQ_113_REAGENT.getAccession().equals(accession)) {
@@ -478,7 +479,7 @@ public enum QuantCvTermReference {
      *
      * @return return true if the quantitation method is supported
      */
-    public static boolean containsPeptideQuantification(QuantCvTermReference cvTerm) {
+    public static boolean containsPeptideQuantification(QuantCvTermReferenceOld cvTerm) {
         String accession = cvTerm.getAccession();
 
         return O18_QUANTIFIED.getAccession().equals(accession) ||
@@ -497,7 +498,7 @@ public enum QuantCvTermReference {
      *
      * @return boolean
      */
-    public static boolean containsProteinQuantification(QuantCvTermReference cvTerm) {
+    public static boolean containsProteinQuantification(QuantCvTermReferenceOld cvTerm) {
         // all quantification methods can be reported for the protein level.
         return true;
     }
@@ -511,7 +512,7 @@ public enum QuantCvTermReference {
      * @return Boolean indicating whether the accession belongs to a quantification parameter.
      */
     public static boolean isQuantitativeParam(String accession) {
-        for (QuantCvTermReference p : values()) {
+        for (QuantCvTermReferenceOld p : values()) {
             if (p.getAccession().equals(accession))
                 return true;
         }

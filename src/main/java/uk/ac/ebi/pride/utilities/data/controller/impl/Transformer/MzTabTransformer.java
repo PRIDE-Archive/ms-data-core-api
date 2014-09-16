@@ -126,11 +126,33 @@ public class MzTabTransformer {
         return organization;
     }
 
-    public static List<Sample> transformSamples(Map<Integer, uk.ac.ebi.pride.jmztab.model.Sample> oldSamples) {
+    public static List<Sample> transformSamples(Map<Integer, uk.ac.ebi.pride.jmztab.model.Sample> oldSamples,
+                                                Map<Integer, uk.ac.ebi.pride.jmztab.model.Assay> oldAssays,
+                                                Map<Integer, uk.ac.ebi.pride.jmztab.model.StudyVariable> oldStudyVariable) {
         List<Sample> samples = new ArrayList<Sample>();
         if(oldSamples != null && oldSamples.size()>0){
-            for(Map.Entry entry: oldSamples.entrySet())
-                samples.add(transformSample((uk.ac.ebi.pride.jmztab.model.Sample)entry.getValue()));
+            for(Map.Entry entry: oldSamples.entrySet()){
+                uk.ac.ebi.pride.jmztab.model.Sample oldSample = (uk.ac.ebi.pride.jmztab.model.Sample) entry.getValue();
+                samples.add(transformSample(oldSample));
+            }
+            if(oldAssays != null && oldAssays.size() > 0 && samples.size() > 0){
+                for(Map.Entry entry: oldAssays.entrySet()){
+                    Assay assay = (Assay) entry.getValue();
+                    for(Sample sample: samples){
+                        if(sample.getId().toString() != null && assay.getSample() != null && assay.getSample().getId() != null && sample.getId().toString().equalsIgnoreCase(assay.getSample().getId().toString()) && assay.getQuantificationReagent() != null){
+                            sample.addCvParam(MzTabUtils.parseQuantitationReagentCvParam(assay.getQuantificationReagent()));
+                            if(assay.getQuantificationModMap() != null && assay.getQuantificationModMap().size() > 0){
+                                Collection<AssayQuantificationMod> mods = assay.getQuantificationModMap().values();
+                                for(AssayQuantificationMod mod: mods)
+                                    if(mod != null && mod.getParam() != null)
+                                        sample.addCvParam(MzTabUtils.convertCVParamToCvParam(mod.getParam()));
+                            }
+                        }
+                    }
+                }
+            }
+
+
         }
         return samples;
     }

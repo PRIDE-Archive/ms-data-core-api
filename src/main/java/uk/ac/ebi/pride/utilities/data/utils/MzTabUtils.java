@@ -7,6 +7,7 @@ import uk.ac.ebi.pride.utilities.data.core.UserParam;
 import uk.ac.ebi.pride.jmztab.model.*;
 import uk.ac.ebi.pride.jmztab.utils.convert.SearchEngineScoreParam;
 import uk.ac.ebi.pride.utilities.term.CvTermReference;
+import uk.ac.ebi.pride.utilities.term.QuantCvTermReference;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -173,5 +174,24 @@ public class MzTabUtils {
         return new CvParam(param.getAccession(),param.getName(),param.getCvLabel(),param.getValue(),null,null,null);
     }
 
+    /**
+     * Param for the reagent to retrieve the PRIDE Term for that, is important that most of the fields can be null, for
+     * that reason we look through all the the information looking for patterns.
+     * Todo: Looks for an option to properly the information for quantitation.
+     * @param quantificationReagent
+     * @return
+     */
+    public static CvParam parseQuantitationReagentCvParam(Param quantificationReagent) {
 
+        if(quantificationReagent != null){
+                if(quantificationReagent.getAccession() != null && QuantCvTermReference.getCvRefByAccession(quantificationReagent.getAccession()) != null){
+                    QuantCvTermReference cvTerm = QuantCvTermReference.getCvRefByAccession(quantificationReagent.getAccession());
+                    return new CvParam(cvTerm.getAccession(),cvTerm.getName(),cvTerm.getCvLabel(),quantificationReagent.getValue(),null,null,null);
+                }else if(quantificationReagent.getAccession() != null && QuantCvTermReference.getReagentByShortAccessionLabel(quantificationReagent.getAccession()) != null){
+                    QuantCvTermReference cvTerm = QuantCvTermReference.getReagentByShortAccessionLabel(quantificationReagent.getAccession());
+                    return new CvParam(cvTerm.getAccession(),cvTerm.getName(),cvTerm.getCvLabel(),quantificationReagent.getValue(),null,null,null);
+                }
+        }
+        return null;
+    }
 }

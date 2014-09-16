@@ -1,6 +1,6 @@
 package uk.ac.ebi.pride.utilities.data.core;
 
-import uk.ac.ebi.pride.utilities.data.utils.QuantCvTermReference;
+import uk.ac.ebi.pride.utilities.term.QuantCvTermReference;
 
 import java.util.*;
 
@@ -73,39 +73,39 @@ public class Quantification {
         for (CvParam cvParam : cvParamList) {
 
             // check intensities
-            if (QuantCvTermReference.isIntensityParam(cvParam)) {
-                int index = QuantCvTermReference.getIntensityParamIndex(cvParam);
+            if (QuantCvTermReference.isIntensityParam(cvParam.getAccession())) {
+                int index = QuantCvTermReference.getIntensityParamIndex(cvParam.getAccession());
 
                 isotopeLabellingResults[index - 1] = Double.parseDouble(cvParam.getValue());
             }
 
             // check standard deviation
-            else if (QuantCvTermReference.isStandardDeviationParam(cvParam)) {
-                int index = QuantCvTermReference.getStandardDeviationParamIndex(cvParam);
+            else if (QuantCvTermReference.isStandardDeviationParam(cvParam.getAccession())) {
+                int index = QuantCvTermReference.getStandardDeviationParamIndex(cvParam.getAccession());
 
                 isotopeLabellingDeviations[index - 1] = Double.parseDouble(cvParam.getValue());
             }
 
             // check standard error
-            else if (QuantCvTermReference.isStandardErrorParam(cvParam)) {
-                int index = QuantCvTermReference.getStandardErrorParamIndex(cvParam);
+            else if (QuantCvTermReference.isStandardErrorParam(cvParam.getAccession())) {
+                int index = QuantCvTermReference.getStandardErrorParamIndex(cvParam.getAccession());
 
                 isotopeLabellingErrors[index - 1] = Double.parseDouble(cvParam.getValue());
             }
 
             // check unit
-            else if (QuantCvTermReference.isUnit(cvParam)) {
-                unit = QuantCvTermReference.getUnit(cvParam);
+            else if (QuantCvTermReference.isUnit(cvParam.getAccession())) {
+                unit = QuantCvTermReference.getUnit(cvParam.getAccession());
             }
 
             // check isotope labelling
-            else if (QuantCvTermReference.isIsotopeLabellingMethodParam(cvParam)) {
-                isotopeLabellingMethod = QuantCvTermReference.getIsotopeLabellingMethodParam(cvParam);
+            else if (QuantCvTermReference.isIsotopeLabellingMethodParam(cvParam.getAccession())) {
+                isotopeLabellingMethod = QuantCvTermReference.getIsotopeLabellingMethodParam(cvParam.getAccession());
             }
 
             // check label free
-            else if (QuantCvTermReference.isLabelFreeMethod(cvParam)) {
-                QuantCvTermReference method = QuantCvTermReference.getLabelFreeMethod(cvParam);
+            else if (QuantCvTermReference.isLabelFreeMethod(cvParam.getAccession())) {
+                QuantCvTermReference method = QuantCvTermReference.getLabelFreeMethod(cvParam.getAccession());
                 Double               value  = Double.parseDouble(cvParam.getValue());
 
                 labelFreeResults.put(method, value);

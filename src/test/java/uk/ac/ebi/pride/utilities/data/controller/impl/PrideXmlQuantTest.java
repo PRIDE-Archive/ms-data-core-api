@@ -7,7 +7,7 @@ import uk.ac.ebi.pride.utilities.data.core.CvParam;
 import uk.ac.ebi.pride.utilities.data.core.Quantification;
 import uk.ac.ebi.pride.utilities.data.core.QuantitativeSample;
 import uk.ac.ebi.pride.utilities.data.utils.CollectionUtils;
-import uk.ac.ebi.pride.utilities.data.utils.QuantCvTermReference;
+import uk.ac.ebi.pride.utilities.term.QuantCvTermReference;
 
 import java.io.File;
 import java.net.URL;

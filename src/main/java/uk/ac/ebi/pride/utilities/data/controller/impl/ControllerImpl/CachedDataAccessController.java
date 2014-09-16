@@ -2,6 +2,7 @@ package uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.ebi.pride.utilities.term.QuantCvTermReference;
 import uk.ac.ebi.pride.utilities.util.Tuple;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessException;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessMode;
@@ -12,7 +13,6 @@ import uk.ac.ebi.pride.utilities.data.controller.cache.CacheEntry;
 import uk.ac.ebi.pride.utilities.data.controller.cache.CachingStrategy;
 import uk.ac.ebi.pride.utilities.data.core.*;
 import uk.ac.ebi.pride.utilities.data.utils.CollectionUtils;
-import uk.ac.ebi.pride.utilities.data.utils.QuantCvTermReference;
 import uk.ac.ebi.pride.utilities.engine.SearchEngineType;
 import uk.ac.ebi.pride.utilities.term.CvTermReference;
 

@@ -2,7 +2,7 @@ package uk.ac.ebi.pride.utilities.data.controller.access;
 
 import uk.ac.ebi.pride.utilities.data.core.Quantification;
 import uk.ac.ebi.pride.utilities.data.core.QuantitativeSample;
-import uk.ac.ebi.pride.utilities.data.utils.QuantCvTermReference;
+import uk.ac.ebi.pride.utilities.term.QuantCvTermReference;
 
 import java.util.Collection;
 

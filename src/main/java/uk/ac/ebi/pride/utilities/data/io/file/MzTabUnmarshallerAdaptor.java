@@ -46,6 +46,14 @@ public class MzTabUnmarshallerAdaptor extends MZTabFileParser{
         return getMZTabFile().getMetadata().getSampleMap();
     }
 
+    public Map<Integer, Assay> getAssays(){
+        return getMZTabFile().getMetadata().getAssayMap();
+    }
+
+    public Map<Integer, StudyVariable> getStudyVariables(){
+        return getMZTabFile().getMetadata().getStudyVariableMap();
+    }
+
     public Map<Integer, Software> getDataSoftwares() {
         return getMZTabFile().getMetadata().getSoftwareMap();
     }
@@ -62,8 +70,19 @@ public class MzTabUnmarshallerAdaptor extends MZTabFileParser{
      * Retrieve a general description from the file
      * @return Retrieve the mzTab CvParams
      */
-    public List<Param> getAdditionalParams() {
-        return getMZTabFile().getMetadata().getCustomList();
+    public List<Param> getAdditionalParams(){
+        List<Param> listParams = getMZTabFile().getMetadata().getCustomList();
+        Param paramQuant = getMZTabFile().getMetadata().getQuantificationMethod();
+        if(paramQuant != null)
+            listParams.add(paramQuant);
+        paramQuant = getMZTabFile().getMetadata().getProteinQuantificationUnit();
+        if(paramQuant != null)
+            listParams.add(paramQuant);
+        paramQuant = getMZTabFile().getMetadata().getPeptideQuantificationUnit();
+        if(paramQuant != null)
+            listParams.add(paramQuant);
+
+        return listParams;
     }
 
     public String getExpTitle() {
@@ -211,4 +230,10 @@ public class MzTabUnmarshallerAdaptor extends MZTabFileParser{
     public int getNumIdentifiedPeptides() {
         return getMZTabFile().getPSMsWithLineNumber().size();
     }
+
+    public boolean hasQuantitationData() {
+        return (getMZTabFile().getMetadata().getMZTabType() == MZTabDescription.Type.Quantification);
+    }
+
+
 }

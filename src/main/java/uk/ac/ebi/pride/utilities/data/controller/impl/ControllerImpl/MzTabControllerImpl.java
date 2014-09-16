@@ -194,7 +194,7 @@ public class MzTabControllerImpl extends ReferencedIdentificationController{
             logger.debug("Get samples");
             List<Sample> samples;
             try {
-                samples = MzTabTransformer.transformSamples(reader.getSamples());
+                samples = MzTabTransformer.transformSamples(reader.getSamples(), reader.getAssays(), reader.getStudyVariables());
                 return samples;
             } catch (Exception ex) {
                 String msg = "Error while getting samples";
@@ -524,7 +524,7 @@ public class MzTabControllerImpl extends ReferencedIdentificationController{
             }
         }
         String filename = file.getName().toLowerCase();
-        if (filename.endsWith(Constants.MZTAB_EXT) && count == 3)
+        if (filename.endsWith(Constants.MZTAB_EXT) && count >= 3)
             return true;
 
         return valid;
@@ -587,5 +587,10 @@ public class MzTabControllerImpl extends ReferencedIdentificationController{
             throw new DataAccessException("Failed to retrieve number of peptides", ex);
         }
         return num;
+    }
+
+    @Override
+    public boolean hasQuantData() {
+        return reader.hasQuantitationData();
     }
 }
