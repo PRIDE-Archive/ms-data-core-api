@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
  * This is mainly for PRIDE XMl
  * <p/>
  * @author rwang
+ * @author ypriverol
  * Date: 09/08/2011
  * Time: 13:51
  */

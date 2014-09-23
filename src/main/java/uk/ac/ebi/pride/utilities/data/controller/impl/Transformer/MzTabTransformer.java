@@ -14,20 +14,21 @@ import uk.ac.ebi.pride.utilities.data.core.Software;
 import uk.ac.ebi.pride.utilities.data.core.SourceFile;
 import uk.ac.ebi.pride.utilities.data.core.UserParam;
 import uk.ac.ebi.pride.utilities.data.utils.CvUtilities;
-import uk.ac.ebi.pride.utilities.data.utils.MzIdentMLUtils;
 import uk.ac.ebi.pride.utilities.data.utils.MzTabUtils;
 import uk.ac.ebi.pride.jmztab.model.*;
 import uk.ac.ebi.pride.jmztab.model.Contact;
 import uk.ac.ebi.pride.jmztab.model.Instrument;
 import uk.ac.ebi.pride.jmztab.model.Param;
 import uk.ac.ebi.pride.utilities.term.CvTermReference;
+import uk.ac.ebi.pride.utilities.term.QuantCvTermReference;
 import uk.ac.ebi.pride.utilities.util.NumberUtilities;
 
-import java.math.BigInteger;
 import java.util.*;
 
 /**
- * MzTab Transformer to ms-data-core-api Objects
+ * MzTab Transformer to ms-data-core-api Objects. We are only converting proteins and psm without the peptide information in the first release. In the near future we will
+ * also convert peptide information.
+ *
  * @author ypriverol
  * @author rwang
  */
@@ -55,19 +56,19 @@ public class MzTabTransformer {
             ParamGroup paramGroup = new ParamGroup();
             //Adding fragmetation type as a CVParameter
             if(msRun.getFragmentationMethod() != null){
-                CvParam fragmentationType = MzTabUtils.convertCVParamToCvParam(msRun.getFragmentationMethod());
+                CvParam fragmentationType = MzTabUtils.convertParamToCvParam(msRun.getFragmentationMethod());
                 paramGroup.addCvParam(fragmentationType);
             }
             //Adding hash method to CvParam
             if(msRun.getHashMethod() != null){
-                CvParam hashType = MzTabUtils.convertCVParamToCvParam(msRun.getHashMethod());
+                CvParam hashType = MzTabUtils.convertParamToCvParam(msRun.getHashMethod());
                 hashType.setValue(msRun.getHash());
                 paramGroup.addCvParam(hashType);
             }
             // Add CvFormat
             CvParam format = null;
             if(msRun.getFormat() != null)
-                format = MzTabUtils.convertCVParamToCvParam(msRun.getFormat());
+                format = MzTabUtils.convertParamToCvParam(msRun.getFormat());
 
             sourceFile = new SourceFile(paramGroup,msRun.getId().toString(),msRun.getReference(),msRun.getLocation().getPath(),format,null);
 
@@ -126,35 +127,115 @@ public class MzTabTransformer {
         return organization;
     }
 
-    public static List<Sample> transformSamples(Map<Integer, uk.ac.ebi.pride.jmztab.model.Sample> oldSamples,
-                                                Map<Integer, uk.ac.ebi.pride.jmztab.model.Assay> oldAssays,
-                                                Map<Integer, uk.ac.ebi.pride.jmztab.model.StudyVariable> oldStudyVariable) {
+    public static List<Sample> transformSamples(Map<Integer, uk.ac.ebi.pride.jmztab.model.Sample> oldSamples, Metadata metadata, boolean hasQuantitation) {
         List<Sample> samples = new ArrayList<Sample>();
-        if(oldSamples != null && oldSamples.size()>0){
-            for(Map.Entry entry: oldSamples.entrySet()){
-                uk.ac.ebi.pride.jmztab.model.Sample oldSample = (uk.ac.ebi.pride.jmztab.model.Sample) entry.getValue();
+        if(oldSamples != null && oldSamples.size() > 0){
+            for(uk.ac.ebi.pride.jmztab.model.Sample oldSample: oldSamples.values()){
                 samples.add(transformSample(oldSample));
             }
-            if(oldAssays != null && oldAssays.size() > 0 && samples.size() > 0){
-                for(Map.Entry entry: oldAssays.entrySet()){
-                    Assay assay = (Assay) entry.getValue();
-                    for(Sample sample: samples){
-                        if(sample.getId().toString() != null && assay.getSample() != null && assay.getSample().getId() != null && sample.getId().toString().equalsIgnoreCase(assay.getSample().getId().toString()) && assay.getQuantificationReagent() != null){
-                            sample.addCvParam(MzTabUtils.parseQuantitationReagentCvParam(assay.getQuantificationReagent()));
-                            if(assay.getQuantificationModMap() != null && assay.getQuantificationModMap().size() > 0){
-                                Collection<AssayQuantificationMod> mods = assay.getQuantificationModMap().values();
-                                for(AssayQuantificationMod mod: mods)
-                                    if(mod != null && mod.getParam() != null)
-                                        sample.addCvParam(MzTabUtils.convertCVParamToCvParam(mod.getParam()));
-                            }
-                        }
-                    }
-                }
-            }
-
-
         }
         return samples;
+    }
+
+    private static List<CvParam> transformQuantitationSample(Integer sampleIndex, Assay oldAssay, uk.ac.ebi.pride.jmztab.model.Sample oldSample, List<CvParam> params) {
+        CvParam specie = null;
+        if(oldSample.getSpeciesList() != null && oldSample.getSpeciesList().size() > 0 && oldSample.getSpeciesList().get(0) != null)
+             specie = MzTabUtils.convertParamToCvParam(oldSample.getSpeciesList().get(0));
+
+        CvParam tissue = null;
+        if(oldSample.getTissueList() != null && oldSample.getTissueList().size() > 0 && oldSample.getTissueList().get(0) != null)
+            tissue = MzTabUtils.convertParamToCvParam(oldSample.getTissueList().get(0));
+
+        CvParam regent = MzTabUtils.parseQuantitationReagentCvParam(oldAssay.getQuantificationReagent());
+
+        CvParam description = null;
+
+        switch (sampleIndex){
+            case 1:{
+                description = CvUtilities.getQuantTermFromQuantReference(QuantCvTermReference.SUBSAMPLE1_DESCRIPTION, oldSample.getDescription());
+                if (specie !=null)
+                    specie.setValue("subsample1");
+                if (tissue !=null)
+                    tissue.setValue("subsample1");
+                if(regent != null)
+                    regent.setValue("subsample1");
+                break;
+            }case 2:{
+                description = CvUtilities.getQuantTermFromQuantReference(QuantCvTermReference.SUBSAMPLE2_DESCRIPTION, oldSample.getDescription());
+                if (specie !=null)
+                    specie.setValue("subsample2");
+                if (tissue !=null)
+                    tissue.setValue("subsample2");
+                if(regent != null)
+                    regent.setValue("subsample2");
+                break;
+            }case 3:{
+                description = CvUtilities.getQuantTermFromQuantReference(QuantCvTermReference.SUBSAMPLE3_DESCRIPTION, oldSample.getDescription());
+                if (specie !=null)
+                    specie.setValue("subsample3");
+                if (tissue !=null)
+                    tissue.setValue("subsample3");
+                if(regent != null)
+                    regent.setValue("subsample3");
+                break;
+            }case 4:{
+                description = CvUtilities.getQuantTermFromQuantReference(QuantCvTermReference.SUBSAMPLE4_DESCRIPTION, oldSample.getDescription());
+                if (specie !=null)
+                    specie.setValue("subsample4");
+                if (tissue !=null)
+                    tissue.setValue("subsample4");
+                if(regent != null)
+                    regent.setValue("subsample4");
+                break;
+            }case 5:{
+                description = CvUtilities.getQuantTermFromQuantReference(QuantCvTermReference.SUBSAMPLE5_DESCRIPTION, oldSample.getDescription());
+                if (specie !=null)
+                    specie.setValue("subsample5");
+                if (tissue !=null)
+                    tissue.setValue("subsample5");
+                if(regent != null)
+                    regent.setValue("subsample5");
+                break;
+            }case 6:{
+                description = CvUtilities.getQuantTermFromQuantReference(QuantCvTermReference.SUBSAMPLE6_DESCRIPTION, oldSample.getDescription());
+                if (specie !=null)
+                    specie.setValue("subsample6");
+                if (tissue !=null)
+                    tissue.setValue("subsample6");
+                if(regent != null)
+                    regent.setValue("subsample6");
+                break;
+            }case 7:{
+                description = CvUtilities.getQuantTermFromQuantReference(QuantCvTermReference.SUBSAMPLE7_DESCRIPTION, oldSample.getDescription());
+                if (specie !=null)
+                    specie.setValue("subsample7");
+                if (tissue !=null)
+                    tissue.setValue("subsample7");
+                if(regent != null)
+                    regent.setValue("subsample7");
+                break;
+            }case 8:{
+                description = CvUtilities.getQuantTermFromQuantReference(QuantCvTermReference.SUBSAMPLE8_DESCRIPTION, oldSample.getDescription());
+                if (specie !=null)
+                    specie.setValue("subsample8");
+                if (tissue !=null)
+                    tissue.setValue("subsample8");
+                if(regent != null)
+                    regent.setValue("subsample8");
+                break;
+            }
+        }
+
+        if(description != null){
+           if(tissue != null)
+               params.add(tissue);
+           if(specie != null)
+               params.add(specie);
+           if(regent != null)
+               params.add(regent);
+            params.add(description);
+        }
+        return params;
     }
 
     private static Sample transformSample(uk.ac.ebi.pride.jmztab.model.Sample oldSample) {
@@ -207,7 +288,7 @@ public class MzTabTransformer {
             String version = null;
             String name = null;
             if(oldSoftware.getParam() != null) {
-                paramGroup.addCvParam(MzTabUtils.convertCVParamToCvParam(oldSoftware.getParam()));
+                paramGroup.addCvParam(MzTabUtils.convertParamToCvParam(oldSoftware.getParam()));
                 version = oldSoftware.getParam().getValue();
                 name = oldSoftware.getParam().getName();
             }
@@ -242,7 +323,7 @@ public class MzTabTransformer {
         if(additionalParams != null && additionalParams.size() >0){
             ParamGroup paramGroup = new ParamGroup();
             for(Param param: additionalParams)
-                paramGroup.addCvParam(MzTabUtils.convertCVParamToCvParam(param));
+                paramGroup.addCvParam(MzTabUtils.convertParamToCvParam(param));
             return paramGroup;
         }
         return null;
@@ -257,9 +338,11 @@ public class MzTabTransformer {
     public static Protein transformIdentification(uk.ac.ebi.pride.jmztab.model.Protein identification,
                                                   Integer rawIndex,
                                                   Map<Integer, uk.ac.ebi.pride.jmztab.model.PSM> psms,
-                                                  uk.ac.ebi.pride.jmztab.model.Metadata metadata) {
+                                                  uk.ac.ebi.pride.jmztab.model.Metadata metadata,
+                                                  boolean hasQuantitation
+    ) {
        //Todo: In the future it would be great to retrieve the information of the GEl for those files with Gel
-        return transformGelFreeIdent(identification,rawIndex, psms, metadata);
+        return transformGelFreeIdent(identification,rawIndex, psms, metadata,hasQuantitation);
 
     }
 
@@ -272,7 +355,8 @@ public class MzTabTransformer {
     public static Protein transformGelFreeIdent(uk.ac.ebi.pride.jmztab.model.Protein rawIdent,
                                                 Integer rawIndex,
                                                 Map<Integer, uk.ac.ebi.pride.jmztab.model.PSM> rawPsms,
-                                                uk.ac.ebi.pride.jmztab.model.Metadata metadata) {
+                                                uk.ac.ebi.pride.jmztab.model.Metadata metadata,
+                                                boolean hasQuantitation) {
 
         Protein ident = null;
 
@@ -297,6 +381,9 @@ public class MzTabTransformer {
             // add score parameters
             paramGroup.addCvParams(proteinScores);
 
+            if(hasQuantitation)
+                paramGroup.addCvParams(transformQuantitationParams(rawIdent, metadata));
+
             Double seqConverage = rawIdent.getProteinCoverage();
             double seqConverageVal = seqConverage == null ? -1 : seqConverage;
             Double threshold = null;
@@ -315,6 +402,24 @@ public class MzTabTransformer {
 
         return ident;
 
+    }
+
+    private static List<CvParam> transformQuantitationParams(uk.ac.ebi.pride.jmztab.model.Protein rawIdent, Metadata metadata) {
+        List<CvParam> scoreQuantitation = new ArrayList<CvParam>();
+        for(StudyVariable assayStudy: metadata.getStudyVariableMap().values()){
+            Double abundanceValue = rawIdent.getAbundanceColumnValue(assayStudy);
+            /*Param assayPAram = assayStudy.getSampleMap();
+            if(assayPAram != null && abundanceValue != null){
+                CvParam reagent = MzTabUtils.parseQuantitationReagentCvParam(assay.getQuantificationReagent());
+                reagent.setValue(abundanceValue.toString());
+                scoreQuantitation.add(reagent);
+            }*/
+        }
+        if(metadata.getQuantificationMethod() != null){
+           scoreQuantitation.add(MzTabUtils.convertParamToCvParam(metadata.getQuantificationMethod()));
+        }
+        //Apart of the scores the the method should be also added to the protein: like ITRAQ
+        return scoreQuantitation;
     }
 
     /**
@@ -388,7 +493,7 @@ public class MzTabTransformer {
     private static List<CvParam> transformPSMSearchEngineScoreCvTerm(PSM rawPeptide, Metadata metadata) {
         List<CvParam> scoreParams = new ArrayList<CvParam>();
         for (PSMSearchEngineScore psmSearchEngineScore : metadata.getPsmSearchEngineScoreMap().values()) {
-            CvParam cvParam = MzTabUtils.convertCVParamToCvParam(psmSearchEngineScore.getParam());
+            CvParam cvParam = MzTabUtils.convertParamToCvParam(psmSearchEngineScore.getParam());
             Double searchEngineScore = rawPeptide.getSearchEngineScore(psmSearchEngineScore.getId());
             if (searchEngineScore != null) {
                 cvParam.setValue(searchEngineScore.toString());
@@ -424,7 +529,7 @@ public class MzTabTransformer {
                    //Add the name of the modification
                    ParamGroup params = new ParamGroup();
                    if(mod.getParam() != null)
-                       params.addCvParam(MzTabUtils.convertCVParamToCvParam(mod.getParam()));
+                       params.addCvParam(MzTabUtils.convertParamToCvParam(mod.getParam()));
 
                    String name = getModificationName(params, rawModAccession);
 
@@ -436,7 +541,7 @@ public class MzTabTransformer {
                    if(rawLocation.size() == 1){
                        int location = rawLocation.keySet().iterator().next();
                        if(rawLocation.values().iterator().next() != null)
-                           params.addCvParam(MzTabUtils.convertCVParamToCvParam(rawLocation.values().iterator().next()));
+                           params.addCvParam(MzTabUtils.convertParamToCvParam(rawLocation.values().iterator().next()));
                        Modification modification = new Modification(params, rawModAccession, name,location,null,avgDelta,monoDelta,null,null);
                        modifications.add(modification);
                    }else if(rawLocation.size() > 1){
@@ -446,7 +551,7 @@ public class MzTabTransformer {
                            ParamGroup paramGroup = new ParamGroup();
                            paramGroup.addCvParams(params.getCvParams());
                            if(param != null)
-                               paramGroup.addCvParam(MzTabUtils.convertCVParamToCvParam(param));
+                               paramGroup.addCvParam(MzTabUtils.convertParamToCvParam(param));
                            Modification modification = new Modification(paramGroup, rawModAccession, name, location,null,avgDelta,monoDelta,null,null);
                            modifications.add(modification);
                        }
@@ -469,7 +574,7 @@ public class MzTabTransformer {
                     //Add the name of the modification
                     ParamGroup params = new ParamGroup();
                     if(mod.getParam() != null)
-                        params.addCvParam(MzTabUtils.convertCVParamToCvParam(mod.getParam()));
+                        params.addCvParam(MzTabUtils.convertParamToCvParam(mod.getParam()));
 
                     String name = getModificationName(params, rawModAccession);
 
@@ -481,7 +586,7 @@ public class MzTabTransformer {
                     if(rawLocation.size() == 1){
                         int location = rawLocation.keySet().iterator().next();
                         if(rawLocation.values().iterator().next() != null)
-                            params.addCvParam(MzTabUtils.convertCVParamToCvParam(rawLocation.values().iterator().next()));
+                            params.addCvParam(MzTabUtils.convertParamToCvParam(rawLocation.values().iterator().next()));
                         Modification modification = new Modification(params, rawModAccession, name,location,null,avgDelta,monoDelta,null,null);
                         modifications.add(modification);
                     }else if(rawLocation.size() > 1){
@@ -491,7 +596,7 @@ public class MzTabTransformer {
                             ParamGroup paramGroup = new ParamGroup();
                             paramGroup.addCvParams(params.getCvParams());
                             if(param != null)
-                                paramGroup.addCvParam(MzTabUtils.convertCVParamToCvParam(param));
+                                paramGroup.addCvParam(MzTabUtils.convertParamToCvParam(param));
                             Modification modification = new Modification(paramGroup, rawModAccession, name, location,null,avgDelta,monoDelta,null,null);
                             modifications.add(modification);
                         }
@@ -526,7 +631,7 @@ public class MzTabTransformer {
     private static List<CvParam> transformSearchEngineProteinScores(uk.ac.ebi.pride.jmztab.model.Protein rawIdent, Metadata metadata) {
         List<CvParam> scoreParams = new ArrayList<CvParam>();
         for (ProteinSearchEngineScore proteinSearchEngineScore : metadata.getProteinSearchEngineScoreMap().values()) {
-            CvParam cvParam = MzTabUtils.convertCVParamToCvParam(proteinSearchEngineScore.getParam());
+            CvParam cvParam = MzTabUtils.convertParamToCvParam(proteinSearchEngineScore.getParam());
             for (MsRun msRun : metadata.getMsRunMap().values()) {
                 Double searchEngineScore = rawIdent.getSearchEngineScore(proteinSearchEngineScore.getId(), msRun);
                 if (searchEngineScore != null) {
@@ -546,7 +651,7 @@ public class MzTabTransformer {
                 ParamGroup paramGroup = new ParamGroup();
                 SplitList<Param> params = (SplitList<Param>) entry.getValue();
                 for(Param param: params)
-                    paramGroup.addCvParam(MzTabUtils.convertCVParamToCvParam(param));
+                    paramGroup.addCvParam(MzTabUtils.convertParamToCvParam(param));
                 protocolSteps.add(paramGroup);
             }
             protocol = new ExperimentProtocol(null,MzTabTransformer.PROTOCOL_ID , null, protocolSteps);
@@ -565,11 +670,11 @@ public class MzTabTransformer {
         SpectraData spectraData;
         CvParam paramFormat = null;
         if(msRun.getFormat() != null)
-            paramFormat = MzTabUtils.convertCVParamToCvParam(msRun.getFormat());
+            paramFormat = MzTabUtils.convertParamToCvParam(msRun.getFormat());
 
         CvParam idFormat = null;
         if(msRun.getIdFormat() != null)
-            idFormat = MzTabUtils.convertCVParamToCvParam(msRun.getIdFormat());
+            idFormat = MzTabUtils.convertParamToCvParam(msRun.getIdFormat());
 
         spectraData = new SpectraData(msRun.getId().toString(),msRun.getReference(),msRun.getLocation().getPath(),paramFormat,null, idFormat);
         return spectraData;
@@ -586,7 +691,7 @@ public class MzTabTransformer {
             // create instrument param group to aid semantic support
             ParamGroup params = new ParamGroup();
 
-            params.addCvParam(MzTabUtils.convertCVParamToCvParam(instrument.getName()));
+            params.addCvParam(MzTabUtils.convertParamToCvParam(instrument.getName()));
             // create instrument components
             int sourceOrder = 1;
 
@@ -622,7 +727,7 @@ public class MzTabTransformer {
         // ToDo: must have mass analyzer type (MS:1000443)
         if (rawAnalyzer != null) {
             ParamGroup params = new ParamGroup();
-            params.addCvParam(MzTabUtils.convertCVParamToCvParam(rawAnalyzer));
+            params.addCvParam(MzTabUtils.convertParamToCvParam(rawAnalyzer));
             component = new InstrumentComponent(orderCnt, params);
         }
         return component;
@@ -634,7 +739,7 @@ public class MzTabTransformer {
         // ToDo: must have detector type (MS:1000026)
         if (detector != null) {
             ParamGroup params = new ParamGroup();
-            params.addCvParam(MzTabUtils.convertCVParamToCvParam(detector));
+            params.addCvParam(MzTabUtils.convertParamToCvParam(detector));
             component = new InstrumentComponent(detectorOrder, params);
         }
 
@@ -647,7 +752,7 @@ public class MzTabTransformer {
         // ToDo: must have ionization type (MS:1000008)
         if (source != null) {
             ParamGroup params = new ParamGroup();
-            params.addCvParam(MzTabUtils.convertCVParamToCvParam(source));
+            params.addCvParam(MzTabUtils.convertParamToCvParam(source));
             component = new InstrumentComponent(sourceOrder, params);
         }
 

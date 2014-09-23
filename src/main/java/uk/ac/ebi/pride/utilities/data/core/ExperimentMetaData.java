@@ -1,5 +1,6 @@
 package uk.ac.ebi.pride.utilities.data.core;
 
+import uk.ac.ebi.pride.jmztab.model.*;
 import uk.ac.ebi.pride.utilities.data.utils.CollectionUtils;
 
 import java.util.Date;
@@ -26,6 +27,9 @@ public class ExperimentMetaData extends IdentifiableParamGroup {
      */
     private Provider provider;
 
+    /**
+     * Organizations related in the file, this structure comes from mzidentml files.
+     */
     private final List<Organization> organizations;
 
     /**
@@ -53,6 +57,8 @@ public class ExperimentMetaData extends IdentifiableParamGroup {
     private final List<Reference> references;
 
     private final List<Sample> samples;
+
+    private List<StudyVariable> studyVariables;
 
     /*
      * Short Label used by Pride XML Object
@@ -140,6 +146,71 @@ public class ExperimentMetaData extends IdentifiableParamGroup {
         this.shortLabel = shortLabel;
 
         this.spectraDatas = CollectionUtils.createListFromList(spectraDatas);
+    }
+
+    /**
+     * This controller is specially designed for mzTab files that contains Study Variables with description, etc.
+     *
+     * @param params        Params Group of Experiment Meta Data
+     * @param id            Generic Id of the Experiment
+     * @param name          Generic Name of the Experiment
+     * @param version       File version
+     * @param shortLabel    Short Label of the Experiment (PRIDE XML and PRIDE Database)
+     * @param samples       Sample List
+     * @param softwares     Software List used in the Experiment
+     * @param persons       Contact List
+     * @param sourceFiles   Source Files related with the Experiment
+     * @param provider      Last Software and Contact that Provide the File or Experiment Results (mzidentML)
+     * @param organizations Organization List involve in the Experiment
+     * @param references    References related with the Experiments
+     * @param creationDate  Creation Date
+     * @param publicDate    Publication Date (PRIDE XML)
+     * @param protocol      Experiment General Protocol (PRIDE XML)
+     * @param spectraDatas  Spectra Data Files related with the Experiment (mzIdentML)
+     *
+     */
+    public ExperimentMetaData(ParamGroup params, Comparable id, String name, String version, String shortLabel,
+                              List<Sample> samples, List<Software> softwares, List<Person> persons,
+                              List<SourceFile> sourceFiles, Provider provider, List<Organization> organizations,
+                              List<Reference> references, Date creationDate, Date publicDate,
+                              ExperimentProtocol protocol, List<SpectraData> spectraDatas, List<StudyVariable> studyVariables) {
+        super(params, id, name);
+
+        this.version = version;
+
+        this.samples = CollectionUtils.createListFromList(samples);
+
+        this.softwares = CollectionUtils.createListFromList(softwares);
+
+        this.persons = CollectionUtils.createListFromList(persons);
+
+        this.sourceFiles = CollectionUtils.createListFromList(sourceFiles);
+
+        this.provider = provider;
+
+        this.organizations = CollectionUtils.createListFromList(organizations);
+
+        this.references = CollectionUtils.createListFromList(references);
+
+        this.creationDate = creationDate;
+
+        this.publicDate = publicDate;
+
+        this.protocol = protocol;
+
+        this.shortLabel = shortLabel;
+
+        this.spectraDatas = CollectionUtils.createListFromList(spectraDatas);
+
+        this.studyVariables = studyVariables;
+    }
+
+    public List<StudyVariable> getStudyVariables() {
+        return studyVariables;
+    }
+
+    public void setStudyVariables(List<StudyVariable> studyVariables) {
+        this.studyVariables = studyVariables;
     }
 
     public Provider getProvider() {

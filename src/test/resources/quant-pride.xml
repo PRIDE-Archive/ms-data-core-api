@@ -52,8 +52,8 @@ and plasticity of the mouse visual cortex. Mol Cell Proteomics. 2011 Mar 11.</Re
             <cvParam value="subsample3" name="visual cortex" accession="EFO:0000916" cvLabel="EFO"/>
             <cvParam value="subsample4" name="visual cortex" accession="EFO:0000916" cvLabel="EFO"/>
             <cvParam name="Contains multiple subsamples" accession="PRIDE:0000366" cvLabel="PRIDE"/>
-            <userParam value="PRIDE:0000354,PRIDE:0000356,PRIDE:0000356,PRIDE:0000357" name="Available protein quantitation fields"/>
-            <userParam value="PRIDE:0000354,PRIDE:0000356,PRIDE:0000356,PRIDE:0000357" name="Available peptide quantitation fields"/>
+            <userParam value="PRIDE:0000354,PRIDE:0000355,PRIDE:0000356,PRIDE:0000357" name="Available protein quantitation fields"/>
+            <userParam value="PRIDE:0000354,PRIDE:0000355,PRIDE:0000356,PRIDE:0000357" name="Available peptide quantitation fields"/>
         </sampleDescription>
         <sourceFile>
             <nameOfFile>Set2_SWISS_F001744.dat</nameOfFile>

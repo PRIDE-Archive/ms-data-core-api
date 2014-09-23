@@ -3,6 +3,7 @@ package uk.ac.ebi.pride.utilities.data.utils;
 import uk.ac.ebi.pride.utilities.data.core.CvParam;
 import uk.ac.ebi.pride.utilities.data.core.ParamGroup;
 import uk.ac.ebi.pride.utilities.term.CvTermReference;
+import uk.ac.ebi.pride.utilities.term.QuantCvTermReference;
 
 import java.util.List;
 
@@ -14,6 +15,10 @@ public class CvUtilities {
 
     public static CvParam getCVTermFromCvReference(CvTermReference cvTerm, String value){
         return new CvParam(cvTerm.getAccession(), cvTerm.getName(), cvTerm.getCvLabel(), value, null, null, null);
+    }
+
+    public static CvParam getQuantTermFromQuantReference(QuantCvTermReference quantTerm, String value){
+        return new CvParam(quantTerm.getAccession(), quantTerm.getName(), quantTerm.getCvLabel(), value, null, null, null);
     }
 
     public static String getMailFromCvParam(ParamGroup person){
@@ -32,6 +37,8 @@ public class CvUtilities {
         }
         return mail;
     }
+
+
 
     /**
      * Checks whether the passed identification object is a decoy hit. This function only checks for

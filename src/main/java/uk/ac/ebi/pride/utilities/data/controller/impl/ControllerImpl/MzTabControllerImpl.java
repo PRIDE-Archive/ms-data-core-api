@@ -194,7 +194,7 @@ public class MzTabControllerImpl extends ReferencedIdentificationController{
             logger.debug("Get samples");
             List<Sample> samples;
             try {
-                samples = MzTabTransformer.transformSamples(reader.getSamples(), reader.getAssays(), reader.getStudyVariables());
+                samples = MzTabTransformer.transformSamples(reader.getSamples(), reader.getMetadata(), hasQuantData());
                 return samples;
             } catch (Exception ex) {
                 String msg = "Error while getting samples";
@@ -398,7 +398,7 @@ public class MzTabControllerImpl extends ReferencedIdentificationController{
               Tuple<Integer, uk.ac.ebi.pride.jmztab.model.Protein> rawProtein = reader.getProteinById(proteinId);
               Map<Integer, uk.ac.ebi.pride.jmztab.model.PSM> spectrumIdentificationItems = getScannedSpectrumIdentificationItems(proteinId);
               uk.ac.ebi.pride.jmztab.model.Metadata metadata = reader.getMetadata();
-              ident = MzTabTransformer.transformIdentification(rawProtein.getValue(), rawProtein.getKey(), spectrumIdentificationItems, metadata);
+              ident = MzTabTransformer.transformIdentification(rawProtein.getValue(), rawProtein.getKey(), spectrumIdentificationItems, metadata, hasQuantData());
                 if (ident != null) {
                     cacheProtein(ident);
                 }

@@ -38,7 +38,7 @@ public class MzTabUtils {
         List<CvParam> cvParamList = new ArrayList<CvParam>();
         if(params != null && params.size() > 0){
             for(Param param: params)
-                cvParamList.add(MzTabUtils.convertCVParamToCvParam(param));
+                cvParamList.add(MzTabUtils.convertParamToCvParam(param));
         }
         return cvParamList;
     }
@@ -170,7 +170,7 @@ public class MzTabUtils {
         }
     }
 
-    public static CvParam convertCVParamToCvParam(Param param) {
+    public static CvParam convertParamToCvParam(Param param) {
         return new CvParam(param.getAccession(),param.getName(),param.getCvLabel(),param.getValue(),null,null,null);
     }
 

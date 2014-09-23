@@ -3,6 +3,7 @@ package uk.ac.ebi.pride.utilities.data.io.file;
 import uk.ac.ebi.pride.utilities.data.utils.MzTabUtils;
 import uk.ac.ebi.pride.jmztab.model.*;
 import uk.ac.ebi.pride.jmztab.utils.MZTabFileParser;
+import uk.ac.ebi.pride.utilities.term.QuantCvTermReference;
 import uk.ac.ebi.pride.utilities.util.NumberUtilities;
 import uk.ac.ebi.pride.utilities.util.Tuple;
 
@@ -232,7 +233,11 @@ public class MzTabUnmarshallerAdaptor extends MZTabFileParser{
     }
 
     public boolean hasQuantitationData() {
-        return (getMZTabFile().getMetadata().getMZTabType() == MZTabDescription.Type.Quantification);
+        if(getMZTabFile().getMetadata().getMZTabType() == MZTabDescription.Type.Quantification){
+            Param method = getMetadata().getQuantificationMethod();
+            return (QuantCvTermReference.getQuantitativeMethodParam(method.getAccession())!= null);
+        }
+        return false;
     }
 
 
