@@ -35,6 +35,9 @@ public class MzTabCachingStrategy extends AbstractCachingStrategy {
 
         cacheSpectrumIds(unmarshaller);
 
+        if(unmarshaller.hasQuantitationData())
+            cacheQuantPeptideIds(unmarshaller);
+
 
         /* Get a preScan of the File, the PreCan of the mzidentml File gets the information
          * about all the spectrums, protein identifications, and peptide-spectrum matchs with the
@@ -46,8 +49,7 @@ public class MzTabCachingStrategy extends AbstractCachingStrategy {
             cacheProteins(unmarshaller);
         }
 
-        if(unmarshaller.hasQuantitationData())
-            cacheQuantPeptideIds(unmarshaller);
+
 
     }
     /**
@@ -183,40 +185,42 @@ public class MzTabCachingStrategy extends AbstractCachingStrategy {
 
             String psmId  = psmEntry.getKey().toString();
 
-            PSM psm       = (PSM) psmEntry.getValue();
+            Peptide psm       = (Peptide) psmEntry.getValue();
 
             SplitList<SpectraRef> refs = psm.getSpectraRef();
 
             //Every PSM is the reference of PSM + reference spectra
             int count = 1;
 
-            for(SpectraRef ref:refs){
+            // Some peptides do not contains the reference to the original spectra because is not mandatory.
+            if(refs != null && !refs.isEmpty()){
+                for(SpectraRef ref: refs){
 
-                String msRunId = ref.getMsRun().getId().toString();
+                    String msRunId = ref.getMsRun().getId().toString();
 
-                String reference = ref.getReference();
+                    String reference = ref.getReference();
 
-                if(spectraDataMap.containsKey(msRunId))
-                    spectraDataMap.get(msRunId).add(psmId.toString());
-                else{
-                    List<String> psmIDs = new ArrayList<String>();
-                    psmIDs.add(psmId.toString());
-                    spectraDataMap.put(msRunId, psmIDs);
+                    if(spectraDataMap.containsKey(msRunId))
+                        spectraDataMap.get(msRunId).add(psmId.toString());
+                    else{
+                        List<String> psmIDs = new ArrayList<String>();
+                        psmIDs.add(psmId.toString());
+                        spectraDataMap.put(msRunId, psmIDs);
+                    }
+                    // extract the spectrum ID from the provided identifier
+                    String formattedSpectrumID = MzTabUtils.getSpectrumId(spectraDataIds.get(msRunId), reference);
+                    String[] spectrumFeatures = {formattedSpectrumID, msRunId};
+                    identSpectrumMap.put(psmId.toString() + "!" + count, spectrumFeatures);
+                    count++;
                 }
-                // extract the spectrum ID from the provided identifier
-                String formattedSpectrumID = MzTabUtils.getSpectrumId(spectraDataIds.get(msRunId), reference);
-                String[] spectrumFeatures = {formattedSpectrumID, msRunId};
-                identSpectrumMap.put(psmId.toString() + "!" + count, spectrumFeatures);
-                count++;
+            }else{
+                identSpectrumMap.put(psmId.toString() + "!" + count, null);
             }
+
         }
 
         cache.clear(CacheEntry.QUANTPEPTIDE_TO_SPECTREUM);
         cache.storeInBatch(CacheEntry.PEPTIDE_TO_SPECTRUM, identSpectrumMap);
-
-        cache.clear(CacheEntry.SPECTRA_DATA);
-        cache.storeInBatch(CacheEntry.SPECTRA_DATA, spectraDataIds);
-
     }
 
     private boolean matchPSMPeptide(Peptide peptide, PSM psm){

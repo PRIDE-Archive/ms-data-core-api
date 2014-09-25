@@ -94,6 +94,7 @@ public class MzTabControllerImpl extends ReferencedIdentificationController{
                 ContentCategory.SOFTWARE,
                 ContentCategory.PROTEIN_GROUPS,
                 ContentCategory.SPECTRUM,
+                ContentCategory.STUDY_VARIABLE,
                 ContentCategory.QUANTIFICATION);
         //Todo: first cases only support identification
         // set cache builder

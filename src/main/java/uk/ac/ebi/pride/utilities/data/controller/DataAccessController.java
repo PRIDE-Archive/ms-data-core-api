@@ -12,6 +12,7 @@ import java.util.Collection;
  * Setting the state of the data access controller.
  * <p/>
  * @author ypriverol
+ * @author rwang
  * Date: 09-Apr-2010
  * Time: 14:25:49
  */
@@ -35,6 +36,7 @@ public interface DataAccessController
         PROTOCOL,
         SOFTWARE,
         INSTRUMENT,
+        STUDY_VARIABLE,
         DATA_PROCESSING
     }
 

@@ -711,7 +711,7 @@ public abstract class CachedDataAccessController extends AbstractDataAccessContr
     public List<Modification> getPTMs(Comparable proteinId, Comparable peptideId) {
         List<Tuple<String, Integer>> ptms = (List<Tuple<String, Integer>>) cache.get(CacheEntry.PEPTIDE_TO_MODIFICATION, peptideId);
 
-        List<Modification> mods = new ArrayList<Modification>();
+        Set<Modification> mods = new HashSet<Modification>();
 
         if (ptms != null && !ptms.isEmpty()) {
             // create modification from cache
@@ -719,14 +719,13 @@ public abstract class CachedDataAccessController extends AbstractDataAccessContr
                 String modAcc = ptm.getKey();
                 Integer location = ptm.getValue();
                 Modification mod = (Modification) cache.get(CacheEntry.MODIFICATION, modAcc);
-                //Modification newMod = new Modification(mod, modAcc, mod.getModDatabase(), mod.getModDatabaseVersion(), mod.getMonoisotopicMassDelta(), mod.getAvgMassDelta(), location);
                 Modification newMod = new Modification(modAcc, mod.getName(), location, mod.getResidues(), mod.getAvgMassDelta(), mod.getMonoisotopicMassDelta(), mod.getModDatabase(), mod.getModDatabaseVersion());
                 mods.add(newMod);
             }
         } else if (!DataAccessMode.CACHE_ONLY.equals(mode)) {
-            mods = super.getPTMs(proteinId, peptideId);
+            return super.getPTMs(proteinId, peptideId);
         }
-        return mods;
+        return new ArrayList<Modification>(mods);
     }
 
     /**

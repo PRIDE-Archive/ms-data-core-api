@@ -374,15 +374,15 @@ public final class DataAccessUtilities {
      * @return int number of ptms
      */
     public static int getNumberOfPTMs(Protein ident) {
-        int cnt = 0;
+        Set<Modification> modTotal = new HashSet<Modification>();
         List<Peptide> peptides = ident.getPeptides();
         for (Peptide peptide : peptides) {
             List<Modification> mods = peptide.getPeptideSequence().getModifications();
-            if (mods != null) {
-                cnt += mods.size();
+            if (mods != null && !mods.isEmpty()) {
+                modTotal.addAll(mods);
             }
         }
-        return cnt;
+        return modTotal.size();
     }
 
     /**
