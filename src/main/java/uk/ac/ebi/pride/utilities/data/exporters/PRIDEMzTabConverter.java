@@ -1,5 +1,6 @@
 package uk.ac.ebi.pride.utilities.data.exporters;
 
+import uk.ac.ebi.pride.jmztab.model.Assay;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessController;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessException;
 import uk.ac.ebi.pride.utilities.data.core.*;

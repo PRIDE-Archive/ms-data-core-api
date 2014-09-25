@@ -98,6 +98,25 @@ public class SpectrumIdentification extends IdentifiableParamGroup {
      */
     private Spectrum spectrum;
 
+    /**
+     * Spectrum Identification Item
+     * @param id                        Id
+     * @param name                      name
+     * @param chargeState               Charge state
+     * @param experimentalMassToCharge  Experimental Charge
+     * @param calculatedMassToCharge    Calculated Mass
+     * @param calculatedPI              Calculated PI
+     * @param peptideSequence           Peptide Sequence
+     * @param rank                      Peptide Rank
+     * @param passThreshold             If Pass the threshold
+     * @param massTable                 Mass table used to identified the peptide
+     * @param sample                    Sample in which this peptide appear
+     * @param peptideEvidenceList       List of peptide evidences.
+     * @param fragmentation             Fragmentation assigned
+     * @param score                     Identification Score
+     * @param spectrum                  Spectrum use to identified the peptide
+     * @param spectraData               The reference to SpectraData
+     */
     public SpectrumIdentification(Comparable id, String name, int chargeState, double experimentalMassToCharge,
                                   double calculatedMassToCharge, double calculatedPI, PeptideSequence peptideSequence, int rank,
                                   boolean passThreshold, MassTable massTable, Sample sample,
@@ -108,6 +127,26 @@ public class SpectrumIdentification extends IdentifiableParamGroup {
                 score, spectrum, spectraData);
     }
 
+    /**
+     * Spectrum Identification Item
+     * @param params                    CvParams associated with the score
+     * @param id                        Id
+     * @param name                      name
+     * @param chargeState               Charge state
+     * @param experimentalMassToCharge  Experimental Charge
+     * @param calculatedMassToCharge    Calculated Mass
+     * @param calculatedPI              Calculated PI
+     * @param peptideSequence           Peptide Sequence
+     * @param rank                      Peptide Rank
+     * @param passThreshold             If Pass the threshold
+     * @param massTable                 Mass table used to identified the peptide
+     * @param sample                    Sample in which this peptide appear
+     * @param peptideEvidenceList       List of peptide evidences.
+     * @param fragmentation             Fragmentation assigned
+     * @param score                     Identification Score
+     * @param spectrum                  Spectrum use to identified the peptide
+     * @param spectraData               The reference to SpectraData
+     */
     public SpectrumIdentification(ParamGroup params, Comparable id, String name, int chargeState, double experimentalMassToCharge,
                                   double calculatedMassToCharge, double calculatedPI, PeptideSequence peptideSequence, int rank,
                                   boolean passThreshold, MassTable massTable, Sample sample,
@@ -261,7 +300,7 @@ public class SpectrumIdentification extends IdentifiableParamGroup {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof SpectrumIdentification)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
 
         SpectrumIdentification that = (SpectrumIdentification) o;
@@ -272,30 +311,35 @@ public class SpectrumIdentification extends IdentifiableParamGroup {
         if (Double.compare(that.experimentalMassToCharge, experimentalMassToCharge) != 0) return false;
         if (passThreshold != that.passThreshold) return false;
         if (rank != that.rank) return false;
-        if (!fragmentation.equals(that.fragmentation)) return false;
+        if (fragmentation != null ? !fragmentation.equals(that.fragmentation) : that.fragmentation != null)
+            return false;
         if (massTable != null ? !massTable.equals(that.massTable) : that.massTable != null) return false;
-        if (!peptideEvidenceList.equals(that.peptideEvidenceList)) return false;
+        if (peptideEvidenceList != null ? !peptideEvidenceList.equals(that.peptideEvidenceList) : that.peptideEvidenceList != null)
+            return false;
         if (peptideSequence != null ? !peptideSequence.equals(that.peptideSequence) : that.peptideSequence != null)
             return false;
         if (sample != null ? !sample.equals(that.sample) : that.sample != null) return false;
-        return !(score != null ? !score.equals(that.score) : that.score != null) && !(spectraData != null ? !spectraData.equals(that.spectraData) : that.spectraData != null) && !(spectrum != null ? !spectrum.equals(that.spectrum) : that.spectrum != null);
+        if (score != null ? !score.equals(that.score) : that.score != null) return false;
+        if (spectraData != null ? !spectraData.equals(that.spectraData) : that.spectraData != null) return false;
+        if (spectrum != null ? !spectrum.equals(that.spectrum) : that.spectrum != null) return false;
 
+        return true;
     }
 
     @Override
     public int hashCode() {
         int result = super.hashCode();
         long temp;
-        temp = calculatedMassToCharge != +0.0d ? Double.doubleToLongBits(calculatedMassToCharge) : 0L;
+        temp = Double.doubleToLongBits(calculatedMassToCharge);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
-        temp = calculatedPI != +0.0d ? Double.doubleToLongBits(calculatedPI) : 0L;
+        temp = Double.doubleToLongBits(calculatedPI);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         result = 31 * result + chargeState;
-        temp = experimentalMassToCharge != +0.0d ? Double.doubleToLongBits(experimentalMassToCharge) : 0L;
+        temp = Double.doubleToLongBits(experimentalMassToCharge);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
-        result = 31 * result + fragmentation.hashCode();
+        result = 31 * result + (fragmentation != null ? fragmentation.hashCode() : 0);
         result = 31 * result + (massTable != null ? massTable.hashCode() : 0);
-        result = 31 * result + peptideEvidenceList.hashCode();
+        result = 31 * result + (peptideEvidenceList != null ? peptideEvidenceList.hashCode() : 0);
         result = 31 * result + (score != null ? score.hashCode() : 0);
         result = 31 * result + (peptideSequence != null ? peptideSequence.hashCode() : 0);
         result = 31 * result + rank;

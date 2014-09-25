@@ -5,7 +5,7 @@ import java.util.List;
 
 /**
  * Study variable is use for Quantitation on mzTab files. It would be great to add have for mzTab
- * files they are own structure for quantitation and this is modelate using StudyVariable classes.
+ * files they are own structure for Quantitation and this is represented using StudyVariable classes.
  *
  * @author ypriverol
  * @author rwang

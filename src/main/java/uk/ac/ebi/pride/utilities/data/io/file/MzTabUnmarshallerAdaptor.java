@@ -28,6 +28,7 @@ public class MzTabUnmarshallerAdaptor extends MZTabFileParser{
 
 
     private int numIdentifiedPeptides;
+    private Map<Integer, Peptide> peptides;
 
     public MzTabUnmarshallerAdaptor(File tabFile, OutputStream out) throws IOException {
         super(tabFile, out);
@@ -154,8 +155,10 @@ public class MzTabUnmarshallerAdaptor extends MZTabFileParser{
      * // Todo: will be missing because the reference for them do not exist.
      * @return
      */
-    public Map<String, List<String>> getAllProteinAccessions() {
-        Map<String, List<String>> proteinIds = new HashMap<String, List<String>>();
+    public Tuple<Map<String, List<String>>, Map<String, List<String>>> getAllProteinAccessions() {
+
+        Map<String, List<String>> proteinPSMsIds = new HashMap<String, List<String>>();
+        Map<String, List<String>> proteinPeptideIds = new HashMap<String, List<String>>();
         Map<Integer, Protein> proteinMap = getMZTabFile().getProteinsWithLineNumber();
         for(Map.Entry proteinEntry: proteinMap.entrySet()){
             String proteinId = proteinEntry.getKey().toString();
@@ -166,14 +169,26 @@ public class MzTabUnmarshallerAdaptor extends MZTabFileParser{
                 PSM psm       = (PSM) psmEntry.getValue();
                 List<String> psmIds = new ArrayList<String>();
                 if(psm.getAccession().equalsIgnoreCase(protein.getAccession())){
-                    if(proteinIds.containsKey(proteinId))
-                        psmIds = proteinIds.get(proteinId);
+                    if(proteinPSMsIds.containsKey(proteinId))
+                        psmIds = proteinPSMsIds.get(proteinId);
                     psmIds.add(psmId.toString());
-                    proteinIds.put(proteinId,psmIds);
+                    proteinPSMsIds.put(proteinId,psmIds);
                 }
             }
+            for(Map.Entry psmEntry: getMZTabFile().getPeptidesWithLineNumber().entrySet()){
+                Integer psmId = (Integer) psmEntry.getKey();
+                Peptide psm       = (Peptide) psmEntry.getValue();
+                List<String> psmIds = new ArrayList<String>();
+                if(psm.getAccession().equalsIgnoreCase(protein.getAccession())){
+                    if(proteinPeptideIds.containsKey(proteinId))
+                        psmIds = proteinPeptideIds.get(proteinId);
+                    psmIds.add(psmId.toString());
+                    proteinPeptideIds.put(proteinId,psmIds);
+                }
+            }
+
         }
-        return proteinIds;
+        return new Tuple<Map<String, List<String>>, Map<String, List<String>>>(proteinPeptideIds, proteinPSMsIds);
     }
 
     public Map<Integer, Instrument> getInstrument() {
@@ -240,5 +255,20 @@ public class MzTabUnmarshallerAdaptor extends MZTabFileParser{
         return false;
     }
 
+    public Map<Integer, Peptide> getPeptides() {
+        return getMZTabFile().getPeptidesWithLineNumber();
+    }
 
+
+    public Map<Integer, Peptide> getPeptideByIds(List<Comparable> peptideIds) {
+       Map<Integer, Peptide> peptides = new HashMap<Integer, Peptide>();
+        for(Comparable id: peptideIds){
+            if(id != null && NumberUtilities.isInteger(id.toString())){
+                Peptide psm = getMZTabFile().getPeptidesWithLineNumber().get(Integer.parseInt(id.toString()));
+                if(psm != null)
+                    peptides.put(Integer.parseInt(id.toString()), psm);
+            }
+        }
+        return peptides;
+    }
 }

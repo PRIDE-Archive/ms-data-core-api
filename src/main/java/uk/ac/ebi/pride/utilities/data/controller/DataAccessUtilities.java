@@ -298,6 +298,22 @@ public final class DataAccessUtilities {
     }
 
     /**
+     * This is convenient method for accessing peptide.
+     *
+     * @param ident identification object
+     * @param index zero based index.
+     * @return Peptide  peptide.
+     */
+    public static QuantPeptide getQuantPeptide(Protein ident, int index) {
+        QuantPeptide peptide = null;
+        List<QuantPeptide> peptides = ident.getQuantPeptides();
+        if (peptides != null && peptides.size() > index) {
+            peptide = peptides.get(index);
+        }
+        return peptide;
+    }
+
+    /**
      * Convenient method for number of peptides
      *
      * @param ident identification object

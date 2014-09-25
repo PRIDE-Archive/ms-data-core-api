@@ -9,8 +9,7 @@ import java.util.List;
  * Abstract class for both GelFreeIdentification and TwoDimIdentification
  * <p/>
  * @author rwang
- * Date: 03-Feb-2010
- * Time: 12:21:57
+ * @author ypriverol
  */
 public class Protein extends IdentifiableParamGroup {
 
@@ -30,9 +29,19 @@ public class Protein extends IdentifiableParamGroup {
     private final List<Peptide> peptides;
 
     /**
+     * Quantitative Peptides
+     */
+    private final List<QuantPeptide> quantPeptides;
+
+    /**
      * The score is the score value in a SearchEngine Context
      */
     private Score score;
+
+    /**
+     * The score at quantitation level with different values
+     */
+    private QuantScore quantScore;
 
     /**
      * percentage of sequence coverage obtained through all identified peptides/masses
@@ -49,21 +58,102 @@ public class Protein extends IdentifiableParamGroup {
      */
     private Gel gel;
 
+    /**
+     * Constructor for Protein Entity Identification
+     * @param id Protein Id
+     * @param name Name of the protein
+     * @param dbSequence DBSequence referencing the Database entity
+     * @param passThreshold If pass the Threshold or not
+     * @param peptides      List of peptides that reference the protein
+     * @param score         Identification Protein
+     * @param threshold     Threshold apply to the protein that pass
+     * @param sequenceCoverage Sequence coverage
+     * @param gel              Reference to the Gel entity
+     */
     public Protein(Comparable id, String name, DBSequence dbSequence, boolean passThreshold,
                    List<Peptide> peptides, Score score, double threshold, double sequenceCoverage, Gel gel) {
         this(null, id, name, dbSequence, passThreshold, peptides, score, threshold, sequenceCoverage, gel);
     }
 
+    /**
+     * Constructor for Protein Entity Identification with CVParams
+     * @param id Protein Id
+     * @param name Name of the protein
+     * @param dbSequence DBSequence referencing the Database entity
+     * @param passThreshold If pass the Threshold or not
+     * @param peptides      List of peptides that reference the protein
+     * @param score         Identification Protein
+     * @param threshold     Threshold apply to the protein that pass
+     * @param sequenceCoverage Sequence coverage
+     * @param gel              Reference to the Gel entity
+     */
     public Protein(ParamGroup params, Comparable id, String name, DBSequence dbSequence, boolean passThreshold,
                    List<Peptide> peptides, Score score, double threshold, double sequenceCoverage, Gel gel) {
         super(params, id, name);
         this.dbSequence = dbSequence;
         this.passThreshold = passThreshold;
         this.peptides = CollectionUtils.createListFromList(peptides);
+        this.quantPeptides = CollectionUtils.createEmptyList();
         this.score = score;
         this.threshold = threshold;
         this.sequenceCoverage = sequenceCoverage;
         this.gel = gel;
+
+    }
+
+    /**
+     * Constructor for Protein Entity Identification with CVParams and Quantitation Score based on mzTab model
+     * @param id Protein Id
+     * @param name Name of the protein
+     * @param dbSequence DBSequence referencing the Database entity
+     * @param passThreshold If pass the Threshold or not
+     * @param peptides      List of peptides that reference the protein
+     * @param score         Identification Protein
+     * @param threshold     Threshold apply to the protein that pass
+     * @param sequenceCoverage Sequence coverage
+     * @param gel              Reference to the Gel entity
+     * @param quantScore
+     */
+    public Protein(ParamGroup params, Comparable id, String name, DBSequence dbSequence, boolean passThreshold,
+                   List<Peptide> peptides, Score score, double threshold, double sequenceCoverage, Gel gel, QuantScore quantScore) {
+        super(params, id, name);
+        this.dbSequence = dbSequence;
+        this.passThreshold = passThreshold;
+        this.peptides = CollectionUtils.createListFromList(peptides);
+        this.quantPeptides = CollectionUtils.createEmptyList();
+        this.score = score;
+        this.threshold = threshold;
+        this.sequenceCoverage = sequenceCoverage;
+        this.gel = gel;
+        this.quantScore = quantScore;
+    }
+
+    /**
+     * Constructor for Protein Entity Identification with CVParams and Quantitation Score based on mzTab model
+     * @param id Protein Id
+     * @param name Name of the protein
+     * @param dbSequence DBSequence referencing the Database entity
+     * @param passThreshold If pass the Threshold or not
+     * @param peptides      List of peptides that reference the protein
+     * @param score         Identification Protein
+     * @param threshold     Threshold apply to the protein that pass
+     * @param sequenceCoverage Sequence coverage
+     * @param gel              Reference to the Gel entity
+     * @param quantScore       Quantitation Score for proteins
+     * @param quantPeptides    List of Quantitative Peptides
+     */
+    public Protein(ParamGroup params, Comparable id, String name, DBSequence dbSequence, boolean passThreshold,
+                   List<Peptide> peptides, Score score, double threshold, double sequenceCoverage, Gel gel, QuantScore quantScore, List<QuantPeptide> quantPeptides) {
+        super(params, id, name);
+        this.dbSequence = dbSequence;
+        this.passThreshold = passThreshold;
+        this.peptides = CollectionUtils.createListFromList(peptides);
+        this.quantPeptides = CollectionUtils.createListFromList(quantPeptides);
+        this.score = score;
+        this.threshold = threshold;
+        this.sequenceCoverage = sequenceCoverage;
+        this.gel = gel;
+        this.quantScore = quantScore;
     }
 
     public DBSequence getDbSequence() {
@@ -132,10 +222,22 @@ public class Protein extends IdentifiableParamGroup {
         this.gel = gel;
     }
 
+    public QuantScore getQuantScore() {
+        return quantScore;
+    }
+
+    public void setQuantScore(QuantScore quantScore) {
+        this.quantScore = quantScore;
+    }
+
+    public List<QuantPeptide> getQuantPeptides() {
+        return quantPeptides;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Protein)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
 
         Protein protein = (Protein) o;
@@ -145,8 +247,11 @@ public class Protein extends IdentifiableParamGroup {
         if (Double.compare(protein.threshold, threshold) != 0) return false;
         if (dbSequence != null ? !dbSequence.equals(protein.dbSequence) : protein.dbSequence != null) return false;
         if (gel != null ? !gel.equals(protein.gel) : protein.gel != null) return false;
-        return peptides.equals(protein.peptides) && !(score != null ? !score.equals(protein.score) : protein.score != null);
+        if (peptides != null ? !peptides.equals(protein.peptides) : protein.peptides != null) return false;
+        if (quantScore != null ? !quantScore.equals(protein.quantScore) : protein.quantScore != null) return false;
+        if (score != null ? !score.equals(protein.score) : protein.score != null) return false;
 
+        return true;
     }
 
     @Override
@@ -155,8 +260,9 @@ public class Protein extends IdentifiableParamGroup {
         long temp;
         result = 31 * result + (dbSequence != null ? dbSequence.hashCode() : 0);
         result = 31 * result + (passThreshold ? 1 : 0);
-        result = 31 * result + peptides.hashCode();
+        result = 31 * result + (peptides != null ? peptides.hashCode() : 0);
         result = 31 * result + (score != null ? score.hashCode() : 0);
+        result = 31 * result + (quantScore != null ? quantScore.hashCode() : 0);
         temp = Double.doubleToLongBits(sequenceCoverage);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         temp = Double.doubleToLongBits(threshold);
@@ -164,6 +270,8 @@ public class Protein extends IdentifiableParamGroup {
         result = 31 * result + (gel != null ? gel.hashCode() : 0);
         return result;
     }
+
+
 }
 
 

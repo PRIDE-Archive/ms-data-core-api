@@ -4,6 +4,7 @@ package uk.ac.ebi.pride.utilities.data.controller.impl.Transformer;
 
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessUtilities;
 import uk.ac.ebi.pride.utilities.data.core.*;
+import uk.ac.ebi.pride.utilities.data.core.Assay;
 import uk.ac.ebi.pride.utilities.data.core.CvParam;
 import uk.ac.ebi.pride.utilities.data.core.Modification;
 import uk.ac.ebi.pride.utilities.data.core.Peptide;
@@ -12,6 +13,7 @@ import uk.ac.ebi.pride.utilities.data.core.Reference;
 import uk.ac.ebi.pride.utilities.data.core.Sample;
 import uk.ac.ebi.pride.utilities.data.core.Software;
 import uk.ac.ebi.pride.utilities.data.core.SourceFile;
+import uk.ac.ebi.pride.utilities.data.core.StudyVariable;
 import uk.ac.ebi.pride.utilities.data.core.UserParam;
 import uk.ac.ebi.pride.utilities.data.utils.CvUtilities;
 import uk.ac.ebi.pride.utilities.data.utils.MzTabUtils;
@@ -136,7 +138,7 @@ public class MzTabTransformer {
         }
         return samples;
     }
-
+/**
     private static List<CvParam> transformQuantitationSample(Integer sampleIndex, Assay oldAssay, uk.ac.ebi.pride.jmztab.model.Sample oldSample, List<CvParam> params) {
         CvParam specie = null;
         if(oldSample.getSpeciesList() != null && oldSample.getSpeciesList().size() > 0 && oldSample.getSpeciesList().get(0) != null)
@@ -237,7 +239,7 @@ public class MzTabTransformer {
         }
         return params;
     }
-
+*/
     private static Sample transformSample(uk.ac.ebi.pride.jmztab.model.Sample oldSample) {
         if(oldSample != null){
             ParamGroup paramGroup = new ParamGroup();
@@ -330,59 +332,44 @@ public class MzTabTransformer {
     }
 
     /**
-     * Convert protein identification
-     *
-     * @param  identification mzTab protein identification
-     * @return Identification  ms-data-core-api protein identification
-     */
-    public static Protein transformIdentification(uk.ac.ebi.pride.jmztab.model.Protein identification,
-                                                  Integer rawIndex,
-                                                  Map<Integer, uk.ac.ebi.pride.jmztab.model.PSM> psms,
-                                                  uk.ac.ebi.pride.jmztab.model.Metadata metadata,
-                                                  boolean hasQuantitation
-    ) {
-       //Todo: In the future it would be great to retrieve the information of the GEl for those files with Gel
-        return transformGelFreeIdent(identification,rawIndex, psms, metadata,hasQuantitation);
-
-    }
-
-    /**
      * Convert gel free protein identification
      *
      * @param rawIdent mzTab protein identification
      * @return GelFreeIdentification   gel free identification
      */
-    public static Protein transformGelFreeIdent(uk.ac.ebi.pride.jmztab.model.Protein rawIdent,
+
+    public static Protein transformIdentification(uk.ac.ebi.pride.jmztab.model.Protein rawIdent,
                                                 Integer rawIndex,
                                                 Map<Integer, uk.ac.ebi.pride.jmztab.model.PSM> rawPsms,
+                                                Map<Integer, uk.ac.ebi.pride.jmztab.model.Peptide> rawPeptides,
                                                 uk.ac.ebi.pride.jmztab.model.Metadata metadata,
-                                                boolean hasQuantitation) {
+                                                boolean hasQuantitation){
+        return transformIdent(rawIdent, rawIndex, rawPsms, rawPeptides, metadata, hasQuantitation);
+    }
+
+    public static Protein transformIdent(uk.ac.ebi.pride.jmztab.model.Protein rawIdent,
+                                                Integer rawIndex,
+                                                Map<Integer, uk.ac.ebi.pride.jmztab.model.PSM> rawPsms,
+                                                Map<Integer, uk.ac.ebi.pride.jmztab.model.Peptide> rawPeptides,
+                                                uk.ac.ebi.pride.jmztab.model.Metadata metadata,
+                                                boolean hasQuantitation
+    ) {
 
         Protein ident = null;
 
         if (rawIdent != null) {
-            // peptides
+            //Database
             CvParam cvParam = CvUtilities.getCVTermFromCvReference(CvTermReference.MS_DATABASE, rawIdent.getDatabase());
+            //CvParams
             ParamGroup paramGroup = new ParamGroup(cvParam, null);
             SearchDataBase searchDataBase = new SearchDataBase(rawIdent.getDatabase(), rawIdent.getDatabaseVersion(), paramGroup);
             DBSequence dbSequence = new DBSequence(rawIdent.getAccession(), searchDataBase, null, null);
+            //DbSequence Object
             dbSequence.setId(rawIdent.getAccession());
 
-            List<Peptide> peptides = null;
-            if (rawPsms != null) {
-                peptides = new ArrayList<Peptide>();
-                for (Map.Entry rawPeptide : rawPsms.entrySet()) {
-                    Integer rawPsmIndex = (Integer) rawPeptide.getKey();
-                    uk.ac.ebi.pride.jmztab.model.PSM rawPSM = (uk.ac.ebi.pride.jmztab.model.PSM) rawPeptide.getValue();
-                    peptides.add(transformPeptide(rawPSM, dbSequence, rawPsmIndex.toString(), metadata));
-                }
-            }
+            // add Protein scores as parameters
             List<CvParam> proteinScores = transformSearchEngineProteinScores(rawIdent, metadata);
-            // add score parameters
             paramGroup.addCvParams(proteinScores);
-
-            if(hasQuantitation)
-                paramGroup.addCvParams(transformQuantitationParams(rawIdent, metadata));
 
             Double seqConverage = rawIdent.getProteinCoverage();
             double seqConverageVal = seqConverage == null ? -1 : seqConverage;
@@ -396,30 +383,73 @@ public class MzTabTransformer {
             if(rawIdent.getOptionColumnValue(MzTabUtils.OPTIONAL_DECOY_COLUMN) != null && !rawIdent.getOptionColumnValue(MzTabUtils.OPTIONAL_DECOY_COLUMN).isEmpty())
                 paramGroup.addCvParam(CvUtilities.getCVTermFromCvReference(CvTermReference.PRIDE_DECOY_HIT, rawIdent.getOptionColumnValue(MzTabUtils.OPTIONAL_DECOY_COLUMN)));
 
-            return new Protein(paramGroup, rawIndex.toString(), null, dbSequence, false, peptides, score, thresholdVal, seqConverageVal, null);
+            //Quantitation Scores
+            QuantScore quantScore = null;
+            if(hasQuantitation)
+                quantScore = transformQuantitationParams(rawIdent, metadata);
+
+            //Convert Peptide Identifications
+            List<Peptide> peptides = null;
+            if (rawPsms != null) {
+                peptides = new ArrayList<Peptide>();
+                for (Map.Entry rawPeptide : rawPsms.entrySet()) {
+                    Integer rawPsmIndex = (Integer) rawPeptide.getKey();
+                    uk.ac.ebi.pride.jmztab.model.PSM rawPSM = (uk.ac.ebi.pride.jmztab.model.PSM) rawPeptide.getValue();
+                    peptides.addAll(transformPeptide(rawPSM, dbSequence, rawPsmIndex.toString(), metadata));
+                }
+            }
+
+            //Convert Quantitation Peptides
+            List<QuantPeptide> quantPeptides = null;
+            if (rawPeptides != null && !rawPeptides.isEmpty()) {
+                peptides = new ArrayList<Peptide>();
+                for (Map.Entry entry : rawPeptides.entrySet()) {
+                    Integer rawPeptideIndex = (Integer) entry.getKey();
+                    uk.ac.ebi.pride.jmztab.model.Peptide rawPeptide = (uk.ac.ebi.pride.jmztab.model.Peptide) entry.getValue();
+                    peptides.addAll(transformQuantPeptide(rawPeptide, dbSequence, rawPeptideIndex.toString(), metadata));
+                }
+            }
+
+            return new Protein(paramGroup, rawIndex.toString(), null, dbSequence, false, peptides, score, thresholdVal, seqConverageVal, null,quantScore,quantPeptides);
 
         }
-
         return ident;
-
     }
 
-    private static List<CvParam> transformQuantitationParams(uk.ac.ebi.pride.jmztab.model.Protein rawIdent, Metadata metadata) {
-        List<CvParam> scoreQuantitation = new ArrayList<CvParam>();
-        for(StudyVariable assayStudy: metadata.getStudyVariableMap().values()){
-            Double abundanceValue = rawIdent.getAbundanceColumnValue(assayStudy);
-            /*Param assayPAram = assayStudy.getSampleMap();
-            if(assayPAram != null && abundanceValue != null){
-                CvParam reagent = MzTabUtils.parseQuantitationReagentCvParam(assay.getQuantificationReagent());
-                reagent.setValue(abundanceValue.toString());
-                scoreQuantitation.add(reagent);
-            }*/
+    private static QuantScore transformQuantitationParams(uk.ac.ebi.pride.jmztab.model.Protein rawIdent, Metadata metadata) {
+
+        Map<Comparable, Double> studyVariable  = new HashMap<Comparable, Double>();
+        Map<Comparable, Double> assayAbundance = new HashMap<Comparable, Double>();
+        for(Map.Entry entry: metadata.getStudyVariableMap().entrySet()){
+            String key = entry.getKey().toString();
+            uk.ac.ebi.pride.jmztab.model.StudyVariable oldStudyVariable = (uk.ac.ebi.pride.jmztab.model.StudyVariable) entry.getValue();
+            studyVariable.put(key, rawIdent.getAbundanceColumnValue(oldStudyVariable));
         }
-        if(metadata.getQuantificationMethod() != null){
-           scoreQuantitation.add(MzTabUtils.convertParamToCvParam(metadata.getQuantificationMethod()));
+        for(Map.Entry entry: metadata.getAssayMap().entrySet()){
+            String key = entry.getKey().toString();
+            uk.ac.ebi.pride.jmztab.model.Assay oldAssay = (uk.ac.ebi.pride.jmztab.model.Assay) entry.getValue();
+            assayAbundance.put(key, rawIdent.getAbundanceColumnValue(oldAssay));
         }
         //Apart of the scores the the method should be also added to the protein: like ITRAQ
-        return scoreQuantitation;
+        return new QuantScore(studyVariable, assayAbundance);
+    }
+
+    private static QuantScore transformQuantitationParams(uk.ac.ebi.pride.jmztab.model.Peptide rawIdent, Metadata metadata) {
+
+        Map<Comparable, Double> studyVariable  = new HashMap<Comparable, Double>();
+        Map<Comparable, Double> assayAbundance = new HashMap<Comparable, Double>();
+        for(Map.Entry entry: metadata.getStudyVariableMap().entrySet()){
+            String key = entry.getKey().toString();
+            uk.ac.ebi.pride.jmztab.model.StudyVariable oldStudyVariable = (uk.ac.ebi.pride.jmztab.model.StudyVariable) entry.getValue();
+            studyVariable.put(key, rawIdent.getAbundanceColumnValue(oldStudyVariable));
+        }
+        for(Map.Entry entry: metadata.getAssayMap().entrySet()){
+            String key = entry.getKey().toString();
+            uk.ac.ebi.pride.jmztab.model.Assay oldAssay = (uk.ac.ebi.pride.jmztab.model.Assay) entry.getValue();
+            assayAbundance.put(key, rawIdent.getAbundanceColumnValue(oldAssay));
+        }
+        //Apart of the scores the the method should be also added to the protein: like ITRAQ
+        return new QuantScore(studyVariable, assayAbundance);
     }
 
     /**
@@ -428,65 +458,145 @@ public class MzTabTransformer {
      * @param rawPeptide peptide in pride xml format.
      * @return Peptide  peptide in core data model.
      */
-    public static Peptide transformPeptide(uk.ac.ebi.pride.jmztab.model.PSM rawPeptide,
+    public static List<Peptide> transformPeptide(uk.ac.ebi.pride.jmztab.model.PSM rawPeptide,
                                            DBSequence dbSequence,
                                            Comparable index,
                                            Metadata metadata) {
 
-        // spectrum is reference from external
-        Spectrum spectrum = null;
-        // modifications
+        List<Peptide> peptides = new ArrayList<Peptide>();
 
-        List<uk.ac.ebi.pride.jmztab.model.Modification> rawMods = rawPeptide.getModifications();
-        List<Modification> modifications = transformModification(rawMods, metadata);
+        int count = 1;
 
-        // fragmentIons information is not supported in mzTab
-        List<FragmentIon> fragmentIons = null;
+        for(SpectraRef spectraRef: rawPeptide.getSpectraRef()){
 
-        // retrieve the scores
-        ParamGroup params = new ParamGroup();
-        params.addCvParams(transformPSMSearchEngineScoreCvTerm(rawPeptide, metadata));
+            // spectrum is reference from external
+            Spectrum spectrum = null;
+            // modifications
 
-        // start and stop position
-        int startPos = -1;
-        int stopPos = -1;
-        Integer start = rawPeptide.getStart();
-        if (start != null) {
-            startPos = start.intValue();
-        }
+            List<uk.ac.ebi.pride.jmztab.model.Modification> rawMods = rawPeptide.getModifications();
+            List<Modification> modifications = transformModification(rawMods, metadata);
 
-        Integer stop = rawPeptide.getEnd();
-        if (stop != null) {
-            stopPos = stop.intValue();
-        }
+            // fragmentIons information is not supported in mzTab
+            List<FragmentIon> fragmentIons = null;
 
-        PeptideSequence peptideSequence = new PeptideSequence(null, null, rawPeptide.getSequence(), modifications);
-        List<PeptideEvidence> peptideEvidences = new ArrayList<PeptideEvidence>();
-        PeptideEvidence peptideEvidence = new PeptideEvidence(null, null, startPos, stopPos, false, peptideSequence, dbSequence);
-        peptideEvidences.add(peptideEvidence);
+            // retrieve the scores
+            ParamGroup params = new ParamGroup();
+            params.addCvParams(transformPSMSearchEngineScoreCvTerm(rawPeptide, metadata));
 
-        //Retrieve Experimental Mass and Charge.
-        // todo: need to review this bit of code to set charge
-        Integer charge = rawPeptide.getCharge();
-        double mz = DataAccessUtilities.getPrecursorMz(params);
-        if (charge == null && spectrum != null) {
-            charge = DataAccessUtilities.getPrecursorChargeParamGroup(spectrum);
-            if (charge == null) {
-                charge = DataAccessUtilities.getPrecursorCharge(spectrum.getPrecursors());
+            // start and stop position
+            int startPos = -1;
+            int stopPos = -1;
+            Integer start = rawPeptide.getStart();
+            if (start != null) {
+                startPos = start.intValue();
             }
+
+            Integer stop = rawPeptide.getEnd();
+            if (stop != null) {
+                stopPos = stop.intValue();
+            }
+
+            PeptideSequence peptideSequence = new PeptideSequence(null, null, rawPeptide.getSequence(), modifications);
+            List<PeptideEvidence> peptideEvidences = new ArrayList<PeptideEvidence>();
+            PeptideEvidence peptideEvidence = new PeptideEvidence(null, null, startPos, stopPos, false, peptideSequence, dbSequence);
+            peptideEvidences.add(peptideEvidence);
+
+            //Retrieve Experimental Mass and Charge.
+            // todo: need to review this bit of code to set charge
+            Integer charge = rawPeptide.getCharge();
+            double mz = DataAccessUtilities.getPrecursorMz(params);
+            if (charge == null && spectrum != null) {
+                charge = DataAccessUtilities.getPrecursorChargeParamGroup(spectrum);
+                if (charge == null) {
+                    charge = DataAccessUtilities.getPrecursorCharge(spectrum.getPrecursors());
+                }
+            }
+            // Retrieve Score
+            Score score = DataAccessUtilities.getScore(params);
+
+            if(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_DECOY_COLUMN) != null && !rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_DECOY_COLUMN).isEmpty())
+                params.addCvParam(CvUtilities.getCVTermFromCvReference(CvTermReference.MS_DECOY_PEPTIDE, rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_DECOY_COLUMN)));
+
+            int rank = -1;
+            if(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_RANK_COLUMN) != null && !rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_RANK_COLUMN).isEmpty() && NumberUtilities.isInteger(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_RANK_COLUMN)))
+                rank = Integer.parseInt(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_RANK_COLUMN));
+            //Each PSM is associated in mzTab with more than one spectrum in ms-data-core-api is only one.
+            SpectrumIdentification spectrumIdentification = new SpectrumIdentification(params, index + "!" + count, null, (charge == null ? -1 : charge), mz, rawPeptide.getCalcMassToCharge(), -1, peptideSequence, rank, false, null, null, peptideEvidences, fragmentIons, score, spectrum, null);
+            count++;
+            Peptide peptide = new Peptide(peptideEvidence, spectrumIdentification);
+            peptides.add(peptide);
         }
-        // Retrieve Score
-        Score score = DataAccessUtilities.getScore(params);
+        return peptides;
+    }
 
-        if(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_DECOY_COLUMN) != null && !rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_DECOY_COLUMN).isEmpty())
-            params.addCvParam(CvUtilities.getCVTermFromCvReference(CvTermReference.MS_DECOY_PEPTIDE, rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_DECOY_COLUMN)));
+    /**
+     * Transform quantitative peptide from pride xml to core data model.
+     *
+     * @param rawPeptide peptide in pride xml format.
+     * @return Peptide  peptide in core data model.
+     */
+    public static List<QuantPeptide> transformQuantPeptide(uk.ac.ebi.pride.jmztab.model.Peptide rawPeptide,
+                                                DBSequence dbSequence,
+                                                Comparable index,
+                                                Metadata metadata) {
+        List<QuantPeptide> quantPeptides = new ArrayList<QuantPeptide>();
+        int count = 1;
 
-        int rank = -1;
-        if(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_RANK_COLUMN) != null && !rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_RANK_COLUMN).isEmpty() && NumberUtilities.isInteger(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_RANK_COLUMN)))
-          rank = Integer.parseInt(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_RANK_COLUMN));
+        for(SpectraRef spectraRef: rawPeptide.getSpectraRef()){
 
-        SpectrumIdentification spectrumIdentification = new SpectrumIdentification(params, index, null, (charge == null ? -1 : charge), mz, rawPeptide.getCalcMassToCharge(), -1, peptideSequence, rank, false, null, null, peptideEvidences, fragmentIons, score, spectrum, null);
-        return new Peptide(peptideEvidence, spectrumIdentification);
+            // spectrum is reference from external
+            Spectrum spectrum = null;
+            // modifications
+
+            List<uk.ac.ebi.pride.jmztab.model.Modification> rawMods = rawPeptide.getModifications();
+            List<Modification> modifications = transformModification(rawMods, metadata);
+
+            // fragmentIons information is not supported in mzTab
+            List<FragmentIon> fragmentIons = null;
+
+            // retrieve the scores
+            ParamGroup params = new ParamGroup();
+            params.addCvParams(transformPeptideSearchEngineScoreCvTerm(rawPeptide,spectraRef.getMsRun(), metadata));
+
+            // start and stop position
+            int startPos = -1;
+            int stopPos = -1;
+
+            PeptideSequence peptideSequence = new PeptideSequence(null, null, rawPeptide.getSequence(), modifications);
+            List<PeptideEvidence> peptideEvidences = new ArrayList<PeptideEvidence>();
+            PeptideEvidence peptideEvidence = new PeptideEvidence(null, null, startPos, stopPos, false, peptideSequence, dbSequence);
+            peptideEvidences.add(peptideEvidence);
+
+            //Retrieve Experimental Mass and Charge.
+            // todo: need to review this bit of code to set charge
+            Integer charge = rawPeptide.getCharge();
+            double mz = DataAccessUtilities.getPrecursorMz(params);
+            if (charge == null && spectrum != null) {
+                charge = DataAccessUtilities.getPrecursorChargeParamGroup(spectrum);
+                if (charge == null) {
+                    charge = DataAccessUtilities.getPrecursorCharge(spectrum.getPrecursors());
+                }
+            }
+            // Retrieve Score
+            Score score = DataAccessUtilities.getScore(params);
+
+            QuantScore quantScore = transformQuantitationParams(rawPeptide, metadata);
+
+            if(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_DECOY_COLUMN) != null && !rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_DECOY_COLUMN).isEmpty())
+                params.addCvParam(CvUtilities.getCVTermFromCvReference(CvTermReference.MS_DECOY_PEPTIDE, rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_DECOY_COLUMN)));
+
+            int rank = -1;
+            if(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_RANK_COLUMN) != null && !rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_RANK_COLUMN).isEmpty() && NumberUtilities.isInteger(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_RANK_COLUMN)))
+                rank = Integer.parseInt(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_RANK_COLUMN));
+
+            SpectrumIdentification spectrumIdentification = new SpectrumIdentification(params, index + "!" + count, null, (charge == null ? -1 : charge), mz, -1, -1, peptideSequence, rank, false, null, null, peptideEvidences, fragmentIons, score, spectrum, null);
+
+            QuantPeptide quantPeptide = new QuantPeptide(peptideEvidence, spectrumIdentification, quantScore);
+
+            quantPeptides.add(quantPeptide);
+
+        }
+        return quantPeptides;
 
     }
 
@@ -495,6 +605,19 @@ public class MzTabTransformer {
         for (PSMSearchEngineScore psmSearchEngineScore : metadata.getPsmSearchEngineScoreMap().values()) {
             CvParam cvParam = MzTabUtils.convertParamToCvParam(psmSearchEngineScore.getParam());
             Double searchEngineScore = rawPeptide.getSearchEngineScore(psmSearchEngineScore.getId());
+            if (searchEngineScore != null) {
+                cvParam.setValue(searchEngineScore.toString());
+                scoreParams.add(cvParam);
+            }
+        }
+        return scoreParams;
+    }
+
+    private static List<CvParam> transformPeptideSearchEngineScoreCvTerm(uk.ac.ebi.pride.jmztab.model.Peptide rawPeptide, MsRun msRun, Metadata metadata) {
+        List<CvParam> scoreParams = new ArrayList<CvParam>();
+        for (PeptideSearchEngineScore peptideSearchEngineScore : metadata.getPeptideSearchEngineScoreMap().values()) {
+            CvParam cvParam = MzTabUtils.convertParamToCvParam(peptideSearchEngineScore.getParam());
+            Double searchEngineScore = rawPeptide.getSearchEngineScore(peptideSearchEngineScore.getId(),msRun);
             if (searchEngineScore != null) {
                 cvParam.setValue(searchEngineScore.toString());
                 scoreParams.add(cvParam);
@@ -774,5 +897,52 @@ public class MzTabTransformer {
             }
         }
         return databases;
+    }
+
+    public static List<StudyVariable> transformStudyVariables(Metadata metadata, boolean quantitationExperiment) {
+        List<StudyVariable> studyVariables = new ArrayList<StudyVariable>();
+        if(quantitationExperiment && metadata.getStudyVariableMap() != null && metadata.getStudyVariableMap().size() > 0){
+           for(Map.Entry entry: metadata.getStudyVariableMap().entrySet()){
+               String key  = entry.getKey().toString();
+
+               uk.ac.ebi.pride.jmztab.model.StudyVariable oldStudyVariable = (uk.ac.ebi.pride.jmztab.model.StudyVariable) entry.getValue();
+               StudyVariable studyVariable = new StudyVariable(key, oldStudyVariable.getDescription());
+
+               List<Sample> samples = new ArrayList<Sample>();
+               for(uk.ac.ebi.pride.jmztab.model.Sample oldsample: oldStudyVariable.getSampleMap().values()){
+                   samples.add(transformSample(oldsample));
+               }
+               studyVariable.setSamples(samples);
+
+               List<Assay> assays = new ArrayList<Assay>();
+               for(uk.ac.ebi.pride.jmztab.model.Assay oldassay: oldStudyVariable.getAssayMap().values()){
+                   assays.add(transformAssay(oldassay));
+               }
+               studyVariable.setAssays(assays);
+
+               studyVariable.setDescription(oldStudyVariable.getDescription());
+
+               studyVariables.add(studyVariable);
+           }
+        }
+        return studyVariables;
+    }
+
+    /**
+     * Trnasform an assay from mzTab to Assay in ms-data-core-api model
+     * @param oldAssay uk.ac.ebi.pride.jmztab.model.Assay
+     * @return Assay
+     */
+    private static Assay transformAssay(uk.ac.ebi.pride.jmztab.model.Assay oldAssay) {
+        if(oldAssay != null){
+            String key  = oldAssay.getId().toString();
+            String name = oldAssay.getReference();
+            Sample sample = transformSample(oldAssay.getSample());
+            CvParam reagent = MzTabUtils.convertParamToCvParam(oldAssay.getQuantificationReagent());
+            ParamGroup params = new ParamGroup();
+            params.addCvParam(reagent);
+            return new Assay(params,key,name, sample);
+        }
+        return null;
     }
 }

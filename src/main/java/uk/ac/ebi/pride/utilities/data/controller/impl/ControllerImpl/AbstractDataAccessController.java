@@ -1202,4 +1202,148 @@ public abstract class AbstractDataAccessController implements DataAccessControll
     public boolean hasMetaDataInformation() {
         return true;
     }
+
+    @Override
+    public List<StudyVariable> getStudyVariables() {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public QuantScore getProteinQuantStudyData(Comparable proteinId) {
+        Protein protein = getProteinById(proteinId);
+        return protein.getQuantScore();
+    }
+
+    @Override
+    public QuantScore getPeptideQuantStudyData(Comparable proteinId, Comparable peptideId) {
+        Peptide peptide = getPeptideByIndex(proteinId, peptideId);
+        return peptide.getQuantScore();
+    }
+
+    @Override
+    public Collection<CvTermReference> getAvailableQuantPeptideLevelScores() {
+        Collection<Comparable> proteinIds = this.getProteinIds();
+        List<CvTermReference> cvTermReferences = Collections.emptyList();
+        if (!proteinIds.isEmpty()) {
+            Protein protein = getProteinById(CollectionUtils.getElement(proteinIds, 0));
+            if (protein != null && !protein.getPeptides().isEmpty()) {
+                List<QuantPeptide> peptides = protein.getQuantPeptides();
+                QuantPeptide peptide = peptides.get(0);
+                Score score = peptide.getScore();
+                if (score != null) {
+                    cvTermReferences = score.getCvTermReferenceWithValues();
+                }
+            }
+        }
+        return cvTermReferences;
+
+    }
+
+    @Override
+    public boolean hasQuantPeptide() {
+        return getNumberOfQuantPeptides() > 0;
+    }
+
+    @Override
+    public Collection<Comparable> getQuantPeptideIds(Comparable proteinId) {
+        Collection<Comparable> ids = new ArrayList<Comparable>();
+        Protein protein = getProteinById(proteinId);
+        if (protein != null) {
+            List<QuantPeptide> peptides = protein.getQuantPeptides();
+            if (!peptides.isEmpty()) {
+                for (int index = 0; index < peptides.size(); index++) {
+                    ids.add(index);
+                }
+            }
+        }
+        return ids;
+    }
+
+    @Override
+    public QuantPeptide getQuantPeptideByIndex(Comparable proteinId, Comparable peptideId) {
+       return null;
+    }
+
+    @Override
+    public Collection<String> getQuantPeptideSequences(Comparable proteinId) {
+        List<String> sequences = new ArrayList<String>();
+        // read from data source
+        Protein protein = getProteinById(proteinId);
+        if (protein != null) {
+            List<QuantPeptide> peptides = protein.getQuantPeptides();
+            if (!peptides.isEmpty()) {
+                for (Peptide peptide : peptides) {
+                    String seq = peptide.getPeptideSequence().getSequence();
+                    sequences.add(seq);
+                }
+            }
+        }
+        return sequences;
+    }
+
+    @Override
+    public String getQuantPeptideSequence(Comparable proteinId, Comparable peptideId) {
+        return null;
+    }
+
+    @Override
+    public Comparable getQuantPeptideSpectrumId(Comparable proteinId, Comparable peptideId) {
+        Comparable specId = null;
+        Protein protein = getProteinById(proteinId);
+        if (protein != null) {
+            Peptide peptide = DataAccessUtilities.getQuantPeptide(protein, Integer.parseInt(peptideId.toString()));
+            if (peptide != null) {
+                Spectrum spectrum = peptide.getSpectrum();
+                if (spectrum != null) {
+                    specId = spectrum.getId();
+                }
+            }
+        }
+        return specId;
+    }
+
+    @Override
+    public int getNumberOfQuantPeptides() {
+        return 0;
+    }
+
+    @Override
+    public int getNumberOfQuantPeptides(Comparable proteinId) {
+        return 0;
+    }
+
+    @Override
+    public int getNumberOfUniqueQuantPeptides(Comparable proteinId) {
+        return 0;
+    }
+
+    @Override
+    public int getNumberOfQuantPTMs(Comparable proteinId) {
+        return 0;
+    }
+
+    @Override
+    public int getNumberOfQuantPTMs(Comparable proteinId, Comparable peptideId) {
+        return 0;
+    }
+
+    @Override
+    public Collection<Modification> getQuantPTMs(Comparable proteinId, Comparable peptideId) {
+        return null;
+    }
+
+    @Override
+    public Score getQuantPeptideScore(Comparable proteinId, Comparable peptideId) {
+        return null;
+    }
+
+    @Override
+    public QuantScore getQuantPeptideQuantScore(Comparable proteinId, Comparable peptideId) {
+        return null;
+    }
+
+    @Override
+    public Collection<PeptideEvidence> getQuantPeptideEvidences(Comparable proteinId, Comparable peptideId) {
+        return null;
+    }
 }

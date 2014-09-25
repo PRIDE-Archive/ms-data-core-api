@@ -5,16 +5,16 @@ import uk.ac.ebi.pride.utilities.term.QuantCvTermReference;
 import java.util.*;
 
 /**
- * Quantitation object is a pseudo object which contains all the cv params related to quantitative data
+ * Quantitation object is a pseudo object which contains all the cv params related to quantitative data for PRIDE XMLs.
+ * //Todo: We should think to merge this concept with mzTab quantitation model
  * <p/>
  * It also provides a set of methods for accessing these information
  * <p/>
  * <p/>
  * @author rwang
  * @author ypriverol
- * Date: 28/07/2011
- * Time: 09:21
  */
+
 public class Quantification {
 
     /**

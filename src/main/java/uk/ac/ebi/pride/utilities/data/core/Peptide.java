@@ -83,6 +83,10 @@ public class Peptide {
         return this.getSpectrumIdentification().getScore();
     }
 
+    public QuantScore getQuantScore(){
+        return this.getQuantScore();
+    }
+
     public boolean isFragmentIonsChargeAnnotated() {
         boolean annotated = true;
         for (FragmentIon fragmentIon : getFragmentation()) {
@@ -100,8 +104,12 @@ public class Peptide {
 
         Peptide peptide = (Peptide) o;
 
-        return !(peptideEvidence != null ? !peptideEvidence.equals(peptide.peptideEvidence) : peptide.peptideEvidence != null) && !(spectrumIdentification != null ? !spectrumIdentification.equals(peptide.spectrumIdentification) : peptide.spectrumIdentification != null);
+        if (peptideEvidence != null ? !peptideEvidence.equals(peptide.peptideEvidence) : peptide.peptideEvidence != null)
+            return false;
+        if (spectrumIdentification != null ? !spectrumIdentification.equals(peptide.spectrumIdentification) : peptide.spectrumIdentification != null)
+            return false;
 
+        return true;
     }
 
     @Override

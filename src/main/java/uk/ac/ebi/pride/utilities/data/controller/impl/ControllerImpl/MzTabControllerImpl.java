@@ -2,6 +2,7 @@ package uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.ebi.pride.jmztab.model.*;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessController;
 import uk.ac.ebi.pride.utilities.data.core.Protein;
 import uk.ac.ebi.pride.utilities.data.core.Sample;
@@ -12,6 +13,7 @@ import uk.ac.ebi.pride.utilities.data.controller.cache.CacheEntry;
 import uk.ac.ebi.pride.utilities.data.controller.cache.strategy.MzTabCachingStrategy;
 import uk.ac.ebi.pride.utilities.data.controller.impl.Transformer.MzTabTransformer;
 import uk.ac.ebi.pride.utilities.data.core.*;
+import uk.ac.ebi.pride.utilities.data.core.StudyVariable;
 import uk.ac.ebi.pride.utilities.data.io.file.MzTabUnmarshallerAdaptor;
 import uk.ac.ebi.pride.utilities.data.utils.Constants;
 import uk.ac.ebi.pride.utilities.data.utils.MD5Utils;
@@ -20,7 +22,6 @@ import uk.ac.ebi.pride.utilities.util.Tuple;
 import java.io.*;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
@@ -37,11 +38,15 @@ public class MzTabControllerImpl extends ReferencedIdentificationController{
 
     private static final Logger logger = LoggerFactory.getLogger(MzTabControllerImpl.class);
 
-    private static Pattern mzTabVersion = Pattern.compile(".*(mzTab-version).*(1.0)");
+    private static Pattern mzTabVersion              = Pattern.compile(".*(mzTab-version).*(1.0)");
 
-    private static Pattern mzTabProteinSection    = Pattern.compile(".*(protein_search_engine_score).*");
+    private static Pattern mzTabProteinSection       = Pattern.compile(".*(protein_search_engine_score).*");
 
-    private static Pattern mzTabPSMSection    = Pattern.compile(".*(psm_search_engine_score).*");
+    private static Pattern mzTabPSMSection           = Pattern.compile(".*(psm_search_engine_score).*");
+
+    private static Pattern mzTabPeptideSection       = Pattern.compile(".*(peptide_search_engine_score).*");
+
+    private static Pattern mzTabQuantitationSection  = Pattern.compile(".*(quantification_method).*");
 
 
     /**
@@ -207,6 +212,33 @@ public class MzTabControllerImpl extends ReferencedIdentificationController{
     }
 
     /**
+     * Returns StudyVariables for mzTab files. The study variables contains
+     * the final values of the expression information
+     *
+     * @return
+     */
+    @Override
+    public List<StudyVariable> getStudyVariables() {
+
+        ExperimentMetaData metaData = super.getExperimentMetaData();
+
+        if (metaData == null ) {
+            logger.debug("Study Variables");
+            List<StudyVariable> studyVariables;
+            try {
+                studyVariables = MzTabTransformer.transformStudyVariables(reader.getMetadata(), hasQuantData());
+                return studyVariables;
+            } catch (Exception ex) {
+                String msg = "Error while getting samples";
+                logger.error(msg, ex);
+                throw new DataAccessException(msg, ex);
+            }
+        } else {
+            return metaData.getStudyVariables();
+        }
+    }
+
+    /**
      * Get the List of File Spectra that the Mzidentml use to identified peptides
      *
      * @return List of SpectraData Files associated with mzidentml.
@@ -339,7 +371,11 @@ public class MzTabControllerImpl extends ReferencedIdentificationController{
                 // Get References From the Experiment
                 List<Reference> references = getReferences();
 
-                metaData = new ExperimentMetaData(additional, accession, title, version, shortLabel, samples, softwares, persons, sources, null, organizations, references, null, null, protocol);
+                List<SpectraData> spectraDatas = getSpectraDataFiles();
+
+                List<StudyVariable> studyVariables = getStudyVariables();
+
+                metaData = new ExperimentMetaData(additional, accession, title, version, shortLabel, samples, softwares, persons, sources, null, organizations, references, null, null, protocol,spectraDatas,studyVariables);
                 // store it in the cache
                 getCache().store(CacheEntry.EXPERIMENT_METADATA, metaData);
             } catch (Exception ex) {
@@ -397,8 +433,9 @@ public class MzTabControllerImpl extends ReferencedIdentificationController{
               // when protein groups are not present
               Tuple<Integer, uk.ac.ebi.pride.jmztab.model.Protein> rawProtein = reader.getProteinById(proteinId);
               Map<Integer, uk.ac.ebi.pride.jmztab.model.PSM> spectrumIdentificationItems = getScannedSpectrumIdentificationItems(proteinId);
+              Map<Integer, uk.ac.ebi.pride.jmztab.model.Peptide> peptideItems = getScannedPeptideItems(proteinId);
               uk.ac.ebi.pride.jmztab.model.Metadata metadata = reader.getMetadata();
-              ident = MzTabTransformer.transformIdentification(rawProtein.getValue(), rawProtein.getKey(), spectrumIdentificationItems, metadata, hasQuantData());
+              ident = MzTabTransformer.transformIdentification(rawProtein.getValue(), rawProtein.getKey(), spectrumIdentificationItems, peptideItems, metadata, hasQuantData());
                 if (ident != null) {
                     cacheProtein(ident);
                 }
@@ -406,7 +443,6 @@ public class MzTabControllerImpl extends ReferencedIdentificationController{
                 throw new DataAccessException("Failed to retrieve protein identification: " + proteinId, ex);
             }
         }
-
         return ident;
     }
 
@@ -418,6 +454,16 @@ public class MzTabControllerImpl extends ReferencedIdentificationController{
         }
 
         return reader.getSpectrumIdentificationsByIds(spectrumIdentIds);
+    }
+
+    private Map<Integer, uk.ac.ebi.pride.jmztab.model.Peptide> getScannedPeptideItems(Comparable proteinId) {
+        List<Comparable> peptideIds = new ArrayList<Comparable>();
+        if(hasQuantData())
+              if (getCache().hasCacheEntry(CacheEntry.PROTEIN_TO_QUANTPEPTIDES)) {
+              peptideIds = ((Map<Comparable, List<Comparable>>) getCache().get(CacheEntry.PROTEIN_TO_PEPTIDE_EVIDENCES)).get(proteinId);
+        }
+
+        return reader.getPeptideByIds(peptideIds);
     }
 
     /**
@@ -490,7 +536,8 @@ public class MzTabControllerImpl extends ReferencedIdentificationController{
 
     /**
      * Check a file is mzTab File is supported, it should contain the protein and psm sections, it must be mztab version 1.0 and finally it should be
-     * mzTab extension file.
+     * mzTab extension file. IT is important to know that in PRIDE we will support the information for complete Experiments in PRIDE: Quantitation and Idnetification
+     * In case on Quantitation experiments the Protein and Peptide Section should be provided. In case of Identification experiments Protein and PSM should be provided.
      *
      * @param file input file
      * @return boolean true means the file is an mztab
@@ -498,7 +545,8 @@ public class MzTabControllerImpl extends ReferencedIdentificationController{
     public static boolean isValidFormat(File file) {
         boolean valid = false;
         BufferedReader reader = null;
-        int count = 0;
+        int quantitationCount   = 0;
+        int identificationCount = 0;
 
         /**
          * To validate  the mzTab if is supported or not we will read the header line by line until the type appear
@@ -506,11 +554,17 @@ public class MzTabControllerImpl extends ReferencedIdentificationController{
          */
         try {
             reader = new BufferedReader(new FileReader(file));
-            // read the first 70 lines
+            // read the first 200 lines
             for (int i = 0; i < 200; i++) {
                 String line = reader.readLine();
-                if(mzTabVersion.matcher(line).find() || mzTabProteinSection.matcher(line).find() || mzTabPSMSection.matcher(line).find())
-                    count++;
+                if(mzTabProteinSection.matcher(line).find() || mzTabVersion.matcher(line).find()){
+                    quantitationCount++;
+                    identificationCount++;
+                }
+                if(mzTabPSMSection.matcher(line).find())
+                    identificationCount++;
+                if(mzTabPeptideSection.matcher(line).find())
+                    quantitationCount++;
             }
         } catch (Exception e) {
             logger.error("Failed to read file", e);
@@ -524,7 +578,7 @@ public class MzTabControllerImpl extends ReferencedIdentificationController{
             }
         }
         String filename = file.getName().toLowerCase();
-        if (filename.endsWith(Constants.MZTAB_EXT) && count >= 3)
+        if (filename.endsWith(Constants.MZTAB_EXT) && (quantitationCount >= 3 || identificationCount >= 3))
             return true;
 
         return valid;

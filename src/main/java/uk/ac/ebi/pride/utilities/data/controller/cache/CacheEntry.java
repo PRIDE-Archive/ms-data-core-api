@@ -49,6 +49,8 @@ public enum CacheEntry {
     PEPTIDE_START(HashMap.class, null),                        // Map<Peptide Id, peptide start location>
     PEPTIDE_END(HashMap.class, null),                          // Map<Peptide Id, peptide end location>
     PEPTIDE_TO_SPECTRUM(HashMap.class, null),                  // Map<Peptide Id, spectrum id>  in mzidentml the spectrum have two
+    QUANTPEPTIDE_TO_SPECTREUM(HashMap.class, null),            // Map<Peptide Id, spectreum ID> in mztab we will have a Map for quanttative peptides
+    PROTEIN_TO_QUANTPEPTIDES(HashMap.class, null),             // Map<db squence id,List<Spectrum identification item id>>>
     // components the spectrum id and the file id, then is Ma<Peptide Id, String[]>
     PEPTIDE_TO_PARAM(HashMap.class, null),                     // Map<Peptide Id, ParamGroup>
     NUMBER_OF_FRAGMENT_IONS(HashMap.class, null),              // Map<Peptide Id, number of fragment ions>
