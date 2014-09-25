@@ -195,16 +195,14 @@ public class MzTabUnmarshallerAdaptor extends MZTabFileParser{
         return getMZTabFile().getMetadata().getInstrumentMap();
     }
 
-    public Set<String[]> getDatabases() {
-        Set<String[]> databases = new HashSet<String[]>();
+    public Set<Tuple<String, String>> getDatabases() {
+        Set<Tuple<String, String>> databases = new HashSet<Tuple<String, String>>();
         Iterator<Protein> proteinIterator = getMZTabFile().getProteinsWithLineNumber().values().iterator();
         int countLoop = 0;
         while(proteinIterator.hasNext() && countLoop < NUMBER_PROTEIN_LOOP){
            Protein protein = proteinIterator.next();
             if(protein.getDatabase() != null){
-                String[] database = new String[2];
-                database[0] = protein.getDatabase();
-                database[1] = protein.getDatabaseVersion();
+                Tuple<String, String> database = new Tuple<String, String>(protein.getDatabase(),protein.getDatabaseVersion());
                 databases.add(database);
             }
         }

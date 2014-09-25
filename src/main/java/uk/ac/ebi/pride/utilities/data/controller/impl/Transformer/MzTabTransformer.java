@@ -24,6 +24,7 @@ import uk.ac.ebi.pride.jmztab.model.Param;
 import uk.ac.ebi.pride.utilities.term.CvTermReference;
 import uk.ac.ebi.pride.utilities.term.QuantCvTermReference;
 import uk.ac.ebi.pride.utilities.util.NumberUtilities;
+import uk.ac.ebi.pride.utilities.util.Tuple;
 
 import java.util.*;
 
@@ -556,7 +557,7 @@ public class MzTabTransformer {
 
             // retrieve the scores
             ParamGroup params = new ParamGroup();
-            params.addCvParams(transformPeptideSearchEngineScoreCvTerm(rawPeptide,spectraRef.getMsRun(), metadata));
+            params.addCvParams(transformPeptideSearchEngineScoreCvTerm(rawPeptide, spectraRef.getMsRun(), metadata));
 
             // start and stop position
             int startPos = -1;
@@ -882,14 +883,14 @@ public class MzTabTransformer {
         return component;
     }
 
-    public static List<SearchDataBase> transformDatabases(Set<String[]> oldDatabases) {
+    public static List<SearchDataBase> transformDatabases(Set<Tuple<String, String>> oldDatabases) {
 
 
         List<SearchDataBase> databases = new ArrayList<SearchDataBase>();
         if(oldDatabases != null && oldDatabases .size() > 0){
-            for(String[] databaseString: oldDatabases){
-                String name = databaseString[0];
-                String version = databaseString[1];
+            for(Tuple<String, String> databaseString: oldDatabases){
+                String name = databaseString.getKey();
+                String version = databaseString.getValue();
                 ParamGroup params = new ParamGroup();
                 CvParam databaseName = CvUtilities.getCVTermFromCvReference(CvTermReference.MS_DATABASE,name);
                 params.addCvParam(databaseName);

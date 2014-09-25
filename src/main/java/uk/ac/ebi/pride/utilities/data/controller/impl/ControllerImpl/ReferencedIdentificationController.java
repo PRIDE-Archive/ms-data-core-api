@@ -296,7 +296,8 @@ public class ReferencedIdentificationController extends CachedDataAccessControll
             Collection<String[]> ids = ((Map<Comparable, String[]>) getCache().get(CacheEntry.PEPTIDE_TO_SPECTRUM)).values();
             Set<String> idsSet = new TreeSet<String>();
             for (String[] values : ids) {
-                idsSet.add(values[0] + "!" + values[1]);
+                if(values != null && values[0] != null && values[1] != null)
+                    idsSet.add(values[0] + "!" + values[1]);
             }
             if (idsSet.contains(specId)) return true;
         }
