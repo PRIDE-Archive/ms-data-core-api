@@ -458,7 +458,9 @@ public final class PrideXmlTransformer {
             if(score == null)
                 score = new Score();
             Number scoreValue = (rawIdent.getScore() != null)? rawIdent.getScore(): null;
-            score.addScore(SearchEngineType.getByName(rawIdent.getSearchEngine()),CvTermReference.MS_SEARCH_ENGINE_SPECIFIC_SCORE,scoreValue);
+            score.addScore(SearchEngineType.GENERIC_SEARCH_ENGINE,CvTermReference.MS_SEARCH_ENGINE_SPECIFIC_SCORE,scoreValue);
+            String valueString = (scoreValue !=null)? scoreValue.toString():null;
+            params.addCvParam(CvUtilities.getCVTermFromCvReference(CvTermReference.MS_SEARCH_ENGINE_SPECIFIC_SCORE,valueString));
 
             return new Protein(params, rawIdent.getId(), null, dbSequence, false, peptides, score, thresholdVal, seqConverageVal, null);
 
