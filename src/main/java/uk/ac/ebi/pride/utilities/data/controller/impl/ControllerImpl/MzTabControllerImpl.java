@@ -2,7 +2,6 @@ package uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.ebi.pride.jmztab.model.*;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessController;
 import uk.ac.ebi.pride.utilities.data.core.Protein;
 import uk.ac.ebi.pride.utilities.data.core.Sample;
@@ -433,8 +432,8 @@ public class MzTabControllerImpl extends ReferencedIdentificationController{
             try {
               // when protein groups are not present
               Tuple<Integer, uk.ac.ebi.pride.jmztab.model.Protein> rawProtein = reader.getProteinById(proteinId);
-              Map<Integer, uk.ac.ebi.pride.jmztab.model.PSM> spectrumIdentificationItems = getScannedSpectrumIdentificationItems(proteinId);
-              Map<Integer, uk.ac.ebi.pride.jmztab.model.Peptide> peptideItems = getScannedPeptideItems(proteinId);
+              Map<String, uk.ac.ebi.pride.jmztab.model.PSM> spectrumIdentificationItems = getScannedSpectrumIdentificationItems(proteinId);
+              Map<String, uk.ac.ebi.pride.jmztab.model.Peptide> peptideItems = getScannedPeptideItems(proteinId);
               uk.ac.ebi.pride.jmztab.model.Metadata metadata = reader.getMetadata();
               ident = MzTabTransformer.transformIdentification(rawProtein.getValue(), rawProtein.getKey(), spectrumIdentificationItems, peptideItems, metadata, hasQuantData());
                 if (ident != null) {
@@ -447,7 +446,7 @@ public class MzTabControllerImpl extends ReferencedIdentificationController{
         return ident;
     }
 
-    private Map<Integer, uk.ac.ebi.pride.jmztab.model.PSM> getScannedSpectrumIdentificationItems(Comparable proteinId) {
+    private Map<String, uk.ac.ebi.pride.jmztab.model.PSM> getScannedSpectrumIdentificationItems(Comparable proteinId) {
         List<Comparable> spectrumIdentIds = null;
 
         if (getCache().hasCacheEntry(CacheEntry.PROTEIN_TO_PEPTIDE_EVIDENCES)) {
@@ -457,11 +456,11 @@ public class MzTabControllerImpl extends ReferencedIdentificationController{
         return reader.getSpectrumIdentificationsByIds(spectrumIdentIds);
     }
 
-    private Map<Integer, uk.ac.ebi.pride.jmztab.model.Peptide> getScannedPeptideItems(Comparable proteinId) {
+    private Map<String, uk.ac.ebi.pride.jmztab.model.Peptide> getScannedPeptideItems(Comparable proteinId) {
         List<Comparable> peptideIds = new ArrayList<Comparable>();
         if(hasQuantData())
               if (getCache().hasCacheEntry(CacheEntry.PROTEIN_TO_QUANTPEPTIDES)) {
-              peptideIds = ((Map<Comparable, List<Comparable>>) getCache().get(CacheEntry.PROTEIN_TO_PEPTIDE_EVIDENCES)).get(proteinId);
+              peptideIds = ((Map<Comparable, List<Comparable>>) getCache().get(CacheEntry.PROTEIN_TO_QUANTPEPTIDES)).get(proteinId);
         }
 
         return reader.getPeptideByIds(peptideIds);

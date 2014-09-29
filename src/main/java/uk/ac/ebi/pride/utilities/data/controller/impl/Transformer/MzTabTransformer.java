@@ -341,8 +341,8 @@ public class MzTabTransformer {
 
     public static Protein transformIdentification(uk.ac.ebi.pride.jmztab.model.Protein rawIdent,
                                                 Integer rawIndex,
-                                                Map<Integer, uk.ac.ebi.pride.jmztab.model.PSM> rawPsms,
-                                                Map<Integer, uk.ac.ebi.pride.jmztab.model.Peptide> rawPeptides,
+                                                Map<String, uk.ac.ebi.pride.jmztab.model.PSM> rawPsms,
+                                                Map<String, uk.ac.ebi.pride.jmztab.model.Peptide> rawPeptides,
                                                 uk.ac.ebi.pride.jmztab.model.Metadata metadata,
                                                 boolean hasQuantitation){
         return transformIdent(rawIdent, rawIndex, rawPsms, rawPeptides, metadata, hasQuantitation);
@@ -350,8 +350,8 @@ public class MzTabTransformer {
 
     public static Protein transformIdent(uk.ac.ebi.pride.jmztab.model.Protein rawIdent,
                                                 Integer rawIndex,
-                                                Map<Integer, uk.ac.ebi.pride.jmztab.model.PSM> rawPsms,
-                                                Map<Integer, uk.ac.ebi.pride.jmztab.model.Peptide> rawPeptides,
+                                                Map<String, uk.ac.ebi.pride.jmztab.model.PSM> rawPsms,
+                                                Map<String, uk.ac.ebi.pride.jmztab.model.Peptide> rawPeptides,
                                                 uk.ac.ebi.pride.jmztab.model.Metadata metadata,
                                                 boolean hasQuantitation
     ) {
@@ -394,9 +394,9 @@ public class MzTabTransformer {
             if (rawPsms != null) {
                 peptides = new ArrayList<Peptide>();
                 for (Map.Entry rawPeptide : rawPsms.entrySet()) {
-                    Integer rawPsmIndex = (Integer) rawPeptide.getKey();
+                    String rawPsmIndex = rawPeptide.getKey().toString();
                     uk.ac.ebi.pride.jmztab.model.PSM rawPSM = (uk.ac.ebi.pride.jmztab.model.PSM) rawPeptide.getValue();
-                    peptides.addAll(transformPeptide(rawPSM, dbSequence, rawPsmIndex.toString(), metadata));
+                    peptides.add(transformPeptide(rawPSM, dbSequence, rawPsmIndex, metadata));
                 }
             }
 
@@ -405,9 +405,9 @@ public class MzTabTransformer {
             if (rawPeptides != null && !rawPeptides.isEmpty()) {
                 peptides = new ArrayList<Peptide>();
                 for (Map.Entry entry : rawPeptides.entrySet()) {
-                    Integer rawPeptideIndex = (Integer) entry.getKey();
+                    String rawPeptideIndex =  entry.getKey().toString();
                     uk.ac.ebi.pride.jmztab.model.Peptide rawPeptide = (uk.ac.ebi.pride.jmztab.model.Peptide) entry.getValue();
-                    peptides.addAll(transformQuantPeptide(rawPeptide, dbSequence, rawPeptideIndex.toString(), metadata));
+                    peptides.add(transformQuantPeptide(rawPeptide, dbSequence, rawPeptideIndex, metadata));
                 }
             }
 
@@ -459,22 +459,17 @@ public class MzTabTransformer {
      * @param rawPeptide peptide in pride xml format.
      * @return Peptide  peptide in core data model.
      */
-    public static List<Peptide> transformPeptide(uk.ac.ebi.pride.jmztab.model.PSM rawPeptide,
+    public static Peptide transformPeptide(uk.ac.ebi.pride.jmztab.model.PSM rawPeptide,
                                            DBSequence dbSequence,
                                            Comparable index,
                                            Metadata metadata) {
 
-        List<Peptide> peptides = new ArrayList<Peptide>();
 
-        int count = 1;
+         // spectrum is reference from external
+         Spectrum spectrum = null;
+         // modifications
 
-        for(SpectraRef spectraRef: rawPeptide.getSpectraRef()){
-
-            // spectrum is reference from external
-            Spectrum spectrum = null;
-            // modifications
-
-            List<uk.ac.ebi.pride.jmztab.model.Modification> rawMods = rawPeptide.getModifications();
+           List<uk.ac.ebi.pride.jmztab.model.Modification> rawMods = rawPeptide.getModifications();
             List<Modification> modifications = transformModification(rawMods, metadata);
 
             // fragmentIons information is not supported in mzTab
@@ -522,13 +517,10 @@ public class MzTabTransformer {
             if(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_RANK_COLUMN) != null && !rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_RANK_COLUMN).isEmpty() && NumberUtilities.isInteger(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_RANK_COLUMN)))
                 rank = Integer.parseInt(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_RANK_COLUMN));
             //Each PSM is associated in mzTab with more than one spectrum in ms-data-core-api is only one.
-            SpectrumIdentification spectrumIdentification = new SpectrumIdentification(params, index + "!" + count, null, (charge == null ? -1 : charge), mz, rawPeptide.getCalcMassToCharge(), -1, peptideSequence, rank, false, null, null, peptideEvidences, fragmentIons, score, spectrum, null);
-            count++;
-            Peptide peptide = new Peptide(peptideEvidence, spectrumIdentification);
-            peptides.add(peptide);
-        }
-        return peptides;
-    }
+            SpectrumIdentification spectrumIdentification = new SpectrumIdentification(params, index, null, (charge == null ? -1 : charge), mz, rawPeptide.getCalcMassToCharge(), -1, peptideSequence, rank, false, null, null, peptideEvidences, fragmentIons, score, spectrum, null);
+
+        return new Peptide(peptideEvidence, spectrumIdentification);
+      }
 
     /**
      * Transform quantitative peptide from pride xml to core data model.
@@ -536,18 +528,16 @@ public class MzTabTransformer {
      * @param rawPeptide peptide in pride xml format.
      * @return Peptide  peptide in core data model.
      */
-    public static List<QuantPeptide> transformQuantPeptide(uk.ac.ebi.pride.jmztab.model.Peptide rawPeptide,
+    public static QuantPeptide transformQuantPeptide(uk.ac.ebi.pride.jmztab.model.Peptide rawPeptide,
                                                 DBSequence dbSequence,
                                                 Comparable index,
                                                 Metadata metadata) {
-        List<QuantPeptide> quantPeptides = new ArrayList<QuantPeptide>();
-        int count = 1;
-
-        for(SpectraRef spectraRef: rawPeptide.getSpectraRef()){
 
             // spectrum is reference from external
             Spectrum spectrum = null;
             // modifications
+
+            int indexRef = Integer.parseInt(index.toString().split("!")[1]);
 
             List<uk.ac.ebi.pride.jmztab.model.Modification> rawMods = rawPeptide.getModifications();
             List<Modification> modifications = transformModification(rawMods, metadata);
@@ -557,7 +547,7 @@ public class MzTabTransformer {
 
             // retrieve the scores
             ParamGroup params = new ParamGroup();
-            params.addCvParams(transformPeptideSearchEngineScoreCvTerm(rawPeptide, spectraRef.getMsRun(), metadata));
+            params.addCvParams(transformPeptideSearchEngineScoreCvTerm(rawPeptide, rawPeptide.getSpectraRef().get(indexRef-1).getMsRun(), metadata));
 
             // start and stop position
             int startPos = -1;
@@ -590,14 +580,9 @@ public class MzTabTransformer {
             if(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_RANK_COLUMN) != null && !rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_RANK_COLUMN).isEmpty() && NumberUtilities.isInteger(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_RANK_COLUMN)))
                 rank = Integer.parseInt(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_RANK_COLUMN));
 
-            SpectrumIdentification spectrumIdentification = new SpectrumIdentification(params, index + "!" + count, null, (charge == null ? -1 : charge), mz, -1, -1, peptideSequence, rank, false, null, null, peptideEvidences, fragmentIons, score, spectrum, null);
+            SpectrumIdentification spectrumIdentification = new SpectrumIdentification(params, index, null, (charge == null ? -1 : charge), mz, -1, -1, peptideSequence, rank, false, null, null, peptideEvidences, fragmentIons, score, spectrum, null);
 
-            QuantPeptide quantPeptide = new QuantPeptide(peptideEvidence, spectrumIdentification, quantScore);
-
-            quantPeptides.add(quantPeptide);
-
-        }
-        return quantPeptides;
+           return new QuantPeptide(peptideEvidence, spectrumIdentification, quantScore);
 
     }
 
