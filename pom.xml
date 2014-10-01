@@ -62,7 +62,7 @@
         <jmzml.version>1.7.1.pride</jmzml.version>
         <jmzidentml.version>1.1.10-SNAPSHOT</jmzidentml.version>
         <xmlschemavalidator.version>2.1</xmlschemavalidator.version>
-        <jmztab.version>3.0.1-SNAPSHOT</jmztab.version>
+        <jmztab.version>3.0.2-SNAPSHOT</jmztab.version>
 
         <jmzreader.version>1.2.0</jmzreader.version>
         <mzxml.parser.version>1.3.1</mzxml.parser.version>
