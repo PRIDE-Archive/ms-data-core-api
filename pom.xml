@@ -6,7 +6,7 @@
 
     <groupId>uk.ac.ebi.pride.utilities</groupId>
     <artifactId>ms-data-core-api</artifactId>
-    <version>0.11.25-SNAPSHOT</version>
+    <version>0.11.25</version>
     <name>Open-source Data Model for computational proteomics</name>
     <url>http://github.com/PRIDE-EBI/PRIDE-toolsuite/ms-data-core-api/</url>
     <description>Open-source java library to handle different file format standards for proteomics. Specially ms-data-core-api is good for MetaData representation.</description>
