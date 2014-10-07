@@ -1346,4 +1346,6 @@ public abstract class AbstractDataAccessController implements DataAccessControll
     public Collection<PeptideEvidence> getQuantPeptideEvidences(Comparable proteinId, Comparable peptideId) {
         return null;
     }
+
+
 }
