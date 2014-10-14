@@ -16,7 +16,7 @@ import java.util.Map;
  * Date: 04-Feb-2011
  * Time: 15:50:55
  */
-public class Sample extends IdentifiableParamGroup {
+public class Sample extends IdentifiableParamGroup implements Comparable{
 
     /**
      * Contact Role could be defined as a Person and a specific role (CVTerms)
@@ -58,21 +58,39 @@ public class Sample extends IdentifiableParamGroup {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof Sample)) return false;
+        if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
 
         Sample sample = (Sample) o;
 
-        return contactRoles.equals(sample.contactRoles) && subSamples.equals(sample.subSamples);
+        if (contactRoles != null ? !contactRoles.equals(sample.contactRoles) : sample.contactRoles != null)
+            return false;
+        if (subSamples != null ? !subSamples.equals(sample.subSamples) : sample.subSamples != null) return false;
 
+        return true;
     }
 
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + contactRoles.hashCode();
-        result = 31 * result + subSamples.hashCode();
+        result = 31 * result + (contactRoles != null ? contactRoles.hashCode() : 0);
+        result = 31 * result + (subSamples != null ? subSamples.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        if (this == o) return 0;
+        if (o == null || getClass() != o.getClass()) return -1;
+        if (!super.equals(o)) return -1;
+
+        Sample sample = (Sample) o;
+
+        if (contactRoles != null ? !contactRoles.equals(sample.contactRoles) : sample.contactRoles != null)
+            return -1;
+        if (subSamples != null ? !subSamples.equals(sample.subSamples) : sample.subSamples != null) return -1;
+
+        return 1;
     }
 }
 
