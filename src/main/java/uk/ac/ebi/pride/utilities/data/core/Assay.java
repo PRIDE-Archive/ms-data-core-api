@@ -13,6 +13,8 @@ public class Assay extends IdentifiableParamGroup {
      */
     private Sample sample;
 
+    private CvParam reagent;
+
     public Assay(Comparable id, String name) {
         super(id, name);
     }
@@ -31,11 +33,25 @@ public class Assay extends IdentifiableParamGroup {
         this.sample = sample;
     }
 
+    public Assay(ParamGroup params, Comparable id, String name, Sample sample, CvParam reagent) {
+        super(params, id, name);
+        this.sample = sample;
+        this.reagent = reagent;
+    }
+
     public Sample getSample() {
         return sample;
     }
 
     public void setSample(Sample sample) {
         this.sample = sample;
+    }
+
+    public CvParam getReagent() {
+        return reagent;
+    }
+
+    public void setReagent(CvParam reagent) {
+        this.reagent = reagent;
     }
 }

@@ -403,11 +403,11 @@ public class MzTabTransformer {
             //Convert Quantitation Peptides
             List<QuantPeptide> quantPeptides = null;
             if (rawPeptides != null && !rawPeptides.isEmpty()) {
-                peptides = new ArrayList<Peptide>();
+                quantPeptides = new ArrayList<QuantPeptide>();
                 for (Map.Entry entry : rawPeptides.entrySet()) {
                     String rawPeptideIndex =  entry.getKey().toString();
                     uk.ac.ebi.pride.jmztab.model.Peptide rawPeptide = (uk.ac.ebi.pride.jmztab.model.Peptide) entry.getValue();
-                    peptides.add(transformQuantPeptide(rawPeptide, dbSequence, rawPeptideIndex, metadata));
+                    quantPeptides.add(transformQuantPeptide(rawPeptide, dbSequence, rawPeptideIndex, metadata));
                 }
             }
 
@@ -927,7 +927,7 @@ public class MzTabTransformer {
             CvParam reagent = MzTabUtils.convertParamToCvParam(oldAssay.getQuantificationReagent());
             ParamGroup params = new ParamGroup();
             params.addCvParam(reagent);
-            return new Assay(params,key,name, sample);
+            return new Assay(params,key,name, sample, reagent);
         }
         return null;
     }

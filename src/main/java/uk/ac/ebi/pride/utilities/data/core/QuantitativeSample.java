@@ -57,8 +57,14 @@ public class QuantitativeSample {
                 return true;
             }
         }
-
         return false;
+    }
+
+    public void addsubSample(int index){
+        if (index >= 0 && index <= MAX_SUB_SAMPLE_SIZE) {
+            SubSample subSample = new SubSample(index);
+            this.samples[index] = subSample;
+        }
     }
 
     /**
@@ -101,7 +107,7 @@ public class QuantitativeSample {
      */
     public void setSpecies(CvParam cvParam) {
         int index = getSubSampleIndex(cvParam.getValue());
-        if (index > 0 && index <= MAX_SUB_SAMPLE_SIZE) {
+        if (index >= 0 && index <= MAX_SUB_SAMPLE_SIZE) {
             SubSample sample = samples[index - 1];
             if (sample == null) {
                 sample = new SubSample(index);
@@ -110,6 +116,23 @@ public class QuantitativeSample {
             sample.setSpecies(cvParam);
         }
     }
+
+    /**
+     * Add species information to a subsample
+     *
+     * @param cvParam species cv param
+     */
+    public void setSpecies(int index, CvParam cvParam) {
+        if (index >= 0 && index <= MAX_SUB_SAMPLE_SIZE) {
+            SubSample sample = samples[index];
+            if (sample == null) {
+                sample = new SubSample(index);
+                samples[index] = sample;
+            }
+            sample.setSpecies(cvParam);
+        }
+    }
+
 
 
     /**
@@ -163,6 +186,21 @@ public class QuantitativeSample {
     }
 
     /**
+     * Add cell line information to a subsample
+     *
+     * @param cvParam cell line cv param
+     */
+    public void setCellLine(int index, CvParam cvParam) {
+        if (index >= 0 && index <= MAX_SUB_SAMPLE_SIZE) {
+            SubSample sample = samples[index];
+            if (sample == null) {
+                sample = new SubSample(index);
+                samples[index] = sample;
+            }
+            sample.setCellLine(cvParam);
+        }
+    }
+    /**
      * Get whether tissue information exists
      *
      * @return boolean true means exist
@@ -207,6 +245,22 @@ public class QuantitativeSample {
             if (sample == null) {
                 sample = new SubSample(index);
                 samples[index - 1] = sample;
+            }
+            sample.setTissue(cvParam);
+        }
+    }
+
+    /**
+     * Add tissue information to a subsample
+     *
+     * @param cvParam tissue cv param
+     */
+    public void setTissue(int index, CvParam cvParam) {
+        if (index >= 0 && index <= MAX_SUB_SAMPLE_SIZE) {
+            SubSample sample = samples[index];
+            if (sample == null) {
+                sample = new SubSample(index);
+                samples[index] = sample;
             }
             sample.setTissue(cvParam);
         }
@@ -262,6 +316,21 @@ public class QuantitativeSample {
         }
     }
 
+    /**
+     * Add reagent information to a subsample
+     *
+     * @param cvParam reagent cv param
+     */
+    public void setReagent(int index, CvParam cvParam) {
+        if (index >= 0 && index <= MAX_SUB_SAMPLE_SIZE) {
+            SubSample sample = samples[index];
+            if (sample == null) {
+                sample = new SubSample(index);
+                samples[index] = sample;
+            }
+            sample.setReagent(cvParam);
+        }
+    }
 
     /**
      * Get whether disease information exists
@@ -308,6 +377,22 @@ public class QuantitativeSample {
             if (sample == null) {
                 sample = new SubSample(index);
                 samples[index - 1] = sample;
+            }
+            sample.setDisease(cvParam);
+        }
+    }
+
+    /**
+     * Add disease information to a subsample
+     *
+     * @param cvParam disease cv param
+     */
+    public void setDisease(int index, CvParam cvParam) {
+        if (index >= 0 && index <= MAX_SUB_SAMPLE_SIZE) {
+            SubSample sample = samples[index];
+            if (sample == null) {
+                sample = new SubSample(index);
+                samples[index] = sample;
             }
             sample.setDisease(cvParam);
         }
@@ -364,6 +449,22 @@ public class QuantitativeSample {
     }
 
     /**
+     * Add GO information to a subsample
+     *
+     * @param cvParam GO cv param
+     */
+    public void setGOTerm(int index, CvParam cvParam) {
+        if (index >= 0 && index <= MAX_SUB_SAMPLE_SIZE) {
+            SubSample sample = samples[index];
+            if (sample == null) {
+                sample = new SubSample(index);
+                samples[index] = sample;
+            }
+            sample.setGoTerm(cvParam);
+        }
+    }
+
+    /**
      * Get whether description exists
      *
      * @return boolean true means exist
@@ -408,6 +509,22 @@ public class QuantitativeSample {
             if (sample == null) {
                 sample = new SubSample(index);
                 samples[index - 1] = sample;
+            }
+            sample.setDescription(cvParam);
+        }
+    }
+
+    /**
+     * Add description to a subsample
+     *
+     * @param cvParam description cv param
+     */
+    public void setDescription(int index, CvParam cvParam) {
+        if (index >= 0 && index <= MAX_SUB_SAMPLE_SIZE) {
+            SubSample sample = samples[index];
+            if (sample == null) {
+                sample = new SubSample(index);
+                samples[index] = sample;
             }
             sample.setDescription(cvParam);
         }

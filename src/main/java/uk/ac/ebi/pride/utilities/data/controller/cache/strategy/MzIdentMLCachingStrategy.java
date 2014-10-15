@@ -122,6 +122,7 @@ public class MzIdentMLCachingStrategy extends AbstractCachingStrategy {
 
 
     private void cacheProteinGroups(MzIdentMLUnmarshallerAdaptor unmarshaller) throws ConfigurationException {
+
         Set<String> proteinAmbiguityGroupIds = unmarshaller.getIDsForElement(MzIdentMLElement.ProteinAmbiguityGroup);
 
         if (proteinAmbiguityGroupIds != null && !proteinAmbiguityGroupIds.isEmpty()) {

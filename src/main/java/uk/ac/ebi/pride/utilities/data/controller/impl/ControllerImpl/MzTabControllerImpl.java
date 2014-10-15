@@ -14,8 +14,12 @@ import uk.ac.ebi.pride.utilities.data.controller.impl.Transformer.MzTabTransform
 import uk.ac.ebi.pride.utilities.data.core.*;
 import uk.ac.ebi.pride.utilities.data.core.StudyVariable;
 import uk.ac.ebi.pride.utilities.data.io.file.MzTabUnmarshallerAdaptor;
+import uk.ac.ebi.pride.utilities.data.utils.CollectionUtils;
 import uk.ac.ebi.pride.utilities.data.utils.Constants;
+import uk.ac.ebi.pride.utilities.data.utils.CvUtilities;
 import uk.ac.ebi.pride.utilities.data.utils.MD5Utils;
+import uk.ac.ebi.pride.utilities.term.CvTermReference;
+import uk.ac.ebi.pride.utilities.term.QuantCvTermReference;
 import uk.ac.ebi.pride.utilities.util.Tuple;
 
 import java.io.*;
@@ -647,4 +651,55 @@ public class MzTabControllerImpl extends ReferencedIdentificationController{
     public boolean hasQuantData() {
         return reader.hasQuantitationData();
     }
+
+    @Override
+    public QuantitativeSample getQuantSample() {
+        QuantitativeSample sampleDesc = new QuantitativeSample();
+
+        Collection<Sample> samples = getSamples();
+        Collection<StudyVariable> studyVariables = getStudyVariables();
+        Set<Sample> sampleSet = new HashSet<Sample>();
+        if(studyVariables != null && !studyVariables.isEmpty() && samples != null && !samples.isEmpty()){
+            for(StudyVariable studyVariable: studyVariables){
+                for(Assay assay: studyVariable.getAssays()){
+                    sampleSet.add(assay.getSample());
+                }
+             }
+            int i = 0;
+            Iterator<Sample> sampleIterator = sampleSet.iterator();
+            while(sampleIterator.hasNext()){
+                Sample currentSample = sampleIterator.next();
+                sampleDesc.addsubSample(i);
+                List<CvParam> params = currentSample.getCvParams();
+                for(CvParam param: params){
+                  if ("newt".equalsIgnoreCase(param.getCvLookupID())) {
+                      sampleDesc.setSpecies(i, param);
+                  } else if ("bto".equalsIgnoreCase(param.getCvLookupID())) {
+                      sampleDesc.setTissue(i, param);
+                  } else if ("cl".equalsIgnoreCase(param.getCvLookupID())) {
+                      sampleDesc.setCellLine(i, param);
+                  } else if ("go".equalsIgnoreCase(param.getCvLookupID())) {
+                      sampleDesc.setGOTerm(i, param);
+                  } else if ("doid".equalsIgnoreCase(param.getCvLookupID())) {
+                      sampleDesc.setDisease(i, param);
+                  }
+                }
+
+                sampleDesc.setDescription(i, CvUtilities.getCVTermFromCvReference(CvTermReference.PRIDE_SAMPLE_DESCRIPTION, currentSample.getName()));
+                for(StudyVariable studyVariable: studyVariables){
+                    List<Assay> assays = studyVariable.getAssays();
+                    for(Assay assay: assays){
+                        Sample sampleAssay = assay.getSample();
+                        if(currentSample == sampleAssay){
+                          sampleDesc.setReagent(i, assay.getReagent());
+                        }
+                    }
+                }
+                i++;
+            }
+        }
+
+        return sampleDesc;
+    }
+
 }
