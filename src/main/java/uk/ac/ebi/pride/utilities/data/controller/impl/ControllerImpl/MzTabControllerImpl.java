@@ -222,13 +222,13 @@ public class MzTabControllerImpl extends ReferencedIdentificationController{
      * @return
      */
     @Override
-    public List<StudyVariable> getStudyVariables() {
+    public Map<Comparable, StudyVariable> getStudyVariables() {
 
         ExperimentMetaData metaData = super.getExperimentMetaData();
 
         if (metaData == null ) {
             logger.debug("Study Variables");
-            List<StudyVariable> studyVariables;
+            Map<Comparable, StudyVariable> studyVariables;
             try {
                 studyVariables = MzTabTransformer.transformStudyVariables(reader.getMetadata(), hasQuantData());
                 return studyVariables;
@@ -377,7 +377,7 @@ public class MzTabControllerImpl extends ReferencedIdentificationController{
 
                 List<SpectraData> spectraDatas = getSpectraDataFiles();
 
-                List<StudyVariable> studyVariables = getStudyVariables();
+                Map<Comparable, StudyVariable> studyVariables = getStudyVariables();
 
                 metaData = new ExperimentMetaData(additional, accession, title, version, shortLabel, samples, softwares, persons, sources, null, organizations, references, null, null, protocol,spectraDatas,studyVariables);
                 // store it in the cache
@@ -657,10 +657,10 @@ public class MzTabControllerImpl extends ReferencedIdentificationController{
         QuantitativeSample sampleDesc = new QuantitativeSample();
 
         Collection<Sample> samples = getSamples();
-        Collection<StudyVariable> studyVariables = getStudyVariables();
+        Map<Comparable, StudyVariable> studyVariables = getStudyVariables();
         Set<Sample> sampleSet = new HashSet<Sample>();
         if(studyVariables != null && !studyVariables.isEmpty() && samples != null && !samples.isEmpty()){
-            for(StudyVariable studyVariable: studyVariables){
+            for(StudyVariable studyVariable: studyVariables.values()){
                 for(Assay assay: studyVariable.getAssays()){
                     sampleSet.add(assay.getSample());
                 }
@@ -686,7 +686,7 @@ public class MzTabControllerImpl extends ReferencedIdentificationController{
                 }
 
                 sampleDesc.setDescription(i, CvUtilities.getCVTermFromCvReference(CvTermReference.PRIDE_SAMPLE_DESCRIPTION, currentSample.getName()));
-                for(StudyVariable studyVariable: studyVariables){
+                for(StudyVariable studyVariable: studyVariables.values()){
                     List<Assay> assays = studyVariable.getAssays();
                     for(Assay assay: assays){
                         Sample sampleAssay = assay.getSample();

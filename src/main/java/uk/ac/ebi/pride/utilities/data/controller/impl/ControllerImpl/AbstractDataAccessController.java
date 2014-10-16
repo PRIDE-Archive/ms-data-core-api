@@ -1204,8 +1204,8 @@ public abstract class AbstractDataAccessController implements DataAccessControll
     }
 
     @Override
-    public List<StudyVariable> getStudyVariables() {
-        return Collections.emptyList();
+    public Map<Comparable, StudyVariable> getStudyVariables() {
+        return Collections.emptyMap();
     }
 
     @Override
