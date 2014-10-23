@@ -106,10 +106,8 @@ public class Peptide {
 
         if (peptideEvidence != null ? !peptideEvidence.equals(peptide.peptideEvidence) : peptide.peptideEvidence != null)
             return false;
-        if (spectrumIdentification != null ? !spectrumIdentification.equals(peptide.spectrumIdentification) : peptide.spectrumIdentification != null)
-            return false;
+        return !(spectrumIdentification != null ? !spectrumIdentification.equals(peptide.spectrumIdentification) : peptide.spectrumIdentification != null);
 
-        return true;
     }
 
     @Override

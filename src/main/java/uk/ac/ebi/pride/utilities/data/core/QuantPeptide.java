@@ -1,6 +1,6 @@
 package uk.ac.ebi.pride.utilities.data.core;
 
-import uk.ac.ebi.pride.jmztab.model.*;
+
 
 /**
  * Quantitative Peptide is a Peptide with Quantitation information and is used in mzTab file formats.

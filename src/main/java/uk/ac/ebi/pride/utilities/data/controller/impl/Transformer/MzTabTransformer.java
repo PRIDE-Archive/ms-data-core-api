@@ -403,11 +403,11 @@ public class MzTabTransformer {
             //Convert Quantitation Peptides
             List<QuantPeptide> quantPeptides = null;
             if (rawPeptides != null && !rawPeptides.isEmpty()) {
-                peptides = new ArrayList<Peptide>();
+                quantPeptides = new ArrayList<QuantPeptide>();
                 for (Map.Entry entry : rawPeptides.entrySet()) {
                     String rawPeptideIndex =  entry.getKey().toString();
                     uk.ac.ebi.pride.jmztab.model.Peptide rawPeptide = (uk.ac.ebi.pride.jmztab.model.Peptide) entry.getValue();
-                    peptides.add(transformQuantPeptide(rawPeptide, dbSequence, rawPeptideIndex, metadata));
+                    quantPeptides.add(transformQuantPeptide(rawPeptide, dbSequence, rawPeptideIndex, metadata));
                 }
             }
 
@@ -885,8 +885,8 @@ public class MzTabTransformer {
         return databases;
     }
 
-    public static List<StudyVariable> transformStudyVariables(Metadata metadata, boolean quantitationExperiment) {
-        List<StudyVariable> studyVariables = new ArrayList<StudyVariable>();
+    public static Map<Comparable, StudyVariable> transformStudyVariables(Metadata metadata, boolean quantitationExperiment) {
+        Map<Comparable, StudyVariable> studyVariables = new HashMap<Comparable, StudyVariable>();
         if(quantitationExperiment && metadata.getStudyVariableMap() != null && metadata.getStudyVariableMap().size() > 0){
            for(Map.Entry entry: metadata.getStudyVariableMap().entrySet()){
                String key  = entry.getKey().toString();
@@ -908,7 +908,7 @@ public class MzTabTransformer {
 
                studyVariable.setDescription(oldStudyVariable.getDescription());
 
-               studyVariables.add(studyVariable);
+               studyVariables.put(key, studyVariable);
            }
         }
         return studyVariables;
@@ -927,7 +927,7 @@ public class MzTabTransformer {
             CvParam reagent = MzTabUtils.convertParamToCvParam(oldAssay.getQuantificationReagent());
             ParamGroup params = new ParamGroup();
             params.addCvParam(reagent);
-            return new Assay(params,key,name, sample);
+            return new Assay(params,key,name, sample, reagent);
         }
         return null;
     }

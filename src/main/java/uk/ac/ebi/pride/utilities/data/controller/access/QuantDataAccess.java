@@ -6,6 +6,7 @@ import uk.ac.ebi.pride.utilities.term.QuantCvTermReference;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 /**
  * QuantDataAccess defines methods for accessing quantitative proteomics data
@@ -170,7 +171,7 @@ public interface QuantDataAccess {
      * In mzTab files the information of Quantitation is store in StudyVariables and not in Samples
      * @return
      */
-    public List<StudyVariable> getStudyVariables();
+    public Map<Comparable, StudyVariable> getStudyVariables();
 
     /**
      * Return the Quantitation Score for Study variables approach.

@@ -1204,8 +1204,8 @@ public abstract class AbstractDataAccessController implements DataAccessControll
     }
 
     @Override
-    public List<StudyVariable> getStudyVariables() {
-        return Collections.emptyList();
+    public Map<Comparable, StudyVariable> getStudyVariables() {
+        return Collections.emptyMap();
     }
 
     @Override
@@ -1261,7 +1261,12 @@ public abstract class AbstractDataAccessController implements DataAccessControll
 
     @Override
     public QuantPeptide getQuantPeptideByIndex(Comparable proteinId, Comparable peptideId) {
-       return null;
+        QuantPeptide peptide = null;
+        Protein protein = getProteinById(proteinId);
+        if (protein != null) {
+            peptide = DataAccessUtilities.getQuantPeptide(protein, Integer.parseInt(peptideId.toString()));
+        }
+        return peptide;
     }
 
     @Override
@@ -1283,7 +1288,15 @@ public abstract class AbstractDataAccessController implements DataAccessControll
 
     @Override
     public String getQuantPeptideSequence(Comparable proteinId, Comparable peptideId) {
-        return null;
+        String seq = null;
+        Protein protein = getProteinById(proteinId);
+        if (protein != null) {
+            QuantPeptide peptide = DataAccessUtilities.getQuantPeptide(protein, Integer.parseInt(peptideId.toString()));
+            if (peptide != null) {
+                seq = peptide.getPeptideSequence().getSequence();
+            }
+        }
+        return seq;
     }
 
     @Override
@@ -1309,7 +1322,12 @@ public abstract class AbstractDataAccessController implements DataAccessControll
 
     @Override
     public int getNumberOfQuantPeptides(Comparable proteinId) {
-        return 0;
+        Protein protein = getProteinById(proteinId);
+        int num = 0;
+        if(protein != null){
+            num = protein.getQuantPeptides().size();
+        }
+        return num;
     }
 
     @Override
@@ -1324,17 +1342,48 @@ public abstract class AbstractDataAccessController implements DataAccessControll
 
     @Override
     public int getNumberOfQuantPTMs(Comparable proteinId, Comparable peptideId) {
-        return 0;
+        List<Modification> mods = new ArrayList<Modification>();
+        Protein protein = getProteinById(proteinId);
+        if (protein != null) {
+            QuantPeptide peptide = DataAccessUtilities.getQuantPeptide(protein, Integer.parseInt(peptideId.toString()));
+            if (peptide != null) {
+                List<Modification> rawMods = peptide.getPeptideSequence().getModifications();
+                mods.addAll(rawMods);
+            }
+        }
+        return mods.size();
     }
 
     @Override
     public Collection<Modification> getQuantPTMs(Comparable proteinId, Comparable peptideId) {
-        return null;
+        List<Modification> mods = new ArrayList<Modification>();
+        Protein protein = getProteinById(proteinId);
+        if (protein != null) {
+            QuantPeptide peptide = DataAccessUtilities.getQuantPeptide(protein, Integer.parseInt(peptideId.toString()));
+            if (peptide != null) {
+                List<Modification> rawMods = peptide.getPeptideSequence().getModifications();
+                mods.addAll(rawMods);
+            }
+        }
+        return mods;
     }
 
     @Override
     public Score getQuantPeptideScore(Comparable proteinId, Comparable peptideId) {
-        return null;
+        Score score = null;
+        Protein protein = getProteinById(proteinId);
+        if (protein != null) {
+            QuantPeptide peptide = DataAccessUtilities.getQuantPeptide(protein, Integer.parseInt(peptideId.toString()));
+            if (peptide != null) {
+                if (peptide.getSpectrumIdentification().getScore() == null) {
+                    score = DataAccessUtilities.getScore(peptide.getSpectrumIdentification());
+                    peptide.getSpectrumIdentification().setScore(score);
+                } else {
+                    score = peptide.getSpectrumIdentification().getScore();
+                }
+            }
+        }
+        return score;
     }
 
     @Override
@@ -1346,4 +1395,6 @@ public abstract class AbstractDataAccessController implements DataAccessControll
     public Collection<PeptideEvidence> getQuantPeptideEvidences(Comparable proteinId, Comparable peptideId) {
         return null;
     }
+
+
 }
