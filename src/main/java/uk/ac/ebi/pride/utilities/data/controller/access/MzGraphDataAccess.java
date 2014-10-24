@@ -2,9 +2,11 @@ package uk.ac.ebi.pride.utilities.data.controller.access;
 
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessException;
 import uk.ac.ebi.pride.utilities.data.core.Chromatogram;
+import uk.ac.ebi.pride.utilities.data.core.Peptide;
 import uk.ac.ebi.pride.utilities.data.core.Spectrum;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * MzGraphDataAccess defines the interface for accessing mzgraph data.
@@ -99,6 +101,20 @@ public interface MzGraphDataAccess {
      * @return boolean true is identified
      */
     public boolean isIdentifiedSpectrum(Comparable specId);
+
+    /**
+     * Retrieve the Identified Peptides related with one spectrum
+      * @param specId
+     * @return
+     */
+    public List<Peptide> getPeptidesBySpectrum(Comparable specId);
+
+    /**
+     * Convert the PSM id to spectrum ID
+      * @param psmID
+     * @return
+     */
+    public Comparable getSpectrumIdForPeptide(Comparable psmID);
 
     /**
      * Get the number peaks of a spectrum

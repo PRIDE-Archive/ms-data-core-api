@@ -849,6 +849,33 @@ public class PrideDBAccessControllerImpl extends CachedDataAccessController {
         return peptideToSpectrum != null && peptideToSpectrum.containsValue(specId);
     }
 
+    /**
+     * Retirve the Identified Peptides related with one spectrum
+     * @param specId
+     * @return
+     */
+    public List<Peptide> getPeptidesBySpectrum(Comparable specId){
+        Map<Comparable, Comparable> peptideToSpectrum = (Map<Comparable, Comparable>) getCache().get(CacheEntry.PEPTIDE_TO_SPECTRUM);
+        Map<Comparable, Comparable> proteinToPeptide =  (Map<Comparable, Comparable>) getCache().get(CacheEntry.PROTEIN_TO_PEPTIDE);
+        List<Peptide> peptides = new ArrayList<Peptide>();
+        if(peptideToSpectrum!=null && peptideToSpectrum.containsValue(specId)){
+            for(Map.Entry entryPeptide: peptideToSpectrum.entrySet()){
+                Comparable peptideId = (Comparable)entryPeptide.getKey();
+                Comparable spectrumId = (Comparable) entryPeptide.getValue();
+                if(spectrumId == specId && proteinToPeptide != null && proteinToPeptide.containsValue(peptideId)){
+                    for(Map.Entry peptideIdEntry: proteinToPeptide.entrySet()){
+                        Comparable peptideIdProtein = (Comparable) peptideIdEntry.getValue();
+                        Comparable proteinId = (Comparable) peptideIdEntry.getKey();
+                        if(peptideId == peptideIdProtein){
+                            peptides.add(getPeptideByIndex(proteinId,peptideId));
+                        }
+                    }
+                }
+            }
+        }
+        return peptides;
+    }
+
     @Override
     public Peptide getPeptideByIndex(Comparable proteinId, Comparable peptideId, boolean useCache) {
         Peptide peptide = super.getPeptideByIndex(proteinId, peptideId, useCache);

@@ -351,8 +351,8 @@ public final class DataAccessUtilities {
      * @return boolean true if spectrum contains fragment ion information.
      */
     public static boolean hasFragmentIon(Spectrum spectrum) {
-        Peptide peptide = spectrum.getPeptide();
-        return peptide != null && hasFragmentIon(peptide);
+        List<Peptide> peptide = spectrum.getPeptide();
+        return peptide != null && hasFragmentIon(peptide.get(0));
     }
 
 
