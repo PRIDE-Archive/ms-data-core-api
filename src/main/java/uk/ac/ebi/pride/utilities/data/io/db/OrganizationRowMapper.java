@@ -5,7 +5,7 @@ import uk.ac.ebi.pride.utilities.data.core.CvParam;
 import uk.ac.ebi.pride.utilities.data.core.Organization;
 import uk.ac.ebi.pride.utilities.data.core.ParamGroup;
 import uk.ac.ebi.pride.utilities.data.core.UserParam;
-import uk.ac.ebi.pride.term.CvTermReference;
+import uk.ac.ebi.pride.utilities.term.CvTermReference;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

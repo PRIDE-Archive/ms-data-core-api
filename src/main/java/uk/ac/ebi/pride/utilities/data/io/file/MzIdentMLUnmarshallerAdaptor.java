@@ -23,6 +23,7 @@ import java.util.*;
  */
 public class MzIdentMLUnmarshallerAdaptor extends MzIdentMLUnmarshaller {
 
+    private static final int LOOP_THRESHOLD = 20;
     private Map<String, Map<String, List<IndexElement>>> scannedIdMappings;
 
     private Inputs inputs = null;
@@ -297,6 +298,20 @@ public class MzIdentMLUnmarshallerAdaptor extends MzIdentMLUnmarshaller {
         if (proteinSequence != null && !proteinSequence.isEmpty()) {
             Map<String, String> attributes = this.getElementAttributes((String) proteinSequence.toArray()[0], DBSequence.class);
             return attributes.containsKey("Seq");
+        }
+        return false;
+    }
+
+    public boolean hasDecoyInformation() throws ConfigurationException {
+        Set<String> proteinSequence = this.getIDsForElement(MzIdentMLElement.PeptideEvidence);
+        if (proteinSequence != null && !proteinSequence.isEmpty()) {
+            int i = 0;
+            while(i < LOOP_THRESHOLD && i < proteinSequence.size()){
+                Map<String, String> attributes = this.getElementAttributes((String) proteinSequence.toArray()[i], PeptideEvidence.class);
+                if(attributes.containsKey("isDecoy"))
+                   return true;
+                i++;
+            }
         }
         return false;
     }

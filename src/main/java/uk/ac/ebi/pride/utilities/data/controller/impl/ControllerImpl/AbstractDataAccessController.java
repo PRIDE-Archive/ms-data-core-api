@@ -137,6 +137,11 @@ public abstract class AbstractDataAccessController implements DataAccessControll
     }
 
     @Override
+    public boolean hasDecoyInformation() {
+        return false;
+    }
+
+    @Override
     public int getNumberOfSpectra() {
         return getSpectrumIds().size();
     }
@@ -175,6 +180,20 @@ public abstract class AbstractDataAccessController implements DataAccessControll
     @Override
     public boolean isIdentifiedSpectrum(Comparable specId) {
         return false;
+    }
+
+    /**
+     * Retrieve the Identified Peptides related with one spectrum
+     * @param specId
+     * @return
+     */
+    public List<Peptide> getPeptidesBySpectrum(Comparable specId){
+        return CollectionUtils.createEmptyList();
+    }
+
+    @Override
+    public Comparable getSpectrumIdForPeptide(Comparable psmID) {
+        return null;
     }
 
     @Override

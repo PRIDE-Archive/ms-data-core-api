@@ -626,4 +626,19 @@ public class MzIdentMLControllerImpl extends ReferencedIdentificationController 
             throw new DataAccessException(msg, ex);
         }
     }
+
+    /**
+     * Check if the DataAccessController contains the ProteinSequence
+     * @return True if the DataAccessController contains Protein Sequences
+     */
+    @Override
+    public boolean hasDecoyInformation() {
+        try {
+            return unmarshaller.hasDecoyInformation();
+        } catch (ConfigurationException ex) {
+            String msg = "Error while reading the mzidentml file";
+            logger.error(msg, ex);
+            throw new DataAccessException(msg, ex);
+        }
+    }
 }

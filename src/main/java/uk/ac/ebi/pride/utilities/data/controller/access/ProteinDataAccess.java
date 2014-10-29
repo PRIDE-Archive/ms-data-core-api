@@ -150,6 +150,12 @@ public interface ProteinDataAccess {
 
     public boolean hasProteinSequence();
 
+    /**
+     * This function return true if the controller contains decoy information and false if the controller do not contain decoy information.
+     * @return
+     */
+    public boolean hasDecoyInformation();
+
 }
 
 

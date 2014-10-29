@@ -72,7 +72,11 @@ public class ReferencedIdentificationController extends CachedDataAccessControll
             if (hasSpectrum() && spectrumId != null) {
                 Spectrum spectrum = getSpectrumById(spectrumId);
                 if(spectrum != null) {
-                    spectrum.setPeptide(peptide);
+                    List<Peptide> peptides = new ArrayList<Peptide>();
+                    if(spectrum.getPeptide() != null)
+                        peptides = spectrum.getPeptide();
+                    peptides.add(peptide);
+                    spectrum.setPeptide(peptides);
                     peptide.setSpectrum(spectrum);
 
                     getCache().store(CacheEntry.SPECTRUM_LEVEL_PRECURSOR_CHARGE, spectrum.getId(), DataAccessUtilities.getPrecursorChargeParamGroup(spectrum));
@@ -304,6 +308,35 @@ public class ReferencedIdentificationController extends CachedDataAccessControll
         return false;
     }
 
+    /**
+     * Retrieve the Identified Peptides related with one spectrum
+     * @param specId
+     * @return
+     */
+    public List<Peptide> getPeptidesBySpectrum(Comparable specId){
+        Map<Comparable, String[]> peptideToSpectrum = ((Map<Comparable, String[]>) getCache().get(CacheEntry.PEPTIDE_TO_SPECTRUM));
+        Map<Comparable, List<Comparable>> proteinToPeptide  = ((Map<Comparable, List<Comparable>>) getCache().get(CacheEntry.PROTEIN_TO_PEPTIDE_EVIDENCES));
+        List<Peptide> peptides = new ArrayList<Peptide>();
+
+        for(Map.Entry spectrumIDEntry: peptideToSpectrum.entrySet()){
+            Comparable peptideID = (Comparable) spectrumIDEntry.getKey();
+            String[] spectrumID  = (String[]) spectrumIDEntry.getValue();
+            String spectrumIDString = spectrumID[0] + "!" + spectrumID[1];
+            if(spectrumIDString.equalsIgnoreCase(specId.toString()) && proteinToPeptide != null){
+                for(Map.Entry proteinEntry: proteinToPeptide.entrySet()){
+                    Comparable proteinId = (Comparable) proteinEntry.getKey();
+                    List<Comparable> peptidePerProtein = (List<Comparable>) proteinEntry.getValue();
+                    if(peptidePerProtein.contains(peptideID)){
+                        Peptide peptideIdentified = getPeptideByIndex(proteinId, peptideID);
+                        peptides.add(peptideIdentified);
+                    }
+                }
+            }
+        }
+
+        return peptides;
+    }
+
     @Override
     public Collection<Comparable> getSpectrumIds() {
         Collection<Comparable> spectrumIds = super.getSpectrumIds();
@@ -451,7 +484,11 @@ public class ReferencedIdentificationController extends CachedDataAccessControll
                 if (hasSpectrum()) {
                     spectrum = getSpectrumById(peptide.getSpectrumIdentification().getId());
                     if(spectrum != null){
-                        spectrum.setPeptide(peptide);
+                        List<Peptide> peptides = new ArrayList<Peptide>();
+                        if(spectrum.getPeptide() != null)
+                            peptides = spectrum.getPeptide();
+                        peptides.add(peptide);
+                        spectrum.setPeptide(peptides);
                         peptide.setSpectrum(spectrum);
                     }
                 }

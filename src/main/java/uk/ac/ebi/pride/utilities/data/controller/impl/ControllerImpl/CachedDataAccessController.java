@@ -167,6 +167,27 @@ public abstract class CachedDataAccessController extends AbstractDataAccessContr
     }
 
     /**
+     * Convert PSM id to Spectrum ID
+     * @param psmID
+     * @return
+     */
+
+    public Comparable getSpectrumIdForPeptide(Comparable psmID){
+        String[] spectrumIdArray = ((String) psmID).split("!");
+        if (spectrumIdArray.length != 2) {
+            if(((Map<Comparable, String[]>) getCache().get(CacheEntry.PEPTIDE_TO_SPECTRUM)).containsKey(psmID)){
+                spectrumIdArray = ((Map<Comparable, String[]>) getCache().get(CacheEntry.PEPTIDE_TO_SPECTRUM)).get(psmID);
+                if(spectrumIdArray != null & spectrumIdArray.length == 2){
+                    return spectrumIdArray[0] + "!" + spectrumIdArray[1];
+                }
+            }else{
+                return psmID;
+            }
+        }
+        return null;
+    }
+
+    /**
      * Get chromatogram object form cache
      * It uses cache by default
      *
@@ -916,6 +937,33 @@ public abstract class CachedDataAccessController extends AbstractDataAccessContr
     @Override
     public ProteinGroup getProteinAmbiguityGroupById(Comparable proteinGroupId) {
         return (ProteinGroup) cache.get(CacheEntry.PROTEIN_GROUP, proteinGroupId);
+    }
+
+    /**
+     * Retrieve the Identified Peptides related with one spectrum
+     * @param specId
+     * @return
+     */
+    public List<Peptide> getPeptidesBySpectrum(Comparable specId){
+        Map<Comparable, Comparable> peptideToSpectrum = (Map<Comparable, Comparable>) getCache().get(CacheEntry.PEPTIDE_TO_SPECTRUM);
+        Map<Comparable, Comparable> proteinToPeptide =  (Map<Comparable, Comparable>) getCache().get(CacheEntry.PROTEIN_TO_PEPTIDE);
+        List<Peptide> peptides = new ArrayList<Peptide>();
+        if(peptideToSpectrum!=null && peptideToSpectrum.containsValue(specId)){
+            for(Map.Entry entryPeptide: peptideToSpectrum.entrySet()){
+                Comparable peptideId = (Comparable)entryPeptide.getKey();
+                Comparable spectrumId = (Comparable) entryPeptide.getValue();
+                if(spectrumId == specId && proteinToPeptide != null && proteinToPeptide.containsValue(peptideId)){
+                    for(Map.Entry peptideIdEntry: proteinToPeptide.entrySet()){
+                        Comparable peptideIdProtein = (Comparable) peptideIdEntry.getValue();
+                        Comparable proteinId = (Comparable) peptideIdEntry.getKey();
+                        if(peptideId == peptideIdProtein){
+                            peptides.add(getPeptideByIndex(proteinId,peptideId));
+                        }
+                    }
+                }
+            }
+        }
+        return peptides;
     }
 
     /**
