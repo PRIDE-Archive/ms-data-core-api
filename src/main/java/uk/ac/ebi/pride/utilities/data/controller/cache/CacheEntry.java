@@ -62,9 +62,13 @@ public enum CacheEntry {
 
     PROTEIN_QUANT_UNIT(ArrayList.class, null),                 // List<QuantCvTermReference>
     PEPTIDE_QUANT_UNIT(ArrayList.class, null),                 // List<QuantCvTermReference>
-    FRAGMENTATION_TABLE(HashMap.class, null),                 // Map<Fragmentation id, IdentifiableParamGroup>
-    CV_LOOKUP(HashMap.class, null),                           // Map<cv label, CVLookup>
-    SPECTRA_DATA(HashMap.class, null);                        // Map<Spectra data id, SpectraData>
+    FRAGMENTATION_TABLE(HashMap.class, null),                  // Map<Fragmentation id, IdentifiableParamGroup>
+    CV_LOOKUP(HashMap.class, null),                            // Map<cv label, CVLookup>
+    SPECTRA_DATA(HashMap.class, null),                         // Map<Spectra data id, SpectraData>
+
+    MGF_INDEX_TITLE(HashMap.class, null),                      // In some cases it would be interesting to retrieve the file instead of using index using the title.
+    SPECTRA_DATA_MGF_TITLE(ArrayList.class, null),
+    TITLE_MGF_INDEX(HashMap.class, null);
 
     private final Class dataStructType;
     private final Integer size;

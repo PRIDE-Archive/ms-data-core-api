@@ -26,7 +26,7 @@ import java.util.List;
  * Date: 03-Feb-2010
  * Time: 08:46:05
  */
-public class Spectrum extends MzGraph {
+public class Spectrum extends MzGraph implements Cloneable{
 
     /**
      * peptide associate with this spectrum
@@ -202,6 +202,11 @@ public class Spectrum extends MzGraph {
         result = 31 * result + (sourceFile != null ? sourceFile.hashCode() : 0);
         result = 31 * result + (spotID != null ? spotID.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 }
 

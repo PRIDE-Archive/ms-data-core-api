@@ -24,6 +24,7 @@ import uk.ac.ebi.pride.utilities.data.core.SpectrumIdentificationProtocol;
 import uk.ac.ebi.pride.utilities.data.core.SubstitutionModification;
 import uk.ac.ebi.pride.utilities.data.core.UserParam;
 import uk.ac.ebi.pride.utilities.data.utils.MapUtils;
+import uk.ac.ebi.pride.utilities.data.utils.MzIdentMLUtils;
 import uk.ac.ebi.pride.utilities.term.CvTermReference;
 
 import java.util.*;
@@ -904,22 +905,30 @@ public final class MzIdentMLTransformer {
         return searchDataBases;
     }
 
-    public static SpectraData transformToSpectraData(uk.ac.ebi.jmzidml.model.mzidml.SpectraData oldSpectraData) {
+    public static SpectraData transformToSpectraData(uk.ac.ebi.jmzidml.model.mzidml.SpectraData oldSpectraData, boolean mgfTitle) {
         SpectraData spectraData = null;
         if (oldSpectraData != null) {
-            CvParam fileFormat = (oldSpectraData.getFileFormat() == null) ? null : transformToCvParam(oldSpectraData.getFileFormat().getCvParam());
-            CvParam spectrumId = (oldSpectraData.getSpectrumIDFormat().getCvParam() == null) ? null : transformToCvParam(oldSpectraData.getSpectrumIDFormat().getCvParam());
-            spectraData = new SpectraData(oldSpectraData.getId(), oldSpectraData.getName(), oldSpectraData.getLocation(), fileFormat, oldSpectraData.getExternalFormatDocumentation(), spectrumId);
+            if(!mgfTitle){
+                CvParam fileFormat = (oldSpectraData.getFileFormat() == null) ? null : transformToCvParam(oldSpectraData.getFileFormat().getCvParam());
+                CvParam spectrumId = (oldSpectraData.getSpectrumIDFormat().getCvParam() == null) ? null : transformToCvParam(oldSpectraData.getSpectrumIDFormat().getCvParam());
+                spectraData = new SpectraData(oldSpectraData.getId(), oldSpectraData.getName(), oldSpectraData.getLocation(), fileFormat, oldSpectraData.getExternalFormatDocumentation(), spectrumId);
+            }else{
+                CvParam fileFormat = (oldSpectraData.getFileFormat() == null) ? null : MzIdentMLUtils.getFileFormatMGFTitle();
+                CvParam spectrumId = (oldSpectraData.getSpectrumIDFormat().getCvParam() == null) ? null : MzIdentMLUtils.getSpectrumIdFormatMGFTitle();
+                spectraData = new SpectraData(oldSpectraData.getId(), oldSpectraData.getName(), oldSpectraData.getLocation(), fileFormat, oldSpectraData.getExternalFormatDocumentation(), spectrumId);
+            }
+
+
         }
         return spectraData;
     }
 
-    public static List<SpectraData> transformToSpectraData(List<uk.ac.ebi.jmzidml.model.mzidml.SpectraData> oldSpectraDatas) {
+    public static List<SpectraData> transformToSpectraData(List<uk.ac.ebi.jmzidml.model.mzidml.SpectraData> oldSpectraDatas, List<Comparable> usedTitle) {
         List<SpectraData> spectraDatas = null;
         if (oldSpectraDatas != null) {
             spectraDatas = new ArrayList<SpectraData>();
             for (uk.ac.ebi.jmzidml.model.mzidml.SpectraData oldSpectraData : oldSpectraDatas) {
-                spectraDatas.add(transformToSpectraData(oldSpectraData));
+                spectraDatas.add(transformToSpectraData(oldSpectraData, usedTitle.contains(oldSpectraData.getId())));
             }
         }
         return spectraDatas;
