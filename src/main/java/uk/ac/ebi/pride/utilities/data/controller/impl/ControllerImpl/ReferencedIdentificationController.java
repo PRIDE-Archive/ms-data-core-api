@@ -223,9 +223,14 @@ public abstract class ReferencedIdentificationController extends CachedDataAcces
                         else
                             msDataAccessControllers.put(spectraData.getId(), new PeakControllerImpl(spectraDataFileMap.get(spectraDataFile),true));
                     }
+
                     if (Constants.getSpectraDataFormat(spectraData) == Constants.SpecFileFormat.MZML)
                         msDataAccessControllers.put(spectraData.getId(), new MzMLControllerImpl(spectraDataFileMap.get(spectraDataFile)));
+
                     if (Constants.getSpectraDataFormat(spectraData) == Constants.SpecFileFormat.DTA)
+                        msDataAccessControllers.put(spectraData.getId(), new PeakControllerImpl(spectraDataFileMap.get(spectraDataFile)));
+
+                    if (Constants.getSpectraDataFormat(spectraData) == Constants.SpecFileFormat.PKL)
                         msDataAccessControllers.put(spectraData.getId(), new PeakControllerImpl(spectraDataFileMap.get(spectraDataFile)));
                     //Todo: Need to check if changes
                 }

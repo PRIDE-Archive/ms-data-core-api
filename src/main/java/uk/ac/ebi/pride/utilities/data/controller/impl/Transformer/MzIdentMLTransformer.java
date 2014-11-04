@@ -23,6 +23,7 @@ import uk.ac.ebi.pride.utilities.data.core.SpectrumIdentification;
 import uk.ac.ebi.pride.utilities.data.core.SpectrumIdentificationProtocol;
 import uk.ac.ebi.pride.utilities.data.core.SubstitutionModification;
 import uk.ac.ebi.pride.utilities.data.core.UserParam;
+import uk.ac.ebi.pride.utilities.data.utils.Constants;
 import uk.ac.ebi.pride.utilities.data.utils.MapUtils;
 import uk.ac.ebi.pride.utilities.data.utils.MzIdentMLUtils;
 import uk.ac.ebi.pride.utilities.term.CvTermReference;
@@ -915,7 +916,9 @@ public final class MzIdentMLTransformer {
             }else{
                 CvParam fileFormat = (oldSpectraData.getFileFormat() == null) ? null : MzIdentMLUtils.getFileFormatMGFTitle();
                 CvParam spectrumId = (oldSpectraData.getSpectrumIDFormat().getCvParam() == null) ? null : MzIdentMLUtils.getSpectrumIdFormatMGFTitle();
-                spectraData = new SpectraData(oldSpectraData.getId(), oldSpectraData.getName(), oldSpectraData.getLocation(), fileFormat, oldSpectraData.getExternalFormatDocumentation(), spectrumId);
+                String location = (oldSpectraData.getLocation() != null)? oldSpectraData.getLocation().replaceAll("(?i)" + Constants.WIFF_EXT, Constants.MGF_EXT): null;
+                String name     = (oldSpectraData.getName() != null)? oldSpectraData.getName().replaceAll("(?i)" + Constants.WIFF_EXT, Constants.MGF_EXT): null;
+                spectraData = new SpectraData(oldSpectraData.getId(), name, location, fileFormat, oldSpectraData.getExternalFormatDocumentation(), spectrumId);
             }
 
 

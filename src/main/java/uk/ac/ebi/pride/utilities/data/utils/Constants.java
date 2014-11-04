@@ -36,6 +36,8 @@ public class Constants {
     public static final String XML_EXT   = ".xml";
     public static final String MZML_EXT  = ".mzML";
     public static final String MZTAB_EXT     = ".mztab";
+    public static final String WIFF_EXT = ".wiff";
+
 
     /**
      * Supported id format used in the spectrum file.
