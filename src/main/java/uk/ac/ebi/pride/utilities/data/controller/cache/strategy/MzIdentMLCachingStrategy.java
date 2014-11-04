@@ -246,7 +246,7 @@ public class MzIdentMLCachingStrategy extends AbstractCachingStrategy {
      * @throws javax.naming.ConfigurationException
      *
      */
-    private void cachePrescanIdMaps(MzIdentMLUnmarshallerAdaptor unmarshaller) throws ConfigurationException {
+    private void cachePrescanIdMaps(MzIdentMLUnmarshallerAdaptor unmarshaller) throws ConfigurationException, JAXBException {
 
         /**
          * Map of IDs to SpectraData, e.g. IDs to spectra files
@@ -288,6 +288,24 @@ public class MzIdentMLCachingStrategy extends AbstractCachingStrategy {
          */
         Map<Comparable, List<Comparable>> identProteinsMap = new HashMap<Comparable, List<Comparable>>();
 
+        /*
+          Check is the file is using a different reference way
+         */
+        boolean mgfTitleReference = false;
+
+        List<Comparable> possibleMGMTitleReferenced = unmarshaller.getTitleReferenceFile(spectraDataIds);
+
+        if(spectrumIdentResultIds != null && possibleMGMTitleReferenced.size() > 0 ){
+            mgfTitleReference = true;
+        }
+
+        Map<String[], Comparable> mgfTitleReferenceMap = new HashMap<String[], Comparable>();
+        List<Comparable> spectraDataToMGF    = new ArrayList<Comparable>();
+
+        /*
+         Do the preScan
+         */
+
         for (String spectrumIdentResultId : spectrumIdentResultIds) {
 
             Map<String, String> spectrumIdentificationResultAttributes = unmarshaller.getElementAttributes(spectrumIdentResultId, SpectrumIdentificationResult.class);
@@ -307,19 +325,33 @@ public class MzIdentMLCachingStrategy extends AbstractCachingStrategy {
 
             // proceed to populate the identSpectrumMap
             Set<String> spectrumIdentItemIds = unmarshaller.getSpectrumIdentificationItemIds(spectrumIdentResultId);
+
             for (String spectrumIdentItemId : spectrumIdentItemIds) {
 
-                // fill the SpectrumIdentification and the Spectrum information
-                SpectraData spectraData = spectraDataIds.get(spectrumDataReference);
+                if(mgfTitleReference && possibleMGMTitleReferenced.contains(spectrumDataReference)){
+                    Comparable title = unmarshaller.getMGFTitleReference(spectrumIdentResultId);
+                    if(title != null){
+                        String[] spectrumFeatures = {title.toString(), spectrumDataReference};
+                        identSpectrumMap.put(spectrumIdentItemId, spectrumFeatures);
+                        mgfTitleReferenceMap.put(spectrumFeatures, unmarshaller.getMGFTitleReference(spectrumIdentResultId));
+                        if(!spectraDataToMGF.contains(spectrumDataReference))
+                            spectraDataToMGF.add(spectrumDataReference);
+                    }
+                }else{
+                    // fill the SpectrumIdentification and the Spectrum information
+                    SpectraData spectraData = spectraDataIds.get(spectrumDataReference);
 
-                // extract the spectrum ID from the provided identifier
-                String formattedSpectrumID = MzIdentMLUtils.getSpectrumId(spectraData, spectrumID);
-                String[] spectrumFeatures = {formattedSpectrumID, spectrumDataReference};
+                    // extract the spectrum ID from the provided identifier
+                    String formattedSpectrumID = MzIdentMLUtils.getSpectrumId(spectraData, spectrumID);
+                    String[] spectrumFeatures = {formattedSpectrumID, spectrumDataReference};
 
-                identSpectrumMap.put(spectrumIdentItemId, spectrumFeatures);
+                    identSpectrumMap.put(spectrumIdentItemId, spectrumFeatures);
+                }
 
                 Set<Comparable> idProteins = new HashSet<Comparable>();
                 Set<String> peptideEvidenceReferences = unmarshaller.getPeptideEvidenceReferences(spectrumIdentResultId, spectrumIdentItemId);
+
+
                 for (String peptideEvidenceReference : peptideEvidenceReferences) {
                     Map<String, String> attributes = unmarshaller.getElementAttributes(peptideEvidenceReference, PeptideEvidence.class);
                     idProteins.add(attributes.get("dBSequence_ref"));
@@ -348,6 +380,14 @@ public class MzIdentMLCachingStrategy extends AbstractCachingStrategy {
 
         cache.clear(CacheEntry.PEPTIDE_TO_SPECTRUM);
         cache.storeInBatch(CacheEntry.PEPTIDE_TO_SPECTRUM, identSpectrumMap);
+
+        if(mgfTitleReference && mgfTitleReferenceMap.size() > 0){
+            cache.clear(CacheEntry.MGF_INDEX_TITLE);
+            cache.storeInBatch(CacheEntry.MGF_INDEX_TITLE, mgfTitleReferenceMap);
+
+            cache.clear(CacheEntry.SPECTRA_DATA_MGF_TITLE);
+            cache.storeInBatch(CacheEntry.SPECTRA_DATA_MGF_TITLE, spectraDataToMGF);
+        }
     }
 }
 
