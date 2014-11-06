@@ -70,7 +70,7 @@
         <apl.parser.version>1.0.0</apl.parser.version>
         <ms2.parser.version>1.2.1</ms2.parser.version>
         <dta.parser.version>1.2.1</dta.parser.version>
-        <mgf.parser.version>1.2.6-SNAPSHOT</mgf.parser.version>
+        <mgf.parser.version>1.2.9-SNAPSHOT</mgf.parser.version>
         <mzdata.parser.version>1.2.1</mzdata.parser.version>
 
         <xxindex.version>0.14</xxindex.version>
