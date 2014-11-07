@@ -6,7 +6,7 @@
 
     <groupId>uk.ac.ebi.pride.utilities</groupId>
     <artifactId>ms-data-core-api</artifactId>
-    <version>0.11.27-SNAPSHOT</version>
+    <version>2.0.0-SNAPSHOT</version>
     <name>Open-source Data Model for computational proteomics</name>
     <url>http://github.com/PRIDE-EBI/PRIDE-toolsuite/ms-data-core-api/</url>
     <description>Open-source java library to handle different file format standards for proteomics. Specially ms-data-core-api is good for MetaData representation.</description>
@@ -60,7 +60,7 @@
         <slf4j-api.version>1.7.5</slf4j-api.version>
         <logback-core.version>1.0.11</logback-core.version>
         <jmzml.version>1.7.2.pride</jmzml.version>
-        <jmzidentml.version>1.1.10-SNAPSHOT</jmzidentml.version>
+        <jmzidentml.version>1.2.0</jmzidentml.version>
         <xmlschemavalidator.version>2.1</xmlschemavalidator.version>
         <jmztab.version>3.0.2-SNAPSHOT</jmztab.version>
 
@@ -70,7 +70,7 @@
         <apl.parser.version>1.0.0</apl.parser.version>
         <ms2.parser.version>1.2.1</ms2.parser.version>
         <dta.parser.version>1.2.1</dta.parser.version>
-        <mgf.parser.version>1.2.9-SNAPSHOT</mgf.parser.version>
+        <mgf.parser.version>1.2.9</mgf.parser.version>
         <mzdata.parser.version>1.2.1</mzdata.parser.version>
 
         <xxindex.version>0.14</xxindex.version>
