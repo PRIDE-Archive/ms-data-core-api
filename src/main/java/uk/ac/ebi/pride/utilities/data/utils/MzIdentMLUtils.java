@@ -3,12 +3,15 @@ package uk.ac.ebi.pride.utilities.data.utils;
 
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
+import uk.ac.ebi.jmzidml.model.mzidml.SpectraData;
 import uk.ac.ebi.pride.utilities.data.core.CvParam;
 import uk.ac.ebi.pride.jmztab.utils.convert.SearchEngineParam;
 import uk.ac.ebi.pride.jmztab.utils.convert.SearchEngineScoreParam;
 import uk.ac.ebi.pride.tools.ErrorHandlerIface;
 import uk.ac.ebi.pride.tools.GenericSchemaValidator;
 import uk.ac.ebi.pride.tools.ValidationErrorHandler;
+import uk.ac.ebi.pride.utilities.term.CvTermReference;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -30,6 +33,8 @@ import java.util.List;
 public final class MzIdentMLUtils {
 
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(MzIdentMLUtils.class);
+    private static CvParam spectrumIdFormatMGFTitle;
+
 
     /**
      * This parameter is a hack to allow in mzIdentML version 1.1 to convert the modification unambiguity position from
@@ -117,6 +122,45 @@ public final class MzIdentMLUtils {
         return searchEngines;
     }
 
+    public static boolean containMGFTitleCVterm(List<uk.ac.ebi.jmzidml.model.mzidml.CvParam> listCVParam){
+        if(listCVParam != null && listCVParam.size() > 0){
+            for(uk.ac.ebi.jmzidml.model.mzidml.CvParam cv: listCVParam){
+                if(cv.getAccession().equalsIgnoreCase(CvTermReference.MS_MGF_TITLE_INDEX.getAccession()))
+                    return true;
+            }
+        }
+        return false;
+
+    }
 
 
+    public static Comparable MGFTitleCVtermValue(List<uk.ac.ebi.jmzidml.model.mzidml.CvParam> cvParams) {
+        if(cvParams != null && cvParams.size() > 0){
+            for(uk.ac.ebi.jmzidml.model.mzidml.CvParam cv: cvParams){
+                if(cv.getAccession().equalsIgnoreCase(CvTermReference.MS_MGF_TITLE_INDEX.getAccession()))
+                    return cv.getValue();
+            }
+        }
+        return null;
+    }
+
+    public static boolean isSpectraDataReferencedByTitle(SpectraData spectraData) {
+        if(spectraData.getSpectrumIDFormat() != null &&
+                spectraData.getSpectrumIDFormat().getCvParam().getAccession().equalsIgnoreCase(CvTermReference.MS_ID_FORMAT_WIFF.getAccession()) &&
+                spectraData.getFileFormat() != null && spectraData.getFileFormat().getCvParam().getAccession().equalsIgnoreCase(CvTermReference.MS_FILE_FORMAT_WIFF.getAccession()))
+            return true;
+        return false;
+    }
+
+    /**
+     * This CvParam override the current File format CVparam for those files that are native wiff but are mgf using title reference.
+     * @return
+     */
+    public static CvParam getFileFormatMGFTitle() {
+        return CvUtilities.getCVTermFromCvReference(CvTermReference.MS_MGF_FILE_FORMAT, null);
+    }
+
+    public static CvParam getSpectrumIdFormatMGFTitle() {
+        return CvUtilities.getCVTermFromCvReference(CvTermReference.MS_MGF_IDFORMAT_TITLE, null);
+    }
 }

@@ -967,6 +967,31 @@ public abstract class CachedDataAccessController extends AbstractDataAccessContr
     }
 
     /**
+     * In some cases (WIFF files) the spectrum is referenced using the TITLE instead of using the index. In those cases we need to re-write the SpectraData
+     * Object to reflect it. This is a hack of the mzIdentML specification.
+     * @return
+     */
+    public boolean isSpectrumBasedOnTitle(){
+        Map<String[], Comparable> indexToTitleSpectrum = (Map<String[], Comparable>) getCache().get(CacheEntry.MGF_INDEX_TITLE);
+        if(indexToTitleSpectrum != null)
+            return true;
+        return false;
+    }
+
+    /**
+     * In some cases (WIFF files) the spectrum is referenced using the TITLE instead of using the index. In those cases we need to re-write the SpectraData
+     * Object to reflect it. This is a hack of the mzIdentML specification.
+     * @return
+     */
+    public List<Comparable> getSpectraDataBasedOnTitle(){
+        List<Comparable> indexToTitleSpectrum = (List<Comparable>) getCache().get(CacheEntry.SPECTRA_DATA_MGF_TITLE);
+        if(indexToTitleSpectrum != null)
+            return indexToTitleSpectrum;
+        return CollectionUtils.createEmptyList();
+    }
+
+
+    /**
      * Close data access controller by clearing the cache first
      */
     @Override

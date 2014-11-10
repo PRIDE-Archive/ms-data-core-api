@@ -22,7 +22,9 @@ import uk.ac.ebi.pride.tools.pkl_parser.PklFile;
 
 import java.io.File;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -51,13 +53,18 @@ public class PeakControllerImpl extends CachedDataAccessController {
      */
     public PeakControllerImpl(File file) {
         super(file, DataAccessMode.CACHE_AND_SOURCE);
-        initialize();
+        initialize(false);
+    }
+
+    public PeakControllerImpl(File file, boolean useTitle){
+        super(file, DataAccessMode.CACHE_AND_SOURCE);
+        initialize(useTitle);
     }
 
     /**
      * Initialize the data access controller
      */
-    private void initialize() {
+    private void initialize(boolean useTitle) {
 
         File file = (File) this.getSource();
         JMzReader um = null;
@@ -84,7 +91,7 @@ public class PeakControllerImpl extends CachedDataAccessController {
 
             }
         }
-        unmarshaller = new PeakUnmarshallerAdaptor(um);
+        unmarshaller = new PeakUnmarshallerAdaptor(um, useTitle);
 
         // set data source name
         this.setName(file.getName());
@@ -151,7 +158,11 @@ public class PeakControllerImpl extends CachedDataAccessController {
     public Spectrum getSpectrumById(Comparable id, boolean useCache) {
 
         Spectrum spectrum = super.getSpectrumById(id, useCache);
-        if (spectrum == null) {
+        Map<Comparable, Comparable> ids = (Map<Comparable, Comparable>) getCache().get(CacheEntry.TITLE_MGF_INDEX);
+        if (spectrum == null){
+            if((ids != null && !ids.isEmpty())){
+                id = ids.get(id);
+            }
             uk.ac.ebi.pride.tools.jmzreader.model.Spectrum rawSpec;
             try {
                 rawSpec = unmarshaller.getSpectrumById(id.toString());
@@ -163,7 +174,6 @@ public class PeakControllerImpl extends CachedDataAccessController {
                 logger.error("Get spectrum by id", ex);
                 throw new DataAccessException("Exception while trying to read Spectrum using Spectrum ID", ex);
             }
-
         }
         return spectrum;
     }
@@ -261,5 +271,15 @@ public class PeakControllerImpl extends CachedDataAccessController {
     @Override
     public boolean hasMetaDataInformation() {
         return false;
+    }
+
+    @Override
+    public Collection<Comparable> getSpectrumIds() {
+        Map<Comparable, Comparable> ids = (Map<Comparable, Comparable>) getCache().get(CacheEntry.TITLE_MGF_INDEX);
+
+        if(ids != null && ids.size() > 0)
+            return ids.keySet();
+
+        return super.getSpectrumIds();
     }
 }

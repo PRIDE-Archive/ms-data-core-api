@@ -37,9 +37,6 @@ public class CvUtilities {
         }
         return mail;
     }
-
-
-
     /**
      * Checks whether the passed identification object is a decoy hit. This function only checks for
      * the presence of specific cv / user Params.
