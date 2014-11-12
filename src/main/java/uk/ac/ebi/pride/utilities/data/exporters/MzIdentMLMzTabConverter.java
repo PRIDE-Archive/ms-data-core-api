@@ -99,6 +99,7 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter{
     @Override
     protected MZTabColumnFactory convertProteinColumnFactory() {
         this.proteinColumnFactory = MZTabColumnFactory.getInstance(Section.Protein);
+        this.proteinColumnFactory.addDefaultStableColumns();
 
         // ms_run[1] optional columns
         for(MsRun msRun: metadata.getMsRunMap().values()){
@@ -134,6 +135,7 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter{
     @Override
     protected MZTabColumnFactory convertPSMColumnFactory() {
         this.psmColumnFactory = MZTabColumnFactory.getInstance(Section.PSM);
+        psmColumnFactory.addDefaultStableColumns();
         psmColumnFactory.addOptionalColumn(MzTabUtils.OPTIONAL_ID_COLUMN,String.class);
         psmColumnFactory.addOptionalColumn(MzTabUtils.OPTIONAL_DECOY_COLUMN, Integer.class);
         psmColumnFactory.addOptionalColumn(MzTabUtils.OPTIONAL_RANK_COLUMN, Integer.class);
@@ -445,8 +447,10 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter{
 
             psm.setStart(oldPSM.getPeptideEvidence().getStartPosition());
             psm.setEnd(oldPSM.getPeptideEvidence().getEndPosition());
-            psm.setPre(String.valueOf(oldPSM.getPeptideEvidence().getPreResidue()));
-            psm.setPost(String.valueOf(oldPSM.getPeptideEvidence().getPostResidue()));
+            String pre  = String.valueOf(oldPSM.getPeptideEvidence().getPreResidue());
+            String post = String.valueOf(oldPSM.getPeptideEvidence().getPostResidue());
+            psm.setPre((pre == null || pre.isEmpty() || pre.equalsIgnoreCase(String.valueOf('\u0000')))?null:pre);
+            psm.setPost((post == null || post.isEmpty() || pre.equalsIgnoreCase(String.valueOf('\u0000')))?null:post);
 
 
             List<Modification> mods = new ArrayList<Modification>();

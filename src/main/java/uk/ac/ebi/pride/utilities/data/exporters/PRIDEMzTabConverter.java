@@ -279,6 +279,7 @@ public class PRIDEMzTabConverter extends AbstractMzTabConverter {
     @Override
     protected MZTabColumnFactory convertProteinColumnFactory() {
         proteinColumnFactory = MZTabColumnFactory.getInstance(Section.Protein);
+        this.proteinColumnFactory.addDefaultStableColumns();
 
         // If not provide protein_quantification_unit in metadata, default value is Ratio
         if (!isIdentification() && metadata.getProteinQuantificationUnit() == null) {
