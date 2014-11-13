@@ -34,6 +34,21 @@ public class MzTabUtils {
         return null;
     }
 
+    /**
+     * This function takes the value of a CVParam and retrieve the corresponding CVParam
+     * @param cvParam A CvParam
+     * @return CVParam for mzTab
+     */
+    public static CVParam convertCvParamToCVParam(CvParam cvParam, Double mass){
+        if(cvParam != null) {
+            if (mass != null)
+                return new CVParam(cvParam.getCvLookupID(), cvParam.getAccession(), cvParam.getName(), mass.toString());
+            else
+               return convertCvParamToCVParam(cvParam);
+        }
+        return null;
+    }
+
     public static List<CvParam> convertParamToCvParam(List<Param> params){
         List<CvParam> cvParamList = new ArrayList<CvParam>();
         if(params != null && params.size() > 0){

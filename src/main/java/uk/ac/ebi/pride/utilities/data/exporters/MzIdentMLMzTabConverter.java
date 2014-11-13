@@ -466,7 +466,9 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter{
                         site = "C-Term";
                     else
                         site = String.valueOf(oldPSM.getPeptideEvidence().getPeptideSequence().getSequence().charAt(oldMod.getLocation()-1));
-                    Param param = MzTabUtils.convertCvParamToCVParam(oldMod.getCvParams().get(0));
+                    Double mass = (oldMod.getMonoisotopicMassDelta() !=null && !oldMod.getMonoisotopicMassDelta().isEmpty())? oldMod.getMonoisotopicMassDelta().get(0):null;
+                    Param param = MzTabUtils.convertCvParamToCVParam(oldMod.getCvParams().get(0), mass);
+
                     if(!variableModifications.containsKey(param) || !variableModifications.get(param).contains(site)){
                         Set<String> sites = new HashSet<String>();
                         sites = (variableModifications.containsKey(param.getAccession()))?variableModifications.get(param.getAccession()):sites;
@@ -478,7 +480,8 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter{
                 }
                 for(CvParam param: oldMod.getCvParams()) {
                     if(param.getAccession().equalsIgnoreCase(CvTermReference.MS_NEUTRAL_LOSS.getAccession())){
-                        CVParam lost = MzTabUtils.convertCvParamToCVParam(param);
+                        CVParam lost = MzTabUtils.convertCvParamToCVParam(param, 0.0);
+
                         Modification modNeutral = new Modification(Section.PSM,Modification.Type.NEUTRAL_LOSS, lost.getAccession());
                         modNeutral.setNeutralLoss(lost);
                         modNeutral.addPosition(oldMod.getLocation(), null);
@@ -548,6 +551,7 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter{
             siteString = siteString.trim();
             metadata.addVariableModParam(varId, param);
             metadata.addVariableModSite(varId, siteString);
+
             varId++;
         }
         return psmList;

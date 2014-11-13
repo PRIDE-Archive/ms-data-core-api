@@ -16,6 +16,7 @@ import uk.ac.ebi.pride.utilities.data.core.SourceFile;
 import uk.ac.ebi.pride.utilities.data.core.StudyVariable;
 import uk.ac.ebi.pride.utilities.data.core.UserParam;
 import uk.ac.ebi.pride.utilities.data.utils.CvUtilities;
+import uk.ac.ebi.pride.utilities.data.utils.MzIdentMLUtils;
 import uk.ac.ebi.pride.utilities.data.utils.MzTabUtils;
 import uk.ac.ebi.pride.jmztab.model.*;
 import uk.ac.ebi.pride.jmztab.model.Contact;
@@ -139,108 +140,7 @@ public class MzTabTransformer {
         }
         return samples;
     }
-/**
-    private static List<CvParam> transformQuantitationSample(Integer sampleIndex, Assay oldAssay, uk.ac.ebi.pride.jmztab.model.Sample oldSample, List<CvParam> params) {
-        CvParam specie = null;
-        if(oldSample.getSpeciesList() != null && oldSample.getSpeciesList().size() > 0 && oldSample.getSpeciesList().get(0) != null)
-             specie = MzTabUtils.convertParamToCvParam(oldSample.getSpeciesList().get(0));
 
-        CvParam tissue = null;
-        if(oldSample.getTissueList() != null && oldSample.getTissueList().size() > 0 && oldSample.getTissueList().get(0) != null)
-            tissue = MzTabUtils.convertParamToCvParam(oldSample.getTissueList().get(0));
-
-        CvParam regent = MzTabUtils.parseQuantitationReagentCvParam(oldAssay.getQuantificationReagent());
-
-        CvParam description = null;
-
-        switch (sampleIndex){
-            case 1:{
-                description = CvUtilities.getQuantTermFromQuantReference(QuantCvTermReference.SUBSAMPLE1_DESCRIPTION, oldSample.getDescription());
-                if (specie !=null)
-                    specie.setValue("subsample1");
-                if (tissue !=null)
-                    tissue.setValue("subsample1");
-                if(regent != null)
-                    regent.setValue("subsample1");
-                break;
-            }case 2:{
-                description = CvUtilities.getQuantTermFromQuantReference(QuantCvTermReference.SUBSAMPLE2_DESCRIPTION, oldSample.getDescription());
-                if (specie !=null)
-                    specie.setValue("subsample2");
-                if (tissue !=null)
-                    tissue.setValue("subsample2");
-                if(regent != null)
-                    regent.setValue("subsample2");
-                break;
-            }case 3:{
-                description = CvUtilities.getQuantTermFromQuantReference(QuantCvTermReference.SUBSAMPLE3_DESCRIPTION, oldSample.getDescription());
-                if (specie !=null)
-                    specie.setValue("subsample3");
-                if (tissue !=null)
-                    tissue.setValue("subsample3");
-                if(regent != null)
-                    regent.setValue("subsample3");
-                break;
-            }case 4:{
-                description = CvUtilities.getQuantTermFromQuantReference(QuantCvTermReference.SUBSAMPLE4_DESCRIPTION, oldSample.getDescription());
-                if (specie !=null)
-                    specie.setValue("subsample4");
-                if (tissue !=null)
-                    tissue.setValue("subsample4");
-                if(regent != null)
-                    regent.setValue("subsample4");
-                break;
-            }case 5:{
-                description = CvUtilities.getQuantTermFromQuantReference(QuantCvTermReference.SUBSAMPLE5_DESCRIPTION, oldSample.getDescription());
-                if (specie !=null)
-                    specie.setValue("subsample5");
-                if (tissue !=null)
-                    tissue.setValue("subsample5");
-                if(regent != null)
-                    regent.setValue("subsample5");
-                break;
-            }case 6:{
-                description = CvUtilities.getQuantTermFromQuantReference(QuantCvTermReference.SUBSAMPLE6_DESCRIPTION, oldSample.getDescription());
-                if (specie !=null)
-                    specie.setValue("subsample6");
-                if (tissue !=null)
-                    tissue.setValue("subsample6");
-                if(regent != null)
-                    regent.setValue("subsample6");
-                break;
-            }case 7:{
-                description = CvUtilities.getQuantTermFromQuantReference(QuantCvTermReference.SUBSAMPLE7_DESCRIPTION, oldSample.getDescription());
-                if (specie !=null)
-                    specie.setValue("subsample7");
-                if (tissue !=null)
-                    tissue.setValue("subsample7");
-                if(regent != null)
-                    regent.setValue("subsample7");
-                break;
-            }case 8:{
-                description = CvUtilities.getQuantTermFromQuantReference(QuantCvTermReference.SUBSAMPLE8_DESCRIPTION, oldSample.getDescription());
-                if (specie !=null)
-                    specie.setValue("subsample8");
-                if (tissue !=null)
-                    tissue.setValue("subsample8");
-                if(regent != null)
-                    regent.setValue("subsample8");
-                break;
-            }
-        }
-
-        if(description != null){
-           if(tissue != null)
-               params.add(tissue);
-           if(specie != null)
-               params.add(specie);
-           if(regent != null)
-               params.add(regent);
-            params.add(description);
-        }
-        return params;
-    }
-*/
     private static Sample transformSample(uk.ac.ebi.pride.jmztab.model.Sample oldSample) {
         if(oldSample != null){
             ParamGroup paramGroup = new ParamGroup();
@@ -464,20 +364,23 @@ public class MzTabTransformer {
                                            Comparable index,
                                            Metadata metadata) {
 
+       // spectrum is reference from external
 
-         // spectrum is reference from external
-         Spectrum spectrum = null;
-         // modifications
+        Spectrum spectrum = null;
 
-           List<uk.ac.ebi.pride.jmztab.model.Modification> rawMods = rawPeptide.getModifications();
-            List<Modification> modifications = transformModification(rawMods, metadata);
+        // modifications
 
-            // fragmentIons information is not supported in mzTab
-            List<FragmentIon> fragmentIons = null;
+        List<uk.ac.ebi.pride.jmztab.model.Modification> rawMods = rawPeptide.getModifications();
+        List<Modification> modifications = transformModification(rawMods, metadata);
+
+        // fragmentIons information is not supported in mzTab
+
+        List<FragmentIon> fragmentIons = null;
 
             // retrieve the scores
-            ParamGroup params = new ParamGroup();
-            params.addCvParams(transformPSMSearchEngineScoreCvTerm(rawPeptide, metadata));
+        ParamGroup params = new ParamGroup();
+        params.addCvParams(transformPSMSearchEngineScoreCvTerm(rawPeptide, metadata));
+        params.addCvParam(transformPSMPrecursorMZ(rawPeptide, metadata));
 
             // start and stop position
             int startPos = -1;
@@ -521,6 +424,13 @@ public class MzTabTransformer {
 
         return new Peptide(peptideEvidence, spectrumIdentification);
       }
+
+    private static CvParam transformPSMPrecursorMZ(PSM rawPeptide, Metadata metadata) {
+        if(rawPeptide.getExpMassToCharge() != null){
+            return CvUtilities.getCVTermFromCvReference(CvTermReference.PSI_ION_SELECTION_MZ, rawPeptide.getExpMassToCharge().toString());
+        }
+        return null;
+    }
 
     /**
      * Transform quantitative peptide from pride xml to core data model.
