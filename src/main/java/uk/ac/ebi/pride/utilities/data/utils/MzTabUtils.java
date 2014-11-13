@@ -170,6 +170,38 @@ public class MzTabUtils {
         }
     }
 
+    public static String getOriginalSpectrumId(SpectraData spectraData, String spectrumID) {
+
+        Constants.SpecIdFormat fileIdFormat = getSpectraDataIdFormat(spectraData);
+
+        if (fileIdFormat == Constants.SpecIdFormat.MASCOT_QUERY_NUM) {
+            String rValueStr = spectrumID.replaceAll("query=", "");
+            String id = null;
+            if(rValueStr.matches(Constants.INTEGER)){
+                id = Integer.toString(Integer.parseInt(rValueStr) - 1);
+            }
+            return id;
+        } else if (fileIdFormat == Constants.SpecIdFormat.MULTI_PEAK_LIST_NATIVE_ID) {
+            String rValueStr = spectrumID.replaceAll("index=", "");
+            String id = null;
+            if(rValueStr.matches(Constants.INTEGER)){
+                id = Integer.toString(Integer.parseInt(rValueStr) - 1);
+            }
+            return id;
+        } else if (fileIdFormat == Constants.SpecIdFormat.SINGLE_PEAK_LIST_NATIVE_ID) {
+            return "file=" + spectrumID;
+        } else if (fileIdFormat == Constants.SpecIdFormat.MZML_ID) {
+            return "mzMLid="+spectrumID;
+        } else if (fileIdFormat == Constants.SpecIdFormat.SCAN_NUMBER_NATIVE_ID) {
+            return "scan=" + spectrumID;
+        } else {
+            return spectrumID;
+        }
+    }
+
+
+
+
     public static CvParam convertParamToCvParam(Param param) {
         return new CvParam(param.getAccession(),param.getName(),param.getCvLabel(),param.getValue(),null,null,null);
     }

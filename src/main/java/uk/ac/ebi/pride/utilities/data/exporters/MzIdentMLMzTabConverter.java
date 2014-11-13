@@ -493,8 +493,13 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter{
             psm.setCalcMassToCharge(oldPSM.getSpectrumIdentification().getCalculatedMassToCharge());
             Comparable idSpectrum = source.getPeptideSpectrumId(id,index);
             if(idSpectrum != null){
-                 String[] spectumMap = idSpectrum.toString().split("!");
-                String spectrumReference = spectumMap[0];
+                String[] spectumMap = idSpectrum.toString().split("!");
+                String spectrumReference = null;
+                for(SpectraData spec: source.getExperimentMetaData().getSpectraDatas()){
+                    if(spec.getId().toString().equalsIgnoreCase(spectumMap[1])){
+                        spectrumReference = MzTabUtils.getOriginalSpectrumId(spec, spectumMap[0]);
+                    }
+                }
                 if(spectumMap[1] != null && spectrumReference != null)
                     psm.addSpectraRef(new SpectraRef(metadata.getMsRunMap().get(spectraToRun.get(spectumMap[1])), spectrumReference));
             }
