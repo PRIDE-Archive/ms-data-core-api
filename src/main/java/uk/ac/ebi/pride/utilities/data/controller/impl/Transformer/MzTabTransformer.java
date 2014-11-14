@@ -532,23 +532,41 @@ public class MzTabTransformer {
 
         List<Modification> modifications = new ArrayList<Modification>();
 
-        //Look in Fixed Modifications
-        for(Map.Entry modFixed: metadata.getFixedModMap().entrySet()){
-           FixedMod mod = (FixedMod) modFixed.getValue();
-           for(uk.ac.ebi.pride.jmztab.model.Modification rawMod: rawMods){
+        List<FixedMod> fixedMods = new ArrayList<FixedMod>();
+        for(FixedMod fixedmod: metadata.getFixedModMap().values()){
+            boolean contained = false;
+            for(FixedMod mod: fixedMods)
+                if(mod.getParam().getAccession().equalsIgnoreCase(fixedmod.getParam().getAccession()))
+                    contained = true;
+            if(!contained)
+                fixedMods.add(fixedmod);
+        }
 
+        List<VariableMod> varaibleMods = new ArrayList<VariableMod>();
+        for(VariableMod variableMod: metadata.getVariableModMap().values()){
+            boolean contained = false;
+            for(VariableMod mod: varaibleMods)
+                if(mod.getParam().getAccession().equalsIgnoreCase(variableMod.getParam().getAccession()))
+                    contained = true;
+            if(!contained)
+                varaibleMods.add(variableMod);
+        }
+
+        //Look in Fixed Modifications
+        for(FixedMod modFixed: fixedMods){
+           for(uk.ac.ebi.pride.jmztab.model.Modification rawMod: rawMods){
                String rawModAccession = getAccesion(rawMod);
-               if(rawModAccession.equalsIgnoreCase(mod.getParam().getAccession())){
+               if(rawModAccession.equalsIgnoreCase(modFixed.getParam().getAccession())){
                    List<Double> monoDelta = null;
-                   if(mod.getParam().getValue() != null && NumberUtilities.isNumber(mod.getParam().getValue())){
+                   if(modFixed.getParam().getValue() != null && NumberUtilities.isNumber(modFixed.getParam().getValue())){
                        monoDelta = new ArrayList<Double>();
-                       monoDelta.add(new Double(mod.getParam().getValue()));
+                       monoDelta.add(new Double(modFixed.getParam().getValue()));
                    }
                    List<Double> avgDelta = null;
                    //Add the name of the modification
                    ParamGroup params = new ParamGroup();
-                   if(mod.getParam() != null)
-                       params.addCvParam(MzTabUtils.convertParamToCvParam(mod.getParam()));
+                   if(modFixed.getParam() != null)
+                       params.addCvParam(MzTabUtils.convertParamToCvParam(modFixed.getParam()));
 
                    String name = getModificationName(params, rawModAccession);
 
@@ -579,21 +597,21 @@ public class MzTabTransformer {
            }
         }
         // Look in variable modifications
-        for(Map.Entry modVariable: metadata.getVariableModMap().entrySet()){
-            VariableMod mod = (VariableMod) modVariable.getValue();
+        for(VariableMod modVariable: varaibleMods){
+
             for(uk.ac.ebi.pride.jmztab.model.Modification rawMod: rawMods){
                 String rawModAccession = getAccesion(rawMod);
-                if(rawModAccession.equalsIgnoreCase(mod.getParam().getAccession())){
+                if(rawModAccession.equalsIgnoreCase(modVariable.getParam().getAccession())){
                     List<Double> monoDelta = null;
-                    if(mod.getParam().getValue() != null && NumberUtilities.isNumber(mod.getParam().getValue())){
+                    if(modVariable.getParam().getValue() != null && NumberUtilities.isNumber(modVariable.getParam().getValue())){
                         monoDelta = new ArrayList<Double>();
-                        monoDelta.add(new Double(mod.getParam().getValue()));
+                        monoDelta.add(new Double(modVariable.getParam().getValue()));
                     }
                     List<Double> avgDelta = null;
                     //Add the name of the modification
                     ParamGroup params = new ParamGroup();
-                    if(mod.getParam() != null)
-                        params.addCvParam(MzTabUtils.convertParamToCvParam(mod.getParam()));
+                    if(modVariable.getParam() != null)
+                        params.addCvParam(MzTabUtils.convertParamToCvParam(modVariable.getParam()));
 
                     String name = getModificationName(params, rawModAccession);
 
