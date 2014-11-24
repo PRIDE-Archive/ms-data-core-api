@@ -64,7 +64,6 @@ public abstract class MzGraph extends IdentifiableParamGroup {
         this.index = index;
         this.defaultDataProcessing = defaultDataProcessing;
         this.defaultArrayLength = defaultArrayLength;
-        //this.binaryDataArrays = CollectionUtils.createListFromList(binaryDataArrays);
         this.binaryDataArrays = new ArrayList<BinaryDataArray>();
         if(binaryDataArrays != null && binaryDataArrays.size() > 0){
             for(BinaryDataArray binaryDataArray: binaryDataArrays){
