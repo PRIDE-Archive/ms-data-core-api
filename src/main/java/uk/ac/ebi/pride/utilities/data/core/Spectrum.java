@@ -21,16 +21,17 @@ import java.util.List;
  * 4. It may have one or more "spectrum attribute" (total ion current,
  * zoom scan, base peak m/z, ms level, spectrum title and etc al)
  * <p/>
- * @author ypriverol, rwang
+ * @author ypriverol
+ * @author rwang
  * Date: 03-Feb-2010
  * Time: 08:46:05
  */
-public class Spectrum extends MzGraph {
+public class Spectrum extends MzGraph implements Cloneable{
 
     /**
      * peptide associate with this spectrum
      */
-    private Peptide peptide;
+    private List<Peptide> peptide;
 
     /**
      * list and descriptions of precursor isolations to this spectrum
@@ -60,7 +61,7 @@ public class Spectrum extends MzGraph {
     public Spectrum(Comparable id, String name, int index, DataProcessing defaultDataProcessing,
                     int defaultArrayLength, List<BinaryDataArray> binaryDataArrays, String spotID,
                     SourceFile sourceFile, ScanList scanList, List<Precursor> precursors, List<ParamGroup> products,
-                    Peptide peptide) {
+                    List<Peptide> peptide) {
         this(null, id, name, index, defaultDataProcessing, defaultArrayLength, binaryDataArrays, spotID, sourceFile,
                 scanList, precursors, products, peptide);
     }
@@ -75,7 +76,7 @@ public class Spectrum extends MzGraph {
     public Spectrum(ParamGroup params, Comparable id, String name, int index, DataProcessing defaultDataProcessing,
                     int defaultArrayLength, List<BinaryDataArray> binaryDataArrays, String spotID,
                     SourceFile sourceFile, ScanList scanList, List<Precursor> precursors, List<ParamGroup> products,
-                    Peptide peptide) {
+                    List<Peptide> peptide) {
         super(params, id, name, index, defaultDataProcessing, defaultArrayLength, binaryDataArrays);
         this.spotID = spotID;
         this.sourceFile = sourceFile;
@@ -139,11 +140,11 @@ public class Spectrum extends MzGraph {
         return getBinaryDataArray(CvTermReference.INTENSITY_ARRAY.getAccession());
     }
 
-    public Peptide getPeptide() {
+    public List<Peptide> getPeptide() {
         return peptide;
     }
 
-    public void setPeptide(Peptide peptide) {
+    public void setPeptide(List<Peptide> peptide) {
         this.peptide = peptide;
     }
 
@@ -201,6 +202,11 @@ public class Spectrum extends MzGraph {
         result = 31 * result + (sourceFile != null ? sourceFile.hashCode() : 0);
         result = 31 * result + (spotID != null ? spotID.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 }
 

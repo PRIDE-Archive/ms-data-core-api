@@ -25,7 +25,7 @@ import java.util.*;
  * @author ypriverol
  * @author rwang
  */
-public class ReferencedIdentificationController extends CachedDataAccessController {
+public abstract class ReferencedIdentificationController extends CachedDataAccessController {
 
     // Logger property to trace the Errors
     private static final Logger logger = LoggerFactory.getLogger(ReferencedIdentificationController.class);
@@ -33,7 +33,7 @@ public class ReferencedIdentificationController extends CachedDataAccessControll
     /*
       * This is a set of controllers related with the MS information in the mzidentml file
       * one or more controllers can be related with the same file formats. The Comparable
-      * name of the file is an id of the file and the controller is the DataAccessController
+      * name of the file is an id of SPECTRADADATA the file and the controller is the DataAccessController
        * related with the file.
      */
     protected Map<Comparable, DataAccessController> msDataAccessControllers;
@@ -72,7 +72,11 @@ public class ReferencedIdentificationController extends CachedDataAccessControll
             if (hasSpectrum() && spectrumId != null) {
                 Spectrum spectrum = getSpectrumById(spectrumId);
                 if(spectrum != null) {
-                    spectrum.setPeptide(peptide);
+                    List<Peptide> peptides = new ArrayList<Peptide>();
+                    if(spectrum.getPeptide() != null)
+                        peptides = spectrum.getPeptide();
+                    peptides.add(peptide);
+                    spectrum.setPeptide(peptides);
                     peptide.setSpectrum(spectrum);
 
                     getCache().store(CacheEntry.SPECTRUM_LEVEL_PRECURSOR_CHARGE, spectrum.getId(), DataAccessUtilities.getPrecursorChargeParamGroup(spectrum));
@@ -156,8 +160,6 @@ public class ReferencedIdentificationController extends CachedDataAccessControll
     }
 
     protected boolean isSpectraDataSupported(SpectraData spectraData) {
-        //return (!(MzIdentMLUtils.getSpectraDataIdFormat(spectraData) == Constants.SpecIdFormat.NONE ||
-        //        MzIdentMLUtils.getSpectraDataFormat(spectraData) == Constants.SpecFileFormat.NONE));
         return (!(MzIdentMLUtils.getSpectraDataIdFormat(spectraData) == Constants.SpecIdFormat.NONE));
 
     }
@@ -215,11 +217,20 @@ public class ReferencedIdentificationController extends CachedDataAccessControll
                 if (spectraDataControllerMap.get(spectraData) == null && spectraData.getId().equals(spectraDataFile.getId())) {
                     if (Constants.getSpectraDataFormat(spectraData) == Constants.SpecFileFormat.MZXML)
                         msDataAccessControllers.put(spectraData.getId(), new MzXmlControllerImpl(spectraDataFileMap.get(spectraDataFile)));
-                    if (Constants.getSpectraDataFormat(spectraData) == Constants.SpecFileFormat.MGF)
-                        msDataAccessControllers.put(spectraData.getId(), new PeakControllerImpl(spectraDataFileMap.get(spectraDataFile)));
+                    if (Constants.getSpectraDataFormat(spectraData) == Constants.SpecFileFormat.MGF){
+                        if(!getSpectraDataBasedOnTitle().contains(spectraDataFile.getId().toString()))
+                            msDataAccessControllers.put(spectraData.getId(), new PeakControllerImpl(spectraDataFileMap.get(spectraDataFile)));
+                        else
+                            msDataAccessControllers.put(spectraData.getId(), new PeakControllerImpl(spectraDataFileMap.get(spectraDataFile),true));
+                    }
+
                     if (Constants.getSpectraDataFormat(spectraData) == Constants.SpecFileFormat.MZML)
                         msDataAccessControllers.put(spectraData.getId(), new MzMLControllerImpl(spectraDataFileMap.get(spectraDataFile)));
+
                     if (Constants.getSpectraDataFormat(spectraData) == Constants.SpecFileFormat.DTA)
+                        msDataAccessControllers.put(spectraData.getId(), new PeakControllerImpl(spectraDataFileMap.get(spectraDataFile)));
+
+                    if (Constants.getSpectraDataFormat(spectraData) == Constants.SpecFileFormat.PKL)
                         msDataAccessControllers.put(spectraData.getId(), new PeakControllerImpl(spectraDataFileMap.get(spectraDataFile)));
                     //Todo: Need to check if changes
                 }
@@ -249,7 +260,7 @@ public class ReferencedIdentificationController extends CachedDataAccessControll
                 changeStatus = true;
             } else if (oldSpectraDataFile == null && newFile != null ||
                     (Constants.getSpecFileFormat(fileType) != Constants.SpecFileFormat.NONE && oldSpectraDataFile != null && newFile != null && !newFile.getAbsolutePath().equalsIgnoreCase(oldSpectraDataFile.getAbsolutePath()))) {
-                DataAccessController peakList = createMSDataAccessController(newFile, fileType);
+                DataAccessController peakList = createMSDataAccessController(newFile, fileType, getSpectraDataBasedOnTitle().contains(spectraData.getId()));
                 msDataAccessControllers.put(spectraData.getId(), peakList);
                 changeStatus = true;
             }
@@ -260,13 +271,16 @@ public class ReferencedIdentificationController extends CachedDataAccessControll
         return changeStatus;
     }
 
-    DataAccessController createMSDataAccessController(File file, String fileType) {
+    DataAccessController createMSDataAccessController(File file, String fileType, boolean useTitle) {
         Constants.SpecFileFormat fileFormatType = Constants.SpecFileFormat.valueOf(fileType);
         if (fileFormatType != null && file != null) {
             if (fileFormatType == Constants.SpecFileFormat.MZXML)
                 return new MzXmlControllerImpl(file);
             if (fileFormatType == Constants.SpecFileFormat.MGF)
-                return new PeakControllerImpl(file);
+                if(useTitle)
+                    return new PeakControllerImpl(file,true);
+                else
+                    return new PeakControllerImpl(file);
             if (fileFormatType == Constants.SpecFileFormat.MZML)
                 return new MzMLControllerImpl(file);
             if (fileFormatType == Constants.SpecFileFormat.DTA)
@@ -302,6 +316,35 @@ public class ReferencedIdentificationController extends CachedDataAccessControll
             if (idsSet.contains(specId)) return true;
         }
         return false;
+    }
+
+    /**
+     * Retrieve the Identified Peptides related with one spectrum
+     * @param specId
+     * @return
+     */
+    public List<Peptide> getPeptidesBySpectrum(Comparable specId){
+        Map<Comparable, String[]> peptideToSpectrum = ((Map<Comparable, String[]>) getCache().get(CacheEntry.PEPTIDE_TO_SPECTRUM));
+        Map<Comparable, List<Comparable>> proteinToPeptide  = ((Map<Comparable, List<Comparable>>) getCache().get(CacheEntry.PROTEIN_TO_PEPTIDE_EVIDENCES));
+        List<Peptide> peptides = new ArrayList<Peptide>();
+
+        for(Map.Entry spectrumIDEntry: peptideToSpectrum.entrySet()){
+            Comparable peptideID = (Comparable) spectrumIDEntry.getKey();
+            String[] spectrumID  = (String[]) spectrumIDEntry.getValue();
+            String spectrumIDString = spectrumID[0] + "!" + spectrumID[1];
+            if(spectrumIDString.equalsIgnoreCase(specId.toString()) && proteinToPeptide != null){
+                for(Map.Entry proteinEntry: proteinToPeptide.entrySet()){
+                    Comparable proteinId = (Comparable) proteinEntry.getKey();
+                    List<Comparable> peptidePerProtein = (List<Comparable>) proteinEntry.getValue();
+                    if(peptidePerProtein.contains(peptideID)){
+                        Peptide peptideIdentified = getPeptideByIndex(proteinId, peptideID);
+                        peptides.add(peptideIdentified);
+                    }
+                }
+            }
+        }
+
+        return peptides;
     }
 
     @Override
@@ -451,7 +494,11 @@ public class ReferencedIdentificationController extends CachedDataAccessControll
                 if (hasSpectrum()) {
                     spectrum = getSpectrumById(peptide.getSpectrumIdentification().getId());
                     if(spectrum != null){
-                        spectrum.setPeptide(peptide);
+                        List<Peptide> peptides = new ArrayList<Peptide>();
+                        if(spectrum.getPeptide() != null)
+                            peptides = spectrum.getPeptide();
+                        peptides.add(peptide);
+                        spectrum.setPeptide(peptides);
                         peptide.setSpectrum(spectrum);
                     }
                 }

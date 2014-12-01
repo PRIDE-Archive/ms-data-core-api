@@ -99,6 +99,7 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter{
     @Override
     protected MZTabColumnFactory convertProteinColumnFactory() {
         this.proteinColumnFactory = MZTabColumnFactory.getInstance(Section.Protein);
+        this.proteinColumnFactory.addDefaultStableColumns();
 
         // ms_run[1] optional columns
         for(MsRun msRun: metadata.getMsRunMap().values()){
@@ -134,6 +135,7 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter{
     @Override
     protected MZTabColumnFactory convertPSMColumnFactory() {
         this.psmColumnFactory = MZTabColumnFactory.getInstance(Section.PSM);
+        psmColumnFactory.addDefaultStableColumns();
         psmColumnFactory.addOptionalColumn(MzTabUtils.OPTIONAL_ID_COLUMN,String.class);
         psmColumnFactory.addOptionalColumn(MzTabUtils.OPTIONAL_DECOY_COLUMN, Integer.class);
         psmColumnFactory.addOptionalColumn(MzTabUtils.OPTIONAL_RANK_COLUMN, Integer.class);
@@ -445,8 +447,10 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter{
 
             psm.setStart(oldPSM.getPeptideEvidence().getStartPosition());
             psm.setEnd(oldPSM.getPeptideEvidence().getEndPosition());
-            psm.setPre(String.valueOf(oldPSM.getPeptideEvidence().getPreResidue()));
-            psm.setPost(String.valueOf(oldPSM.getPeptideEvidence().getPostResidue()));
+            String pre  = String.valueOf(oldPSM.getPeptideEvidence().getPreResidue());
+            String post = String.valueOf(oldPSM.getPeptideEvidence().getPostResidue());
+            psm.setPre((pre == null || pre.isEmpty() || pre.equalsIgnoreCase(String.valueOf('\u0000')))?null:pre);
+            psm.setPost((post == null || post.isEmpty() || pre.equalsIgnoreCase(String.valueOf('\u0000')))?null:post);
 
 
             List<Modification> mods = new ArrayList<Modification>();
@@ -462,7 +466,9 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter{
                         site = "C-Term";
                     else
                         site = String.valueOf(oldPSM.getPeptideEvidence().getPeptideSequence().getSequence().charAt(oldMod.getLocation()-1));
-                    Param param = MzTabUtils.convertCvParamToCVParam(oldMod.getCvParams().get(0));
+                    Double mass = (oldMod.getMonoisotopicMassDelta() !=null && !oldMod.getMonoisotopicMassDelta().isEmpty())? oldMod.getMonoisotopicMassDelta().get(0):null;
+                    Param param = MzTabUtils.convertCvParamToCVParam(oldMod.getCvParams().get(0), mass);
+
                     if(!variableModifications.containsKey(param) || !variableModifications.get(param).contains(site)){
                         Set<String> sites = new HashSet<String>();
                         sites = (variableModifications.containsKey(param.getAccession()))?variableModifications.get(param.getAccession()):sites;
@@ -474,7 +480,8 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter{
                 }
                 for(CvParam param: oldMod.getCvParams()) {
                     if(param.getAccession().equalsIgnoreCase(CvTermReference.MS_NEUTRAL_LOSS.getAccession())){
-                        CVParam lost = MzTabUtils.convertCvParamToCVParam(param);
+                        CVParam lost = MzTabUtils.convertCvParamToCVParam(param, 0.0);
+
                         Modification modNeutral = new Modification(Section.PSM,Modification.Type.NEUTRAL_LOSS, lost.getAccession());
                         modNeutral.setNeutralLoss(lost);
                         modNeutral.addPosition(oldMod.getLocation(), null);
@@ -489,8 +496,13 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter{
             psm.setCalcMassToCharge(oldPSM.getSpectrumIdentification().getCalculatedMassToCharge());
             Comparable idSpectrum = source.getPeptideSpectrumId(id,index);
             if(idSpectrum != null){
-                 String[] spectumMap = idSpectrum.toString().split("!");
-                String spectrumReference = spectumMap[0];
+                String[] spectumMap = idSpectrum.toString().split("!");
+                String spectrumReference = null;
+                for(SpectraData spec: source.getExperimentMetaData().getSpectraDatas()){
+                    if(spec.getId().toString().equalsIgnoreCase(spectumMap[1])){
+                        spectrumReference = MzTabUtils.getOriginalSpectrumId(spec, spectumMap[0]);
+                    }
+                }
                 if(spectumMap[1] != null && spectrumReference != null)
                     psm.addSpectraRef(new SpectraRef(metadata.getMsRunMap().get(spectraToRun.get(spectumMap[1])), spectrumReference));
             }
@@ -539,6 +551,7 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter{
             siteString = siteString.trim();
             metadata.addVariableModParam(varId, param);
             metadata.addVariableModSite(varId, siteString);
+
             varId++;
         }
         return psmList;

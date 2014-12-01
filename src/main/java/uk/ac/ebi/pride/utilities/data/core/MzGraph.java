@@ -2,6 +2,7 @@ package uk.ac.ebi.pride.utilities.data.core;
 
 import uk.ac.ebi.pride.utilities.data.utils.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -63,8 +64,15 @@ public abstract class MzGraph extends IdentifiableParamGroup {
         this.index = index;
         this.defaultDataProcessing = defaultDataProcessing;
         this.defaultArrayLength = defaultArrayLength;
-        this.binaryDataArrays = CollectionUtils.createListFromList(binaryDataArrays);
+        this.binaryDataArrays = new ArrayList<BinaryDataArray>();
+        if(binaryDataArrays != null && binaryDataArrays.size() > 0){
+            for(BinaryDataArray binaryDataArray: binaryDataArrays){
+                BinaryDataArray bin = new BinaryDataArray(binaryDataArray);
+                this.binaryDataArrays.add(bin);
+            }
+        }
     }
+
 
     public List<BinaryDataArray> getBinaryDataArrays() {
         return binaryDataArrays;
@@ -73,6 +81,7 @@ public abstract class MzGraph extends IdentifiableParamGroup {
     public void setBinaryDataArrays(List<BinaryDataArray> binaryDataArrays) {
         CollectionUtils.replaceValuesInCollection(binaryDataArrays, this.binaryDataArrays);
     }
+
 
     /**
      * Get either m/z array or intensity array

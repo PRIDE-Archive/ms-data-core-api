@@ -5,6 +5,7 @@ import uk.ac.ebi.pride.utilities.data.utils.CollectionUtils;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * General descriptions shared or used for the whole file.
@@ -58,7 +59,7 @@ public class ExperimentMetaData extends IdentifiableParamGroup {
 
     private final List<Sample> samples;
 
-    private List<StudyVariable> studyVariables;
+    private Map<Comparable, StudyVariable> studyVariables;
 
     /*
      * Short Label used by Pride XML Object
@@ -174,7 +175,7 @@ public class ExperimentMetaData extends IdentifiableParamGroup {
                               List<Sample> samples, List<Software> softwares, List<Person> persons,
                               List<SourceFile> sourceFiles, Provider provider, List<Organization> organizations,
                               List<Reference> references, Date creationDate, Date publicDate,
-                              ExperimentProtocol protocol, List<SpectraData> spectraDatas, List<StudyVariable> studyVariables) {
+                              ExperimentProtocol protocol, List<SpectraData> spectraDatas, Map<Comparable, StudyVariable> studyVariables) {
         super(params, id, name);
 
         this.version = version;
@@ -206,11 +207,11 @@ public class ExperimentMetaData extends IdentifiableParamGroup {
         this.studyVariables = studyVariables;
     }
 
-    public List<StudyVariable> getStudyVariables() {
+    public Map<Comparable, StudyVariable> getStudyVariables() {
         return studyVariables;
     }
 
-    public void setStudyVariables(List<StudyVariable> studyVariables) {
+    public void setStudyVariables(Map<Comparable, StudyVariable> studyVariables) {
         this.studyVariables = studyVariables;
     }
 

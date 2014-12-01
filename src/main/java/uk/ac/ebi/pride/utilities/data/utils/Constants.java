@@ -36,6 +36,8 @@ public class Constants {
     public static final String XML_EXT   = ".xml";
     public static final String MZML_EXT  = ".mzML";
     public static final String MZTAB_EXT     = ".mztab";
+    public static final String WIFF_EXT = ".wiff";
+
 
     /**
      * Supported id format used in the spectrum file.
@@ -49,6 +51,7 @@ public class Constants {
         MZDATA_ID,
         WIFF_NATIVE_ID,
         SPECTRUM_NATIVE_ID,
+        WIFF_MGF_TITLE,
         NONE
     }
 
@@ -156,6 +159,8 @@ public class Constants {
             return Constants.SpecIdFormat.MZDATA_ID;
         if(accession.equals(("MS:1000768")))
             return Constants.SpecIdFormat.SPECTRUM_NATIVE_ID;
+        if(accession.equals("MS:1000796"))
+            return SpecIdFormat.WIFF_MGF_TITLE;
         return Constants.SpecIdFormat.NONE;
     }
 
@@ -186,6 +191,8 @@ public class Constants {
                 fileFormats.add(Constants.SpecFileFormat.MZXML);
             } else if (spectIdFormat == Constants.SpecIdFormat.MZDATA_ID) {
                 fileFormats.add(Constants.SpecFileFormat.MZDATA);
+            } else if(spectIdFormat == SpecIdFormat.WIFF_MGF_TITLE){
+                fileFormats.add(Constants.SpecFileFormat.MGF);
             }
         } else {
             fileFormats.add(spectraDataFormat);

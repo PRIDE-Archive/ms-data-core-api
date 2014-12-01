@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.ebi.jmzidml.model.mzidml.ProteinAmbiguityGroup;
 import uk.ac.ebi.jmzidml.model.mzidml.ProteinDetectionHypothesis;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentificationItem;
+import uk.ac.ebi.pride.utilities.data.utils.CollectionUtils;
 import uk.ac.ebi.pride.utilities.util.Tuple;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessController;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessException;
@@ -445,8 +446,13 @@ public class MzIdentMLControllerImpl extends ReferencedIdentificationController 
      */
     public List<SpectraData> getSpectraDataFiles() {
         ExperimentMetaData metaData = super.getExperimentMetaData();
+        List<Comparable> basedOnTitle = new ArrayList<Comparable>();
+
         if (metaData == null) {
-            return MzIdentMLTransformer.transformToSpectraData(unmarshaller.getSpectraData());
+            if(isSpectrumBasedOnTitle())
+                basedOnTitle = getSpectraDataBasedOnTitle();
+            return MzIdentMLTransformer.transformToSpectraData(unmarshaller.getSpectraData(), basedOnTitle);
+
         }
         return metaData.getSpectraDatas();
     }
@@ -620,6 +626,21 @@ public class MzIdentMLControllerImpl extends ReferencedIdentificationController 
     public boolean hasProteinSequence() {
         try {
             return unmarshaller.hasProteinSequence();
+        } catch (ConfigurationException ex) {
+            String msg = "Error while reading the mzidentml file";
+            logger.error(msg, ex);
+            throw new DataAccessException(msg, ex);
+        }
+    }
+
+    /**
+     * Check if the DataAccessController contains the ProteinSequence
+     * @return True if the DataAccessController contains Protein Sequences
+     */
+    @Override
+    public boolean hasDecoyInformation() {
+        try {
+            return unmarshaller.hasDecoyInformation();
         } catch (ConfigurationException ex) {
             String msg = "Error while reading the mzidentml file";
             logger.error(msg, ex);

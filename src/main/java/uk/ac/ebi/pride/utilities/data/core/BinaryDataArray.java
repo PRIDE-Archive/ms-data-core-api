@@ -46,12 +46,23 @@ public class BinaryDataArray extends ParamGroup {
         setDoubleArray(binaryDoubleArr);
     }
 
+    public BinaryDataArray(BinaryDataArray binaryDataArray){
+        super(binaryDataArray.getCvParams(), binaryDataArray.getUserParams());
+        setDataProcessing(binaryDataArray.getDataProcessing());
+        setDoubleArray(binaryDataArray.getDoubleArray());
+    }
+
+
+
     public double[] getDoubleArray() {
         return Arrays.copyOf(binaryDoubleArray, binaryDoubleArray.length);
     }
 
     public void setDoubleArray(double[] binaryDoubleArr) {
-        this.binaryDoubleArray = Arrays.copyOf(binaryDoubleArr, binaryDoubleArr.length);
+        //this.binaryDoubleArray = Arrays.copyOf(binaryDoubleArr, binaryDoubleArr.length);
+        this.binaryDoubleArray = new double[binaryDoubleArr.length];
+        for(int i =0; i < binaryDoubleArr.length; i++)
+            this.binaryDoubleArray[i] = binaryDoubleArr[i];
     }
 
     public DataProcessing getDataProcessing() {

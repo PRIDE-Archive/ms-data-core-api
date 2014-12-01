@@ -5,6 +5,7 @@ import psidev.psi.tools.xxindex.index.IndexElement;
 import uk.ac.ebi.jmzidml.MzIdentMLElement;
 import uk.ac.ebi.jmzidml.model.mzidml.*;
 import uk.ac.ebi.jmzidml.xml.io.MzIdentMLUnmarshaller;
+import uk.ac.ebi.pride.utilities.data.utils.MzIdentMLUtils;
 
 import javax.naming.ConfigurationException;
 import javax.xml.bind.JAXBException;
@@ -23,6 +24,7 @@ import java.util.*;
  */
 public class MzIdentMLUnmarshallerAdaptor extends MzIdentMLUnmarshaller {
 
+    private static final int LOOP_THRESHOLD = 20;
     private Map<String, Map<String, List<IndexElement>>> scannedIdMappings;
 
     private Inputs inputs = null;
@@ -299,6 +301,44 @@ public class MzIdentMLUnmarshallerAdaptor extends MzIdentMLUnmarshaller {
             return attributes.containsKey("Seq");
         }
         return false;
+    }
+
+    public boolean hasDecoyInformation() throws ConfigurationException {
+        Set<String> proteinSequence = this.getIDsForElement(MzIdentMLElement.PeptideEvidence);
+        if (proteinSequence != null && !proteinSequence.isEmpty()) {
+            int i = 0;
+            while(i < LOOP_THRESHOLD && i < proteinSequence.size()){
+                Map<String, String> attributes = this.getElementAttributes((String) proteinSequence.toArray()[i], PeptideEvidence.class);
+                if(attributes.containsKey("isDecoy"))
+                   return true;
+                i++;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Check for all the SpectraData if thet are referenced by title instead of using the normal index.
+     * @param spectraDataMap
+     * @return
+     * @throws JAXBException
+     */
+    public List<Comparable> getTitleReferenceFile(Map<Comparable, SpectraData> spectraDataMap) throws JAXBException {
+        List<Comparable> collection = new ArrayList<Comparable>();
+        for(SpectraData spectraData: spectraDataMap.values()){
+            if(MzIdentMLUtils.isSpectraDataReferencedByTitle(spectraData)){
+                collection.add(spectraData.getId());
+            }
+        }
+        return collection;
+    }
+
+    public Comparable getMGFTitleReference(String spectrumIdentResultId) throws JAXBException {
+        SpectrumIdentificationResult result = this.unmarshal(SpectrumIdentificationResult.class, (String) spectrumIdentResultId);
+        if(result != null)
+            return MzIdentMLUtils.MGFTitleCVtermValue(result.getCvParam());
+
+        return null;
     }
 }
 
