@@ -171,19 +171,11 @@ public final class MzDataTransformer {
 
     private static List<BinaryDataArray> transformBinaryDataArrayList(Map<Double, Double> peakList) {
         List<BinaryDataArray> binaryDataArrays = new ArrayList<BinaryDataArray>();
-<<<<<<< HEAD
-        CvTermReference cvRefMz = CvTermReference.MZ_ARRAY;
-        CvParam cvParamMz = new CvParam(cvRefMz.getAccession(), cvRefMz.getName(), cvRefMz.getCvLabel(), "", cvRefMz.getAccession(), cvRefMz.getName(), cvRefMz.getCvLabel());
-        ParamGroup mzParam = new ParamGroup(cvParamMz, null);
-
-        CvTermReference cvRefInt = CvTermReference.INTENSITY_ARRAY;
-=======
         uk.ac.ebi.pride.utilities.term.CvTermReference cvRefMz = CvTermReference.MZ_ARRAY;
         CvParam cvParamMz = new CvParam(cvRefMz.getAccession(), cvRefMz.getName(), cvRefMz.getCvLabel(), "", cvRefMz.getAccession(), cvRefMz.getName(), cvRefMz.getCvLabel());
         ParamGroup mzParam = new ParamGroup(cvParamMz, null);
 
         uk.ac.ebi.pride.utilities.term.CvTermReference cvRefInt = CvTermReference.INTENSITY_ARRAY;
->>>>>>> master
         CvParam cvParam = new CvParam(cvRefInt.getAccession(), cvRefInt.getName(), cvRefInt.getCvLabel(), "", cvRefInt.getAccession(), cvRefInt.getName(), cvRefInt.getCvLabel());
         ParamGroup intParam = new ParamGroup(cvParam, null);
 
