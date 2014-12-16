@@ -60,7 +60,7 @@
         <slf4j-api.version>1.7.5</slf4j-api.version>
         <logback-core.version>1.0.11</logback-core.version>
         <jmzml.version>1.7.2.pride</jmzml.version>
-        <jmzidentml.version>1.2.2-SNAPSHOT</jmzidentml.version>
+        <jmzidentml.version>1.2.1</jmzidentml.version>
         <xmlschemavalidator.version>2.1</xmlschemavalidator.version>
         <jmztab.version>3.0.2-SNAPSHOT</jmztab.version>
         <spring.web.version>4.1.1.RELEASE</spring.web.version>
