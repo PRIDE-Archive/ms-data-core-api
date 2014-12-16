@@ -446,7 +446,7 @@ public final class PrideXmlTransformer {
             }
 
             // params
-            ParamGroup params = transformParamGroup(rawIdent.getAdditional());
+            ParamGroup params = (rawIdent.getAdditional()==null)?new ParamGroup():transformParamGroup(rawIdent.getAdditional());
 
             Double seqConverage = rawIdent.getSequenceCoverage();
             double seqConverageVal = seqConverage == null ? -1 : seqConverage;
