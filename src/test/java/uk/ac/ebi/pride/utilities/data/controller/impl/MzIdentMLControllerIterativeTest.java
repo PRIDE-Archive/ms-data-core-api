@@ -67,7 +67,7 @@ public class MzIdentMLControllerIterativeTest {
         scanForInstrument(mzMLController);
         scanForSoftware(mzIdentMLController);
         scanForSearchDetails(mzIdentMLController);
-       // scanEntryByEntry(mzIdentMLController);
+        //scanEntryByEntry(mzIdentMLController);
         scanMzIdentMLSpecificDetails(mzIdentMLController);
         System.out.println("Final time in miliseconds: " + (System.currentTimeMillis() - start));
     }

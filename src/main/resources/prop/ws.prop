@@ -1,9 +1,0 @@
-# pride webservice details
-pride.ws.url = http://www.ebi.ac.uk/pride/ws/archive/
-pride.ws.protein
-pride.database.protocol = ${database.protocol}
-pride.database.subprotocol = ${database.subprotocol}
-pride.database.alias = ${database.read.dbalias}
-pride.database.master.schema = ${database.read.master.schema}
-pride.database.user = ${database.read.user}
-pride.database.password = ${database.read.password}
