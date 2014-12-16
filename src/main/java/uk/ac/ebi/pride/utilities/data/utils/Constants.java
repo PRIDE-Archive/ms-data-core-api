@@ -122,7 +122,7 @@ public class Constants {
      */
     public static Constants.SpecFileFormat getSpectraDataFormat(SpectraData spectraData) {
         uk.ac.ebi.pride.utilities.data.core.CvParam specFileFormat = spectraData.getFileFormat();
-        if (specFileFormat != null) {
+        if (specFileFormat != null ) {
             if (specFileFormat.getAccession().equals("MS:1000613"))
                 return Constants.SpecFileFormat.DTA;
             if (specFileFormat.getAccession().equals("MS:1001062"))
@@ -134,8 +134,10 @@ public class Constants {
             if (specFileFormat.getAccession().equals("MS:1000566"))
                 return Constants.SpecFileFormat.MZXML;
         }
-        return Constants.SpecFileFormat.NONE;
+        return getDataFormatFromFileExtension(spectraData);
     }
+
+
 
     /**
      * Spectrum Id format for an specific CVterm accession
@@ -241,6 +243,8 @@ public class Constants {
         }
         return classType;
     }
+
+
 
 
 
