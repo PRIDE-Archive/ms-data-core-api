@@ -59,8 +59,8 @@
         <junit.version>4.11</junit.version>
         <slf4j-api.version>1.7.5</slf4j-api.version>
         <logback-core.version>1.0.11</logback-core.version>
-        <jmzml.version>1.7.2.pride</jmzml.version>
-        <jmzidentml.version>1.2.1</jmzidentml.version>
+        <jmzml.version>1.7.2</jmzml.version>
+        <jmzidentml.version>1.2.2</jmzidentml.version>
         <xmlschemavalidator.version>2.1</xmlschemavalidator.version>
         <jmztab.version>3.0.2-SNAPSHOT</jmztab.version>
         <spring.web.version>4.1.1.RELEASE</spring.web.version>
@@ -82,7 +82,7 @@
         <jdom.version>2.0.2</jdom.version>
         <c3p0.version>0.9.1.2</c3p0.version>
         <springframewrok.version>3.2.3.RELEASE</springframewrok.version>
-        <pride-utilities.version>2.0.0-SNAPSHOT</pride-utilities.version>
+        <pride-utilities.version>2.0.1-SNAPSHOT</pride-utilities.version>
         <json.version>20090211</json.version>
 
     </properties>
@@ -226,11 +226,6 @@
             <groupId>uk.ac.ebi.pride.jaxb</groupId>
             <artifactId>pride-jaxb</artifactId>
             <version>${pride.jaxb.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <version>${mysql.connector.java}</version>
         </dependency>
         <dependency>
             <groupId>org.jdom</groupId>
