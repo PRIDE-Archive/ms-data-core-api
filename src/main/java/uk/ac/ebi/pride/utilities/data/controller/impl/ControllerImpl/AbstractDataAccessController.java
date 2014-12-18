@@ -43,7 +43,17 @@ public abstract class AbstractDataAccessController implements DataAccessControll
      */
     private Object source;
 
-
+    /**
+     * the inferred protein groups, if they are not listed in the file but inferred by e.g. PIA
+     * <p>
+     * the groups are rebuild by useing the mapping
+     *    PAG_ID -> (Protein_ID -> [Peptide_IDs])
+     * <p>
+     * if the peptide_IDs-list is null, then all peptides are used of the protein (no filtering or all passed filtering)
+     */
+    Map<Comparable, Map<Comparable, List<Comparable>>> inferredProteinGroups;
+    
+    
     protected AbstractDataAccessController() {
         this(null);
     }
@@ -344,20 +354,18 @@ public abstract class AbstractDataAccessController implements DataAccessControll
         return getNumberOfProteins() > 0;
     }
     
-    
-    //--------------------------------------------------------------------------
-    Map<Comparable, ProteinGroup> inferredProteinGroups;
-    
+    /**
+     * returns true if the proteins are inferred externally
+     * @return
+     */
     public final boolean proteinsAreInferred() {
     	return (inferredProteinGroups != null);
     }
     
     @Override
-    public final void setInferredProteinGroups(Map<Comparable, ProteinGroup> proteinGroups) {
+    public final void setInferredProteinGroups(Map<Comparable, Map<Comparable, List<Comparable>>> proteinGroups) {
     	this.inferredProteinGroups = proteinGroups;
     }
-    //--------------------------------------------------------------------------
-    
     
     @Override
     public boolean hasProteinAmbiguityGroup() {
@@ -390,11 +398,26 @@ public abstract class AbstractDataAccessController implements DataAccessControll
     @Override
     public ProteinGroup getProteinAmbiguityGroupById(Comparable proteinGroupId) {
     	if (inferredProteinGroups != null) {
-    		return inferredProteinGroups.get(proteinGroupId);
+    		// build the PAG from the ID mappings
+    		Map<Comparable, List<Comparable>> groupsProteins = inferredProteinGroups.get(proteinGroupId);
+    		
+    		List<Protein> proteinList = new ArrayList<Protein>();
+    		for (Map.Entry<Comparable, List<Comparable>> protPepIt : groupsProteins.entrySet()) {
+    			if (protPepIt.getValue() == null) {
+    				// get the complete protein
+    				proteinList.add(getProteinById(protPepIt.getKey()));
+    			} else {
+    				// TODO: implement the filters!
+    			}
+    		}
+    		
+    		ProteinGroup group = new ProteinGroup(proteinGroupId, proteinGroupId.toString(), proteinList);
+    		
+    		return group;
     	}
         return null;
     }
-
+    
     @Override
     public int indexOfProtein(Comparable proteinId) {
         int index = -1;
