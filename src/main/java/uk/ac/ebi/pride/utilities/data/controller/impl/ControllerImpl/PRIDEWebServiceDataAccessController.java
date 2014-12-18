@@ -6,7 +6,6 @@ import uk.ac.ebi.pride.utilities.data.controller.DataAccessException;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessMode;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessUtilities;
 import uk.ac.ebi.pride.utilities.data.controller.cache.CacheEntry;
-import uk.ac.ebi.pride.utilities.data.controller.cache.strategy.PrideDBCachingStrategy;
 import uk.ac.ebi.pride.utilities.data.core.*;
 import uk.ac.ebi.pride.utilities.data.io.db.*;
 import uk.ac.ebi.pride.utilities.data.utils.BinaryDataUtils;
