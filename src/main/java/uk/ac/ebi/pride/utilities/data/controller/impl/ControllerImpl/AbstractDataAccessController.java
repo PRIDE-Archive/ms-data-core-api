@@ -343,7 +343,22 @@ public abstract class AbstractDataAccessController implements DataAccessControll
     public boolean hasProtein() {
         return getNumberOfProteins() > 0;
     }
-
+    
+    
+    //--------------------------------------------------------------------------
+    Map<Comparable, ProteinGroup> inferredProteinGroups;
+    
+    public final boolean proteinsAreInferred() {
+    	return (inferredProteinGroups != null);
+    }
+    
+    @Override
+    public final void setInferredProteinGroups(Map<Comparable, ProteinGroup> proteinGroups) {
+    	this.inferredProteinGroups = proteinGroups;
+    }
+    //--------------------------------------------------------------------------
+    
+    
     @Override
     public boolean hasProteinAmbiguityGroup() {
         return getNumberOfProteinAmbiguityGroups() > 0;
@@ -366,11 +381,17 @@ public abstract class AbstractDataAccessController implements DataAccessControll
 
     @Override
     public Collection<Comparable> getProteinAmbiguityGroupIds() {
+    	if (inferredProteinGroups != null) {
+    		return inferredProteinGroups.keySet();
+    	}
         return Collections.emptyList();
     }
 
     @Override
     public ProteinGroup getProteinAmbiguityGroupById(Comparable proteinGroupId) {
+    	if (inferredProteinGroups != null) {
+    		return inferredProteinGroups.get(proteinGroupId);
+    	}
         return null;
     }
 
