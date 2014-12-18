@@ -483,8 +483,8 @@ public class MzIdentMLControllerImpl extends ReferencedIdentificationController 
 
             try {
                 // get protein hypothesis
-                if (!hasProteinAmbiguityGroup()) {
-                    // when protein groups are not present
+                if (!hasProteinAmbiguityGroup() || proteinsAreInferred()) {
+                    // when protein groups are not present or inferred from all proteins
                     uk.ac.ebi.jmzidml.model.mzidml.DBSequence dbSequence = unmarshaller.getDBSequenceById(proteinId);
                     List<SpectrumIdentificationItem> spectrumIdentificationItems = getScannedSpectrumIdentificationItems(proteinId);
                     ident = MzIdentMLTransformer.transformSpectrumIdentificationItemToIdentification(dbSequence, spectrumIdentificationItems);

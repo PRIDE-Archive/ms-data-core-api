@@ -926,6 +926,10 @@ public abstract class CachedDataAccessController extends AbstractDataAccessContr
 
     @Override
     public Collection<Comparable> getProteinAmbiguityGroupIds() {
+    	if (proteinsAreInferred()) {
+    		return super.getProteinAmbiguityGroupIds();
+    	}
+    	
         Collection<Comparable> groupIds = (Collection<Comparable>) cache.get(CacheEntry.PROTEIN_GROUP_ID);
 
         if (groupIds == null || groupIds.isEmpty()) {
@@ -936,6 +940,10 @@ public abstract class CachedDataAccessController extends AbstractDataAccessContr
 
     @Override
     public ProteinGroup getProteinAmbiguityGroupById(Comparable proteinGroupId) {
+    	if (proteinsAreInferred()) {
+    		return super.getProteinAmbiguityGroupById(proteinGroupId);
+    	}
+    	
         return (ProteinGroup) cache.get(CacheEntry.PROTEIN_GROUP, proteinGroupId);
     }
 
