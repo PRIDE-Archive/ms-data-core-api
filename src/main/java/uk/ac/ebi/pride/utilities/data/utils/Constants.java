@@ -39,6 +39,7 @@ public class Constants {
     public static final String WIFF_EXT = ".wiff";
 
 
+
     /**
      * Supported id format used in the spectrum file.
      */
@@ -65,6 +66,7 @@ public class Constants {
         MGF,
         MZXML,
         MZDATA,
+        MS2,
         NONE
     }
 
@@ -87,6 +89,8 @@ public class Constants {
                 return SpecFileFormat.MZML;
             if (SpecFileFormat.PKL.toString().equalsIgnoreCase(fileFormat))
                 return SpecFileFormat.PKL;
+            if (SpecFileFormat.MS2.toString().equalsIgnoreCase(fileFormat))
+                return SpecFileFormat.MS2;
         }
         return SpecFileFormat.NONE;
     }
@@ -111,6 +115,10 @@ public class Constants {
                 return SpecFileFormat.MZML;
             if (path.toUpperCase().contains(PKL_EXT.toUpperCase()))
                 return SpecFileFormat.PKL;
+            if (path.toUpperCase().contains(PKL_EXT.toUpperCase()))
+                return SpecFileFormat.PKL;
+            if (path.toUpperCase().contains(MS2_EXT.toUpperCase()))
+                return SpecFileFormat.MS2;
         }
         return SpecFileFormat.NONE;
     }
@@ -133,6 +141,8 @@ public class Constants {
                 return Constants.SpecFileFormat.MZML;
             if (specFileFormat.getAccession().equals("MS:1000566"))
                 return Constants.SpecFileFormat.MZXML;
+            if(specFileFormat.getAccession().equals("MS:1001466"))
+                return Constants.SpecFileFormat.MS2;
         }
         return getDataFormatFromFileExtension(spectraData);
     }
@@ -187,6 +197,7 @@ public class Constants {
                 if(spectraDataFormat != Constants.SpecFileFormat.MGF)  fileFormats.add(Constants.SpecFileFormat.MGF);
                 if(spectraDataFormat != Constants.SpecFileFormat.PKL)  fileFormats.add(Constants.SpecFileFormat.PKL);
                 if(spectraDataFormat != Constants.SpecFileFormat.NONE) fileFormats.add(Constants.SpecFileFormat.NONE);
+                if(spectraDataFormat != SpecFileFormat.MS2) fileFormats.add(SpecFileFormat.MS2);
             }else if (spectIdFormat == Constants.SpecIdFormat.MZML_ID) {
                 fileFormats.add(Constants.SpecFileFormat.MZML);
             } else if (spectIdFormat == Constants.SpecIdFormat.SCAN_NUMBER_NATIVE_ID) {

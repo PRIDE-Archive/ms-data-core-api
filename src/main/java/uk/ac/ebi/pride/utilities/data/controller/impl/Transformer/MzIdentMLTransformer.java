@@ -420,6 +420,8 @@ public final class MzIdentMLTransformer {
             uk.ac.ebi.jmzidml.model.mzidml.Peptide peptideSeq = oldSpectrumIdentification.getPeptide();
             int rank = oldSpectrumIdentification.getRank();
             boolean passThrehold = oldSpectrumIdentification.isPassThreshold();
+
+            String retentionTime = DataAccessUtilities.getRetentionTime(oldSpectrumIdentification);
             uk.ac.ebi.jmzidml.model.mzidml.MassTable massTable = oldSpectrumIdentification.getMassTable();
             uk.ac.ebi.jmzidml.model.mzidml.Sample sample = oldSpectrumIdentification.getSample();
             List<uk.ac.ebi.jmzidml.model.mzidml.PeptideEvidenceRef> peptideEvidence = oldSpectrumIdentification.getPeptideEvidenceRef();
@@ -430,6 +432,8 @@ public final class MzIdentMLTransformer {
                     transformToPeptide(peptideSeq), rank, passThrehold, transformToMassTable(massTable),
                     transformToSample(sample), transformToPeptideEvidence(peptideEvidence),
                     transformToFragmentationIon(fragmentation), score, null, null);
+            peptide.setRetentionTime(retentionTime);
+
         }
         return peptide;
     }

@@ -232,6 +232,9 @@ public abstract class ReferencedIdentificationController extends CachedDataAcces
 
                     if (Constants.getSpectraDataFormat(spectraData) == Constants.SpecFileFormat.PKL)
                         msDataAccessControllers.put(spectraData.getId(), new PeakControllerImpl(spectraDataFileMap.get(spectraDataFile)));
+
+                    if (Constants.getSpectraDataFormat(spectraData) == Constants.SpecFileFormat.MS2)
+                        msDataAccessControllers.put(spectraData.getId(), new PeakControllerImpl(spectraDataFileMap.get(spectraDataFile)));
                     //Todo: Need to check if changes
                 }
             }
@@ -286,6 +289,8 @@ public abstract class ReferencedIdentificationController extends CachedDataAcces
             if (fileFormatType == Constants.SpecFileFormat.DTA)
                 return new PeakControllerImpl(file);
             if (fileFormatType == Constants.SpecFileFormat.PKL)
+                return new PeakControllerImpl(file);
+            if(fileFormatType == Constants.SpecFileFormat.MS2)
                 return new PeakControllerImpl(file);
             if (fileFormatType == Constants.SpecFileFormat.MZDATA)
                 return new MzDataControllerImpl(file);

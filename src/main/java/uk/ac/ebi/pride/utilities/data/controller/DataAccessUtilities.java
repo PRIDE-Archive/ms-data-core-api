@@ -2,7 +2,15 @@ package uk.ac.ebi.pride.utilities.data.controller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.ebi.jmzidml.model.mzidml.*;
 import uk.ac.ebi.pride.utilities.data.core.*;
+import uk.ac.ebi.pride.utilities.data.core.CvParam;
+import uk.ac.ebi.pride.utilities.data.core.Modification;
+import uk.ac.ebi.pride.utilities.data.core.Peptide;
+import uk.ac.ebi.pride.utilities.data.core.PeptideEvidence;
+import uk.ac.ebi.pride.utilities.data.core.Sample;
+import uk.ac.ebi.pride.utilities.data.core.SubstitutionModification;
+import uk.ac.ebi.pride.utilities.data.core.UserParam;
 import uk.ac.ebi.pride.utilities.engine.SearchEngineType;
 import uk.ac.ebi.pride.utilities.term.CvTermReference;
 import uk.ac.ebi.pride.utilities.util.NumberUtilities;
@@ -727,4 +735,14 @@ public final class DataAccessUtilities {
                 && protein.getDbSequence().getSequence().contains(peptide.getSequence());
     }
 
+    public static String getRetentionTime(SpectrumIdentificationItem oldSpectrumIdentification) {
+        if(oldSpectrumIdentification != null && oldSpectrumIdentification.getCvParam() != null && oldSpectrumIdentification.getCvParam().size() > 0){
+            for(uk.ac.ebi.jmzidml.model.mzidml.CvParam oldParam: oldSpectrumIdentification.getCvParam()){
+                if(oldParam.getAccession().equalsIgnoreCase("MS:1000894") || oldParam.getAccession().equalsIgnoreCase("MS:1000016") || oldParam.getAccession().equalsIgnoreCase("MS:1001114")){
+                    return oldParam.getValue();
+                }
+            }
+        }
+        return null;
+    }
 }

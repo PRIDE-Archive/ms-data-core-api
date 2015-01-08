@@ -26,7 +26,7 @@ import java.util.List;
  * Date: 03-Feb-2010
  * Time: 08:46:05
  */
-public class Spectrum extends MzGraph implements Cloneable{
+public class    Spectrum extends MzGraph implements Cloneable{
 
     /**
      * peptide associate with this spectrum
@@ -52,6 +52,11 @@ public class Spectrum extends MzGraph implements Cloneable{
      * source file
      */
     private SourceFile sourceFile;
+
+    /*
+     The retention time in which this spectrum was obtained
+     */
+    private String retentionTime;
 
     /**
      * the identifier for the spot on a MALDI or similar on

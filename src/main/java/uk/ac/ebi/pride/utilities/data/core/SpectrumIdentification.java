@@ -99,6 +99,11 @@ public class SpectrumIdentification extends IdentifiableParamGroup {
     private Spectrum spectrum;
 
     /**
+     * Add retention time to the SpectrumIdentification Item.
+     */
+    private String retentionTime;
+
+    /**
      * Spectrum Identification Item
      * @param id                        Id
      * @param name                      name
@@ -295,6 +300,14 @@ public class SpectrumIdentification extends IdentifiableParamGroup {
 
     public String getSequence() {
         return getPeptideSequence().getSequence();
+    }
+
+    public String getRetentionTime() {
+        return retentionTime;
+    }
+
+    public void setRetentionTime(String retentionTime) {
+        this.retentionTime = retentionTime;
     }
 
     @Override
