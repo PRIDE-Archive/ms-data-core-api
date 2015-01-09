@@ -69,7 +69,7 @@
         <mzxml.parser.version>1.3.1</mzxml.parser.version>
         <pkl.parser.version>1.2.1</pkl.parser.version>
         <apl.parser.version>1.0.0</apl.parser.version>
-        <ms2.parser.version>1.2.1</ms2.parser.version>
+        <ms2.parser.version>1.2.2</ms2.parser.version>
         <dta.parser.version>1.2.1</dta.parser.version>
         <mgf.parser.version>1.2.9</mgf.parser.version>
         <mzdata.parser.version>1.2.1</mzdata.parser.version>
