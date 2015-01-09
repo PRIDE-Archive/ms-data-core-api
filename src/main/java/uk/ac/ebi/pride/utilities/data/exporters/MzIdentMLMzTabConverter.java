@@ -388,14 +388,15 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter{
     protected void loadSamples() {
         List<Sample> sampleList = source.getExperimentMetaData().getSamples();
         if(sampleList != null && !sampleList.isEmpty()){
-            // Identification
-            int idSample = 0;
-            int specieId = 0;
-            int tissueId = 0;
-            int cellTypeId = 0;
-            int diseaseId = 0;
+            int idSample = 1;
 
-            for(uk.ac.ebi.pride.utilities.data.core.Sample sample: sampleList){
+            for(Sample sample: sampleList){
+
+                int specieId = 1;
+                int tissueId = 1;
+                int cellTypeId = 1;
+                int diseaseId = 1;
+
                 for (CvParam cv: sample.getCvParams()){
                     if ("NEWT".equals(cv.getCvLookupID())) {
                         metadata.addSampleSpecies(specieId++, MzTabUtils.convertCvParamToCVParam(cv));

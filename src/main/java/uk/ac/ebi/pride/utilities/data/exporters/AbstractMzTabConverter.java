@@ -228,7 +228,7 @@ public abstract class AbstractMzTabConverter extends ConvertProvider<DataAccessC
             Comparable proteinId = idProtein.next();
             uk.ac.ebi.pride.utilities.data.core.Protein protein = source.getProteinById(proteinId);
             List<SearchEngineScoreParam> proteinParams = MzTabUtils.getSearchEngineScoreTerm(protein.getScore());
-            searchEngineName = protein.getScore().getDefaultSearchEngine().name();
+            searchEngineName = (protein.getScore() != null && protein.getScore().getAllScoreValues().size() > 0 && protein.getScore().getDefaultSearchEngine() != null)?protein.getScore().getDefaultSearchEngine().name():null;
             for(SearchEngineScoreParam scoreCv: proteinParams){
                 proteinScores.put(scoreCv,iProtein);
             }
