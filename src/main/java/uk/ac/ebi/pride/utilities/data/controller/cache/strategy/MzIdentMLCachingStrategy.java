@@ -241,7 +241,7 @@ public class MzIdentMLCachingStrategy extends AbstractCachingStrategy {
      * mzidentml files is from spectrum->peptide->protein, but most for the end users is more interesting to
      * have an information structure from protein->peptide->spectrum. The function take the information from
      * spectrumItems and read the Peptide Evidences and the Proteins related with these peptideEvidence. Finally
-     * the function construct a map in from proteins to spectrums named identProteinsMap.
+     * the function construct a map in from proteins to spectra named identProteinsMap.
      *
      * @throws javax.naming.ConfigurationException
      *

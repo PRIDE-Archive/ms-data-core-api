@@ -58,6 +58,19 @@ public interface ProteinDataAccess {
     public int getNumberOfProteins();
 
     /**
+     * This function return the number of an-core proteins in ms-data core api that:
+     *    1- Pass the threshold in the protein group.
+     *    2- The an-core protein is not a decoy protein.
+     * return
+     */
+    //public int getFinalListOfProteinGroups();
+
+    /**
+     *
+     */
+
+
+    /**
      * Get the protein accession of a identification
      *
      * @param proteinId identification id.

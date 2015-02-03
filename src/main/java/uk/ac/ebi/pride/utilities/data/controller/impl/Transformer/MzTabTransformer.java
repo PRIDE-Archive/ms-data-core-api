@@ -525,7 +525,7 @@ public class MzTabTransformer {
     /**
      * Transform modification from pride xml to core data model
      *
-     * @param rawMods a java.util.List<uk.ac.ebi.pride.jmztab.model.Modification> modification in mzTab format.
+     * @param rawMods a java.utils.List<uk.ac.ebi.pride.jmztab.model.Modification> modification in mzTab format.
      * @return Modification modification in core data model.
      */
     private static List<Modification> transformModification(List<uk.ac.ebi.pride.jmztab.model.Modification> rawMods, Metadata metadata) {

@@ -6,10 +6,12 @@ import org.junit.Test;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessException;
 import uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl.MzIdentMLControllerImpl;
 import uk.ac.ebi.pride.utilities.data.core.*;
+import uk.ac.ebi.pride.utilities.mol.IsoelectricPointUtils;
 
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -126,4 +128,17 @@ public class MzIdentMlControllerImplTest {
         assertTrue("The numer of Identification should be 2", identifications.size()==2);
         assertEquals("The id of the first identification should be PDH_psu|NC_LIV_020800_0",identifications.get(0).toString(),"PDH_psu|NC_LIV_020800_0");
    }
+
+    @Test
+    public void getPeptidesPI(){
+        Collection<Comparable> proteinIds = mzIdentMlController.getProteinIds();
+
+        for(Comparable proteinID: proteinIds){
+            Collection<Comparable> peptideIds = mzIdentMlController.getPeptideIds(proteinID);
+            for(Comparable peptideId: peptideIds){
+                System.out.println(IsoelectricPointUtils.calculate(mzIdentMlController.getPeptideSequence(proteinID,peptideId)));
+            }
+        }
+
+    }
 }

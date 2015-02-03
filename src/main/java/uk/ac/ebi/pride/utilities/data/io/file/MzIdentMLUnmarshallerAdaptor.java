@@ -25,6 +25,7 @@ import java.util.*;
 public class MzIdentMLUnmarshallerAdaptor extends MzIdentMLUnmarshaller {
 
     private static final int LOOP_THRESHOLD = 20;
+
     private Map<String, Map<String, List<IndexElement>>> scannedIdMappings;
 
     private Inputs inputs = null;
@@ -32,6 +33,7 @@ public class MzIdentMLUnmarshallerAdaptor extends MzIdentMLUnmarshaller {
     private AuditCollection auditCollection = null;
 
     private boolean avoidProteinInference = false;
+
 
     public MzIdentMLUnmarshallerAdaptor(File mzIdentMLFile, boolean inMemory) throws ConfigurationException {
         super(mzIdentMLFile, inMemory);
@@ -260,7 +262,7 @@ public class MzIdentMLUnmarshallerAdaptor extends MzIdentMLUnmarshaller {
         return spectrumIdentifications;
     }
 
-    public Set<String> getSpectrumIdentificationItemIds(String spectrumIdentResultId) {
+    public Set<String> getSpectrumIdentificationItemIds(String spectrumIdentResultId) throws JAXBException {
         Map<String, List<IndexElement>> elementsWithSpectrumIdentResult = scannedIdMappings.get(spectrumIdentResultId);
 
         if (elementsWithSpectrumIdentResult != null) {
