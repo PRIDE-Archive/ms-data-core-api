@@ -293,6 +293,18 @@ public abstract class AbstractDataAccessController implements DataAccessControll
     }
 
     @Override
+    public double getPeptideTheoreticalMz(Comparable proteinId, Comparable peptideId){
+        double mz= -1;
+        Protein protein = getProteinById(proteinId);
+        if(protein != null){
+            Peptide peptide = DataAccessUtilities.getPeptide(protein, Integer.parseInt(peptideId.toString()));
+            if(peptide != null)
+                mz = peptide.getSpectrumIdentification().getCalculatedMassToCharge();
+        }
+        return mz;
+    }
+
+    @Override
     public double getSpectrumPrecursorIntensity(Comparable specId) {
         double intent = -1;
         Spectrum spectrum = getSpectrumById(specId);

@@ -240,8 +240,19 @@ public interface PeptideDataAccess {
      * @param proteinId identification id
      * @param peptideId peptid eid, can be the index of the peptide as well.
      * @return precursor charge, null should be returned if not available
-     */
-    public double getPeptidePrecursorMz(Comparable proteinId, Comparable peptideId);
+     */public double getPeptidePrecursorMz(Comparable proteinId, Comparable peptideId);
+
+    /**
+     * Get The Peptide Theoretical Mz from the file
+     * Note: sometimes, precursor m/z at the peptide level is different from the precursor charge at the spectrum level
+     * As the peptide-level precursor charge is often assigned by search engine rather than ms instrument
+     *
+     * @param proteinId identification id
+     * @param peptideId peptid eid, can be the index of the peptide as well.
+     * @return precursor charge, null should be returned if not available
+     */public double getPeptideTheoreticalMz(Comparable proteinId, Comparable peptideId);
+
+
 }
 
 
