@@ -1,0 +1,15 @@
+uk.ac.ebi.pride.utilities.data.controller
+uk.ac.ebi.pride.utilities.data.controller.access
+uk.ac.ebi.pride.utilities.data.controller.cache
+uk.ac.ebi.pride.utilities.data.controller.cache.strategy
+uk.ac.ebi.pride.utilities.data.controller.impl
+uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl
+uk.ac.ebi.pride.utilities.data.controller.impl.Transformer
+uk.ac.ebi.pride.utilities.data.core
+uk.ac.ebi.pride.utilities.data.exporters
+uk.ac.ebi.pride.utilities.data.filter
+uk.ac.ebi.pride.utilities.data.io.db
+uk.ac.ebi.pride.utilities.data.io.file
+uk.ac.ebi.pride.utilities.data.io.ws
+uk.ac.ebi.pride.utilities.data.utils
+uk.ac.ebi.pride.utilities.db
