@@ -62,7 +62,7 @@
         <jmzml.version>1.7.2</jmzml.version>
         <jmzidentml.version>1.2.2</jmzidentml.version>
         <xmlschemavalidator.version>2.1</xmlschemavalidator.version>
-        <jmztab.version>3.0.2-SNAPSHOT</jmztab.version>
+        <jmztab.version>3.0.2</jmztab.version>
         <spring.web.version>4.1.1.RELEASE</spring.web.version>
 
         <jmzreader.version>1.2.0</jmzreader.version>
@@ -82,7 +82,7 @@
         <jdom.version>2.0.2</jdom.version>
         <c3p0.version>0.9.1.2</c3p0.version>
         <springframewrok.version>3.2.3.RELEASE</springframewrok.version>
-        <pride-utilities.version>2.0.1</pride-utilities.version>
+        <pride-utilities.version>2.0.2</pride-utilities.version>
         <json.version>20090211</json.version>
 
     </properties>
@@ -318,6 +318,28 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.5</version>
+                <configuration>
+                    <remoteTagging>true</remoteTagging>
+                    <goals>deploy</goals>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.7</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
@@ -368,4 +390,11 @@
         </snapshotRepository>
     </distributionManagement>
 
+    <!--scm git config-->
+    <scm>
+        <connection>scm:git:github.com/PRIDE-Utilities/ms-data-core-api.git</connection>
+        <developerConnection>scm:git:git@github.com:PRIDE-Utilities/ms-data-core-api.git</developerConnection>
+        <url>https://github.com/PRIDE-Utilities/ms-data-core-api.git</url>
+        <tag>HEAD</tag>
+    </scm>
 </project>
