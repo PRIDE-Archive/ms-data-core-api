@@ -1,11 +1,10 @@
 package uk.ac.ebi.pride.utilities.data.controller.access;
 
 import uk.ac.ebi.pride.utilities.data.core.*;
-import uk.ac.ebi.pride.utilities.term.CvTermReference;
 import uk.ac.ebi.pride.utilities.term.QuantCvTermReference;
+import uk.ac.ebi.pride.utilities.term.SearchEngineScoreCvTermReference;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -321,7 +320,7 @@ public interface QuantDataAccess {
      *
      * @return a collection of cv term references
      */
-    public Collection<CvTermReference> getAvailableQuantPeptideLevelScores();
+    public Collection<SearchEngineScoreCvTermReference> getAvailableQuantPeptideLevelScores();
 
 }
 

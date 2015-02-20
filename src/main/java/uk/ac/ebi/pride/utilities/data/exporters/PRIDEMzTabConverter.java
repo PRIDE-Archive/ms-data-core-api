@@ -1,10 +1,12 @@
 package uk.ac.ebi.pride.utilities.data.exporters;
 
 import uk.ac.ebi.pride.jmztab.model.Assay;
+import uk.ac.ebi.pride.jmztab.model.*;
+import uk.ac.ebi.pride.jmztab.utils.convert.ModParam;
+import uk.ac.ebi.pride.jmztab.utils.convert.SearchEngineScoreParam;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessController;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessException;
 import uk.ac.ebi.pride.utilities.data.core.*;
-import uk.ac.ebi.pride.utilities.data.core.CvParam;
 import uk.ac.ebi.pride.utilities.data.core.Modification;
 import uk.ac.ebi.pride.utilities.data.core.Peptide;
 import uk.ac.ebi.pride.utilities.data.core.Protein;
@@ -14,9 +16,10 @@ import uk.ac.ebi.pride.utilities.data.core.UserParam;
 import uk.ac.ebi.pride.utilities.data.utils.CvUtilities;
 import uk.ac.ebi.pride.utilities.data.utils.MzTabUtils;
 import uk.ac.ebi.pride.utilities.data.utils.PRIDEUtils;
-import uk.ac.ebi.pride.jmztab.model.*;
-import uk.ac.ebi.pride.jmztab.utils.convert.ModParam;
-import uk.ac.ebi.pride.jmztab.utils.convert.SearchEngineScoreParam;
+import uk.ac.ebi.pride.utilities.exception.IllegalAminoAcidSequenceException;
+import uk.ac.ebi.pride.utilities.mol.Element;
+import uk.ac.ebi.pride.utilities.mol.MoleculeUtilities;
+import uk.ac.ebi.pride.utilities.mol.NeutralLoss;
 import uk.ac.ebi.pride.utilities.term.CvTermReference;
 import uk.ac.ebi.pride.utilities.term.QuantCvTermReference;
 import uk.ac.ebi.pride.utilities.util.StringUtils;
@@ -36,13 +39,17 @@ import static uk.ac.ebi.pride.jmztab.model.MZTabUtils.isEmpty;
 public class PRIDEMzTabConverter extends AbstractMzTabConverter {
 
 
+    public static final String GEL_IDENTIFIER = "gel_identifier";
+    public static final String GEL_SPOTIDENTIFIER = "gel_spotidentifier";
+    public static final String EMPAI = "empai";
+    public static final String GEL_COORDINATES = "gel_coordinates";
     private boolean gelExperiment;
 
     private int alternativeId = 0;
 
     /**
-     * Important: Some PRIDE XMls contains for one protein accession more than one protein identification, but mzTab do not allow to ahve this then
-     * We decided to merge of all of them in one protein using the merge function. We should investigate if those proteins are different runs.
+     * Important: Some PRIDE XMls contains for one protein accession more than one protein identification, but mzTab do not allow to have this then
+     * We decided to merge of all of them in one protein using the merge function. We should investigate if those proteins are different runs or different quantitation values.
      */
     private SortedMap<String, List<uk.ac.ebi.pride.jmztab.model.Protein>> accessionProteinMap = new TreeMap<String, List<uk.ac.ebi.pride.jmztab.model.Protein>>();
 
@@ -52,10 +59,20 @@ public class PRIDEMzTabConverter extends AbstractMzTabConverter {
 
     @Override
     protected void loadGelData() {
-        //This will generate the columns for the gels in the protein columns factory
-        //if(source.getTwoDimIdentIds()!= null && reader.getTwoDimIdentIds().size() > 0){
-        //    gelExperiment = true;
-        // }
+
+        // Get a list of Identification ids
+        Collection<Comparable> ids = source.getProteinIds();
+
+        if (!ids.isEmpty()) {
+            // Iterate over each identification
+            for (Comparable id : ids) {
+                Protein identification = source.getProteinById(id);
+                if(identification.getGel() != null){
+                    gelExperiment = true;
+                    return;
+                }
+            }
+        }
     }
 
     @Override
@@ -100,9 +117,9 @@ public class PRIDEMzTabConverter extends AbstractMzTabConverter {
             return;
         }
 
-        for(Sample sample: samples){
+        for (Sample sample : samples) {
             // Quantification
-            for (CvParam p: sample.getCvParams()) {
+            for (CvParam p : sample.getCvParams()) {
                 // check for subsample descriptions
                 if (QuantCvTermReference.SUBSAMPLE1_DESCRIPTION.getAccession().equals(p.getAccession())) {
                     metadata.addSampleDescription(1, p.getValue());
@@ -162,8 +179,11 @@ public class PRIDEMzTabConverter extends AbstractMzTabConverter {
                         }
                     }
                 }
-                // Identification
-                if (metadata.getSampleMap().isEmpty()) {
+            }
+
+            // Identification
+            if (metadata.getSampleMap().isEmpty()) {
+                for (CvParam p : sample.getCvParams()) {
                     if (!isEmpty(p.getCvLookupID())) {
                         if ("NEWT".equals(p.getCvLookupID())) {
                             metadata.addSampleSpecies(1, MzTabUtils.convertCvParamToCVParam(p));
@@ -172,8 +192,8 @@ public class PRIDEMzTabConverter extends AbstractMzTabConverter {
                         } else if ("CL".equals(p.getCvLookupID())) {
                             metadata.addSampleCellType(1, MzTabUtils.convertCvParamToCVParam(p));
                         } else if ("DOID".equals(p.getCvLookupID()) || "IDO".equals(p.getCvLookupID())) {
-                                //DOID: Human Disease Ontology
-                                //IDO: Infectious Disease Ontology
+                            //DOID: Human Disease Ontology
+                            //IDO: Infectious Disease Ontology
                             metadata.addSampleDisease(1, MzTabUtils.convertCvParamToCVParam(p));
                         } else if (!isEmpty(p.getName())) {
                             metadata.addSampleCustom(1, MzTabUtils.convertCvParamToCVParam(p));
@@ -183,18 +203,29 @@ public class PRIDEMzTabConverter extends AbstractMzTabConverter {
                         metadata.addSampleDescription(1, sample.getName());
                     }
                 }
-                // create relationships between ms_run, samples, and assays
-                if (metadata.getSampleMap().size() == 1) {
-                    // Identification
-                    metadata.addAssaySample(1, metadata.getSampleMap().get(1));
-                    metadata.addAssayMsRun(1, metadata.getMsRunMap().get(1));
-                } else {
-                    for (Assay assay : metadata.getAssayMap().values()) {
-                        assay.setSample(metadata.getSampleMap().get(assay.getId()));
-                        assay.setMsRun(metadata.getMsRunMap().get(1));
-                    }
+
+            }
+
+
+            // setting custom parameter for identification.
+            if (metadata.getSampleMap().size() <= 1) {
+                for (UserParam userParam : sample.getUserParams()) {
+                    metadata.addSampleCustom(1, MzTabUtils.convertUserParamToCVParam(userParam));
                 }
             }
+
+            // create relationships between ms_run, samples, and assays
+            if (metadata.getSampleMap().size() == 1) {
+                // Identification
+                metadata.addAssaySample(1, metadata.getSampleMap().get(1));
+                metadata.addAssayMsRun(1, metadata.getMsRunMap().get(1));
+            } else {
+                for (Assay assay : metadata.getAssayMap().values()) {
+                    assay.setSample(metadata.getSampleMap().get(assay.getId()));
+                    assay.setMsRun(metadata.getMsRunMap().get(1));
+                }
+            }
+
         }
     }
 
@@ -209,10 +240,12 @@ public class PRIDEMzTabConverter extends AbstractMzTabConverter {
             for (ParamGroup param : protocol.getProtocolSteps()) {
                 if (param != null && param.getCvParams() != null)
                     for (CvParam cvParam : param.getCvParams())
-                        metadata.addSampleProcessingParam(i++, MzTabUtils.convertCvParamToCVParam(cvParam));
+                        metadata.addSampleProcessingParam(i, MzTabUtils.convertCvParamToCVParam(cvParam));
                 if (param != null && param.getUserParams() != null)
                     for (UserParam userParam : param.getUserParams())
-                        metadata.addSampleProcessingParam(i++, MzTabUtils.convertUserParamToCVParam(userParam));
+                        metadata.addSampleProcessingParam(i, MzTabUtils.convertUserParamToCVParam(userParam));
+
+                i++;
             }
         }
     }
@@ -228,35 +261,55 @@ public class PRIDEMzTabConverter extends AbstractMzTabConverter {
             return;
         }
         int iInstrument = 1;
-        int iSource     = 1;
-        int iAnalyzer   = 1;
-        int iDetector   = 1;
-        for(InstrumentConfiguration instrument: instruments){
-            for(CvParam cvParam: instrument.getCvParams())
-                if(cvParam.getAccession().equalsIgnoreCase(CvTermReference.INSTRUMENT_MODEL.getAccession()))
-                    metadata.addInstrumentName(iInstrument++, MzTabUtils.convertCvParamToCVParam(cvParam));
-            //Retrieve all the data related with Source
-            for (InstrumentComponent instrumentComponent: instrument.getSource()){
-                for(CvParam cvParam: instrumentComponent.getCvParams())
-                        metadata.addInstrumentSource(iSource++, MzTabUtils.convertCvParamToCVParam(cvParam));
-                for(UserParam userParam: instrumentComponent.getUserParams())
-                        metadata.addInstrumentName(iSource++, MzTabUtils.convertUserParamToCVParam(userParam));
 
+        // MzTab doesn't support several detectors names or sources, only several analyzers,
+        // so for now we can add only the first one
+        for(InstrumentConfiguration instrument: instruments){
+            for(CvParam cvParam: instrument.getCvParams()) {
+                if (cvParam.getAccession().equalsIgnoreCase(CvTermReference.INSTRUMENT_MODEL.getAccession())) {
+                    metadata.addInstrumentName(iInstrument, MzTabUtils.convertCvParamToCVParam(cvParam));
+                    //We can store only one name so we exit the loop if we find it
+                    break;
+                }
+            }
+
+            //Retrieve all the data related with Source
+            // for (InstrumentComponent instrumentComponent: instrument.getSource()){
+            if ( !instrument.getSource().isEmpty() ){
+                InstrumentComponent instrumentComponent = instrument.getSource().get(0);
+                if(instrumentComponent.getCvParams()!= null && !instrumentComponent.getCvParams().isEmpty()){
+                    CvParam cvParam = instrumentComponent.getCvParams().iterator().next();
+                    metadata.addInstrumentSource(iInstrument, MzTabUtils.convertCvParamToCVParam(cvParam));
+                } else {
+                    if(instrumentComponent.getUserParams()!= null && !instrumentComponent.getUserParams().isEmpty()) {
+                        UserParam userParam = instrumentComponent.getUserParams().iterator().next();
+                        metadata.addInstrumentSource(iInstrument, MzTabUtils.convertUserParamToCVParam(userParam));
+                    }
+                }
             }
             //Retrieve all the data related with Analyzer
             for (InstrumentComponent instrumentComponent: instrument.getAnalyzer()){
                 for(CvParam cvParam: instrumentComponent.getCvParams())
-                    metadata.addInstrumentAnalyzer(iAnalyzer++, MzTabUtils.convertCvParamToCVParam(cvParam));
+                    metadata.addInstrumentAnalyzer(iInstrument, MzTabUtils.convertCvParamToCVParam(cvParam));
                 for(UserParam userParam: instrumentComponent.getUserParams())
-                    metadata.addInstrumentName(iAnalyzer++, MzTabUtils.convertUserParamToCVParam(userParam));
+                    metadata.addInstrumentAnalyzer(iInstrument, MzTabUtils.convertUserParamToCVParam(userParam));
             }
+
             //Retrieve all the data related with Analyzer
-            for (InstrumentComponent instrumentComponent: instrument.getDetector()){
-                for(CvParam cvParam: instrumentComponent.getCvParams())
-                    metadata.addInstrumentAnalyzer(iDetector++, MzTabUtils.convertCvParamToCVParam(cvParam));
-                for(UserParam userParam: instrumentComponent.getUserParams())
-                    metadata.addInstrumentName(iDetector++, MzTabUtils.convertUserParamToCVParam(userParam));
+            // for (InstrumentComponent instrumentComponent: instrument.getDetector()){
+            if (!instrument.getDetector().isEmpty()){
+                InstrumentComponent instrumentComponent = instrument.getDetector().get(0);
+                if(instrumentComponent.getCvParams()!= null && !instrumentComponent.getCvParams().isEmpty()){
+                    CvParam cvParam = instrumentComponent.getCvParams().iterator().next();
+                    metadata.addInstrumentDetector(iInstrument, MzTabUtils.convertCvParamToCVParam(cvParam));
+                } else {
+                    if(instrumentComponent.getUserParams()!= null && !instrumentComponent.getUserParams().isEmpty()) {
+                        UserParam userParam = instrumentComponent.getUserParams().iterator().next();
+                        metadata.addInstrumentDetector(iInstrument, MzTabUtils.convertUserParamToCVParam(userParam));
+                    }
+                }
             }
+            iInstrument++;
         }
     }
 
@@ -305,11 +358,14 @@ public class PRIDEMzTabConverter extends AbstractMzTabConverter {
         }
 
         if(gelExperiment) {
-            proteinColumnFactory.addOptionalColumn("gel_spotidentifier", String.class);
+            proteinColumnFactory.addOptionalColumn(GEL_SPOTIDENTIFIER, String.class);
             logger.debug("Optional column gel_spotidentifier added;");
 
-            proteinColumnFactory.addOptionalColumn("gel_identifier", String.class);
+            proteinColumnFactory.addOptionalColumn(GEL_IDENTIFIER, String.class);
             logger.debug("Optional column gel_identifier added;");
+
+            proteinColumnFactory.addOptionalColumn(GEL_COORDINATES, String.class);
+            logger.debug("Optional column gel_coordinates added;");
         }
 
         return proteinColumnFactory;
@@ -385,7 +441,7 @@ public class PRIDEMzTabConverter extends AbstractMzTabConverter {
         uk.ac.ebi.pride.jmztab.model.Protein protein = new uk.ac.ebi.pride.jmztab.model.Protein(proteinColumnFactory);
         CVParam decoy = MzTabUtils.convertCvParamToCVParam(CvUtilities.getCVTermFromCvReference(CvTermReference.PRIDE_DECOY_HIT,null));
 
-        protein.setAccession(identification.getDbSequence().getAccession());
+        protein.setAccession(generateAccession(identification));
         protein.setDatabase(identification.getDbSequence().getSearchDataBase().getName());
         String version = (identification.getDbSequence().getSearchDataBase().getVersion() != null && ! identification.getDbSequence().getSearchDataBase().getVersion().isEmpty())?identification.getDbSequence().getSearchDataBase().getVersion():null;
         protein.setDatabaseVersion(version);
@@ -416,14 +472,17 @@ public class PRIDEMzTabConverter extends AbstractMzTabConverter {
 
         loadSearchEngineScore(protein, identification);
 
-        // get the number of psms and distinct peptides
-        List<Peptide> items = identification.getPeptides();
-        List<String> allPeptideList = new ArrayList<String>();
-        // sequence + modifications + charge
-        HashSet<String> distinctPeptideList = new HashSet<String>();
-
-        protein.setNumPSMs(metadata.getMsRunMap().get(1), allPeptideList.size());
-        protein.setNumPeptidesDistinct(metadata.getMsRunMap().get(1), distinctPeptideList.size());
+        //TODO protein, species and taxid
+        // set protein species and taxid. We are not sure about the origin of the protein. So we keep this value as
+        // null to avoid discrepancies, we don't copy from metadata
+//        if (!metadata.getSampleMap().isEmpty()) {
+//            Sample sample = metadata.getSampleMap().get(1);
+//            if (!sample.getSpeciesList().isEmpty()) {
+//                Param speciesParam = sample.getSpeciesList().get(0);
+//                protein.setSpecies(speciesParam.getName());
+//                protein.setTaxid(speciesParam.getAccession());
+//            }
+//        }
 
         /* Todo: We should implement the following metrics for ms-data-core-api:
          *      - Todo: Number of peptides.
@@ -436,8 +495,31 @@ public class PRIDEMzTabConverter extends AbstractMzTabConverter {
          *      - Todo: Number unique PSMs
          *      - Todo: All of them by MS_Run
          *
-         *
+         *  Right now are only for the conversion
         */
+        // get the number of psms and distinct peptides
+        List<Peptide> items = identification.getPeptides();
+        List<String> allPeptideList = new ArrayList<String>();
+        // sequence + modifications + charge
+        HashSet<String> distinctPeptideList = new HashSet<String>();
+
+        for (Peptide item : items) {
+            List<Modification> modList = item.getModifications();
+            StringBuilder sb = new StringBuilder();
+            for (Modification mod : modList) {
+                sb.append(mod.getMonoisotopicMassDelta()).append(mod.getLocation());
+            }
+            sb.append(item.getSequence());
+            sb.append(item.getPrecursorCharge());
+
+            distinctPeptideList.add(sb.toString());
+            allPeptideList.add(item.getSequence());
+        }
+
+        protein.setNumPSMs(metadata.getMsRunMap().get(1), allPeptideList.size());
+        protein.setNumPeptidesDistinct(metadata.getMsRunMap().get(1), distinctPeptideList.size());
+
+
 //        protein.setNumPeptidesUnique();
 
         // set the modifications
@@ -448,8 +530,17 @@ public class PRIDEMzTabConverter extends AbstractMzTabConverter {
         // protein coverage
         protein.setProteinConverage(identification.getSequenceCoverage());
 
+        //gel location
+        if(identification.getGel() != null) {
+            String coordinates = "[" + identification.getGel().getXCoordinate() +
+                    ", " + identification.getGel().getYCoordinate() + "]";
+            MzTabUtils.addOptionalColumnValue(protein, proteinColumnFactory, GEL_COORDINATES, coordinates);
+
+        }
+
+
         // process the additional params
-        if (identification != null) {
+        if (identification.getCvParams() != null) {
             for (CvParam p : identification.getCvParams()) {
                 // check if there's a quant unit set
                 if (!isIdentification() && (QuantCvTermReference.UNIT_RATIO.getAccession().equals(p.getAccession()) || QuantCvTermReference.UNIT_COPIES_PER_CELL.getAccession().equals(p.getAccession()))) {
@@ -478,13 +569,13 @@ public class PRIDEMzTabConverter extends AbstractMzTabConverter {
                 } else {
                     // check optional column.
                     if (QuantCvTermReference.EMPAI_VALUE.getAccession().equals(p.getAccession())) {
-                        MzTabUtils.addOptionalColumnValue(protein, proteinColumnFactory, "empai", p.getValue());
+                        MzTabUtils.addOptionalColumnValue(protein, proteinColumnFactory, EMPAI, p.getValue());
                     } else if (CvTermReference.PRIDE_GEL_SPOT_IDENTIFIER.getAccession().equals(p.getAccession())) {
                         // check if there's gel spot identifier
-                        MzTabUtils.addOptionalColumnValue(protein, proteinColumnFactory, "gel_spotidentifier", p.getValue());
+                        MzTabUtils.addOptionalColumnValue(protein, proteinColumnFactory, GEL_SPOTIDENTIFIER, p.getValue());
                     } else if (CvTermReference.PRIDE_GEL_IDENTIFIER.getAccession().equals(p.getAccession())) {
                         // check if there's gel identifier
-                        MzTabUtils.addOptionalColumnValue(protein, proteinColumnFactory, "gel_identifier", p.getValue());
+                        MzTabUtils.addOptionalColumnValue(protein, proteinColumnFactory, GEL_IDENTIFIER, p.getValue());
                     }
                 }
             }
@@ -496,10 +587,12 @@ public class PRIDEMzTabConverter extends AbstractMzTabConverter {
             }
 
             // add the indistinguishable accessions to the ambiguity members
-            List<String> ambiguityMembers = getAmbiguityMembers(identification, CvTermReference.PRIDE_INDISTINGUISHABLE_ACCESSION.getAccession());
-            for (String member : ambiguityMembers) {
-                protein.addAmbiguityMembers(member);
-            }
+            // for now we are not going to look for these cases because for some of them they are annotated as synonyms instead of ambiguity members of the inference problem,
+            // PRIDEXML conversion doesn't support ambiguity members
+//            List<String> ambiguityMembers = getAmbiguityMembers(identification, CvTermReference.PRIDE_INDISTINGUISHABLE_ACCESSION.getAccession());
+//            for (String member : ambiguityMembers) {
+//                protein.addAmbiguityMembers(member);
+//            }
 
         }
         return protein;
@@ -553,6 +646,10 @@ public class PRIDEMzTabConverter extends AbstractMzTabConverter {
         });
 
         for (Peptide item : items) {
+            int seqLength = 0;
+            if(item.getSequence()!= null){
+                seqLength = item.getSequence().length();
+            }
             for (Modification ptm : item.getModifications()) {
                 // ignore modifications that can't be processed correctly (can not be mapped to the protein)
                 if (ptm.getId() == null) {
@@ -567,14 +664,24 @@ public class PRIDEMzTabConverter extends AbstractMzTabConverter {
                     // only biological significant modifications are propagated to the protein
                     if (ModParam.isBiological(ptm.getId().toString())) {
                         // if we can calculate the position, we add it to the modification
-                        if (item.getPeptideEvidence().getStartPosition() != null && ptm.getLocation() != -1) {
-                            Integer position = item.getPeptideEvidence().getStartPosition() + ptm.getLocation();
-                            mod.addPosition(position, null);
-
+                        // -1 to calculate properly the modification offset
+                        if (item.getPeptideEvidence().getStartPosition()  != null && ptm.getLocation() != -1) {
+                            int modLocation = ptm.getLocation();
+                            int startPos = item.getPeptideEvidence().getStartPosition();
+                            // n-term and c-term mods are not propagated to the protein except the case that the start
+                            // position is 1 (beginning of the protein)
+                            int position = startPos + modLocation - 1;
+                            if (modLocation > 0 && modLocation < (seqLength + 1)) {
+                                mod.addPosition(position, null);
+                                modifications.add(mod);
+                            } else if(position == 0) { //n-term for protein
+                                mod.addPosition(position, null);
+                                modifications.add(mod);
+                            }
+                        } else {
+                            modifications.add(mod);
+                            //if position is not set null is reported
                         }
-                        //if position is not set null is reported
-                        modifications.add(mod);
-
                         // the metadata is updated in the PSM section because the protein modifications are a subset of
                         // the psm modifications
                     }
@@ -622,7 +729,7 @@ public class PRIDEMzTabConverter extends AbstractMzTabConverter {
                 logger.debug("There is no spectrum available, using an alternative id as PSM id.");
             }
 
-            psm.setAccession(identification.getDbSequence().getAccession());
+            psm.setAccession(generateAccession(identification));
             psm.setDatabase(identification.getDbSequence().getSearchDataBase().getName());
             String version = (identification.getDbSequence().getSearchDataBase().getVersion() != null && ! identification.getDbSequence().getSearchDataBase().getVersion().isEmpty())?
                     identification.getDbSequence().getSearchDataBase().getVersion():null;
@@ -659,10 +766,39 @@ public class PRIDEMzTabConverter extends AbstractMzTabConverter {
             loadModifications(psm, peptideItem);
 
             // set exp m/z
+            int precursorCharge = peptideItem.getPrecursorCharge();
+            double precursorMz = peptideItem.getSpectrumIdentification().getExperimentalMassToCharge();
 
-            psm.setCalcMassToCharge(peptideItem.getSpectrumIdentification().getCalculatedMassToCharge());
-            psm.setCharge(peptideItem.getPrecursorCharge());
-            psm.setExpMassToCharge(peptideItem.getSpectrumIdentification().getExperimentalMassToCharge());
+
+            double calculatedMz = peptideItem.getSpectrumIdentification().getCalculatedMassToCharge();
+
+            // check the legality of the input arguments first
+            if (calculatedMz < 0 && precursorMz > 0 && precursorCharge != 0) {
+                try {
+                    // create a new double array
+                    // attach water loss monoisotopic mass
+                    double[] masses = new double[peptideItem.getModifications().size()+1];
+                    int i=0;
+                    for (Modification modificationItem : peptideItem.getModifications()) {
+                        masses[i++] = modificationItem.getMonoisotopicMassDelta().get(0);
+                    }
+                    masses[i] = NeutralLoss.WATER_LOSS.getMonoMass();
+
+                    // theoretical mass
+                    double theoreticalMass = MoleculeUtilities.calculateTheoreticalMass(peptideItem.getSequence(), masses);
+
+                    // delta mass
+                    calculatedMz =  (theoreticalMass + precursorCharge * Element.H.getMass()) / precursorCharge;
+//                    calculatedMz =  (theoreticalMass + precursorCharge * NuclearParticle.PROTON.getMonoMass()) / precursorCharge;
+
+                } catch (IllegalAminoAcidSequenceException ex) {
+                    // do nothing
+                }
+            }
+
+            psm.setCharge(precursorCharge);
+            psm.setExpMassToCharge(precursorMz);
+            psm.setCalcMassToCharge(calculatedMz);
 
             if (peptideItem.getPeptideEvidence().getStartPosition() != null) {
                 psm.setStart(peptideItem.getPeptideEvidence().getStartPosition().toString());
@@ -672,11 +808,8 @@ public class PRIDEMzTabConverter extends AbstractMzTabConverter {
             }
 
             // process the additional params -- mainly check for quantity units
-            if (peptideItem != null) {
+            if (peptideItem.getSpectrumIdentification() != null) {
                 for (CvParam p : peptideItem.getSpectrumIdentification().getCvParams()) {
-                    if (CvTermReference.MS_CHARGE_STATE.getAccession().equalsIgnoreCase(p.getAccession())) {
-                        psm.setCharge(p.getValue());
-                    }
                     if (CvTermReference.PRIDE_UPSTREAM_FLANKING_SEQUENCE.getAccession().equalsIgnoreCase(p.getAccession())) {
                         psm.setPre(p.getValue());
                     }
@@ -706,7 +839,7 @@ public class PRIDEMzTabConverter extends AbstractMzTabConverter {
                 for(SearchEngineScoreParam searchparam: searchEngineScoreParam){
                     CVParam scoreParam = searchparam.getParam(null);
                     Number scoreValue = score.getValueBySearchEngineScoreTerm(scoreParam.getAccession());
-                    for (Map.Entry<Integer, ProteinSearchEngineScore> entry : metadata.getProteinSearchEngineScoreMap().entrySet()) {
+                    for (Map.Entry<Integer, PSMSearchEngineScore> entry : metadata.getPsmSearchEngineScoreMap().entrySet()) {
                         if (entry.getValue().getParam().equals(scoreParam)) {
                             id = entry.getKey();
                             break;
@@ -746,38 +879,37 @@ public class PRIDEMzTabConverter extends AbstractMzTabConverter {
                 // an additional param should exist with the cv name.
                 // if not, we can not convert the modification to the header because we don't store all the mod cv terms
                 // in this moment
-                if (ptm != null) {
-                    if (ptm.getCvParams() != null && ptm.getCvParams().size() > 0) {
+                if (ptm.getCvParams() != null && ptm.getCvParams().size() > 0) {
 
-                        for(CvParam param: ptm.getCvParams()){
+                    for(CvParam param: ptm.getCvParams()){
 
-                            Param metadataParam = MzTabUtils.convertCvParamToCVParam(param);
+                        Param metadataParam = MzTabUtils.convertCvParamToCVParam(param);
 
-                            // propagate the modification to the metadata section
-                            boolean found = false;
+                        // propagate the modification to the metadata section
+                        boolean found = false;
 
-                            //For PRIDEXML converter all the modifications are considered variables because
-                            // we don't have the information form the original experiment
-                            for (VariableMod variableMod : metadata.getVariableModMap().values()) {
-                                if (variableMod.getParam().getAccession().equals(ptm.getId())) {
-                                    found = true;
-                                    break;
-                                }
+                        //For PRIDEXML converter all the modifications are considered variables because
+                        // we don't have the information form the original experiment
+                        for (VariableMod variableMod : metadata.getVariableModMap().values()) {
+                            if (variableMod.getParam().getAccession().equals(ptm.getId())) {
+                                found = true;
+                                break;
                             }
-                            if (!found) {
-                                //TODO Add the modification site in the future
-                                metadata.addVariableModParam(metadata.getVariableModMap().size() + 1, metadataParam);
-                            }
-
+                        }
+                        if (!found) {
+                            //TODO Add the modification site in the future
+                            metadata.addVariableModParam(metadata.getVariableModMap().size() + 1, metadataParam);
                         }
 
-                    } else {
-                        logger.warn("A CvParam with the modification information is not provided. The modification can not be propagated to the metadata section.");
                     }
+
                 } else {
                     logger.warn("A CvParam with the modification information is not provided. The modification can not be propagated to the metadata section.");
                 }
+            } else {
+                logger.warn("A CvParam with the modification information is not provided. The modification can not be propagated to the metadata section.");
             }
+
         }
     }
 
@@ -1007,6 +1139,14 @@ public class PRIDEMzTabConverter extends AbstractMzTabConverter {
         }
     }
 
+    private static String generateAccession(Protein identification) {
+        String accession = identification.getDbSequence().getAccession();
+        if(identification.getDbSequence().getAccessionVersion() != null ){
+            //TODO: Standardise the way that we add the version
+            accession = accession + '.' + identification.getDbSequence().getAccessionVersion();
+        }
+        return accession;
+    }
 
 
 }

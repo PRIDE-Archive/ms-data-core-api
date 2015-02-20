@@ -4,9 +4,9 @@ import uk.ac.ebi.pride.utilities.data.controller.DataAccessController;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessUtilities;
 import uk.ac.ebi.pride.utilities.data.core.*;
 import uk.ac.ebi.pride.utilities.data.utils.CollectionUtils;
-import uk.ac.ebi.pride.utilities.engine.SearchEngineType;
-import uk.ac.ebi.pride.utilities.term.CvTermReference;
 import uk.ac.ebi.pride.utilities.term.QuantCvTermReference;
+import uk.ac.ebi.pride.utilities.term.SearchEngineCvTermReference;
+import uk.ac.ebi.pride.utilities.term.SearchEngineScoreCvTermReference;
 
 import java.util.*;
 
@@ -52,8 +52,8 @@ public abstract class AbstractDataAccessController implements DataAccessControll
      * if the peptide_IDs-list is null, then all peptides are used of the protein (no filtering or all passed filtering)
      */
     Map<Comparable, Map<Comparable, List<Comparable>>> inferredProteinGroups;
-    
-    
+
+
     protected AbstractDataAccessController() {
         this(null);
     }
@@ -365,7 +365,7 @@ public abstract class AbstractDataAccessController implements DataAccessControll
     public boolean hasProtein() {
         return getNumberOfProteins() > 0;
     }
-    
+
     /**
      * returns true if the proteins are inferred externally
      * @return
@@ -373,12 +373,12 @@ public abstract class AbstractDataAccessController implements DataAccessControll
     public final boolean proteinsAreInferred() {
     	return (inferredProteinGroups != null);
     }
-    
+
     @Override
     public final void setInferredProteinGroups(Map<Comparable, Map<Comparable, List<Comparable>>> proteinGroups) {
     	this.inferredProteinGroups = proteinGroups;
     }
-    
+
     @Override
     public boolean hasProteinAmbiguityGroup() {
         return getNumberOfProteinAmbiguityGroups() > 0;
@@ -412,7 +412,7 @@ public abstract class AbstractDataAccessController implements DataAccessControll
     	if (inferredProteinGroups != null) {
     		// build the PAG from the ID mappings
     		Map<Comparable, List<Comparable>> groupsProteins = inferredProteinGroups.get(proteinGroupId);
-    		
+
     		List<Protein> proteinList = new ArrayList<Protein>();
     		for (Map.Entry<Comparable, List<Comparable>> protPepIt : groupsProteins.entrySet()) {
     			if (protPepIt.getValue() == null) {
@@ -422,14 +422,14 @@ public abstract class AbstractDataAccessController implements DataAccessControll
     				// TODO: implement the filters!
     			}
     		}
-    		
+
     		ProteinGroup group = new ProteinGroup(proteinGroupId, proteinGroupId.toString(), proteinList);
-    		
+
     		return group;
     	}
         return null;
     }
-    
+
     @Override
     public int indexOfProtein(Comparable proteinId) {
         int index = -1;
@@ -527,39 +527,39 @@ public abstract class AbstractDataAccessController implements DataAccessControll
     }
 
     @Override
-    public List<SearchEngineType> getSearchEngineTypes() {
-        List<SearchEngineType> searchEngineTypes = new ArrayList<SearchEngineType>();
+    public List<SearchEngineCvTermReference> getSearchEngineCvTermReferences() {
+        List<SearchEngineCvTermReference> SearchEngineCvTermReferences = new ArrayList<SearchEngineCvTermReference>();
         Collection<Comparable> proteinIds = this.getProteinIds();
         if (!proteinIds.isEmpty()) {
             Protein protein = getProteinById(CollectionUtils.getElement(proteinIds, 0));
             if (protein != null) {
                 if (protein.getScore() != null) {
-                    searchEngineTypes.addAll(protein.getScore().getSearchEngineTypes());
+                    SearchEngineCvTermReferences.addAll(protein.getScore().getSearchEngineCvTermReferences());
                 }
                 // check the search engine types from the data source
                 List<Peptide> peptides = protein.getPeptides();
                 if (!peptides.isEmpty()) {
                     Peptide peptide = peptides.get(0);
                     if (peptide.getScore() != null) {
-                        searchEngineTypes.addAll(peptide.getScore().getSearchEngineTypes());
+                        SearchEngineCvTermReferences.addAll(peptide.getScore().getSearchEngineCvTermReferences());
                     }
                 }
             }
         }
 
-        return searchEngineTypes;
+        return SearchEngineCvTermReferences;
     }
 
     @Override
-    public List<CvTermReference> getAvailableProteinLevelScores() {
+    public List<SearchEngineScoreCvTermReference> getAvailableProteinLevelScores() {
         Collection<Comparable> proteinIds = this.getProteinIds();
-        List<CvTermReference> cvTermReferences = Collections.emptyList();
+        List<SearchEngineScoreCvTermReference> cvTermReferences = Collections.emptyList();
         if (!proteinIds.isEmpty()) {
             Protein protein = getProteinById(CollectionUtils.getElement(proteinIds, 0));
             if (protein != null) {
                 Score score = protein.getScore();
                 if (score != null) {
-                    cvTermReferences = score.getCvTermReferenceWithValues();
+                    cvTermReferences = score.getSearchEngineScoreCvTermReferenceWithValues();
                 }
             }
         }
@@ -568,9 +568,9 @@ public abstract class AbstractDataAccessController implements DataAccessControll
     }
 
     @Override
-    public List<CvTermReference> getAvailablePeptideLevelScores() {
+    public List<SearchEngineScoreCvTermReference> getAvailablePeptideLevelScores() {
         Collection<Comparable> proteinIds = this.getProteinIds();
-        List<CvTermReference> cvTermReferences = Collections.emptyList();
+        List<SearchEngineScoreCvTermReference> cvTermReferences = Collections.emptyList();
         if (!proteinIds.isEmpty()) {
             Protein protein = getProteinById(CollectionUtils.getElement(proteinIds, 0));
             if (protein != null && !protein.getPeptides().isEmpty()) {
@@ -578,7 +578,7 @@ public abstract class AbstractDataAccessController implements DataAccessControll
                 Peptide peptide = peptides.get(0);
                 Score score = peptide.getScore();
                 if (score != null) {
-                    cvTermReferences = score.getCvTermReferenceWithValues();
+                    cvTermReferences = score.getSearchEngineScoreCvTermReferenceWithValues();
                 }
             }
         }
@@ -1296,9 +1296,9 @@ public abstract class AbstractDataAccessController implements DataAccessControll
     }
 
     @Override
-    public Collection<CvTermReference> getAvailableQuantPeptideLevelScores() {
+    public Collection<SearchEngineScoreCvTermReference> getAvailableQuantPeptideLevelScores() {
         Collection<Comparable> proteinIds = this.getProteinIds();
-        List<CvTermReference> cvTermReferences = Collections.emptyList();
+        List<SearchEngineScoreCvTermReference> cvTermReferences = Collections.emptyList();
         if (!proteinIds.isEmpty()) {
             Protein protein = getProteinById(CollectionUtils.getElement(proteinIds, 0));
             if (protein != null && !protein.getPeptides().isEmpty()) {
@@ -1306,7 +1306,7 @@ public abstract class AbstractDataAccessController implements DataAccessControll
                 QuantPeptide peptide = peptides.get(0);
                 Score score = peptide.getScore();
                 if (score != null) {
-                    cvTermReferences = score.getCvTermReferenceWithValues();
+                    cvTermReferences = score.getSearchEngineScoreCvTermReferenceWithValues();
                 }
             }
         }

@@ -2,17 +2,11 @@ package uk.ac.ebi.pride.utilities.data.controller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.ebi.jmzidml.model.mzidml.*;
+import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentificationItem;
 import uk.ac.ebi.pride.utilities.data.core.*;
-import uk.ac.ebi.pride.utilities.data.core.CvParam;
-import uk.ac.ebi.pride.utilities.data.core.Modification;
-import uk.ac.ebi.pride.utilities.data.core.Peptide;
-import uk.ac.ebi.pride.utilities.data.core.PeptideEvidence;
-import uk.ac.ebi.pride.utilities.data.core.Sample;
-import uk.ac.ebi.pride.utilities.data.core.SubstitutionModification;
-import uk.ac.ebi.pride.utilities.data.core.UserParam;
-import uk.ac.ebi.pride.utilities.engine.SearchEngineType;
 import uk.ac.ebi.pride.utilities.term.CvTermReference;
+import uk.ac.ebi.pride.utilities.term.SearchEngineCvTermReference;
+import uk.ac.ebi.pride.utilities.term.SearchEngineScoreCvTermReference;
 import uk.ac.ebi.pride.utilities.util.NumberUtilities;
 
 import java.util.*;
@@ -444,39 +438,39 @@ public final class DataAccessUtilities {
         return cnt;
     }
 
-    /**
-     * Get peptide score from a peptide object.
-     *
-     * @param paramGroup parameter group
-     * @param seTypes    a list of search engine types
-     * @return PeptideScore  peptide score
-     */
-    public static Score getPeptideScore(ParamGroup paramGroup, List<SearchEngineType> seTypes) {
-        if (paramGroup == null || seTypes == null) {
-            throw new IllegalArgumentException("Input arguments for getScore can not be null");
-        }
-
-        Score score = new Score();
-        for (SearchEngineType type : seTypes) {
-            List<CvTermReference> scoreCvTerms = type.getSearchEngineScores();
-            for (CvTermReference scoreCvTerm : scoreCvTerms) {
-                List<CvParam> scoreParams = getCvParam(paramGroup, scoreCvTerm.getCvLabel(), scoreCvTerm.getAccession());
-                if (!scoreParams.isEmpty()) {
-                    // Note: only take the first param as the valid score
-                    CvParam scoreParam = scoreParams.get(0);
-                    String numStr = scoreParam.getValue();
-                    if (NumberUtilities.isNumber(numStr)) {
-                        Double num = new Double(numStr);
-                        score.addScore(type, scoreCvTerm, num);
-                    } else {
-                        score.addScore(type, scoreCvTerm, null);
-                    }
-                }
-            }
-        }
-
-        return score;
-    }
+//    /**
+//     * Get peptide score from a peptide object.
+//     *
+//     * @param paramGroup parameter group
+//     * @param seTypes    a list of search engine types
+//     * @return PeptideScore  peptide score
+//     */
+//    public static Score getPeptideScore(ParamGroup paramGroup, List<SearchEngineCvTermReference> seTypes) {
+//        if (paramGroup == null || seTypes == null) {
+//            throw new IllegalArgumentException("Input arguments for getScore can not be null");
+//        }
+//
+//        Score score = new Score();
+//        for (SearchEngineCvTermReference type : seTypes) {
+//            List<CvTermReference> scoreCvTerms = type.getSearchEngineScores();
+//            for (CvTermReference scoreCvTerm : scoreCvTerms) {
+//                List<CvParam> scoreParams = getCvParam(paramGroup, scoreCvTerm.getCvLabel(), scoreCvTerm.getAccession());
+//                if (!scoreParams.isEmpty()) {
+//                    // Note: only take the first param as the valid score
+//                    CvParam scoreParam = scoreParams.get(0);
+//                    String numStr = scoreParam.getValue();
+//                    if (NumberUtilities.isNumber(numStr)) {
+//                        Double num = new Double(numStr);
+//                        score.addScore(type, scoreCvTerm, num);
+//                    } else {
+//                        score.addScore(type, scoreCvTerm, null);
+//                    }
+//                }
+//            }
+//        }
+//
+//        return score;
+//    }
 
     /**
      * Search and find a list of search engine types from input parameter group.
@@ -484,18 +478,17 @@ public final class DataAccessUtilities {
      * @param paramGroup parameter group
      * @return List<SearchEngineType>  a list of search engine
      */
-    public static List<SearchEngineType> getSearchEngineTypes(ParamGroup paramGroup) {
+    @Deprecated
+    public static List<SearchEngineCvTermReference> getSearchEngineTypes(ParamGroup paramGroup) {
         if (paramGroup == null) {
             throw new IllegalArgumentException("Input argument for getSearchEngineTypes can not be null");
         }
 
-        List<SearchEngineType> types = new ArrayList<SearchEngineType>();
-        for (SearchEngineType type : SearchEngineType.values()) {
-            for (CvTermReference scoreCvTerm : type.getSearchEngineScores()) {
-                if (!getCvParam(paramGroup, scoreCvTerm.getCvLabel(), scoreCvTerm.getAccession()).isEmpty()) {
-                    types.add(type);
-                    break;
-                }
+        List<SearchEngineCvTermReference> types = new ArrayList<SearchEngineCvTermReference>();
+        for (SearchEngineCvTermReference type : SearchEngineCvTermReference.values()) {
+            if (!getCvParam(paramGroup, type.getCvLabel(), type.getAccession()).isEmpty()) {
+                types.add(type);
+                break;
             }
         }
 
@@ -505,18 +498,49 @@ public final class DataAccessUtilities {
     public static Score getScore(ParamGroup params) {
         Score score = null;
         if (params != null) {
-            List<SearchEngineType> searchEngineTypes = DataAccessUtilities.getSearchEngineTypes(params);
             score = new Score();
-            for (SearchEngineType searchEngineType : searchEngineTypes) {
-                for (CvParam term : params.getCvParams()) {
-                    CvTermReference reference = CvTermReference.getCvRefByAccession(term.getAccession());
-                    if (reference != null && NumberUtilities.isNumber(term.getValue())) {
-                        score.addScore(searchEngineType, reference, new Double(term.getValue()));
-                    }
+            for (CvParam term : params.getCvParams()) {
+                SearchEngineScoreCvTermReference reference = SearchEngineScoreCvTermReference.getSearchEngineScoreParamByAccession(term.getAccession());
+                if (reference != null && NumberUtilities.isNumber(term.getValue())) {
+                    score.addScore(reference.getSearchEngineParam(), reference, new Double(term.getValue()));
                 }
+
             }
         }
+
         return score;
+    }
+
+    public static List<SearchEngineCvTermReference> getSearchEngineCvTermReference(ParamGroup paramGroup) {
+        if (paramGroup == null) {
+            throw new IllegalArgumentException("Input argument for getSearchEngineTypes can not be null");
+        }
+
+        List<SearchEngineCvTermReference> types = new ArrayList<SearchEngineCvTermReference>();
+        for (SearchEngineCvTermReference type : SearchEngineCvTermReference.values()) {
+            if (!getCvParam(paramGroup, type.getCvLabel(), type.getAccession()).isEmpty()) {
+                types.add(type);
+                break;
+            }
+        }
+
+        return types;
+    }
+
+    public static List<SearchEngineScoreCvTermReference> getSearchEngineScoresCvTermReference(ParamGroup paramGroup) {
+        if (paramGroup == null) {
+            throw new IllegalArgumentException("Input argument for getSearchEngineScoresCvTermReference can not be null");
+        }
+
+        List<SearchEngineScoreCvTermReference> types = new ArrayList<SearchEngineScoreCvTermReference>();
+        for (SearchEngineScoreCvTermReference type : SearchEngineScoreCvTermReference.values()) {
+            if (!getCvParam(paramGroup, type.getCvLabel(), type.getAccession()).isEmpty()) {
+                types.add(type);
+                break;
+            }
+        }
+
+        return types;
     }
 
 

@@ -1,21 +1,25 @@
 package uk.ac.ebi.pride.utilities.data.exporters;
 
 import org.apache.log4j.Logger;
-
-import uk.ac.ebi.pride.utilities.data.controller.DataAccessController;
-import uk.ac.ebi.pride.utilities.data.controller.DataAccessException;
-import uk.ac.ebi.pride.utilities.data.core.*;
-import uk.ac.ebi.pride.utilities.data.utils.CvUtilities;
-import uk.ac.ebi.pride.utilities.data.utils.MzTabUtils;
 import uk.ac.ebi.pride.jmztab.model.*;
 import uk.ac.ebi.pride.jmztab.utils.convert.ConvertProvider;
 import uk.ac.ebi.pride.jmztab.utils.convert.SearchEngineScoreParam;
-import java.io.File;
+import uk.ac.ebi.pride.utilities.data.controller.DataAccessController;
+import uk.ac.ebi.pride.utilities.data.controller.DataAccessException;
+import uk.ac.ebi.pride.utilities.data.core.CvParam;
+import uk.ac.ebi.pride.utilities.data.core.Person;
+import uk.ac.ebi.pride.utilities.data.core.Reference;
+import uk.ac.ebi.pride.utilities.data.core.SpectrumIdentification;
+import uk.ac.ebi.pride.utilities.data.utils.CvUtilities;
+import uk.ac.ebi.pride.utilities.data.utils.MzTabUtils;
+import uk.ac.ebi.pride.utilities.term.CvTermReference;
 
+import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
-
 import java.util.*;
+
+import static uk.ac.ebi.pride.jmztab.model.MZTabUtils.isEmpty;
 
 /**
  * ms-data-core api will plan to export all the data to mztab files using the jmzTab library.
@@ -71,23 +75,18 @@ public abstract class AbstractMzTabConverter extends ConvertProvider<DataAccessC
          *  Is really common that name of the mzidentml is not provided then we will use Ids if the name is not provided.
          */
         String title = source.getExperimentMetaData().getName() != null? source.getExperimentMetaData().getName():source.getExperimentMetaData().getId().toString();
-        metadata.setTitle(title);
+        metadata.setTitle(removeNewLineAndTab(title));
 
         //Get Software information from DataAccsessController
         loadSoftware();
-
         // process the references
         loadReferences();
-
         // process the contacts
         loadContacts();
-
         // process the experiment params
         loadExperimentParams();
-
         //process the sample processing information
         loadSampleProcessing();
-
         // process the instrument information
         loadInstrument();
 
@@ -104,11 +103,6 @@ public abstract class AbstractMzTabConverter extends ConvertProvider<DataAccessC
         // process samples
         loadSamples();
 
-        loadGelData();
-
-        //Load URI
-        loadURI(source.getExperimentMetaData().getId().toString());
-
         // set mzTab- description
         if (isIdentification()) {
             metadata.setMZTabType(MZTabDescription.Type.Identification);
@@ -119,11 +113,18 @@ public abstract class AbstractMzTabConverter extends ConvertProvider<DataAccessC
             logger.debug("Converting quantification file from PRIDE XML.");
         }
 
+        //Load URI
+        loadURI(source.getExperimentMetaData().getId().toString().trim());
+
         //The description should be added in loadExperiment()
         //TODO: Move to the right place, it is a default checking (ConverterProvider)
         if (metadata.getDescription() == null || metadata.getDescription().isEmpty()) {
             metadata.setDescription("Description not available");
         }
+
+        //TODO for PRIDEXML
+        loadGelData();
+
 
         metadata.addCustom(new uk.ac.ebi.pride.jmztab.model.UserParam("Date of export", new Date().toString()));
         metadata.addCustom(new uk.ac.ebi.pride.jmztab.model.UserParam("Original converted file", ((File)(source.getSource())).toURI().toString()));
@@ -141,16 +142,44 @@ public abstract class AbstractMzTabConverter extends ConvertProvider<DataAccessC
      */
     protected void loadReferences() {
         List<Reference> references = source.getExperimentMetaData().getReferences();
-        List<PublicationItem> items = new ArrayList<PublicationItem>();
         int i = 1;
         for(Reference ref: references){
+            List<PublicationItem> items = new ArrayList<PublicationItem>();
+
+            //DOI
             String doi = ref.getDoi();
             if(doi != null && !doi.isEmpty()){
                 items.add(new PublicationItem(PublicationItem.Type.DOI, doi));
-                metadata.addPublicationItems(i, items);
-                i++;
+            }
+            //PubMed
+            if(ref.getCvParams() != null){
+                // check if there's a pubmed id
+                String pubmed = getPublicationAccession(ref.getCvParams(), CvTermReference.PRIDE_REFERENCE_PUBMED.getName());
+                if (!isEmpty(pubmed)) {
+                    items.add(new PublicationItem(PublicationItem.Type.PUBMED, removeNewLineAndTab(pubmed)));
+                }
+            }
+            metadata.addPublicationItems(i, items);
+            i++;
+        }
+    }
+
+    /**
+     * Extract publication accession number from CVParam.
+     */
+    private String getPublicationAccession(List<CvParam> param, String name) {
+        if (param == null || isEmpty(name)) {
+            return null;
+        }
+
+        // this only makes sense if we have a list of params and an accession!
+        for (CvParam p : param) {
+            if (name.equalsIgnoreCase(p.getCvLookupID())) {   //At least in PRIDE XML the PubMed in the reference is in the CvLabel
+                return p.getAccession();
             }
         }
+
+        return null;
     }
 
     /**
@@ -224,14 +253,15 @@ public abstract class AbstractMzTabConverter extends ConvertProvider<DataAccessC
         List<uk.ac.ebi.pride.utilities.data.core.Peptide> peptides = new ArrayList<uk.ac.ebi.pride.utilities.data.core.Peptide>();
         Iterator<Comparable> idProtein = proteinHypothesisIds.iterator();
         int iProtein =0;
-        while(idProtein.hasNext() && iProtein < THRESHOLD_LOOP_FOR_SCORE) {
+        while(idProtein.hasNext()) {
             Comparable proteinId = idProtein.next();
             uk.ac.ebi.pride.utilities.data.core.Protein protein = source.getProteinById(proteinId);
             List<SearchEngineScoreParam> proteinParams = MzTabUtils.getSearchEngineScoreTerm(protein.getScore());
-            searchEngineName = (protein.getScore() != null && protein.getScore().getAllScoreValues().size() > 0 && protein.getScore().getDefaultSearchEngine() != null)?protein.getScore().getDefaultSearchEngine().name():null;
+
             for(SearchEngineScoreParam scoreCv: proteinParams){
-                proteinScores.put(scoreCv,iProtein);
+                proteinScores.put(scoreCv, iProtein);
             }
+
             iProtein++;
             peptides.addAll(protein.getPeptides());
         }
@@ -246,22 +276,25 @@ public abstract class AbstractMzTabConverter extends ConvertProvider<DataAccessC
             }
             iPeptide++;
         }
-        for(SearchEngineScoreParam param: psmScores.keySet()){
-            int idCount = metadata.getPsmSearchEngineScoreMap().size() + 1;
-            metadata.addPsmSearchEngineScoreParam(idCount,param.getParam(null));
-            psmScoreToScoreIndex.put(param.getParam(null).getAccession(),idCount);
-        }
+
         for(SearchEngineScoreParam param: proteinScores.keySet()){
             int idCount = metadata.getProteinSearchEngineScoreMap().size() + 1;
             metadata.addProteinSearchEngineScoreParam(idCount, param.getParam(null));
             proteinScoreToScoreIndex.put(param.getParam(null).getAccession(),idCount);
         }
+        for(SearchEngineScoreParam param: psmScores.keySet()){
+            int idCount = metadata.getPsmSearchEngineScoreMap().size() + 1;
+            metadata.addPsmSearchEngineScoreParam(idCount,param.getParam(null));
+            psmScoreToScoreIndex.put(param.getParam(null).getAccession(),idCount);
+        }
 
         if (metadata.getProteinSearchEngineScoreMap().isEmpty()) {
-            metadata.addProteinSearchEngineScoreParam(1, SearchEngineScoreParam.MS_SEARCH_ENGINE_SPECIFIC_SCORE.getParam(searchEngineName));
+            metadata.addProteinSearchEngineScoreParam(1, SearchEngineScoreParam.MS_SEARCH_ENGINE_SPECIFIC_SCORE.getParam(null));
+            proteinScoreToScoreIndex.put(SearchEngineScoreParam.MS_SEARCH_ENGINE_SPECIFIC_SCORE.getParam(null).getAccession(), metadata.getProteinSearchEngineScoreMap().size() + 1);
         }
         if (metadata.getPsmSearchEngineScoreMap().isEmpty()) {
-            metadata.addPsmSearchEngineScoreParam(1, SearchEngineScoreParam.MS_SEARCH_ENGINE_SPECIFIC_SCORE.getParam(searchEngineName));
+            metadata.addPsmSearchEngineScoreParam(1, SearchEngineScoreParam.MS_SEARCH_ENGINE_SPECIFIC_SCORE.getParam(null));
+            psmScoreToScoreIndex.put(SearchEngineScoreParam.MS_SEARCH_ENGINE_SPECIFIC_SCORE.getParam(null).getAccession(), metadata.getPsmSearchEngineScoreMap().size() + 1);
         }
     }
 
@@ -307,9 +340,6 @@ public abstract class AbstractMzTabConverter extends ConvertProvider<DataAccessC
     protected MZTabColumnFactory convertPSMColumnFactory() {
         this.psmColumnFactory = MZTabColumnFactory.getInstance(Section.PSM);
         psmColumnFactory.addDefaultStableColumns();
-        psmColumnFactory.addOptionalColumn(MzTabUtils.OPTIONAL_ID_COLUMN,String.class);
-        psmColumnFactory.addOptionalColumn(MzTabUtils.OPTIONAL_DECOY_COLUMN, Integer.class);
-        psmColumnFactory.addOptionalColumn(MzTabUtils.OPTIONAL_RANK_COLUMN, Integer.class);
 
         //Search engine score information (mandatory for all)
         for (Integer id : metadata.getPsmSearchEngineScoreMap().keySet()) {
@@ -351,6 +381,27 @@ public abstract class AbstractMzTabConverter extends ConvertProvider<DataAccessC
     private String getFileNameWithoutExtension(String fileName) {
         int lastIndexOfDot = fileName.lastIndexOf(".");
         return fileName.substring(0, lastIndexOfDot);
+    }
+
+    /**
+     * If there exists reserved characters in value, remove them all.
+     */
+    private String removeNewLineAndTab(String value) {
+        if (value != null) {
+            value = value.trim();
+
+            // define a reserved character list.
+            List<String> reserveCharList = new ArrayList<String>();
+
+            reserveCharList.add("\n");
+            reserveCharList.add("\t");
+
+            for (String c : reserveCharList) {
+                value = value.replaceAll(c, "");
+            }
+        }
+
+        return value;
     }
 
 

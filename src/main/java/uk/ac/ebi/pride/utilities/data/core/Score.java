@@ -1,8 +1,8 @@
 package uk.ac.ebi.pride.utilities.data.core;
 
 import uk.ac.ebi.pride.utilities.data.utils.MapUtils;
-import uk.ac.ebi.pride.utilities.engine.SearchEngineType;
-import uk.ac.ebi.pride.utilities.term.CvTermReference;
+import uk.ac.ebi.pride.utilities.term.SearchEngineCvTermReference;
+import uk.ac.ebi.pride.utilities.term.SearchEngineScoreCvTermReference;
 
 import java.util.*;
 
@@ -15,13 +15,13 @@ import java.util.*;
  */
 public class Score {
 
-    private final Map<SearchEngineType, Map<CvTermReference, Number>> scores;
+    private final Map<SearchEngineCvTermReference, Map<SearchEngineScoreCvTermReference, Number>> scores;
 
     public Score() {
-        scores = new HashMap<SearchEngineType, Map<CvTermReference, Number>>();
+        scores = new HashMap<SearchEngineCvTermReference, Map<SearchEngineScoreCvTermReference, Number>>();
     }
 
-    public Score(Map<SearchEngineType, Map<CvTermReference, Number>> scores) {
+    public Score(Map<SearchEngineCvTermReference, Map<SearchEngineScoreCvTermReference, Number>> scores) {
         this.scores = MapUtils.createMapFromMap(scores);
     }
 
@@ -31,7 +31,7 @@ public class Score {
      * @param se search engine
      * @return peptide score map
      */
-    public Map<CvTermReference, Number> getScores(SearchEngineType se) {
+    public Map<SearchEngineScoreCvTermReference, Number> getScores(SearchEngineCvTermReference se) {
         return scores.get(se);
     }
 
@@ -42,10 +42,10 @@ public class Score {
      * @param scoreCvTerm score cv term
      * @return a collection of values
      */
-    public List<Number> getScores(CvTermReference scoreCvTerm) {
+    public List<Number> getScores(SearchEngineScoreCvTermReference scoreCvTerm) {
         List<Number> values = new ArrayList<Number>();
 
-        for (Map<CvTermReference, Number> cvTermReferenceNumberMap : scores.values()) {
+        for (Map<SearchEngineScoreCvTermReference, Number> cvTermReferenceNumberMap : scores.values()) {
             if (cvTermReferenceNumberMap.containsKey(scoreCvTerm)) {
                 values.add(cvTermReferenceNumberMap.get(scoreCvTerm));
             }
@@ -61,8 +61,8 @@ public class Score {
      * @param ref cv term reference
      * @return Number  peptide score
      */
-    public Number getScore(SearchEngineType se, CvTermReference ref) {
-        Map<CvTermReference, Number> scoreMap = scores.get(se);
+    public Number getScore(SearchEngineCvTermReference se, SearchEngineScoreCvTermReference ref) {
+        Map<SearchEngineScoreCvTermReference, Number> scoreMap = scores.get(se);
 
         return (scoreMap == null) ? null : scoreMap.get(ref);
     }
@@ -75,7 +75,7 @@ public class Score {
     public List<Number> getAllScoreValues() {
         List<Number> scoreList = new ArrayList<Number>();
 
-        for (Map<CvTermReference, Number> numberMap : scores.values()) {
+        for (Map<SearchEngineScoreCvTermReference, Number> numberMap : scores.values()) {
             scoreList.addAll(numberMap.values());
         }
 
@@ -85,10 +85,10 @@ public class Score {
     /**
      * Get all the search engine types within this peptide
      *
-     * @return List<SearchEngineType>  a list of search engine types
+     * @return List<SearchEngineCvTermReference>  a list of search engine types
      */
-    public List<SearchEngineType> getSearchEngineTypes() {
-        return new ArrayList<SearchEngineType>(scores.keySet());
+    public List<SearchEngineCvTermReference> getSearchEngineCvTermReferences() {
+        return new ArrayList<SearchEngineCvTermReference>(scores.keySet());
     }
 
     /**
@@ -98,34 +98,41 @@ public class Score {
      * @param ref cv term reference for the score type
      * @param num peptide score
      */
-    public void addScore(SearchEngineType se, CvTermReference ref, Number num) {
+    public void addScore(SearchEngineCvTermReference se, SearchEngineScoreCvTermReference ref, Number num) {
 
         // create a new if the search engine doesn't exist
-        if(se != null){
-            Map<CvTermReference, Number> scoreMap = scores.get(se);
+        Map<SearchEngineScoreCvTermReference, Number> scoreMap = null;
+        SearchEngineCvTermReference aux = null;
 
-            if (scoreMap == null) {
-                scoreMap = new LinkedHashMap<CvTermReference, Number>();
-                scores.put(se, scoreMap);
-
-                // for each cv term
-                List<CvTermReference> cvTerms = se.getSearchEngineScores();
-
-                for (CvTermReference cvTerm : cvTerms) {
-                    scoreMap.put(cvTerm, null);
-                }
-            }
-            // add the score
-            scoreMap.put(ref, num);
+        if(se != null) {
+            aux = se;
         }
+        else {
+            if(ref != null){
+                aux = ref.getSearchEngineParam();
+            }
+        }
+
+        assert aux != null; //Or the searchEngine is not define
+        scoreMap = scores.get(aux);
+
+        if (scoreMap == null) {
+            scoreMap = new LinkedHashMap<SearchEngineScoreCvTermReference, Number>();
+            scores.put(se, scoreMap);
+        }
+        // add the score
+        scoreMap.put(ref, num);
+
+
     }
+
 
     /**
      * Remove all the scores assigned to the input search engine.
      *
      * @param se search engine
      */
-    public void removeScore(SearchEngineType se) {
+    public void removeScore(SearchEngineCvTermReference se) {
         scores.remove(se);
     }
 
@@ -135,8 +142,8 @@ public class Score {
      * @param se  search engine
      * @param ref cv term reference
      */
-    public void removeScore(SearchEngineType se, CvTermReference ref) {
-        Map<CvTermReference, Number> scoreMap = scores.get(se);
+    public void removeScore(SearchEngineCvTermReference se, SearchEngineScoreCvTermReference ref) {
+        Map<SearchEngineScoreCvTermReference, Number> scoreMap = scores.get(se);
 
         if (scoreMap != null) {
             scoreMap.remove(ref);
@@ -150,7 +157,7 @@ public class Score {
      */
     public double getDefaultScore() {
         Object[] scoresArray = scores.values().toArray();
-        Object[] scoresArrayValue = ((Map<CvTermReference, Number>) scoresArray[0]).values().toArray();
+        Object[] scoresArrayValue = ((Map<SearchEngineScoreCvTermReference, Number>) scoresArray[0]).values().toArray();
         double scoreValue = -1;
         for (Object aScoresArrayValue : scoresArrayValue) {
             if (aScoresArrayValue != null) {
@@ -166,19 +173,20 @@ public class Score {
      *
      * @return Default Search Engine for the Scores
      */
-    public SearchEngineType getDefaultSearchEngine() {
+    public SearchEngineCvTermReference getDefaultSearchEngine() {
         Object[] searchengines = scores.keySet().toArray();
-        return (SearchEngineType) searchengines[0];
+        return (SearchEngineCvTermReference) searchengines[0];
     }
 
-    public List<CvTermReference> getCvTermReferenceWithValues() {
-        List<CvTermReference> listReference = new ArrayList<CvTermReference>();
-        for (Map<CvTermReference, Number> numberMap : scores.values()) {
+
+    public List<SearchEngineScoreCvTermReference> getSearchEngineScoreCvTermReferenceWithValues() {
+        List<SearchEngineScoreCvTermReference> listReference = new ArrayList<SearchEngineScoreCvTermReference>();
+        for (Map<SearchEngineScoreCvTermReference, Number> numberMap : scores.values()) {
             Iterator iterator = numberMap.entrySet().iterator();
             while (iterator.hasNext()) {
                 Map.Entry mapEntry = (Map.Entry) iterator.next();
                 if (mapEntry.getValue() != null) {
-                    listReference.add((CvTermReference) mapEntry.getKey());
+                    listReference.add((SearchEngineScoreCvTermReference) mapEntry.getKey());
                 }
             }
         }
@@ -191,10 +199,10 @@ public class Score {
      * @return The value of the score
      */
     public Number getValueBySearchEngineScoreTerm(String accession){
-        List<SearchEngineType> searchEngines = getSearchEngineTypes();
-        for(SearchEngineType searchEngineType: searchEngines){
-            Map<CvTermReference, Number> mapScore = getScores(searchEngineType);
-            for(CvTermReference ref: mapScore.keySet())
+        List<SearchEngineCvTermReference> searchEngines = getSearchEngineCvTermReferences();
+        for(SearchEngineCvTermReference SearchEngineCvTermReference: searchEngines){
+            Map<SearchEngineScoreCvTermReference, Number> mapScore = getScores(SearchEngineCvTermReference);
+            for(SearchEngineScoreCvTermReference ref: mapScore.keySet())
                 if(ref.getAccession().equalsIgnoreCase(accession))
                     return mapScore.get(ref);
         }

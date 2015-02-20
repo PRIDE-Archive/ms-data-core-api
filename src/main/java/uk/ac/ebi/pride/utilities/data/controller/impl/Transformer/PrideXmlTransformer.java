@@ -5,8 +5,8 @@ import uk.ac.ebi.pride.utilities.data.core.*;
 import uk.ac.ebi.pride.utilities.data.utils.BinaryDataUtils;
 import uk.ac.ebi.pride.utilities.data.utils.CvUtilities;
 import uk.ac.ebi.pride.utilities.data.utils.PRIDEUtils;
-import uk.ac.ebi.pride.utilities.engine.SearchEngineType;
 import uk.ac.ebi.pride.utilities.term.CvTermReference;
+import uk.ac.ebi.pride.utilities.term.SearchEngineScoreCvTermReference;
 import uk.ac.ebi.pride.utilities.util.NumberUtilities;
 
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -403,13 +403,25 @@ public final class PrideXmlTransformer {
             double thresholdVal = threshold == null ? -1 : threshold;
 
 
-            Score score = DataAccessUtilities.getScore(params);
+//            Score score = DataAccessUtilities.getScore(params);
+//
+//            //Todo: We need to define the best way to retrieve the SearchEngine value for PRIDE XML
+//            if(score == null)
+//                score = new Score();
+//            Number scoreValue = (rawIdent.getScore() != null)? rawIdent.getScore(): null;
+//            score.addScore(SearchEngineCvTermReference.findParamByName(rawIdent.getSearchEngine()), SearchEngineScoreCvTermReference.MS_SEARCH_ENGINE_SPECIFIC_SCORE,scoreValue);
 
-            //Todo: We need to define the best way to retrieve the SearchEngine value for PRIDE XML
-            if(score == null)
-                score = new Score();
             Number scoreValue = (rawIdent.getScore() != null)? rawIdent.getScore(): null;
-            score.addScore(SearchEngineType.getByName(rawIdent.getSearchEngine()),CvTermReference.MS_SEARCH_ENGINE_SPECIFIC_SCORE,scoreValue);
+            String searchEngineName = rawIdent.getSearchEngine();
+
+            Score score = new Score();
+            if(scoreValue != null){
+                SearchEngineScoreCvTermReference searchEngineScoreParam = SearchEngineScoreCvTermReference.getSearchEngineScoreParamByName(searchEngineName);
+                score.addScore(searchEngineScoreParam.getSearchEngineParam(), searchEngineScoreParam, scoreValue);
+            }
+            else {
+                score.addScore(SearchEngineScoreCvTermReference.MS_SEARCH_ENGINE_SPECIFIC_SCORE.getSearchEngineParam(),SearchEngineScoreCvTermReference.MS_SEARCH_ENGINE_SPECIFIC_SCORE, null);
+            }
 
             ident = new Protein(params, rawIdent.getId(), null, dbSequence, false, peptides, score, thresholdVal, seqConverageVal, gel);
         }
@@ -452,15 +464,33 @@ public final class PrideXmlTransformer {
             double seqConverageVal = seqConverage == null ? -1 : seqConverage;
             Double threshold = rawIdent.getThreshold();
             double thresholdVal = threshold == null ? -1 : threshold;
-            Score score = DataAccessUtilities.getScore(params);
-
+//            Score score = DataAccessUtilities.getScore(params);
             //Todo: We need to define the best way to retrieve the SearchEngine value for PRIDE XML
-            if(score == null)
-                score = new Score();
+            //The additional params don't store the score information in the identification is the getScore and getSearchEngine
+            //TODO Review
+//            Score score = DataAccessUtilities.getScore(params);
+
+//            if(score == null)
+//                score = new Score();
+//            Number scoreValue = (rawIdent.getScore() != null)? rawIdent.getScore(): null;
+//            score.addScore(SearchEngineScoreCvTermReference.MS_SEARCH_ENGINE_SPECIFIC_SCORE.getSearchEngineParam(),SearchEngineScoreCvTermReference.MS_SEARCH_ENGINE_SPECIFIC_SCORE,scoreValue);
+
             Number scoreValue = (rawIdent.getScore() != null)? rawIdent.getScore(): null;
-            score.addScore(SearchEngineType.GENERIC_SEARCH_ENGINE,CvTermReference.MS_SEARCH_ENGINE_SPECIFIC_SCORE,scoreValue);
-            String valueString = (scoreValue !=null)? scoreValue.toString():null;
-            params.addCvParam(CvUtilities.getCVTermFromCvReference(CvTermReference.MS_SEARCH_ENGINE_SPECIFIC_SCORE,valueString));
+            String searchEngineName = rawIdent.getSearchEngine();
+
+            Score score = new Score();
+            if(scoreValue != null){
+                SearchEngineScoreCvTermReference searchEngineScoreParam = SearchEngineScoreCvTermReference.getSearchEngineScoreParamByName(searchEngineName);
+                score.addScore(searchEngineScoreParam.getSearchEngineParam(), searchEngineScoreParam, scoreValue);
+            }
+            else {
+                score.addScore(SearchEngineScoreCvTermReference.MS_SEARCH_ENGINE_SPECIFIC_SCORE.getSearchEngineParam(),SearchEngineScoreCvTermReference.MS_SEARCH_ENGINE_SPECIFIC_SCORE, null);
+            }
+
+            //TODO Add Score to params
+//            String valueString = (scoreValue !=null)? scoreValue.toString():null;
+//            params.addCvParam(CvUtilities.getCVTermFromCvReference(CvTermReference.MS_SEARCH_ENGINE_SPECIFIC_SCORE,valueString));
+
 
             return new Protein(params, rawIdent.getId(), null, dbSequence, false, peptides, score, thresholdVal, seqConverageVal, null);
 

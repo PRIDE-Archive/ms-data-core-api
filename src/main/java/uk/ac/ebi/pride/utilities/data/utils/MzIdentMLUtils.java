@@ -105,9 +105,9 @@ public final class MzIdentMLUtils {
     /**
      * Search and find a list of search engine types from input parameter group.
      *
-     * @return List<SearchEngineType>  a list of search engine
+     * @return List<SearchEngineCvTermReference>  a list of search engine
      */
-    public static List<SearchEngineParam> getSearchEngineTypes(List<CvParam> cvParams) {
+    public static List<SearchEngineParam> getSearchEngineCvTermReferences(List<CvParam> cvParams) {
         if (cvParams == null) {
             throw new IllegalArgumentException("Input argument for getSearchEngineScoreTypes can not be null");
         }

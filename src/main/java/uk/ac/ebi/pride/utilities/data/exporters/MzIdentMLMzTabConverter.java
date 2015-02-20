@@ -526,7 +526,7 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter{
             //Set Search Engine
 
             Set<SearchEngineParam> searchEngines = new HashSet<SearchEngineParam>();
-            List<SearchEngineParam> searchEngineParams = MzIdentMLUtils.getSearchEngineTypes(oldPSM.getSpectrumIdentification().getCvParams());
+            List<SearchEngineParam> searchEngineParams = MzIdentMLUtils.getSearchEngineCvTermReferences(oldPSM.getSpectrumIdentification().getCvParams());
             searchEngines.addAll(searchEngineParams);
 
             for(SearchEngineParam searchEngineParam: searchEngines)
@@ -607,7 +607,7 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter{
         //Set Search Engine
         Set<SearchEngineParam> searchEngines = new HashSet<SearchEngineParam>();
         for(int i=0; i < THRESHOLD_LOOP_FOR_SCORE && i < peptides.size(); i++){
-            List<SearchEngineParam> searchEngineParams = MzIdentMLUtils.getSearchEngineTypes(peptides.get(i).getSpectrumIdentification().getCvParams());
+            List<SearchEngineParam> searchEngineParams = MzIdentMLUtils.getSearchEngineCvTermReferences(peptides.get(i).getSpectrumIdentification().getCvParams());
             searchEngines.addAll(searchEngineParams);
         }
         for(SearchEngineParam searchEngineParam: searchEngines)

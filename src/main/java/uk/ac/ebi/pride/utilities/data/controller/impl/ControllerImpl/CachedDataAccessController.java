@@ -2,8 +2,6 @@ package uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.ebi.pride.utilities.term.QuantCvTermReference;
-import uk.ac.ebi.pride.utilities.util.Tuple;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessException;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessMode;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessUtilities;
@@ -13,8 +11,10 @@ import uk.ac.ebi.pride.utilities.data.controller.cache.CacheEntry;
 import uk.ac.ebi.pride.utilities.data.controller.cache.CachingStrategy;
 import uk.ac.ebi.pride.utilities.data.core.*;
 import uk.ac.ebi.pride.utilities.data.utils.CollectionUtils;
-import uk.ac.ebi.pride.utilities.engine.SearchEngineType;
-import uk.ac.ebi.pride.utilities.term.CvTermReference;
+import uk.ac.ebi.pride.utilities.term.QuantCvTermReference;
+import uk.ac.ebi.pride.utilities.term.SearchEngineCvTermReference;
+import uk.ac.ebi.pride.utilities.term.SearchEngineScoreCvTermReference;
+import uk.ac.ebi.pride.utilities.util.Tuple;
 
 import java.util.*;
 
@@ -793,13 +793,13 @@ public abstract class CachedDataAccessController extends AbstractDataAccessContr
      * @return SearchEngine    search engine
      */
     @Override
-    public List<SearchEngineType> getSearchEngineTypes() {
-        Collection<SearchEngineType> searchEngineTypes = (Collection<SearchEngineType>) cache.get(CacheEntry.SEARCH_ENGINE_TYPE);
+    public List<SearchEngineCvTermReference> getSearchEngineCvTermReferences() {
+        Collection<SearchEngineCvTermReference> SearchEngineCvTermReferences = (Collection<SearchEngineCvTermReference>) cache.get(CacheEntry.SEARCH_ENGINE_TYPE);
 
-        if (searchEngineTypes != null && !searchEngineTypes.isEmpty()) {
-            return new ArrayList<SearchEngineType>(searchEngineTypes);
+        if (SearchEngineCvTermReferences != null && !SearchEngineCvTermReferences.isEmpty()) {
+            return new ArrayList<SearchEngineCvTermReference>(SearchEngineCvTermReferences);
         } else if (!DataAccessMode.CACHE_ONLY.equals(mode)) {
-            return super.getSearchEngineTypes();
+            return super.getSearchEngineCvTermReferences();
         }
 
         return null;
@@ -811,11 +811,11 @@ public abstract class CachedDataAccessController extends AbstractDataAccessContr
      * @return List of available Protein Scores
      */
     @Override
-    public List<CvTermReference> getAvailableProteinLevelScores() {
-        Collection<CvTermReference> proteinLevelScores = (Collection<CvTermReference>) cache.get(CacheEntry.PROTEIN_LEVEL_SCORES);
+    public List<SearchEngineScoreCvTermReference> getAvailableProteinLevelScores() {
+        Collection<SearchEngineScoreCvTermReference> proteinLevelScores = (Collection<SearchEngineScoreCvTermReference>) cache.get(CacheEntry.PROTEIN_LEVEL_SCORES);
 
         if (proteinLevelScores != null && !proteinLevelScores.isEmpty()) {
-            return new ArrayList<CvTermReference>(proteinLevelScores);
+            return new ArrayList<SearchEngineScoreCvTermReference>(proteinLevelScores);
         } else if (!DataAccessMode.CACHE_ONLY.equals(mode)) {
             return super.getAvailableProteinLevelScores();
         }
@@ -830,11 +830,11 @@ public abstract class CachedDataAccessController extends AbstractDataAccessContr
      * @return List of available Peptide Scores
      */
     @Override
-    public List<CvTermReference> getAvailablePeptideLevelScores() {
-        Collection<CvTermReference> peptideLevelScores = (Collection<CvTermReference>) cache.get(CacheEntry.PEPTIDE_LEVEL_SCORES);
+    public List<SearchEngineScoreCvTermReference> getAvailablePeptideLevelScores() {
+        Collection<SearchEngineScoreCvTermReference> peptideLevelScores = (Collection<SearchEngineScoreCvTermReference>) cache.get(CacheEntry.PEPTIDE_LEVEL_SCORES);
 
         if (peptideLevelScores != null && !peptideLevelScores.isEmpty()) {
-            return new ArrayList<CvTermReference>(peptideLevelScores);
+            return new ArrayList<SearchEngineScoreCvTermReference>(peptideLevelScores);
         } else if (!DataAccessMode.CACHE_ONLY.equals(mode)) {
             return super.getAvailablePeptideLevelScores();
         }
@@ -929,7 +929,7 @@ public abstract class CachedDataAccessController extends AbstractDataAccessContr
     	if (proteinsAreInferred()) {
     		return super.getProteinAmbiguityGroupIds();
     	}
-    	
+
         Collection<Comparable> groupIds = (Collection<Comparable>) cache.get(CacheEntry.PROTEIN_GROUP_ID);
 
         if (groupIds == null || groupIds.isEmpty()) {
@@ -943,7 +943,7 @@ public abstract class CachedDataAccessController extends AbstractDataAccessContr
     	if (proteinsAreInferred()) {
     		return super.getProteinAmbiguityGroupById(proteinGroupId);
     	}
-    	
+
         return (ProteinGroup) cache.get(CacheEntry.PROTEIN_GROUP, proteinGroupId);
     }
 

@@ -1,7 +1,7 @@
 package uk.ac.ebi.pride.utilities.data.controller.access;
 
 import uk.ac.ebi.pride.utilities.data.core.*;
-import uk.ac.ebi.pride.utilities.term.CvTermReference;
+import uk.ac.ebi.pride.utilities.term.SearchEngineScoreCvTermReference;
 
 import java.util.Collection;
 
@@ -219,7 +219,7 @@ public interface PeptideDataAccess {
      *
      * @return a collection of cv term references
      */
-    public Collection<CvTermReference> getAvailablePeptideLevelScores();
+    public Collection<SearchEngineScoreCvTermReference> getAvailablePeptideLevelScores();
 
     /**
      * Get precursor charge on peptide level
