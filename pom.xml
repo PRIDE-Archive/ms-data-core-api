@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>uk.ac.ebi.pride.utilities</groupId>
     <artifactId>ms-data-core-api</artifactId>
     <version>2.0.3-SNAPSHOT</version>
     <name>Open-source Data Model for computational proteomics</name>
-    <url>http://github.com/PRIDE-EBI/PRIDE-toolsuite/ms-data-core-api/</url>
+    <url>http://github.com/PRIDE-Utilities/ms-data-core-api</url>
     <description>Open-source java library to handle different file format standards for proteomics. Specially ms-data-core-api is good for MetaData representation.</description>
 
     <licenses>
@@ -62,7 +60,7 @@
         <jmzml.version>1.7.2</jmzml.version>
         <jmzidentml.version>1.2.2</jmzidentml.version>
         <xmlschemavalidator.version>2.1</xmlschemavalidator.version>
-        <jmztab.version>3.0.2-SNAPSHOT</jmztab.version>
+        <jmztab.version>3.0.2</jmztab.version>
         <spring.web.version>4.1.1.RELEASE</spring.web.version>
 
         <jmzreader.version>1.2.0</jmzreader.version>
@@ -83,7 +81,7 @@
         <c3p0.version>0.9.1.2</c3p0.version>
         <springframewrok.version>3.2.3.RELEASE</springframewrok.version>
         <pride-utilities.version>2.0.3</pride-utilities.version>
-        <json.version>20090211</json.version>
+       <json.version>20090211</json.version>
 
     </properties>
 
@@ -302,7 +300,7 @@
                     <overWriteReleases>true</overWriteReleases>
                     <overWriteSnapshots>true</overWriteSnapshots>
                     <excludeTransitive>false</excludeTransitive>
-                    <artifactItems/>
+                    <artifactItems />
                 </configuration>
             </plugin>
             <plugin>
@@ -312,6 +310,28 @@
                 <executions>
                     <execution>
                         <id>attach-source</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.5</version>
+                <configuration>
+                    <remoteTagging>true</remoteTagging>
+                    <goals>deploy</goals>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.7</version>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
                         <goals>
                             <goal>jar</goal>
                         </goals>
@@ -368,4 +388,11 @@
         </snapshotRepository>
     </distributionManagement>
 
+    <!--scm git config-->
+    <scm>
+        <connection>scm:git:github.com/PRIDE-Utilities/ms-data-core-api.git</connection>
+        <developerConnection>scm:git:git@github.com:PRIDE-Utilities/ms-data-core-api.git</developerConnection>
+        <url>https://github.com/PRIDE-Utilities/ms-data-core-api.git</url>
+        <tag>HEAD</tag>
+    </scm>
 </project>
