@@ -16,8 +16,9 @@ import static org.junit.Assert.assertTrue;
  * MzTab Controller Test
  * @author ypriverol
  * @author rwang
+ * @author ntoro
  */
-public class MzTabMzIdentMLConverterTest {
+public class PassThresholdMzTabMzIdentMLConverterTest {
 
     private MzIdentMLControllerImpl mzIdentMLController = null;
 
@@ -39,10 +40,10 @@ public class MzTabMzIdentMLConverterTest {
        // MZTabFileConverter checker = new MZTabFileConverter();
        // checker.check(mzTabFile);
        // TestCase.assertTrue("No errors reported during the conversion from PRIDE XML to MzTab", checker.getErrorList().size() == 0);
-        AbstractMzTabConverter mzTabconverter = new MzIdentMLMzTabConverter(mzIdentMLController);
+        AbstractMzTabConverter mzTabconverter = new PassThresholdMzIdentMLMzTabConverter(mzIdentMLController);
         MZTabFile mzTabFile = mzTabconverter.getMZTabFile();
         OutputStream out = null;
-        out = new BufferedOutputStream(new FileOutputStream(new File("temp", "kit 1 replicate 1.1 iTRAQ 6822 scaffold-pidres.scaffold-pidres.xml.mzid.mzTab")));
+        out = new BufferedOutputStream(new FileOutputStream(new File("temp","kit 1 replicate 1.1 iTRAQ 6822 scaffold-pidres.scaffold-pidres.xml.mzid.filtered.mzTab")));
         mzTabFile.printMZTab(out);
 
         MZTabFileConverter checker = new MZTabFileConverter();

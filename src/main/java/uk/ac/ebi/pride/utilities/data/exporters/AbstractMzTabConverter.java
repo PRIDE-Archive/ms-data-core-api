@@ -127,7 +127,7 @@ public abstract class AbstractMzTabConverter extends ConvertProvider<DataAccessC
 
 
         metadata.addCustom(new uk.ac.ebi.pride.jmztab.model.UserParam("Date of export", new Date().toString()));
-        metadata.addCustom(new uk.ac.ebi.pride.jmztab.model.UserParam("Original converted file", ((File)(source.getSource())).toURI().toString()));
+        metadata.addCustom(new uk.ac.ebi.pride.jmztab.model.UserParam("Original converted file", ((File)(source.getSource())).toURI().getPath()));
 
         return metadata;
     }
@@ -404,5 +404,21 @@ public abstract class AbstractMzTabConverter extends ConvertProvider<DataAccessC
         return value;
     }
 
+    protected static String generateAccession(uk.ac.ebi.pride.utilities.data.core.Protein identification) {
+        String accession = identification.getDbSequence().getAccession();
+        if(identification.getDbSequence().getAccessionVersion() != null ){
+            //TODO: Standardise the way that we add the version
+            accession = accession + '.' + identification.getDbSequence().getAccessionVersion();
+        }
+        return accession;
+    }
 
+    protected static String generateAccession(uk.ac.ebi.pride.utilities.data.core.Peptide identification) {
+        String accession = identification.getPeptideEvidence().getDbSequence().getAccession();
+        if(identification.getPeptideEvidence().getDbSequence().getAccessionVersion() != null ){
+            //TODO: Standardise the way that we add the version
+            accession = accession + '.' + identification.getPeptideEvidence().getDbSequence().getAccessionVersion();
+        }
+        return accession;
+    }
 }

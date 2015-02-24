@@ -1139,14 +1139,4 @@ public class PRIDEMzTabConverter extends AbstractMzTabConverter {
         }
     }
 
-    private static String generateAccession(Protein identification) {
-        String accession = identification.getDbSequence().getAccession();
-        if(identification.getDbSequence().getAccessionVersion() != null ){
-            //TODO: Standardise the way that we add the version
-            accession = accession + '.' + identification.getDbSequence().getAccessionVersion();
-        }
-        return accession;
-    }
-
-
 }
