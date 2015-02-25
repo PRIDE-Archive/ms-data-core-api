@@ -8,9 +8,12 @@ import uk.ac.ebi.pride.jmztab.model.Protein;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessController;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessException;
 import uk.ac.ebi.pride.utilities.data.core.*;
+import uk.ac.ebi.pride.utilities.data.filter.NoProteinFilter;
+import uk.ac.ebi.pride.utilities.data.filter.PeptideFilter;
+import uk.ac.ebi.pride.utilities.data.filter.ProteinFilter;
+import uk.ac.ebi.pride.utilities.data.filter.RankOnePeptideFilter;
 import uk.ac.ebi.pride.utilities.data.utils.MzTabUtils;
 
-import javax.xml.bind.JAXBException;
 import java.util.*;
 
 /**
@@ -22,8 +25,15 @@ public class PassThresholdMzIdentMLMzTabConverter extends MzIdentMLMzTabConverte
     protected static Logger logger = Logger.getLogger(PassThresholdMzIdentMLMzTabConverter.class);
 
     public static final String NO_THRESHOLD_MS_AC = "MS:1001494";
-    Boolean proteinDetectionProtocolThreshold = null;
-    Boolean spectrumIdentificationProtocolThreshold = null;
+    public static final String NO_THRESHOLD = "no threshold";
+
+    private final class AmbiguityGroup {
+
+        uk.ac.ebi.pride.utilities.data.core.Protein anchorProtein;
+        List<uk.ac.ebi.pride.utilities.data.core.Protein> restOfMembers;
+        List<Peptide> anchorPeptides;
+
+    }
 
 
     /**
@@ -33,7 +43,6 @@ public class PassThresholdMzIdentMLMzTabConverter extends MzIdentMLMzTabConverte
      */
     public PassThresholdMzIdentMLMzTabConverter(DataAccessController controller) {
         super(controller);
-        detectNoThreshold();
     }
 
     /**
@@ -44,96 +53,84 @@ public class PassThresholdMzIdentMLMzTabConverter extends MzIdentMLMzTabConverte
         // Get a list of Identification ids
         proteinIds = new HashSet<Comparable>();
 
-        //Try to detect if threshold is not provided
-        try {
-            if (!source.hasProteinAmbiguityGroup()) {
-                //We have threshold at protein level
-                if (!proteinDetectionProtocolThreshold) {
-                    Collection<Comparable> proteinIds = source.getProteinIds();
-                    //Iterate over proteins
-                    for (Comparable id : proteinIds) {
+        if (source.hasProteinAmbiguityGroup()) {
+            Collection<Comparable> proteinGroupIds = source.getProteinAmbiguityGroupIds();
 
-                        // Check the protein and peptides threshold
-                        uk.ac.ebi.pride.utilities.data.core.Protein msProtein = source.getProteinById(id);
+            final IdentificationMetaData identificationMetaData = source.getIdentificationMetaData();
+            if (identificationMetaData != null) {
+                //We assume that if we have protein ambiguity group, we have protein detection protocol
+                final Protocol proteinProtocol = identificationMetaData.getProteinDetectionProtocol();
 
-                        if (msProtein.isPassThreshold()) {
-                            List<Peptide> peptides = getPassThresholdScannedSpectrumIdentificationItems(msProtein);
-                            Protein identification = loadProtein(msProtein, peptides);
-                            proteins.add(identification);
-                            psms.addAll(loadPSMs(msProtein, peptides));
-                        } else {
-                            //Can be the case that the protein is not coming from protein hypothesis so the threshold needs to be checked at peptide level.
-                            List<Peptide> peptides = getPassThresholdScannedSpectrumIdentificationItems(msProtein);
-                            if (peptides != null && !peptides.isEmpty()) {
-                                //We have at least some peptides that pass the threshold
-                                Protein identification = loadProtein(msProtein, peptides);
-                                proteins.add(identification);
-                                psms.addAll(loadPSMs(msProtein, peptides));
-                            } else {
-                                super.fillData();
-                                //All of them are false or they are not annotated
-                                logger.warn("No peptides pass the threshold for protein: " + id);
+                if (proteinProtocol != null) {
+                    // It detects if the CV Term no_threshold is used
+                    if (noThresholdAvailable(proteinProtocol)) {
+                        //We try to detect the spectrum detection protocol threshold
+                        final List<SpectrumIdentificationProtocol> protocols = identificationMetaData.getSpectrumIdentificationProtocols();
+                        if (noThresholdAvailable(protocols)) {
+                            //RANK 1 FILTER. The proteins and protein groups will be filtered according to the remaining psms
+                            for (Comparable proteinGroupId : proteinGroupIds) {
+
+                                final ProteinGroup proteinAmbiguityGroup = source.getProteinAmbiguityGroupById(proteinGroupId);
+                                final List<uk.ac.ebi.pride.utilities.data.core.Protein> proteinDetectionHypothesis = proteinAmbiguityGroup.getProteinDetectionHypothesis();
+                                List<AmbiguityGroup> identifications = getProteinGroupById(proteinDetectionHypothesis, new NoProteinFilter(), new RankOnePeptideFilter());
+
+                                for (AmbiguityGroup identification : identifications) {
+                                    //We don't have proteins without peptides
+                                    Protein protein;
+
+                                    if (proteinIds.contains(identification.anchorProtein.getDbSequence().getAccession()))
+                                        throw new DataAccessException("mzTab do not support the same protein as anchor of more than one ambiguity groups.");
+                                    else
+                                        proteinIds.add(identification.anchorProtein.getDbSequence().getAccession());
+
+                                    protein = loadProtein(identification.anchorProtein, identification.anchorPeptides);
+
+                                    //We retrieve the other members in the group
+                                    String membersString = "";
+
+                                    for (uk.ac.ebi.pride.utilities.data.core.Protein member : identification.restOfMembers) {
+                                        membersString = generateAccession(member) + ",";
+                                    }
+
+                                    membersString = (membersString.isEmpty()) ? membersString : membersString.substring(0, membersString.length() - 1);
+                                    protein.addAmbiguityMembers(membersString);
+
+                                    //Loop for spectrum to get all the ms_run to repeat the score at protein level
+                                    Set<MsRun> msRuns = new HashSet<MsRun>();
+                                    for (int index = 0; index < identification.anchorPeptides.size(); index++) {
+                                        Comparable id = source.getPeptideSpectrumId(identification.anchorProtein.getId(), index);
+                                        if (id != null) {
+                                            String[] spectumMap = id.toString().split("!");
+                                            MsRun msRun = metadata.getMsRunMap().get(spectraToRun.get(spectumMap[1]));
+                                            msRuns.add(msRun);
+                                        }
+                                    }
+                                    // See which protein scores are supported
+
+                                    for (CvParam cvPAram : identification.anchorProtein.getCvParams()) {
+                                        if (proteinScoreToScoreIndex.containsKey(cvPAram.getAccession())) {
+                                            CVParam param = MzTabUtils.convertCvParamToCVParam(cvPAram);
+                                            int idCount = proteinScoreToScoreIndex.get(cvPAram.getAccession());
+                                            for (MsRun msRun : metadata.getMsRunMap().values()) {
+                                                String value = null;
+                                                if (msRuns.contains(msRun))
+                                                    value = param.getValue();
+                                                protein.setSearchEngineScore(idCount, msRun, value);
+                                            }
+                                        }
+                                    }
+
+                                    proteins.add(protein);
+                                    psms.addAll(loadPSMs(identification.anchorProtein, identification.anchorPeptides));
+                                }
                             }
                         }
-                    }
-                }
-                //We don't have threshold at protein level but we have at spectrum level
-                else if (spectrumIdentificationProtocolThreshold) {
-                    logger.warn("Option not implemented yet");
+                    } else {
 
-                } else {
-                    super.fillData();
-                    //All of them are false or they are not annotated
-                    logger.warn("Threshold is not provided");
-                }
-            } else {
-                if (proteinDetectionProtocolThreshold== null ) {
-//                    Collection<Comparable> proteinIds = source.getProteinIds();
-//                    //Iterate over proteins
-//                    for (Comparable id : proteinIds) {
-//
-//                        // Check the protein and peptides threshold
-//                        uk.ac.ebi.pride.utilities.data.core.Protein msProtein = source.getProteinById(id);
-//
-//                        if (msProtein.isPassThreshold()) {
-//                            List<Peptide> peptides = getPassThresholdScannedSpectrumIdentificationItems(msProtein);
-//                            Protein identification = loadProtein(msProtein, peptides);
-//                            proteins.add(identification);
-//                            psms.addAll(loadPSMs(msProtein, peptides));
-//                        } else {
-//                            //Can be the case that the protein is not coming from protein hypothesis so the threshold needs to be checked at peptide level.
-//                            List<Peptide> peptides = getPassThresholdScannedSpectrumIdentificationItems(msProtein);
-//                            if (peptides != null && !peptides.isEmpty()) {
-//                                //We have at least some peptides that pass the threshold
-//                                Protein identification = loadProtein(msProtein, peptides);
-//                                proteins.add(identification);
-//                                psms.addAll(loadPSMs(msProtein, peptides));
-//                            } else {
-//                                super.fillData();
-//                                //All of them are false or they are not annotated
-//                                logger.warn("No peptides pass the threshold for protein: " + id);
-//                            }
-//                        }
-//                    }
-                    Collection<Comparable> proteinGroupIds = source.getProteinAmbiguityGroupIds();
-                    for (Comparable proteinGroupId : proteinGroupIds) {
-                        Protein identification = getProteinGroupById(proteinGroupId);
-                        proteins.add(identification);
-                        psms.addAll(loadPSMs(source.getProteinAmbiguityGroupById(proteinGroupId).getProteinIds()));
-                    }
-                }
-                //We don't have threshold at protein level but we have at spectrum level
-                else if (spectrumIdentificationProtocolThreshold) {
-                    logger.warn("Option not implemented yet");
 
-                } else {
-                    super.fillData();
-                    //All of them are false or they are not annotated
-                    logger.warn("Threshold is not provided");
+                    }
                 }
             }
-        } catch (JAXBException e) {
-            throw new DataAccessException("Error try to retrieve the information for own Protein");
         }
 
         if (metadata.getFixedModMap().isEmpty()) {
@@ -145,118 +142,81 @@ public class PassThresholdMzIdentMLMzTabConverter extends MzIdentMLMzTabConverte
             metadata.addVariableModParam(1, new CVParam("MS", "MS:1002454", "No variable modifications searched", null));
         }
 
-
     }
 
-    private void detectNoThreshold() {
+    protected List<AmbiguityGroup> getProteinGroupById(List<uk.ac.ebi.pride.utilities.data.core.Protein> proteins, ProteinFilter proteinFilter, PeptideFilter peptidesPeptideFilter) {
 
-        if (source.getIdentificationMetaData() != null) {
-            List<SpectrumIdentificationProtocol> protocols = source.getIdentificationMetaData().getSpectrumIdentificationProtocols();
-            if (protocols != null && !protocols.isEmpty()) {
-                for (SpectrumIdentificationProtocol protocol : protocols) {
-                    if (protocol != null) {
-                        ParamGroup threshold = protocol.getThreshold();
-                        if (threshold.getCvParams() != null && !threshold.getCvParams().isEmpty()) {
-                            if (threshold.getCvParams().get(0).getAccession().equals(NO_THRESHOLD_MS_AC)) {
-                                spectrumIdentificationProtocolThreshold = false;
-                            }
-                        }
+
+        List<AmbiguityGroup> ambiguityGroups = new ArrayList<AmbiguityGroup>();
+
+        List<uk.ac.ebi.pride.utilities.data.core.Protein> msProteins = proteinFilter.filter(proteins);
+
+        /*
+            We annotate only the first protein, as the anchor protein,
+            and the proteins with different peptides to the core protein to avoid lost peptide identifications
+        */
+        if (!msProteins.isEmpty()) {
+
+            uk.ac.ebi.pride.utilities.data.core.Protein anchorProtein;
+            List<uk.ac.ebi.pride.utilities.data.core.Peptide> anchorPeptides;
+
+            for (int i = 0; i < msProteins.size(); i++) {
+                AmbiguityGroup ambiguityGroup = new AmbiguityGroup();
+
+                anchorProtein = msProteins.get(i);
+                anchorPeptides = peptidesPeptideFilter.filter(anchorProtein.getPeptides());
+                if (!anchorPeptides.isEmpty()) {
+
+                    List<uk.ac.ebi.pride.utilities.data.core.Protein> members = new ArrayList<uk.ac.ebi.pride.utilities.data.core.Protein>(msProteins);
+                    //We remove the anchor protein for the members
+                    members.remove(i);
+
+                    ambiguityGroup.anchorProtein = anchorProtein;
+                    ambiguityGroup.restOfMembers = members;
+                    ambiguityGroup.anchorPeptides = anchorPeptides;
+                    ambiguityGroups.add(ambiguityGroup);
+
+                }
+                //TODO: Merge same-set groups
+            }
+        }
+
+        return ambiguityGroups;
+    }
+
+    private static boolean noThresholdAvailable(List<? extends Protocol> protocols) {
+
+        for (Protocol protocol : protocols) {
+            if (noThresholdAvailable(protocol)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean noThresholdAvailable(Protocol protocol) {
+
+        if (protocol != null) {
+            //Threshold is mandatory in the schema
+            ParamGroup threshold = protocol.getThreshold();
+            if (threshold.getCvParams() != null && !threshold.getCvParams().isEmpty()) {
+                //If it is no-threshold, it will have only one cv
+                for (CvParam cvParam : threshold.getCvParams()) {
+                    if (cvParam.getAccession().equals(NO_THRESHOLD_MS_AC)) {
+                        return true;
                     }
                 }
             }
-            if (source.getIdentificationMetaData().getProteinDetectionProtocol() != null) {
-                ParamGroup threshold = source.getIdentificationMetaData().getProteinDetectionProtocol().getThreshold();
-                if (threshold.getCvParams() != null && !threshold.getCvParams().isEmpty()) {
-                    if (threshold.getCvParams().get(0).getAccession().equals(NO_THRESHOLD_MS_AC)) {
-                        proteinDetectionProtocolThreshold = false;
+            if (threshold.getUserParams() != null && !threshold.getUserParams().isEmpty()) {
+                //If it is no-threshold, it will have only one cv
+                for (UserParam userParam : threshold.getUserParams()) {
+                    if (userParam.getValue().equals(NO_THRESHOLD) || userParam.getName().equalsIgnoreCase(NO_THRESHOLD)) {
+                        return true;
                     }
                 }
             }
         }
+        return false;
     }
 
-    protected Protein getProteinGroupById(Comparable proteinGroupId) throws JAXBException {
-
-        //TODO: Review
-        Protein protein = null;
-
-        ProteinGroup proteinAmbiguityGroup = source.getProteinAmbiguityGroupById(proteinGroupId);
-
-        List<uk.ac.ebi.pride.utilities.data.core.Protein> msProteins = getPassThresholdProteinIdentificationItems(proteinAmbiguityGroup);
-
-        if(!msProteins.isEmpty()){
-        // Todo: We will annotated only the first protein, the core protein
-        // and the proteins with different peptides to the core protein to avoid lost peptide identification
-        uk.ac.ebi.pride.utilities.data.core.Protein firstProteinDetectionHypothesis = msProteins.get(0);
-        if (proteinIds.contains(firstProteinDetectionHypothesis.getDbSequence().getAccession()))
-            throw new DataAccessException("mzTab do not support one protein in more than one ambiguity groups.");
-        else
-            proteinIds.add(firstProteinDetectionHypothesis.getDbSequence().getAccession());
-
-        List<uk.ac.ebi.pride.utilities.data.core.Peptide> peptides = getPassThresholdScannedSpectrumIdentificationItems(firstProteinDetectionHypothesis);
-            protein = loadProtein(firstProteinDetectionHypothesis, peptides);
-
-            String membersString = "";
-        for(int i=1; i < proteinAmbiguityGroup.getProteinDetectionHypothesis().size();i++)
-            membersString = proteinAmbiguityGroup.getProteinDetectionHypothesis().get(i).getDbSequence().getAccession() + ",";
-
-        membersString = (membersString.isEmpty())?membersString:membersString.substring(0, membersString.length()-1);
-        protein.addAmbiguityMembers(membersString);
-
-        //Loop for spectrum to get all the ms_run to repeat the score at protein level
-        Set<MsRun> msRuns = new HashSet<MsRun>();
-        for(int index = 0; index < peptides.size(); index++){
-            Comparable id = source.getPeptideSpectrumId(firstProteinDetectionHypothesis.getId(), index);
-            if(id != null){
-                String[] spectumMap = id.toString().split("!");
-                MsRun msRun = metadata.getMsRunMap().get(spectraToRun.get(spectumMap[1]));
-                msRuns.add(msRun);
-            }
-        }
-        // See which protein scores are supported
-
-        for(CvParam cvPAram: firstProteinDetectionHypothesis.getCvParams()){
-            if(proteinScoreToScoreIndex.containsKey(cvPAram.getAccession())){
-                CVParam param = MzTabUtils.convertCvParamToCVParam(cvPAram);
-                int idCount = proteinScoreToScoreIndex.get(cvPAram.getAccession());
-                for (MsRun msRun: metadata.getMsRunMap().values()){
-                    String value = null;
-                    if(msRuns.contains(msRun))
-                        value = param.getValue();
-                    protein.setSearchEngineScore(idCount,msRun, value);
-                }
-            }
-        }
-        }
-        return protein;
-    }
-
-    private List<uk.ac.ebi.pride.utilities.data.core.Protein> getPassThresholdProteinIdentificationItems(ProteinGroup proteinAmbiguityGroup) {
-        List<uk.ac.ebi.pride.utilities.data.core.Protein> passThresholdProteins = new ArrayList<uk.ac.ebi.pride.utilities.data.core.Protein>();
-
-        for (uk.ac.ebi.pride.utilities.data.core.Protein protein : proteinAmbiguityGroup.getProteinDetectionHypothesis()) {
-            if(protein.isPassThreshold()){
-                passThresholdProteins.add(protein);
-            }
-        }
-
-        return passThresholdProteins;
-    }
-
-
-    private List<uk.ac.ebi.pride.utilities.data.core.Peptide> getPassThresholdScannedSpectrumIdentificationItems(uk.ac.ebi.pride.utilities.data.core.Protein protein) {
-
-        List<uk.ac.ebi.pride.utilities.data.core.Peptide> peptides = new ArrayList<uk.ac.ebi.pride.utilities.data.core.Peptide>();
-
-        for (Peptide peptide : protein.getPeptides()) {
-            if (peptide.getSpectrumIdentification() != null) {
-               if( peptide.getSpectrumIdentification().isPassThreshold()) {
-                   peptides.add(peptide);
-               }
-            }
-        }
-
-        return peptides;
-
-    }
 }

@@ -400,7 +400,7 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter{
 
     }
 
-    protected List<PSM> loadPSMs(List<Comparable> ids) throws JAXBException {
+    protected List<PSM> loadPSMs(List<Comparable> ids) {
         List<PSM> psmList = new ArrayList<PSM>();
         for(Comparable id: ids) {
             uk.ac.ebi.pride.utilities.data.core.Protein protein = source.getProteinById(id);
@@ -412,7 +412,7 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter{
     /**
      * Converts the passed Identification object into an MzTab PSM.
      */
-    protected List<PSM> loadPSMs(uk.ac.ebi.pride.utilities.data.core.Protein protein, List<Peptide> peptides) throws JAXBException {
+    protected List<PSM> loadPSMs(uk.ac.ebi.pride.utilities.data.core.Protein protein, List<Peptide> peptides)  {
 
         Map<Comparable, Integer> indexSpectrumID = new HashMap<Comparable, Integer>();
         List<PSM> psmList = new ArrayList<PSM>();
@@ -420,12 +420,17 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter{
 
         for (int index = 0; index < peptides.size(); index++) {
             Peptide oldPSM = peptides.get(index);
+
             PSM psm = new PSM(psmColumnFactory, metadata);
             psm.setSequence(oldPSM.getPeptideSequence().getSequence());
             psm.setPSM_ID(oldPSM.getSpectrumIdentification().getId().toString());
             psm.setAccession(generateAccession(oldPSM));
-            psm.setDatabase(getDatabaseName(oldPSM.getPeptideEvidence().getDbSequence().getSearchDataBase().getNameDatabase().getCvParams(),oldPSM.getPeptideEvidence().getDbSequence().getSearchDataBase().getNameDatabase().getUserParams()));
-            String version = (oldPSM.getPeptideEvidence().getDbSequence().getSearchDataBase().getVersion() != null && !oldPSM.getPeptideEvidence().getDbSequence().getSearchDataBase().getVersion().isEmpty())?oldPSM.getPeptideEvidence().getDbSequence().getSearchDataBase().getVersion():null;
+
+            ParamGroup nameDatabase = oldPSM.getPeptideEvidence().getDbSequence().getSearchDataBase().getNameDatabase();
+            psm.setDatabase(getDatabaseName(nameDatabase.getCvParams(), nameDatabase.getUserParams()));
+
+            String dbVersion = oldPSM.getPeptideEvidence().getDbSequence().getSearchDataBase().getVersion();
+            String version = (dbVersion != null && !dbVersion.isEmpty())? dbVersion :null;
             psm.setDatabaseVersion(version);
 
             psm.setStart(oldPSM.getPeptideEvidence().getStartPosition());
@@ -458,6 +463,8 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter{
                         sites.add(site);
                         variableModifications.put(param, sites);
                     }
+
+                    //TODO Add Fixed Modification
                 }else{
                     //TODO: Change implement with chemod
                     logger.warn("Your mzidentml contains an UNKNOWN modification which is not supported by mzTab format");
