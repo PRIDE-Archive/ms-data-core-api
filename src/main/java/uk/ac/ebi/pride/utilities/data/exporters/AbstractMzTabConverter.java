@@ -18,6 +18,8 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static uk.ac.ebi.pride.jmztab.model.MZTabUtils.isEmpty;
 
@@ -114,7 +116,7 @@ public abstract class AbstractMzTabConverter extends ConvertProvider<DataAccessC
         }
 
         //Load URI
-        loadURI(source.getExperimentMetaData().getId().toString().trim());
+        loadURI(source.getExperimentMetaData().getId().toString());
 
         //The description should be added in loadExperiment()
         //TODO: Move to the right place, it is a default checking (ConverterProvider)
@@ -141,6 +143,8 @@ public abstract class AbstractMzTabConverter extends ConvertProvider<DataAccessC
      * Converts the experiment's references into a couple of {@link uk.ac.ebi.pride.jmztab.model.PublicationItem} (including DOIs and PubMed ids)
      */
     protected void loadReferences() {
+
+
         List<Reference> references = source.getExperimentMetaData().getReferences();
         int i = 1;
         for(Reference ref: references){
@@ -159,8 +163,10 @@ public abstract class AbstractMzTabConverter extends ConvertProvider<DataAccessC
                     items.add(new PublicationItem(PublicationItem.Type.PUBMED, removeNewLineAndTab(pubmed)));
                 }
             }
-            metadata.addPublicationItems(i, items);
-            i++;
+            if(!items.isEmpty()) {
+                metadata.addPublicationItems(i, items);
+                i++;
+            }
         }
     }
 
@@ -192,28 +198,54 @@ public abstract class AbstractMzTabConverter extends ConvertProvider<DataAccessC
             return;
         }
 
+        String regexp = "[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-']+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})";
+
+        Pattern pattern = Pattern.compile(regexp);
+        Matcher matcher;
+
         // initialize the return variable
         int id = 1;
         for (Person c : contactList) {
             String name = (c.getName()!=null)?c.getName():c.getId().toString();
-
             name = (c.getLastname() != null)? name + " " + c.getLastname():name;
-            if(!name.isEmpty()){
-                metadata.addContactName(id, name);
-                String affiliation = "";
-                if(c.getAffiliation().get(0) != null && c.getAffiliation().get(0) != null){
-                    if(c.getAffiliation().get(0).getName() != null)
+
+            String affiliation = null;
+            String originalContact = c.getContactInfo();
+
+            if(!name.isEmpty()) {
+                metadata.addContactName(id, removeNewLineAndTab(name));
+            }
+            if(c.getAffiliation() != null && !c.getAffiliation().isEmpty()) {
+                if (c.getAffiliation().get(0) != null) {
+                    if (c.getAffiliation().get(0).getName() != null)
                         affiliation = c.getAffiliation().get(0).getName();
                     else
                         affiliation = c.getAffiliation().get(0).getId().toString();
                 }
-                metadata.addContactAffiliation(id, affiliation);
-                String mail  = CvUtilities.getMailFromCvParam(c);
-                if (!mail.isEmpty()) {
-                    metadata.addContactEmail(id, mail);
+                if(affiliation!= null){
+                    metadata.addContactAffiliation(id, removeNewLineAndTab(affiliation));
                 }
-                id++;
             }
+            if(!isEmpty(originalContact)) {
+                //Some files are annotated using more than one email, we will use the first one
+                matcher = pattern.matcher(originalContact);
+
+                if (matcher.find()) {
+                    originalContact = matcher.group();
+                    logger.debug("Original contact info: \"" + c.getContactInfo() + "\" email extracted -> \"" + originalContact + "\"");
+                    if (!isEmpty(originalContact)) {
+                        metadata.addContactEmail(id, originalContact);
+                    }
+                    else {
+                        String mail  = CvUtilities.getMailFromCvParam(c);
+                        if (!mail.isEmpty()) {
+                            metadata.addContactEmail(id, mail);
+                        }
+                    }
+                }
+            }
+            id++;
+
         }
     }
 
@@ -318,7 +350,8 @@ public abstract class AbstractMzTabConverter extends ConvertProvider<DataAccessC
         if (expAccession == null || expAccession.isEmpty()) {
             return;
         }
-        expAccession = expAccession.replaceAll("\\s+","-");
+
+        expAccession = expAccession.trim().replaceAll("\\s+","-");
         try {
             URI uri = new URI("http://www.ebi.ac.uk/pride/archive/assays/" + expAccession);
             metadata.addUri(uri);

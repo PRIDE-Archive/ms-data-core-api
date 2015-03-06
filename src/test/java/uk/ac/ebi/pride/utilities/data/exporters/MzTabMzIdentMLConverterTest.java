@@ -28,7 +28,7 @@ public class MzTabMzIdentMLConverterTest {
         if (url == null) {
             throw new IllegalStateException("no file for input found!");
         }
-        File inputFile = new File("/Users/ntoro/Desktop/kit 1 replicate 1.1 iTRAQ 6822 scaffold-pidres.scaffold-pidres.xml.mzid");
+        File inputFile = new File(url.toURI());
         mzIdentMLController = new MzIdentMLControllerImpl(inputFile);
     }
 
@@ -41,8 +41,7 @@ public class MzTabMzIdentMLConverterTest {
        // TestCase.assertTrue("No errors reported during the conversion from PRIDE XML to MzTab", checker.getErrorList().size() == 0);
         AbstractMzTabConverter mzTabconverter = new MzIdentMLMzTabConverter(mzIdentMLController);
         MZTabFile mzTabFile = mzTabconverter.getMZTabFile();
-        OutputStream out = null;
-        out = new BufferedOutputStream(new FileOutputStream(new File("temp", "kit 1 replicate 1.1 iTRAQ 6822 scaffold-pidres.scaffold-pidres.xml.mzid.mzTab")));
+        OutputStream out = new BufferedOutputStream(new FileOutputStream(new File("temp", "55merge_mascot_full.mzid.mzTab")));
         mzTabFile.printMZTab(out);
 
         MZTabFileConverter checker = new MZTabFileConverter();

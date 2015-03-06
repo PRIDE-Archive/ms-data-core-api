@@ -15,6 +15,7 @@ import uk.ac.ebi.pride.utilities.data.core.*;
 import uk.ac.ebi.pride.utilities.data.core.Peptide;
 import uk.ac.ebi.pride.utilities.data.core.Sample;
 import uk.ac.ebi.pride.utilities.data.core.Software;
+import uk.ac.ebi.pride.utilities.data.core.UserParam;
 import uk.ac.ebi.pride.utilities.data.utils.MzIdentMLUtils;
 import uk.ac.ebi.pride.utilities.data.utils.MzTabUtils;
 import uk.ac.ebi.pride.utilities.term.CvTermReference;
@@ -344,65 +345,79 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
     }
 
     @Override
-    protected void loadSoftware(){
+    protected void loadSoftware() {
 
         List<Software> softwareList = source.getExperimentMetaData().getSoftwares();
         Protocol proteinDetectionProtocol = source.getIdentificationMetaData().getProteinDetectionProtocol();
         List<SpectrumIdentificationProtocol> spectrumIdentificationProtocolList = source.getIdentificationMetaData().getSpectrumIdentificationProtocols();
 
-        if(!softwareList.isEmpty()){
+        if (!softwareList.isEmpty()) {
 
-            for(int i = 0; i < softwareList.size(); i++){
-                CvParam nameCVparam = softwareList.get(i).getCvParams().get(0);
-                if(nameCVparam!=null){
+            for (int i = 0; i < softwareList.size(); i++) {
 
-                    String version = (softwareList.get(i).getVersion() != null && !softwareList.get(i).getVersion().isEmpty())? softwareList.get(i).getVersion():"";
-                    CVParam nameCV = new CVParam(nameCVparam.getCvLookupID(),nameCVparam.getAccession(),nameCVparam.getName(),version);
-                    metadata.addSoftwareParam(i+1, nameCV);
-                    if(proteinDetectionProtocol != null && proteinDetectionProtocol.getAnalysisSoftware() != null &&
-                            proteinDetectionProtocol.getAnalysisSoftware().getId().equals(softwareList.get(i).getId())){
-                        if(proteinDetectionProtocol.getThreshold() != null){
-                            loadCvParamSettings(i+1, proteinDetectionProtocol.getThreshold());
+                if (!softwareList.get(i).getCvParams().isEmpty() || !softwareList.get(i).getUserParams().isEmpty()) {
 
-                            //Add FDR at Protein level if is annotated
-                            for(CvParam cvParam: proteinDetectionProtocol.getThreshold().getCvParams())
-                                if(CvTermReference.MS_GLOBAL_FDR_PROTEIN.getAccession().equalsIgnoreCase(cvParam.getAccession()) ||
-                                        CvTermReference.MS_LOCAL_FDR_PROTEIN.getAccession().equalsIgnoreCase(cvParam.getAccession()) ||
-                                        CvTermReference.MS_FDR_PROTEIN.getAccession().equalsIgnoreCase(cvParam.getAccession()))
-                                    metadata.addFalseDiscoveryRateParam(MzTabUtils.convertCvParamToCVParam(cvParam));
+                    String version = (softwareList.get(i).getVersion() != null && !softwareList.get(i).getVersion().isEmpty()) ? softwareList.get(i).getVersion() : "";
+                    CVParam nameCV = null;
+
+                    if (!softwareList.get(i).getCvParams().isEmpty()) {
+                        CvParam nameCVparam = softwareList.get(i).getCvParams().get(0);
+                        if (nameCVparam != null) {
+                            nameCV = new CVParam(nameCVparam.getCvLookupID(), nameCVparam.getAccession(), nameCVparam.getName(), version);
                         }
-                        if(proteinDetectionProtocol.getAnalysisParam() != null){
-                            loadCvParamSettings(i+1, proteinDetectionProtocol.getAnalysisParam());
+                    } else if (!softwareList.get(i).getUserParams().isEmpty()) {
+                        UserParam nameUserParam = softwareList.get(i).getUserParams().get(0);
+                        if (nameUserParam != null) {
+                            nameCV = new CVParam(CvTermReference.MS_SOFTWARE.getAccession(), CvTermReference.MS_SOFTWARE.getCvLabel(), CvTermReference.MS_SOFTWARE.getName(), nameUserParam.getName() + version);
                         }
                     }
 
-                    for(SpectrumIdentificationProtocol spectrumIdentificationProtocol: spectrumIdentificationProtocolList){
-                        if(spectrumIdentificationProtocol.getAnalysisSoftware().getId().equals(softwareList.get(i).getId())){
-                            if(spectrumIdentificationProtocol.getThreshold() != null){
-                                loadCvParamSettings(i+1, spectrumIdentificationProtocol.getThreshold());
-                                //Add FDR at PSM level if is annotated
-                                for(CvParam cvParam: spectrumIdentificationProtocol.getThreshold().getCvParams())
-                                    if(CvTermReference.MS_GLOBAL_FDR_PSM.getAccession().equalsIgnoreCase(cvParam.getAccession()) ||
-                                            CvTermReference.MS_LOCAL_FDR_PSM.getAccession().equalsIgnoreCase(cvParam.getAccession()) ||
-                                            CvTermReference.MS_FDR_PSM.getAccession().equalsIgnoreCase(cvParam.getAccession()))
+                    if (nameCV != null) {
+                        metadata.addSoftwareParam(i + 1, nameCV);
+
+                        if (proteinDetectionProtocol != null && proteinDetectionProtocol.getAnalysisSoftware() != null &&
+                                proteinDetectionProtocol.getAnalysisSoftware().getId().equals(softwareList.get(i).getId())) {
+                            if (proteinDetectionProtocol.getThreshold() != null) {
+                                loadCvParamSettings(i + 1, proteinDetectionProtocol.getThreshold());
+
+                                //Add FDR at Protein level if is annotated
+                                for (CvParam cvParam : proteinDetectionProtocol.getThreshold().getCvParams())
+                                    if (CvTermReference.MS_GLOBAL_FDR_PROTEIN.getAccession().equalsIgnoreCase(cvParam.getAccession()) ||
+                                            CvTermReference.MS_LOCAL_FDR_PROTEIN.getAccession().equalsIgnoreCase(cvParam.getAccession()) ||
+                                            CvTermReference.MS_FDR_PROTEIN.getAccession().equalsIgnoreCase(cvParam.getAccession()))
                                         metadata.addFalseDiscoveryRateParam(MzTabUtils.convertCvParamToCVParam(cvParam));
                             }
-                            if(spectrumIdentificationProtocol != null){
-                                loadCvParamSettings(i+1, spectrumIdentificationProtocol);
+                            if (proteinDetectionProtocol.getAnalysisParam() != null) {
+                                loadCvParamSettings(i + 1, proteinDetectionProtocol.getAnalysisParam());
                             }
-                            if(spectrumIdentificationProtocol.getFragmentTolerance() != null){
-                                loadCvParamListSettings(i + 1, spectrumIdentificationProtocol.getFragmentTolerance());
+                        }
+
+                        for (SpectrumIdentificationProtocol spectrumIdentificationProtocol : spectrumIdentificationProtocolList) {
+                            if (spectrumIdentificationProtocol.getAnalysisSoftware().getId().equals(softwareList.get(i).getId())) {
+                                if (spectrumIdentificationProtocol.getThreshold() != null) {
+                                    loadCvParamSettings(i + 1, spectrumIdentificationProtocol.getThreshold());
+                                    //Add FDR at PSM level if is annotated
+                                    for (CvParam cvParam : spectrumIdentificationProtocol.getThreshold().getCvParams())
+                                        if (CvTermReference.MS_GLOBAL_FDR_PSM.getAccession().equalsIgnoreCase(cvParam.getAccession()) ||
+                                                CvTermReference.MS_LOCAL_FDR_PSM.getAccession().equalsIgnoreCase(cvParam.getAccession()) ||
+                                                CvTermReference.MS_FDR_PSM.getAccession().equalsIgnoreCase(cvParam.getAccession()))
+                                            metadata.addFalseDiscoveryRateParam(MzTabUtils.convertCvParamToCVParam(cvParam));
+                                }
+
+                                loadCvParamSettings(i + 1, spectrumIdentificationProtocol);
+
+                                if (spectrumIdentificationProtocol.getFragmentTolerance() != null) {
+                                    loadCvParamListSettings(i + 1, spectrumIdentificationProtocol.getFragmentTolerance());
+                                }
+                                if (spectrumIdentificationProtocol.getParentTolerance() != null) {
+                                    loadCvParamListSettings(i + 1, spectrumIdentificationProtocol.getParentTolerance());
+                                }
+                                //Todo: See if we need to capture other objects from fragmentation table, etc.
                             }
-                            if(spectrumIdentificationProtocol.getParentTolerance() != null){
-                                loadCvParamListSettings(i+1, spectrumIdentificationProtocol.getParentTolerance());
-                            }
-                            //Todo: See if we need to capture other objects from fragmentation table, etc.
                         }
                     }
-
                 }
             }
-
         }
     }
 
@@ -416,18 +431,26 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
         loadCvParamListSettings(order, paramGroup.getCvParams());
 
         for(uk.ac.ebi.pride.utilities.data.core.UserParam userParam: paramGroup.getUserParams()){
-            metadata.addSoftwareSetting(order, userParam.getName() + " = " + userParam.getValue());
+            String value = userParam.getName();
+            if(userParam.getValue()!=null){
+                value = value + " = " + userParam.getValue();
+            }
+            metadata.addSoftwareSetting(order, value);
         }
     }
 
     /**
-     * Isert in metadata only the CvTerm List Settings in an specific order
+     * Insert in metadata only the CvTerm List Settings in an specific order
      * @param order order of the Param
      * @param paramList Param List
      */
     private void loadCvParamListSettings(int order, List<CvParam> paramList){
         for (CvParam cvParam: paramList){
-            metadata.addSoftwareSetting(order, cvParam.getName() + " = " + cvParam.getValue());
+            String value = cvParam.getName();
+            if(cvParam.getValue()!=null){
+                value = value + " = " + cvParam.getValue();
+            }
+            metadata.addSoftwareSetting(order, value);
         }
     }
 
@@ -544,31 +567,35 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
             String version = (dbVersion != null && !dbVersion.isEmpty())? dbVersion :null;
             psm.setDatabaseVersion(version);
 
-            psm.setStart(oldPSM.getPeptideEvidence().getStartPosition());
-            psm.setEnd(oldPSM.getPeptideEvidence().getEndPosition());
+            if(oldPSM.getPeptideEvidence().getStartPosition() != null && oldPSM.getPeptideEvidence().getStartPosition()>=0) {
+                psm.setStart(oldPSM.getPeptideEvidence().getStartPosition());
+            }
+
+            if(oldPSM.getPeptideEvidence().getEndPosition() != null && oldPSM.getPeptideEvidence().getEndPosition()>=0) {
+                psm.setEnd(oldPSM.getPeptideEvidence().getEndPosition());
+            }
+
             String pre  = String.valueOf(oldPSM.getPeptideEvidence().getPreResidue());
             String post = String.valueOf(oldPSM.getPeptideEvidence().getPostResidue());
-            psm.setPre((pre == null || pre.isEmpty() || pre.equalsIgnoreCase(String.valueOf('\u0000')))?null:pre);
-            psm.setPost((post == null || post.isEmpty() || pre.equalsIgnoreCase(String.valueOf('\u0000')))?null:post);
+            psm.setPre((pre == null || pre.isEmpty() || pre.equalsIgnoreCase(String.valueOf('\u0000'))) ? null : pre);
+            psm.setPost((post == null || post.isEmpty() || pre.equalsIgnoreCase(String.valueOf('\u0000'))) ? null : post);
 
             //TODO: Review
             List<Modification> mods = new ArrayList<Modification>();
 
             for(uk.ac.ebi.pride.utilities.data.core.Modification oldMod: oldPSM.getPeptideSequence().getModifications()){
-                //We export only the first modification
-                if(oldMod.getCvParams()!= null && oldMod.getCvParams().size() >1 ) {
-                    logger.warn("More than one Cv Param for one modification");
-                }
+                if(oldMod.getCvParams()!= null) {
+                    Double mass = (oldMod.getMonoisotopicMassDelta() != null && !oldMod.getMonoisotopicMassDelta().isEmpty()) ? oldMod.getMonoisotopicMassDelta().get(0) : null;
 
-                //Try to map it directly (if falis we know that is a unknow mod)
-                Modification mzTabMod = MZTabUtils.parseModification(Section.PSM, oldMod.getCvParams().get(0).getAccession());
-                Double mass = (oldMod.getMonoisotopicMassDelta() !=null && !oldMod.getMonoisotopicMassDelta().isEmpty())? oldMod.getMonoisotopicMassDelta().get(0):null;
+                    for (CvParam param : oldMod.getCvParams()) {
+                        //Try to map it directly (if it fails we know that is an unknown mod)
+                        Modification mzTabMod = MZTabUtils.parseModification(Section.PSM, param.getAccession());
 
-                if(mzTabMod != null){
-                    mzTabMod.addPosition(oldMod.getLocation(), null);
-                    mods.add(mzTabMod);
+                        if (mzTabMod != null) {
+                            mzTabMod.addPosition(oldMod.getLocation(), null);
+                            mods.add(mzTabMod);
 
-                    //Fixed and Variable modification (detected in metadata)
+                            //Fixed and Variable modification (detected in metadata)
 //                    String site;
 //                    if(oldMod.getLocation()-1 < 0)
 //                        site = "N-Term";
@@ -587,23 +614,36 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
 //                    }
 
 
-                } else {
-                    if(oldMod.getCvParams().get(0).getAccession().equalsIgnoreCase(UNKNOWN_MOD) && mass!= null){
-                        //Transform in a CHEMMOD Type modification
-                        mzTabMod = new Modification(Section.PSM, Modification.Type.CHEMMOD, mass.toString());
-                        mzTabMod.addPosition(oldMod.getLocation(), null);
-                        mods.add(mzTabMod);
-                    }
-                }
+                        } else if (param.getAccession().equalsIgnoreCase(UNKNOWN_MOD) && mass != null) {  //Unknown mod
+                                //Transform in a CHEMMOD Type modification
+                                mzTabMod = new Modification(Section.PSM, Modification.Type.CHEMMOD, mass.toString());
+                                mzTabMod.addPosition(oldMod.getLocation(), null);
+                                mods.add(mzTabMod);
+                        } else if (param.getAccession().equalsIgnoreCase(CvTermReference.MS_NEUTRAL_LOSS.getAccession())) { //Neutral losses
+                             Double value = 0.0;
+                            if(param.getValue()!=null){
+                                try {
+                                    value = Double.valueOf(param.getValue());
+                                }
+                                catch (NumberFormatException e){
+                                    logger.warn("Neutral loss value: " + param.getValue() + " cannot be converted.");
+                                    value = 0.0;
+                                }
+                            }
 
-                for(CvParam param: oldMod.getCvParams()) {
-                    if(param.getAccession().equalsIgnoreCase(CvTermReference.MS_NEUTRAL_LOSS.getAccession())){
-                        CVParam lost = MzTabUtils.convertCvParamToCVParam(param, 0.0);
+                            CVParam lost = MzTabUtils.convertCvParamToCVParam(param, value);
 
-                        Modification modNeutral = new Modification(Section.PSM, Modification.Type.NEUTRAL_LOSS, lost.getAccession());
-                        modNeutral.setNeutralLoss(lost);
-                        modNeutral.addPosition(oldMod.getLocation(), null);
-                        mods.add(modNeutral);
+                            Modification modNeutral = new Modification(Section.PSM, Modification.Type.NEUTRAL_LOSS, lost.getAccession());
+                            modNeutral.setNeutralLoss(lost);
+                            modNeutral.addPosition(oldMod.getLocation(), null);
+                            mods.add(modNeutral);
+                        } else {
+                            //We have a problem parsing the CvTerm (e.g.: accession "UNIMOD:")
+                            //TODO: Infer the CvTerm using the mass for conversion purposes
+                            logger.warn("Modification with accession: " + param.getAccession() + " cannot be converted.");
+
+                        }
+
                     }
                 }
             }
@@ -628,8 +668,8 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
                 if(spectumMap[1] != null && spectrumReference != null)
                     psm.addSpectraRef(new SpectraRef(metadata.getMsRunMap().get(spectraToRun.get(spectumMap[1])), spectrumReference));
             }
-            psm.setStart(oldPSM.getPeptideEvidence().getStartPosition());
-            psm.setEnd(oldPSM.getPeptideEvidence().getEndPosition());
+
+
 
             // See which psm scores are supported
             for(CvParam cvPAram: oldPSM.getSpectrumIdentification().getCvParams()){
@@ -739,8 +779,8 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
 
 
         // set the modifications
-        // is not necessary check by ambiguous modifications because are not supported in PRIDE XML
-        // the actualization of the metadata with fixed and variable modifications is done in the peptide section
+        // is not necessary check by ambiguous modifications because they are not supported
+        // the actualization of the metadata with fixed and variable modifications is done in the metadata section
         loadModifications(protein, peptides);
 
         return protein;
@@ -824,7 +864,7 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
                     if (ModParam.isBiological(ptm.getCvParams().get(0).getAccession())) {
                         // if we can calculate the position, we add it to the modification
                         // -1 to calculate properly the modification offset
-                        if (peptideEvidence != null && peptideEvidence.getStartPosition() != null && ptm.getLocation() != -1) {
+                        if (peptideEvidence != null && peptideEvidence.getStartPosition() != null && peptideEvidence.getStartPosition() != -1 && ptm.getLocation() != -1) {
                             Integer position = peptideEvidence.getStartPosition() + ptm.getLocation() -1 ;
                             mod.addPosition(position, null);
                             if (ptm.getLocation() > 0 && ptm.getLocation() < (seqLength + 1)) {

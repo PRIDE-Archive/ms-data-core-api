@@ -119,6 +119,7 @@ public class MzTabUtils {
         return getSpectraDataIdFormat(specIdFormat.getAccession());
     }
 
+    //TODO: Extend support for Thermo, Waters, Bruker
     private static Constants.SpecIdFormat getSpectraDataIdFormat(String accession) {
         if (accession.equals("MS:1001528"))
             return Constants.SpecIdFormat.MASCOT_QUERY_NUM;
@@ -190,19 +191,9 @@ public class MzTabUtils {
         Constants.SpecIdFormat fileIdFormat = getSpectraDataIdFormat(spectraData);
 
         if (fileIdFormat == Constants.SpecIdFormat.MASCOT_QUERY_NUM) {
-            String rValueStr = spectrumID.replaceAll("query=", "");
-            String id = null;
-            if(rValueStr.matches(Constants.INTEGER)){
-                id = Integer.toString(Integer.parseInt(rValueStr) - 1);
-            }
-            return id;
+            return "query=" + spectrumID;
         } else if (fileIdFormat == Constants.SpecIdFormat.MULTI_PEAK_LIST_NATIVE_ID) {
-            String rValueStr = spectrumID.replaceAll("index=", "");
-            String id = null;
-            if(rValueStr.matches(Constants.INTEGER)){
-                id = Integer.toString(Integer.parseInt(rValueStr) - 1);
-            }
-            return id;
+            return "index=" + spectrumID;
         } else if (fileIdFormat == Constants.SpecIdFormat.SINGLE_PEAK_LIST_NATIVE_ID) {
             return "file=" + spectrumID;
         } else if (fileIdFormat == Constants.SpecIdFormat.MZML_ID) {

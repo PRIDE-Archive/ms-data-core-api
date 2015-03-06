@@ -23,6 +23,8 @@ import uk.ac.ebi.pride.utilities.mol.NeutralLoss;
 import uk.ac.ebi.pride.utilities.term.CvTermReference;
 import uk.ac.ebi.pride.utilities.term.QuantCvTermReference;
 import uk.ac.ebi.pride.utilities.util.StringUtils;
+import uk.ac.ebi.pridemod.ModReader;
+import uk.ac.ebi.pridemod.model.PTM;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -528,8 +530,10 @@ public class PRIDEMzTabConverter extends AbstractMzTabConverter {
         loadModifications(protein, items);
 
         // protein coverage
-        protein.setProteinConverage(identification.getSequenceCoverage());
-
+        if(identification.getSequenceCoverage()>=0) {
+            protein.setProteinConverage(identification.getSequenceCoverage());
+        }
+        
         //gel location
         if(identification.getGel() != null) {
             String coordinates = "[" + identification.getGel().getXCoordinate() +
@@ -768,31 +772,51 @@ public class PRIDEMzTabConverter extends AbstractMzTabConverter {
             // set exp m/z
             int precursorCharge = peptideItem.getPrecursorCharge();
             double precursorMz = peptideItem.getSpectrumIdentification().getExperimentalMassToCharge();
-
-
             double calculatedMz = peptideItem.getSpectrumIdentification().getCalculatedMassToCharge();
 
             // check the legality of the input arguments first
             if (calculatedMz < 0 && precursorMz > 0 && precursorCharge != 0) {
-                try {
-                    // create a new double array
-                    // attach water loss monoisotopic mass
-                    double[] masses = new double[peptideItem.getModifications().size()+1];
-                    int i=0;
-                    for (Modification modificationItem : peptideItem.getModifications()) {
-                        masses[i++] = modificationItem.getMonoisotopicMassDelta().get(0);
-                    }
-                    masses[i] = NeutralLoss.WATER_LOSS.getMonoMass();
 
+                // create a new double array
+                // attach water loss monoisotopic mass
+                double[] masses;
+                int size = 1;
+                int i = 0;
+
+                if (peptideItem.getModifications() != null && !peptideItem.getModifications().isEmpty()) {
+                    size += peptideItem.getModifications().size();
+                    masses = new double[size];
+                    for (Modification modificationItem : peptideItem.getModifications()) {
+                        if (modificationItem.getMonoisotopicMassDelta() != null && !modificationItem.getMonoisotopicMassDelta().isEmpty()) {
+                            masses[i++] = modificationItem.getMonoisotopicMassDelta().get(0);
+                        } else {
+                            final PTM ptm = ModReader.getInstance().getPTMbyAccession((String) modificationItem.getId());
+                            if (ptm != null) {
+                                masses[i++] = ptm.getMonoDeltaMass();
+                            }
+                            else {
+                                masses[i++] = 0.0;
+                            }
+                            logger.warn("Monoisotopic Mass Delta not available. Calculated m/z can be innacurate");
+                        }
+                    }
+                } else {
+                    masses = new double[size];
+                }
+
+                masses[i] = NeutralLoss.WATER_LOSS.getMonoMass();
+
+                try {
                     // theoretical mass
                     double theoreticalMass = MoleculeUtilities.calculateTheoreticalMass(peptideItem.getSequence(), masses);
 
                     // delta mass
-                    calculatedMz =  (theoreticalMass + precursorCharge * Element.H.getMass()) / precursorCharge;
+                    calculatedMz = (theoreticalMass + precursorCharge * Element.H.getMass()) / precursorCharge;
 //                    calculatedMz =  (theoreticalMass + precursorCharge * NuclearParticle.PROTON.getMonoMass()) / precursorCharge;
 
                 } catch (IllegalAminoAcidSequenceException ex) {
                     // do nothing
+                    logger.warn("Monoisotopic Mass Delta not available. Illegal Amino Acid Sequence provided");
                 }
             }
 
@@ -800,11 +824,11 @@ public class PRIDEMzTabConverter extends AbstractMzTabConverter {
             psm.setExpMassToCharge(precursorMz);
             psm.setCalcMassToCharge(calculatedMz);
 
-            if (peptideItem.getPeptideEvidence().getStartPosition() != null) {
-                psm.setStart(peptideItem.getPeptideEvidence().getStartPosition().toString());
+            if (peptideItem.getPeptideEvidence().getStartPosition() != null && peptideItem.getPeptideEvidence().getStartPosition()>=0) {
+                psm.setStart(peptideItem.getPeptideEvidence().getStartPosition());
             }
-            if (peptideItem.getPeptideEvidence().getEndPosition() != null) {
-                psm.setEnd(peptideItem.getPeptideEvidence().getEndPosition().toString());
+            if (peptideItem.getPeptideEvidence().getEndPosition() != null && peptideItem.getPeptideEvidence().getEndPosition()>=0) {
+                psm.setEnd(peptideItem.getPeptideEvidence().getEndPosition());
             }
 
             // process the additional params -- mainly check for quantity units

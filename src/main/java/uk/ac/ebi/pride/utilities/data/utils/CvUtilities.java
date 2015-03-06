@@ -21,20 +21,25 @@ public class CvUtilities {
         return new CvParam(quantTerm.getAccession(), quantTerm.getName(), quantTerm.getCvLabel(), value, null, null, null);
     }
 
-    public static String getMailFromCvParam(ParamGroup person){
+    public static String getMailFromCvParam(ParamGroup person) {
         String mail = "";
-        for(CvParam cv: person.getCvParams()){
-            if(cv.getAccession().equals(CvTermReference.CONTACT_EMAIL.getAccession()) || cv.getValue().contains("@") ){
-                mail = cv.getValue();
-            }
-        }
-        if(mail.isEmpty()){
-            for(uk.ac.ebi.pride.utilities.data.core.UserParam cv: person.getUserParams()){
-                if(cv.getUnitAcc().equals(CvTermReference.CONTACT_EMAIL.getAccession()) || cv.getValue().contains("@") ){
+        if (person.getCvParams() != null) {
+            for (CvParam cv : person.getCvParams()) {
+                if (cv.getAccession().equals(CvTermReference.CONTACT_EMAIL.getAccession()) || cv.getValue().contains("@")) {
                     mail = cv.getValue();
                 }
             }
         }
+        if (mail.isEmpty()) {
+            if (person.getUserParams() != null) {
+                for (uk.ac.ebi.pride.utilities.data.core.UserParam cv : person.getUserParams()) {
+                    if (cv.getUnitAcc().equals(CvTermReference.CONTACT_EMAIL.getAccession()) || cv.getValue().contains("@")) {
+                        mail = cv.getValue();
+                    }
+                }
+            }
+        }
+
         return mail;
     }
     /**
@@ -58,7 +63,7 @@ public class CvUtilities {
                     if ("Decoy Hit".equals(param.getName())) {
                         return true;
                     }
-                } 
+                }
             }
         }
 

@@ -16,9 +16,9 @@ import java.util.*;
  * @author ntoro
  * @since 24/02/15 10:10
  */
-public class PassThresholdMzIdentMLMzTabConverter extends MzIdentMLMzTabConverter {
+public class HQMzIdentMLMzTabConverter extends MzIdentMLMzTabConverter {
 
-    protected static Logger logger = Logger.getLogger(PassThresholdMzIdentMLMzTabConverter.class);
+    protected static Logger logger = Logger.getLogger(HQMzIdentMLMzTabConverter.class);
 
     public static final String NO_THRESHOLD_MS_AC = "MS:1001494";
     public static final String NO_THRESHOLD = "no threshold";
@@ -41,7 +41,7 @@ public class PassThresholdMzIdentMLMzTabConverter extends MzIdentMLMzTabConverte
      *
      * @param controller The DataAccessController to be Converted to MzTab
      */
-    public PassThresholdMzIdentMLMzTabConverter(MzIdentMLControllerImpl controller) {
+    public HQMzIdentMLMzTabConverter(MzIdentMLControllerImpl controller) {
         super(controller);
         this.controller = controller;
 
@@ -74,35 +74,34 @@ public class PassThresholdMzIdentMLMzTabConverter extends MzIdentMLMzTabConverte
             final Protocol proteinDetectionProtocol = identificationMetaData.getProteinDetectionProtocol();
             final List<SpectrumIdentificationProtocol> spectrumIdDetectionProtocols = identificationMetaData.getSpectrumIdentificationProtocols();
 
-            if (proteinDetectionProtocol != null) {
+            if (proteinDetectionProtocol == null || noThresholdAvailable(proteinDetectionProtocol)) {
 
-                if (noThresholdAvailable(proteinDetectionProtocol)) {
-                    proteinFilter = new NoProteinFilter();
+                proteinFilter = new NoProteinFilter();
 
-                    //We try to detect the spectrum detection protocol no_threshold
-                    if (noThresholdAvailable(spectrumIdDetectionProtocols)) {
-                        //RANK 1 FILTER. The proteins and protein groups will be filtered according to the remaining psms
-                        peptideFilter = new RankOnePeptideFilter();
-                    } else {
-                        //Threshold filter. The proteins and protein groups will be filtered according to the remaining psms
-                        peptideFilter = new ThresholdPeptideFilter();
-                    }
+                //We try to detect the spectrum detection protocol no_threshold
+                if (noThresholdAvailable(spectrumIdDetectionProtocols)) {
+                    //RANK 1 FILTER. The proteins and protein groups will be filtered according to the remaining psms
+                    peptideFilter = new RankOnePeptideFilter();
                 } else {
-                    //Threshold filter. The proteins and protein groups will be filtered according to threshold first
-                    proteinFilter = new ThresholdProteinFilter();
-                    if (noThresholdAvailable(spectrumIdDetectionProtocols)) {
-                        //TODO Rewrite comment
-                        // The proteins and protein groups will not be filtered to avoid remove proteins that has passed the filter
+                    //Threshold filter. The proteins and protein groups will be filtered according to the remaining psms
+                    peptideFilter = new ThresholdPeptideFilter();
+                }
+            } else {
+                //Threshold filter. The proteins and protein groups will be filtered according to threshold first
+                proteinFilter = new ThresholdProteinFilter();
+                if (noThresholdAvailable(spectrumIdDetectionProtocols)) {
+                    //TODO Rewrite comment
+                    // The proteins and protein groups will not be filtered to avoid remove proteins that has passed the filter
 //                        peptideFilter = new NoPeptideFilter();
-                        peptideFilter = new ThresholdPeptideFilter();
+                    peptideFilter = new ThresholdPeptideFilter();
 
-                    } else {
-                        // Threshold filter. We don't expect any change in the proteins after the filter is applied
-                        // TODO: Detect the case a log a warning
-                        peptideFilter = new ThresholdPeptideFilter();
-                    }
+                } else {
+                    // Threshold filter. We don't expect any change in the proteins after the filter is applied
+                    // TODO: Detect the case a log a warning
+                    peptideFilter = new ThresholdPeptideFilter();
                 }
             }
+
         } else {
             //No threshold information at all (protein or peptide)
             proteinFilter = new NoProteinFilter();
@@ -181,9 +180,9 @@ public class PassThresholdMzIdentMLMzTabConverter extends MzIdentMLMzTabConverte
             if (identificationMetaData != null) {
                 assert identificationMetaData.getProteinDetectionProtocol() == null;
             }
-            // Iterate over proteins. We assume that ghre is no threshold information becasue there is no detection list,
+            // Iterate over proteins. We assume that there is no threshold information because there is no detection list,
             // so we don't have proteinDetectionProtocol
-            for (Comparable id : proteinIds) {
+            for (Comparable id : source.getProteinIds()) {
 
                 // Check the protein and peptides threshold
                 uk.ac.ebi.pride.utilities.data.core.Protein msProtein = source.getProteinById(id);
@@ -191,7 +190,7 @@ public class PassThresholdMzIdentMLMzTabConverter extends MzIdentMLMzTabConverte
 
                 if (peptides != null) {
                     uk.ac.ebi.pride.jmztab.model.Protein identification = loadProtein(msProtein, peptides);
-                    identification.setOptionColumnValue(SAME_SET, null);
+//                    identification.setOptionColumnValue(SAME_SET, null);
                     proteins.add(identification);
                     psms.addAll(loadPSMs(msProtein, peptides));
                 }

@@ -200,7 +200,7 @@ public class Protein extends IdentifiableParamGroup {
         return sequenceCoverage;
     }
 
-    public void setSequenceCoverage(double sequenceCoverage) {
+    public void  setSequenceCoverage(double sequenceCoverage) {
         this.sequenceCoverage = sequenceCoverage;
     }
 
