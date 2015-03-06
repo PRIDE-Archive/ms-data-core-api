@@ -248,9 +248,11 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter{
         if(!softwareList.isEmpty()){
 
             for(int i = 0; i < softwareList.size(); i++){
-                CvParam nameCVparam = softwareList.get(i).getCvParams().get(0);
-                if(nameCVparam!=null){
 
+                List<CvParam> nameCVparamList = softwareList.get(i).getCvParams();
+                CvParam nameCVparam = null;
+                if(nameCVparamList != null && nameCVparamList.size() != 0 && nameCVparamList.get(0) !=null ){
+                    nameCVparam = nameCVparamList.get(0);
                     String version = (softwareList.get(i).getVersion() != null && !softwareList.get(i).getVersion().isEmpty())? softwareList.get(i).getVersion():"";
                     CVParam nameCV = MzTabUtils.convertCvParamToCVParam(nameCVparam);
                     metadata.addSoftwareParam(i+1, nameCV);
