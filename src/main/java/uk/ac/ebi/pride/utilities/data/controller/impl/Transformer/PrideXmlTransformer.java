@@ -417,7 +417,12 @@ public final class PrideXmlTransformer {
             Score score = new Score();
             if(scoreValue != null){
                 SearchEngineScoreCvTermReference searchEngineScoreParam = SearchEngineScoreCvTermReference.getSearchEngineScoreParamByName(searchEngineName);
-                score.addScore(searchEngineScoreParam.getSearchEngineParam(), searchEngineScoreParam, scoreValue);
+                if(searchEngineScoreParam!= null) {
+                    score.addScore(searchEngineScoreParam.getSearchEngineParam(), searchEngineScoreParam, scoreValue);
+                }
+                else {
+                    score.addScore(SearchEngineScoreCvTermReference.MS_SEARCH_ENGINE_SPECIFIC_SCORE.getSearchEngineParam(),SearchEngineScoreCvTermReference.MS_SEARCH_ENGINE_SPECIFIC_SCORE, scoreValue);
+                }
             }
             else {
                 score.addScore(SearchEngineScoreCvTermReference.MS_SEARCH_ENGINE_SPECIFIC_SCORE.getSearchEngineParam(),SearchEngineScoreCvTermReference.MS_SEARCH_ENGINE_SPECIFIC_SCORE, null);

@@ -116,7 +116,9 @@ public abstract class AbstractMzTabConverter extends ConvertProvider<DataAccessC
         }
 
         //Load URI
-        loadURI(source.getExperimentMetaData().getId().toString());
+        if(source.getExperimentMetaData()!=null && source.getExperimentMetaData().getId()!=null) {
+            loadURI(source.getExperimentMetaData().getId().toString());
+        }
 
         //The description should be added in loadExperiment()
         //TODO: Move to the right place, it is a default checking (ConverterProvider)
