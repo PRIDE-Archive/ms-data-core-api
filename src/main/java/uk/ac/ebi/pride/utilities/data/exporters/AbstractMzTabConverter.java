@@ -22,6 +22,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static uk.ac.ebi.pride.jmztab.model.MZTabUtils.isEmpty;
+import static uk.ac.ebi.pride.utilities.data.utils.MzTabUtils.removeNewLineAndTab;
 
 /**
  * ms-data-core api will plan to export all the data to mztab files using the jmzTab library.
@@ -155,7 +156,7 @@ public abstract class AbstractMzTabConverter extends ConvertProvider<DataAccessC
             //DOI
             String doi = ref.getDoi();
             if(doi != null && !doi.isEmpty()){
-                items.add(new PublicationItem(PublicationItem.Type.DOI, doi));
+                items.add(new PublicationItem(PublicationItem.Type.DOI, removeNewLineAndTab(doi)));
             }
             //PubMed
             if(ref.getCvParams() != null){
@@ -416,27 +417,6 @@ public abstract class AbstractMzTabConverter extends ConvertProvider<DataAccessC
     private String getFileNameWithoutExtension(String fileName) {
         int lastIndexOfDot = fileName.lastIndexOf(".");
         return fileName.substring(0, lastIndexOfDot);
-    }
-
-    /**
-     * If there exists reserved characters in value, remove them all.
-     */
-    private String removeNewLineAndTab(String value) {
-        if (value != null) {
-            value = value.trim();
-
-            // define a reserved character list.
-            List<String> reserveCharList = new ArrayList<String>();
-
-            reserveCharList.add("\n");
-            reserveCharList.add("\t");
-
-            for (String c : reserveCharList) {
-                value = value.replaceAll(c, "");
-            }
-        }
-
-        return value;
     }
 
     protected static String generateAccession(uk.ac.ebi.pride.utilities.data.core.Protein identification) {

@@ -30,7 +30,7 @@ public class MzTabUtils {
      */
     public static CVParam convertCvParamToCVParam(CvParam cvParam){
         if(cvParam != null)
-         return new CVParam(cvParam.getCvLookupID(),cvParam.getAccession(),cvParam.getName(),cvParam.getValue());
+         return new CVParam(cvParam.getCvLookupID(),cvParam.getAccession(),removeNewLineAndTab(cvParam.getName()),removeNewLineAndTab(cvParam.getValue()));
         return null;
     }
 
@@ -42,7 +42,7 @@ public class MzTabUtils {
     public static CVParam convertCvParamToCVParam(CvParam cvParam, Double mass){
         if(cvParam != null) {
             if (mass != null)
-                return new CVParam(cvParam.getCvLookupID(), cvParam.getAccession(), cvParam.getName(), mass.toString());
+                return new CVParam(cvParam.getCvLookupID(), cvParam.getAccession(), removeNewLineAndTab(cvParam.getName()), mass.toString());
             else
                return convertCvParamToCVParam(cvParam);
         }
@@ -69,7 +69,7 @@ public class MzTabUtils {
 
     public static UserParam convertStringToUserParam(String value) {
         if(value != null && !value.isEmpty()){
-            return new UserParam(null,null,value,null,null,null);
+            return new UserParam(null,null,removeNewLineAndTab(value),null,null,null);
         }
         return null;
     }
@@ -80,7 +80,7 @@ public class MzTabUtils {
      * @return Return a CVParam
      */
     public static CVParam convertUserParamToCVParam(UserParam param) {
-        return new CVParam(null, null, param.getName(), param.getValue());
+        return new CVParam(null, null, removeNewLineAndTab(param.getName()), removeNewLineAndTab(param.getValue()));
     }
 
     /**
@@ -206,10 +206,8 @@ public class MzTabUtils {
     }
 
 
-
-
     public static CvParam convertParamToCvParam(Param param) {
-        return new CvParam(param.getAccession(),param.getName(),param.getCvLabel(),param.getValue(),null,null,null);
+        return new CvParam(param.getAccession(), removeNewLineAndTab(param.getName()),param.getCvLabel(),removeNewLineAndTab(param.getValue()),null,null,null);
     }
 
     /**
@@ -231,5 +229,26 @@ public class MzTabUtils {
                 }
         }
         return null;
+    }
+
+    /**
+     * If there exists reserved characters in value, remove them all.
+     */
+    public static String removeNewLineAndTab(String value) {
+        if (value != null) {
+            value = value.trim();
+
+            // define a reserved character list.
+            List<String> reserveCharList = new ArrayList<String>();
+
+            reserveCharList.add("\n");
+            reserveCharList.add("\t");
+
+            for (String c : reserveCharList) {
+                value = value.replaceAll(c, " ");
+            }
+        }
+
+        return value;
     }
 }

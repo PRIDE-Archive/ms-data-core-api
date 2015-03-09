@@ -25,6 +25,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
 
+import static uk.ac.ebi.pride.utilities.data.utils.MzTabUtils.removeNewLineAndTab;
+
 /**
  * @author ypriverol
  * @author ntoro
@@ -351,6 +353,7 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
         Protocol proteinDetectionProtocol = source.getIdentificationMetaData().getProteinDetectionProtocol();
         List<SpectrumIdentificationProtocol> spectrumIdentificationProtocolList = source.getIdentificationMetaData().getSpectrumIdentificationProtocols();
 
+<<<<<<< HEAD
         if (!softwareList.isEmpty()) {
 
             for (int i = 0; i < softwareList.size(); i++) {
@@ -364,6 +367,30 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
                         CvParam nameCVparam = softwareList.get(i).getCvParams().get(0);
                         if (nameCVparam != null) {
                             nameCV = new CVParam(nameCVparam.getCvLookupID(), nameCVparam.getAccession(), nameCVparam.getName(), version);
+=======
+        if(!softwareList.isEmpty()){
+
+            for(int i = 0; i < softwareList.size(); i++){
+
+                List<CvParam> nameCVparamList = softwareList.get(i).getCvParams();
+                CvParam nameCVparam = null;
+                if(nameCVparamList != null && nameCVparamList.size() != 0 && nameCVparamList.get(0) !=null ){
+                    nameCVparam = nameCVparamList.get(0);
+                    String version = (softwareList.get(i).getVersion() != null && !softwareList.get(i).getVersion().isEmpty())? softwareList.get(i).getVersion():"";
+                    CVParam nameCV = MzTabUtils.convertCvParamToCVParam(nameCVparam);
+                    metadata.addSoftwareParam(i+1, nameCV);
+                    if(proteinDetectionProtocol != null && proteinDetectionProtocol.getAnalysisSoftware() != null &&
+                            proteinDetectionProtocol.getAnalysisSoftware().getId().equals(softwareList.get(i).getId())){
+                        if(proteinDetectionProtocol.getThreshold() != null){
+                            loadCvParamSettings(i+1, proteinDetectionProtocol.getThreshold());
+
+                            //Add FDR at Protein level if is annotated
+                            for(CvParam cvParam: proteinDetectionProtocol.getThreshold().getCvParams())
+                                if(CvTermReference.MS_GLOBAL_FDR_PROTEIN.getAccession().equalsIgnoreCase(cvParam.getAccession()) ||
+                                        CvTermReference.MS_LOCAL_FDR_PROTEIN.getAccession().equalsIgnoreCase(cvParam.getAccession()) ||
+                                        CvTermReference.MS_FDR_PROTEIN.getAccession().equalsIgnoreCase(cvParam.getAccession()))
+                                    metadata.addFalseDiscoveryRateParam(MzTabUtils.convertCvParamToCVParam(cvParam));
+>>>>>>> master
                         }
                     } else if (!softwareList.get(i).getUserParams().isEmpty()) {
                         UserParam nameUserParam = softwareList.get(i).getUserParams().get(0);
@@ -486,7 +513,7 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
                 description = description.substring(0,description.length()-1);
             }
         }
-        metadata.setDescription(description);
+        metadata.setDescription(removeNewLineAndTab(description));
     }
 
     @Override
@@ -558,7 +585,7 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
             PSM psm = new PSM(psmColumnFactory, metadata);
             psm.setSequence(oldPSM.getPeptideSequence().getSequence());
             psm.setPSM_ID(oldPSM.getSpectrumIdentification().getId().toString());
-            psm.setAccession(generateAccession(oldPSM));
+            psm.setAccession(removeNewLineAndTab(generateAccession(oldPSM)));
 
             ParamGroup nameDatabase = oldPSM.getPeptideEvidence().getDbSequence().getSearchDataBase().getNameDatabase();
             psm.setDatabase(getDatabaseName(nameDatabase.getCvParams(), nameDatabase.getUserParams()));
@@ -727,7 +754,7 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
 
         // create the protein object
         Protein protein = new Protein(proteinColumnFactory);
-        protein.setAccession(sequence.getAccession());
+        protein.setAccession(removeNewLineAndTab(generateAccession(msProtein)));
         protein.setDatabase(getDatabaseName(sequence.getSearchDataBase().getNameDatabase().getCvParams(), sequence.getSearchDataBase().getNameDatabase().getUserParams()));
         String version = (sequence.getSearchDataBase().getVersion() != null && !sequence.getSearchDataBase().getVersion().isEmpty()) ? sequence.getSearchDataBase().getVersion() : null;
         protein.setDatabaseVersion(version);
@@ -809,7 +836,7 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
 
             if (mod != null) {
                 // only biological significant modifications are propagated to the protein
-                if (peptideEvidence.getStartPosition() != null && ptm.getLocation() != -1) {
+                if (peptideEvidence.getStartPosition() != null && peptideEvidence.getStartPosition() >= 0 && ptm.getLocation() >= 0) {
                     Integer position = peptideEvidence.getStartPosition() + ptm.getLocation();
                     mod.addPosition(position, null);
                 }
@@ -864,7 +891,7 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
                     if (ModParam.isBiological(ptm.getCvParams().get(0).getAccession())) {
                         // if we can calculate the position, we add it to the modification
                         // -1 to calculate properly the modification offset
-                        if (peptideEvidence != null && peptideEvidence.getStartPosition() != null && peptideEvidence.getStartPosition() != -1 && ptm.getLocation() != -1) {
+                        if (peptideEvidence != null && peptideEvidence.getStartPosition() != null && peptideEvidence.getStartPosition() >= 0 && ptm.getLocation() >= 0) {
                             Integer position = peptideEvidence.getStartPosition() + ptm.getLocation() -1 ;
                             mod.addPosition(position, null);
                             if (ptm.getLocation() > 0 && ptm.getLocation() < (seqLength + 1)) {
