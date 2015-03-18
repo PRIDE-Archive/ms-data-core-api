@@ -24,7 +24,6 @@ public class MzTabPRIDEConverterTest {
             throw new IllegalStateException("No file for input found!");
         }
         File inputFile = new File(url.toURI());
-//        File inputFile = new File("/Users/ntoro/Desktop/mzTabs/PRIDE_Exp_Complete_Ac_9218.xml");
         prideController = new PrideXmlControllerImpl(inputFile);
     }
 
@@ -32,15 +31,9 @@ public class MzTabPRIDEConverterTest {
     public void convertPrideToMzTab() throws IOException {
         AbstractMzTabConverter mzTabconverter = new PRIDEMzTabConverter(prideController);
         MZTabFile mzTabFile = mzTabconverter.getMZTabFile();
-        OutputStream out = null;
-        out = new BufferedOutputStream(new FileOutputStream(new File("temp", "test-pride.mztab.msdatacore")));
-        mzTabFile.printMZTab(out);
-
         MZTabFileConverter checker = new MZTabFileConverter();
         checker.check(mzTabFile);
         assertTrue("No errors reported during the conversion from PRIDE XML to MzTab", checker.getErrorList().size() == 0);
-        out.close();
-
     }
 
     @After

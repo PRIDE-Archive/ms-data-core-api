@@ -36,20 +36,11 @@ public class HQMzIdentMLMzTabConverterTest {
 
     @Test
     public void convertToMzTab() throws IOException {
-       // AbstractMzTabConverter mzTabconverter = new MzIdentMLMzTabConverter(prideController);
-       // MZTabFile mzTabFile = mzTabconverter.getMZTabFile();
-       // MZTabFileConverter checker = new MZTabFileConverter();
-       // checker.check(mzTabFile);
-       // TestCase.assertTrue("No errors reported during the conversion from PRIDE XML to MzTab", checker.getErrorList().size() == 0);
         AbstractMzTabConverter mzTabconverter = new HQMzIdentMLMzTabConverter(mzIdentMLController);
         MZTabFile mzTabFile = mzTabconverter.getMZTabFile();
-        OutputStream out = new BufferedOutputStream(new FileOutputStream(new File("temp","55merge_mascot_full.mzid.mzTab")));
-        mzTabFile.printMZTab(out);
-
         MZTabFileConverter checker = new MZTabFileConverter();
         checker.check(mzTabFile);
         assertTrue("No errors reported during the conversion from MzIdentML to MzTab", checker.getErrorList().size() == 0);
-        out.close();
     }
 
     @After
