@@ -78,6 +78,11 @@ public abstract class AbstractMzTabConverter extends ConvertProvider<DataAccessC
          *  Is really common that name of the mzidentml is not provided then we will use Ids if the name is not provided.
          */
         String title = source.getExperimentMetaData().getName() != null? source.getExperimentMetaData().getName():source.getExperimentMetaData().getId().toString();
+        
+        /**
+         * We need to remove the tab and other special characters for lines because they break the mzTab validator.  
+         */
+         
         metadata.setTitle(removeNewLineAndTab(title));
 
         //Get Software information from DataAccsessController
