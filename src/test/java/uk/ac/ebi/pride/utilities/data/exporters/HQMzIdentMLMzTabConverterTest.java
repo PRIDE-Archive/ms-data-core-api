@@ -16,19 +16,21 @@ import static org.junit.Assert.assertTrue;
  * MzTab Controller Test
  * @author ypriverol
  * @author rwang
+ * @author ntoro
  */
-public class MzTabMzIdentMLConverterTest {
+public class HQMzIdentMLMzTabConverterTest {
 
     private MzIdentMLControllerImpl mzIdentMLController = null;
 
 
     @Before
     public void setUp() throws Exception {
-        URL url = MzTabPRIDEConverterTest.class.getClassLoader().getResource("55merge_mascot_full.mzid");
+        URL url = HQMzIdentMLMzTabConverterTest.class.getClassLoader().getResource("55merge_mascot_full.mzid");
         if (url == null) {
             throw new IllegalStateException("no file for input found!");
         }
         File inputFile = new File(url.toURI());
+//        File inputFile = new File("/Users/ntoro/Desktop/mzTabs/OIS_3d_Protein_LABELSWAP.mzid-pride-filtered.xml");
         mzIdentMLController = new MzIdentMLControllerImpl(inputFile);
     }
 
@@ -39,9 +41,9 @@ public class MzTabMzIdentMLConverterTest {
        // MZTabFileConverter checker = new MZTabFileConverter();
        // checker.check(mzTabFile);
        // TestCase.assertTrue("No errors reported during the conversion from PRIDE XML to MzTab", checker.getErrorList().size() == 0);
-        AbstractMzTabConverter mzTabconverter = new MzIdentMLMzTabConverter(mzIdentMLController);
+        AbstractMzTabConverter mzTabconverter = new HQMzIdentMLMzTabConverter(mzIdentMLController);
         MZTabFile mzTabFile = mzTabconverter.getMZTabFile();
-        OutputStream out = new BufferedOutputStream(new FileOutputStream(new File("temp", "55merge_mascot_full.mzid.mzTab")));
+        OutputStream out = new BufferedOutputStream(new FileOutputStream(new File("temp","55merge_mascot_full.mzid.mzTab")));
         mzTabFile.printMZTab(out);
 
         MZTabFileConverter checker = new MZTabFileConverter();

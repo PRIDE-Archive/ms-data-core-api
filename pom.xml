@@ -5,6 +5,7 @@
     <groupId>uk.ac.ebi.pride.utilities</groupId>
     <artifactId>ms-data-core-api</artifactId>
     <version>2.0.4-SNAPSHOT</version>
+
     <name>Open-source Data Model for computational proteomics</name>
     <url>http://github.com/PRIDE-Utilities/ms-data-core-api</url>
     <description>Open-source java library to handle different file format standards for proteomics. Specially ms-data-core-api is good for MetaData representation.</description>
@@ -80,8 +81,8 @@
         <jdom.version>2.0.2</jdom.version>
         <c3p0.version>0.9.1.2</c3p0.version>
         <springframewrok.version>3.2.3.RELEASE</springframewrok.version>
-        <pride-utilities.version>2.0.3-SNAPSHOT</pride-utilities.version>
-        <json.version>20090211</json.version>
+        <pride-utilities.version>2.0.4-SNAPSHOT</pride-utilities.version>
+       <json.version>20090211</json.version>
 
     </properties>
 
@@ -140,7 +141,7 @@
         </dependency>
         <!-- End -->
 
-        <!-- mzTab dependencies   -->
+        <!-- mzTab dependencies -->
         <dependency>
             <groupId>uk.ac.ebi.pride</groupId>
             <artifactId>jmztab-modular-model</artifactId>
@@ -158,6 +159,13 @@
         </dependency>
        <!-- End  -->
 
+        <!-- pride mod dependency -->
+        <dependency>
+            <groupId>uk.ac.ebi.pride.utilities</groupId>
+            <artifactId>pride-mod</artifactId>
+            <version>2.1.0</version>
+        </dependency>
+        <!-- End  -->
 
         <!-- Begin of the jmzReader Dependencies. MzML and Pride XML files will be parse
           with jaxb and jmzml directly in order to keep more matadata -->

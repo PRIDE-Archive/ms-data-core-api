@@ -24,6 +24,7 @@ public class MzTabPRIDEConverterTest {
             throw new IllegalStateException("No file for input found!");
         }
         File inputFile = new File(url.toURI());
+//        File inputFile = new File("/Users/ntoro/Desktop/mzTabs/PRIDE_Exp_Complete_Ac_9218.xml");
         prideController = new PrideXmlControllerImpl(inputFile);
     }
 

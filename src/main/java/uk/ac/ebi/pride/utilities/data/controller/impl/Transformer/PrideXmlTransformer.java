@@ -413,15 +413,15 @@ public final class PrideXmlTransformer {
 
             Number scoreValue = (rawIdent.getScore() != null)? rawIdent.getScore(): null;
             String searchEngineName = rawIdent.getSearchEngine();
+            SearchEngineScoreCvTermReference searchEngineScoreParam = SearchEngineScoreCvTermReference.getSearchEngineScoreParamByName(searchEngineName);
 
             Score score = new Score();
-            if(scoreValue != null){
-                SearchEngineScoreCvTermReference searchEngineScoreParam = SearchEngineScoreCvTermReference.getSearchEngineScoreParamByName(searchEngineName);
+            if (searchEngineScoreParam != null) {
                 score.addScore(searchEngineScoreParam.getSearchEngineParam(), searchEngineScoreParam, scoreValue);
+            } else {
+                score.addScore(SearchEngineScoreCvTermReference.MS_SEARCH_ENGINE_SPECIFIC_SCORE.getSearchEngineParam(), SearchEngineScoreCvTermReference.MS_SEARCH_ENGINE_SPECIFIC_SCORE, scoreValue);
             }
-            else {
-                score.addScore(SearchEngineScoreCvTermReference.MS_SEARCH_ENGINE_SPECIFIC_SCORE.getSearchEngineParam(),SearchEngineScoreCvTermReference.MS_SEARCH_ENGINE_SPECIFIC_SCORE, null);
-            }
+
 
             ident = new Protein(params, rawIdent.getId(), null, dbSequence, false, peptides, score, thresholdVal, seqConverageVal, gel);
         }
@@ -475,16 +475,15 @@ public final class PrideXmlTransformer {
 //            Number scoreValue = (rawIdent.getScore() != null)? rawIdent.getScore(): null;
 //            score.addScore(SearchEngineScoreCvTermReference.MS_SEARCH_ENGINE_SPECIFIC_SCORE.getSearchEngineParam(),SearchEngineScoreCvTermReference.MS_SEARCH_ENGINE_SPECIFIC_SCORE,scoreValue);
 
-            Number scoreValue = (rawIdent.getScore() != null)? rawIdent.getScore(): null;
+            Number scoreValue = rawIdent.getScore();
             String searchEngineName = rawIdent.getSearchEngine();
+            SearchEngineScoreCvTermReference searchEngineScoreParam = SearchEngineScoreCvTermReference.getSearchEngineScoreParamByName(searchEngineName);
 
             Score score = new Score();
-            if(scoreValue != null){
-                SearchEngineScoreCvTermReference searchEngineScoreParam = SearchEngineScoreCvTermReference.getSearchEngineScoreParamByName(searchEngineName);
+            if (searchEngineScoreParam != null) {
                 score.addScore(searchEngineScoreParam.getSearchEngineParam(), searchEngineScoreParam, scoreValue);
-            }
-            else {
-                score.addScore(SearchEngineScoreCvTermReference.MS_SEARCH_ENGINE_SPECIFIC_SCORE.getSearchEngineParam(),SearchEngineScoreCvTermReference.MS_SEARCH_ENGINE_SPECIFIC_SCORE, null);
+            } else {
+                score.addScore(SearchEngineScoreCvTermReference.MS_SEARCH_ENGINE_SPECIFIC_SCORE.getSearchEngineParam(), SearchEngineScoreCvTermReference.MS_SEARCH_ENGINE_SPECIFIC_SCORE, scoreValue);
             }
 
             //TODO Add Score to params

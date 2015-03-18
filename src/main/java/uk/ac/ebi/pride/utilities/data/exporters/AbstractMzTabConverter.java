@@ -18,8 +18,11 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static uk.ac.ebi.pride.jmztab.model.MZTabUtils.isEmpty;
+import static uk.ac.ebi.pride.utilities.data.utils.MzTabUtils.removeNewLineAndTab;
 
 /**
  * ms-data-core api will plan to export all the data to mztab files using the jmzTab library.
@@ -75,6 +78,11 @@ public abstract class AbstractMzTabConverter extends ConvertProvider<DataAccessC
          *  Is really common that name of the mzidentml is not provided then we will use Ids if the name is not provided.
          */
         String title = source.getExperimentMetaData().getName() != null? source.getExperimentMetaData().getName():source.getExperimentMetaData().getId().toString();
+        
+        /**
+         * We need to remove the tab and other special characters for lines because they break the mzTab validator.  
+         */
+         
         metadata.setTitle(removeNewLineAndTab(title));
 
         //Get Software information from DataAccsessController
@@ -114,7 +122,9 @@ public abstract class AbstractMzTabConverter extends ConvertProvider<DataAccessC
         }
 
         //Load URI
-        loadURI(source.getExperimentMetaData().getId().toString().trim());
+        if(source.getExperimentMetaData()!=null && source.getExperimentMetaData().getId()!=null) {
+            loadURI(source.getExperimentMetaData().getId().toString());
+        }
 
         //The description should be added in loadExperiment()
         //TODO: Move to the right place, it is a default checking (ConverterProvider)
@@ -127,7 +137,7 @@ public abstract class AbstractMzTabConverter extends ConvertProvider<DataAccessC
 
 
         metadata.addCustom(new uk.ac.ebi.pride.jmztab.model.UserParam("Date of export", new Date().toString()));
-        metadata.addCustom(new uk.ac.ebi.pride.jmztab.model.UserParam("Original converted file", ((File)(source.getSource())).toURI().toString()));
+        metadata.addCustom(new uk.ac.ebi.pride.jmztab.model.UserParam("Original converted file", ((File)(source.getSource())).toURI().getPath()));
 
         return metadata;
     }
@@ -141,6 +151,8 @@ public abstract class AbstractMzTabConverter extends ConvertProvider<DataAccessC
      * Converts the experiment's references into a couple of {@link uk.ac.ebi.pride.jmztab.model.PublicationItem} (including DOIs and PubMed ids)
      */
     protected void loadReferences() {
+
+
         List<Reference> references = source.getExperimentMetaData().getReferences();
         int i = 1;
         for(Reference ref: references){
@@ -149,7 +161,7 @@ public abstract class AbstractMzTabConverter extends ConvertProvider<DataAccessC
             //DOI
             String doi = ref.getDoi();
             if(doi != null && !doi.isEmpty()){
-                items.add(new PublicationItem(PublicationItem.Type.DOI, doi));
+                items.add(new PublicationItem(PublicationItem.Type.DOI, removeNewLineAndTab(doi)));
             }
             //PubMed
             if(ref.getCvParams() != null){
@@ -159,8 +171,10 @@ public abstract class AbstractMzTabConverter extends ConvertProvider<DataAccessC
                     items.add(new PublicationItem(PublicationItem.Type.PUBMED, removeNewLineAndTab(pubmed)));
                 }
             }
-            metadata.addPublicationItems(i, items);
-            i++;
+            if(!items.isEmpty()) {
+                metadata.addPublicationItems(i, items);
+                i++;
+            }
         }
     }
 
@@ -192,28 +206,54 @@ public abstract class AbstractMzTabConverter extends ConvertProvider<DataAccessC
             return;
         }
 
+        String regexp = "[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-']+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})";
+
+        Pattern pattern = Pattern.compile(regexp);
+        Matcher matcher;
+
         // initialize the return variable
         int id = 1;
         for (Person c : contactList) {
             String name = (c.getName()!=null)?c.getName():c.getId().toString();
-
             name = (c.getLastname() != null)? name + " " + c.getLastname():name;
-            if(!name.isEmpty()){
-                metadata.addContactName(id, name);
-                String affiliation = "";
-                if(c.getAffiliation().get(0) != null && c.getAffiliation().get(0) != null){
-                    if(c.getAffiliation().get(0).getName() != null)
+
+            String affiliation = null;
+            String originalContact = c.getContactInfo();
+
+            if(!name.isEmpty()) {
+                metadata.addContactName(id, removeNewLineAndTab(name));
+            }
+            if(c.getAffiliation() != null && !c.getAffiliation().isEmpty()) {
+                if (c.getAffiliation().get(0) != null) {
+                    if (c.getAffiliation().get(0).getName() != null)
                         affiliation = c.getAffiliation().get(0).getName();
                     else
                         affiliation = c.getAffiliation().get(0).getId().toString();
                 }
-                metadata.addContactAffiliation(id, affiliation);
-                String mail  = CvUtilities.getMailFromCvParam(c);
-                if (!mail.isEmpty()) {
-                    metadata.addContactEmail(id, mail);
+                if(affiliation!= null){
+                    metadata.addContactAffiliation(id, removeNewLineAndTab(affiliation));
                 }
-                id++;
             }
+            if(!isEmpty(originalContact)) {
+                //Some files are annotated using more than one email, we will use the first one
+                matcher = pattern.matcher(originalContact);
+
+                if (matcher.find()) {
+                    originalContact = matcher.group();
+                    logger.debug("Original contact info: \"" + c.getContactInfo() + "\" email extracted -> \"" + originalContact + "\"");
+                    if (!isEmpty(originalContact)) {
+                        metadata.addContactEmail(id, originalContact);
+                    }
+                    else {
+                        String mail  = CvUtilities.getMailFromCvParam(c);
+                        if (!mail.isEmpty()) {
+                            metadata.addContactEmail(id, mail);
+                        }
+                    }
+                }
+            }
+            id++;
+
         }
     }
 
@@ -318,7 +358,8 @@ public abstract class AbstractMzTabConverter extends ConvertProvider<DataAccessC
         if (expAccession == null || expAccession.isEmpty()) {
             return;
         }
-        expAccession = expAccession.replaceAll("\\s+","-");
+
+        expAccession = expAccession.trim().replaceAll("\\s+","-");
         try {
             URI uri = new URI("http://www.ebi.ac.uk/pride/archive/assays/" + expAccession);
             metadata.addUri(uri);
@@ -383,26 +424,21 @@ public abstract class AbstractMzTabConverter extends ConvertProvider<DataAccessC
         return fileName.substring(0, lastIndexOfDot);
     }
 
-    /**
-     * If there exists reserved characters in value, remove them all.
-     */
-    private String removeNewLineAndTab(String value) {
-        if (value != null) {
-            value = value.trim();
-
-            // define a reserved character list.
-            List<String> reserveCharList = new ArrayList<String>();
-
-            reserveCharList.add("\n");
-            reserveCharList.add("\t");
-
-            for (String c : reserveCharList) {
-                value = value.replaceAll(c, "");
-            }
+    protected static String generateAccession(uk.ac.ebi.pride.utilities.data.core.Protein identification) {
+        String accession = identification.getDbSequence().getAccession();
+        if(identification.getDbSequence().getAccessionVersion() != null ){
+            //TODO: Standardise the way that we add the version
+            accession = accession + '.' + identification.getDbSequence().getAccessionVersion();
         }
-
-        return value;
+        return accession;
     }
 
-
+    protected static String generateAccession(uk.ac.ebi.pride.utilities.data.core.Peptide identification) {
+        String accession = identification.getPeptideEvidence().getDbSequence().getAccession();
+        if(identification.getPeptideEvidence().getDbSequence().getAccessionVersion() != null ){
+            //TODO: Standardise the way that we add the version
+            accession = accession + '.' + identification.getPeptideEvidence().getDbSequence().getAccessionVersion();
+        }
+        return accession;
+    }
 }
