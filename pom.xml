@@ -80,8 +80,8 @@
         <jdom.version>2.0.2</jdom.version>
         <c3p0.version>0.9.1.2</c3p0.version>
         <springframewrok.version>3.2.3.RELEASE</springframewrok.version>
-        <pride-utilities.version>2.0.3</pride-utilities.version>
-       <json.version>20090211</json.version>
+        <pride-utilities.version>2.0.3-SNAPSHOT</pride-utilities.version>
+        <json.version>20090211</json.version>
 
     </properties>
 

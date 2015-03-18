@@ -27,9 +27,9 @@ public enum CacheEntry {
     EXPERIMENT_METADATA(ArrayList.class, null),                // List<Experiment Metadata>
     PROTEIN_METADATA(ArrayList.class, null),                   // List of Identification Metadata for Protein Identification
     MZGRAPH_METADATA(ArrayList.class, null),                   // List of MZGraph Metadata
-    SEARCH_ENGINE_TYPE(ArrayList.class, null),                 // List<SearchEngineTypes>
-    PROTEIN_LEVEL_SCORES(ArrayList.class, null),               // List<CvTermReference>
-    PEPTIDE_LEVEL_SCORES(ArrayList.class, null),               // List<CvTermReference>
+    SEARCH_ENGINE_TYPE(ArrayList.class, null),                 // List<SearchEngineCvTermReferences>
+    PROTEIN_LEVEL_SCORES(ArrayList.class, null),               // List<SearchEngineScoreCvTermReferences>
+    PEPTIDE_LEVEL_SCORES(ArrayList.class, null),               // List<SearchEngineScoreCvTermReferences>
     SPECTRUM_ID(ArrayList.class, null),                        // List<Spectrum id>
     CHROMATOGRAM_ID(ArrayList.class, null),                    // List<Chromatogram id>
     PROTEIN_ID(ArrayList.class, null),                         // List<Identification id>

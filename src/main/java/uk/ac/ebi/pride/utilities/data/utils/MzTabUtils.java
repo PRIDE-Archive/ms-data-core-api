@@ -1,13 +1,13 @@
 package uk.ac.ebi.pride.utilities.data.utils;
 
+import uk.ac.ebi.pride.jmztab.model.*;
+import uk.ac.ebi.pride.jmztab.utils.convert.SearchEngineScoreParam;
 import uk.ac.ebi.pride.utilities.data.core.CvParam;
 import uk.ac.ebi.pride.utilities.data.core.Score;
 import uk.ac.ebi.pride.utilities.data.core.SpectraData;
 import uk.ac.ebi.pride.utilities.data.core.UserParam;
-import uk.ac.ebi.pride.jmztab.model.*;
-import uk.ac.ebi.pride.jmztab.utils.convert.SearchEngineScoreParam;
-import uk.ac.ebi.pride.utilities.term.CvTermReference;
 import uk.ac.ebi.pride.utilities.term.QuantCvTermReference;
+import uk.ac.ebi.pride.utilities.term.SearchEngineScoreCvTermReference;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -90,7 +90,7 @@ public class MzTabUtils {
     public static List<SearchEngineScoreParam> getSearchEngineScoreTerm(Score score) {
         List<SearchEngineScoreParam> scores = new ArrayList<SearchEngineScoreParam>();
         if (score != null)
-            for (CvTermReference term : score.getCvTermReferenceWithValues())
+            for (SearchEngineScoreCvTermReference term : score.getSearchEngineScoreCvTermReferenceWithValues())
                 if(SearchEngineScoreParam.getSearchEngineScoreParamByAccession(term.getAccession()) != null)
                     scores.add(SearchEngineScoreParam.getSearchEngineScoreParamByAccession(term.getAccession()));
         return scores;

@@ -4,10 +4,11 @@ import uk.ac.ebi.pride.utilities.data.core.DBSequence;
 import uk.ac.ebi.pride.utilities.data.core.Protein;
 import uk.ac.ebi.pride.utilities.data.core.Score;
 import uk.ac.ebi.pride.utilities.data.core.SearchDataBase;
-import uk.ac.ebi.pride.utilities.engine.SearchEngineType;
-import uk.ac.ebi.pride.utilities.term.CvTermReference;
+import uk.ac.ebi.pride.utilities.term.SearchEngineCvTermReference;
+import uk.ac.ebi.pride.utilities.term.SearchEngineScoreCvTermReference;
 
 import java.util.Collection;
+import java.util.List;
 
 
 /**
@@ -130,7 +131,7 @@ public interface ProteinDataAccess {
      *
      * @return a collection of search engine types
      */
-    public Collection<SearchEngineType> getSearchEngineTypes();
+    public Collection<SearchEngineCvTermReference> getSearchEngineCvTermReferences();
 
     /**
      * Get the search database version of a identification
@@ -145,7 +146,7 @@ public interface ProteinDataAccess {
      *
      * @return List of Protein Scores in CvTerm
      */
-    public Collection<CvTermReference> getAvailableProteinLevelScores();
+    public List<SearchEngineScoreCvTermReference> getAvailableProteinLevelScores();
 
     /**
      * Get the sequence of the Identified Protein

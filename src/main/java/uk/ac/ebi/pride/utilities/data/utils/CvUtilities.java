@@ -44,11 +44,24 @@ public class CvUtilities {
      * @return Boolean indicating whether the passed identification is a decoy hit.
      */
     public static boolean isDecoyHit(ParamGroup paramGroup) {
-        if(paramGroup != null && paramGroup.getCvParams().size() > 0)
-            for(CvParam param: paramGroup.getCvParams())
-                if(CvTermReference.PRIDE_DECOY_HIT.getAccession().equalsIgnoreCase(param.getAccession()) ||
-                        CvTermReference.MS_DECOY_PEPTIDE.getAccession().equalsIgnoreCase(param.getAccession()))
-                    return true;
+        if (paramGroup != null) {
+            if (paramGroup.getCvParams() != null && !paramGroup.getCvParams().isEmpty()) {
+                for (CvParam param : paramGroup.getCvParams()) {
+                    if (CvTermReference.PRIDE_DECOY_HIT.getAccession().equalsIgnoreCase(param.getAccession()) ||
+                            CvTermReference.MS_DECOY_PEPTIDE.getAccession().equalsIgnoreCase(param.getAccession()))
+                        return true;
+                }
+
+            }
+            if (paramGroup.getUserParams() != null && !paramGroup.getUserParams().isEmpty()) {
+                for (uk.ac.ebi.pride.utilities.data.core.UserParam param : paramGroup.getUserParams()) {
+                    if ("Decoy Hit".equals(param.getName())) {
+                        return true;
+                    }
+                } 
+            }
+        }
+
         return false;
     }
 
