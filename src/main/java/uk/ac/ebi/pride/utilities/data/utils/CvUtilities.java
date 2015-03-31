@@ -8,6 +8,9 @@ import uk.ac.ebi.pride.utilities.term.QuantCvTermReference;
 import java.util.List;
 
 /**
+ * This class is used for Metadata Terms transformation, including changes from one particular CVTerm to another
+ * type of CVTerm. It also allows to find particular CVterms in a list, etc.
+ *
  * @author ypriverol
  * @author rwang
  */
@@ -42,6 +45,7 @@ public class CvUtilities {
 
         return mail;
     }
+
     /**
      * Checks whether the passed identification object is a decoy hit. This function only checks for
      * the presence of specific cv / user Params.

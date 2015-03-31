@@ -14,8 +14,6 @@ import java.util.Collection;
  * Note: this is NOT a unit test, it will have to be run manually.
  * <p/>
  * @author rwang
- * Date: 10-Dec-2010
- * Time: 14:51:26
  */
 public class FileControllerBatchTest {
 
