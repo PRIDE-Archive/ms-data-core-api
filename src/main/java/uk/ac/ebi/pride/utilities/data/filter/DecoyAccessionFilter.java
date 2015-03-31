@@ -8,7 +8,7 @@ package uk.ac.ebi.pride.utilities.data.filter;
  */
 public class DecoyAccessionFilter implements AccessionFilter<String>{
 
-    public enum Type {PREFIX, POSTFIX, CONTAIN;}
+    public enum Type {PREFIX, POSTFIX, CONTAIN}
     /**
      * Type of the matching mechanism
      */

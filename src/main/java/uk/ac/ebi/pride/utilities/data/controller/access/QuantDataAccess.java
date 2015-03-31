@@ -168,7 +168,7 @@ public interface QuantDataAccess {
 
     /**
      * In mzTab files the information of Quantitation is store in StudyVariables and not in Samples
-     * @return
+     * @return Return a Map of Study Variables as mzTab Files where the key is the Variable identifier and the value is the Variable
      */
     public Map<Comparable, StudyVariable> getStudyVariables();
 
@@ -180,10 +180,10 @@ public interface QuantDataAccess {
     public QuantScore getProteinQuantStudyData(Comparable proteinId);
 
     /**
-     * Retrieve the quantitation Score of peptides in Study Variables
-     * @param proteinID
-     * @param peptideId
-     * @return
+     * Retrieve the Quantitation Score of peptides in Study Variables
+     * @param proteinID Protein Identifier
+     * @param peptideId Peptide Identifier
+     * @return  A QuantScore representing all the studyvariables and abundance variables for the peptide.
      */
     public QuantScore getPeptideQuantStudyData(Comparable proteinID, Comparable peptideId);
 

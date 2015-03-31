@@ -214,8 +214,8 @@ public class MzTabUtils {
      * Param for the reagent to retrieve the PRIDE Term for that, is important that most of the fields can be null, for
      * that reason we look through all the the information looking for patterns.
      * Todo: Looks for an option to properly the information for quantitation.
-     * @param quantificationReagent
-     * @return
+     * @param quantificationReagent The quantitative Reagent Param
+     * @return Return a CVParam for the mzTab Quant Parameter
      */
     public static CvParam parseQuantitationReagentCvParam(Param quantificationReagent) {
 

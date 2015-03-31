@@ -423,9 +423,7 @@ public abstract class AbstractDataAccessController implements DataAccessControll
     			}
     		}
 
-    		ProteinGroup group = new ProteinGroup(proteinGroupId, proteinGroupId.toString(), proteinList);
-
-    		return group;
+            return new ProteinGroup(proteinGroupId, proteinGroupId.toString(), proteinList);
     	}
         return null;
     }

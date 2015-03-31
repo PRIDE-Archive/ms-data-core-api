@@ -985,9 +985,7 @@ public abstract class CachedDataAccessController extends AbstractDataAccessContr
      */
     public boolean isSpectrumBasedOnTitle(){
         Map<String[], Comparable> indexToTitleSpectrum = (Map<String[], Comparable>) getCache().get(CacheEntry.MGF_INDEX_TITLE);
-        if(indexToTitleSpectrum != null)
-            return true;
-        return false;
+        return indexToTitleSpectrum != null;
     }
 
     /**

@@ -103,16 +103,16 @@ public class Protein extends IdentifiableParamGroup {
 
     /**
      * Constructor for Protein Entity Identification with CVParams and Quantitation Score based on mzTab model
-     * @param id Protein Id
-     * @param name Name of the protein
-     * @param dbSequence DBSequence referencing the Database entity
-     * @param passThreshold If pass the Threshold or not
-     * @param peptides      List of peptides that reference the protein
-     * @param score         Identification Protein
-     * @param threshold     Threshold apply to the protein that pass
+     * @param id               Protein Id
+     * @param name             Name of the protein
+     * @param dbSequence       DBSequence referencing the Database entity
+     * @param passThreshold    If pass the Threshold or not
+     * @param peptides         List of peptides that reference the protein
+     * @param score            Identification Protein
+     * @param threshold        Threshold apply to the protein that pass
      * @param sequenceCoverage Sequence coverage
      * @param gel              Reference to the Gel entity
-     * @param quantScore
+     * @param quantScore       The quantitative Scores (Study Variables and Abundance Scores)
      */
     public Protein(ParamGroup params, Comparable id, String name, DBSequence dbSequence, boolean passThreshold,
                    List<Peptide> peptides, Score score, double threshold, double sequenceCoverage, Gel gel, QuantScore quantScore) {

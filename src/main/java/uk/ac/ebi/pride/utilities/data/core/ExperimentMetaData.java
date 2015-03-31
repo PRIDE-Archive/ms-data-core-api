@@ -1,6 +1,5 @@
 package uk.ac.ebi.pride.utilities.data.core;
 
-import uk.ac.ebi.pride.jmztab.model.*;
 import uk.ac.ebi.pride.utilities.data.utils.CollectionUtils;
 
 import java.util.Date;

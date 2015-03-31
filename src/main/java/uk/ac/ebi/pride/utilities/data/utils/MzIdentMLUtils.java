@@ -154,7 +154,7 @@ public final class MzIdentMLUtils {
 
     /**
      * This CvParam override the current File format CVparam for those files that are native wiff but are mgf using title reference.
-     * @return
+     * @return Return a CvPAram for the WIFF File
      */
     public static CvParam getFileFormatMGFTitle() {
         return CvUtilities.getCVTermFromCvReference(CvTermReference.MS_MGF_FILE_FORMAT, null);

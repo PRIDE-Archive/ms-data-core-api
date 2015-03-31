@@ -1,6 +1,5 @@
 package uk.ac.ebi.pride.utilities.data.core;
 
-import java.util.Comparator;
 import java.util.List;
 
 /**

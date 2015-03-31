@@ -157,7 +157,7 @@ public class MzTabUnmarshallerAdaptor extends MZTabFileParser{
      * Retrieve the Map of proteins with the corresponding list of PSMs for each protein.
      * //Todo: We need to figure it out How the peptides will be included in the near future. Also some protein Ids included in the file
      * // Todo: will be missing because the reference for them do not exist.
-     * @return
+     * @return Get all Protein accessions from the mzTab File
      */
     public Tuple<Map<String, List<String>>, Map<String, List<String>>> getAllProteinAccessions() {
 
@@ -223,8 +223,8 @@ public class MzTabUnmarshallerAdaptor extends MZTabFileParser{
     /**
      * It would look if the protein is in the file and retrieve the data, if the accession is not in the file with information
      * it would create an empty entry Protein for it.
-     * @param proteinId
-     * @return
+     * @param proteinId Protein Identifier
+     * @return A Tuple with the Identifier and the Protein Information
      */
     public Tuple<Integer, Protein> getProteinById(Comparable proteinId) {
         if(proteinId != null && NumberUtilities.isInteger(proteinId.toString()))

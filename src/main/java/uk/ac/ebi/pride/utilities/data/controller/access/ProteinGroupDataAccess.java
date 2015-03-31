@@ -55,7 +55,7 @@ public interface ProteinGroupDataAccess {
      * if the peptide_IDs-list is null, then all peptides are used of the
      * protein (no filtering or all passed filtering)
      * 
-     * @param proteinGroups
+     * @param proteinGroups A java.lang.Map of protein groups to be set
      */
     public void setInferredProteinGroups(Map<Comparable, Map<Comparable, List<Comparable>>> proteinGroups);
 }

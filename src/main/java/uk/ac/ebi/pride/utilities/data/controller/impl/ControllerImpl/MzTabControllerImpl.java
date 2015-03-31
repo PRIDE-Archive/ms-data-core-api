@@ -3,23 +3,17 @@ package uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessController;
-import uk.ac.ebi.pride.utilities.data.core.Protein;
-import uk.ac.ebi.pride.utilities.data.core.Sample;
-import uk.ac.ebi.pride.utilities.data.core.Software;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessException;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessMode;
 import uk.ac.ebi.pride.utilities.data.controller.cache.CacheEntry;
 import uk.ac.ebi.pride.utilities.data.controller.cache.strategy.MzTabCachingStrategy;
 import uk.ac.ebi.pride.utilities.data.controller.impl.Transformer.MzTabTransformer;
 import uk.ac.ebi.pride.utilities.data.core.*;
-import uk.ac.ebi.pride.utilities.data.core.StudyVariable;
 import uk.ac.ebi.pride.utilities.data.io.file.MzTabUnmarshallerAdaptor;
-import uk.ac.ebi.pride.utilities.data.utils.CollectionUtils;
 import uk.ac.ebi.pride.utilities.data.utils.Constants;
 import uk.ac.ebi.pride.utilities.data.utils.CvUtilities;
 import uk.ac.ebi.pride.utilities.data.utils.MD5Utils;
 import uk.ac.ebi.pride.utilities.term.CvTermReference;
-import uk.ac.ebi.pride.utilities.term.QuantCvTermReference;
 import uk.ac.ebi.pride.utilities.util.Tuple;
 
 import java.io.*;
@@ -219,7 +213,7 @@ public class MzTabControllerImpl extends ReferencedIdentificationController{
      * Returns StudyVariables for mzTab files. The study variables contains
      * the final values of the expression information
      *
-     * @return
+     * @return  java.lang.Map A Map with all the Study Variables in the file
      */
     @Override
     public Map<Comparable, StudyVariable> getStudyVariables() {
@@ -592,8 +586,8 @@ public class MzTabControllerImpl extends ReferencedIdentificationController{
      * The mzTab in the present version will not contains protein Groups because ambiguity members are not Protein Groups
      * In the future we are thinking to support ambiguity groups in a different way
      *
-     * @param proteinGroupId
-     * @return
+     * @param proteinGroupId  Protein Group Identifier
+     * @return ProteinGroup An specific Protein Group in the File
      */
     @Override
     public ProteinGroup getProteinAmbiguityGroupById(Comparable proteinGroupId) {

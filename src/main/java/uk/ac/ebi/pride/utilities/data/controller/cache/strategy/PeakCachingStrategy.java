@@ -1,7 +1,6 @@
 package uk.ac.ebi.pride.utilities.data.controller.cache.strategy;
 
 import uk.ac.ebi.pride.tools.jmzreader.JMzReaderException;
-import uk.ac.ebi.pride.tools.jmzreader.model.Spectrum;
 import uk.ac.ebi.pride.tools.mgf_parser.MgfFile;
 import uk.ac.ebi.pride.tools.mgf_parser.model.Ms2Query;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessException;
