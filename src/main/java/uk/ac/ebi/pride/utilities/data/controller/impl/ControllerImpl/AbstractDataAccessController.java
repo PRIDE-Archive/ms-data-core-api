@@ -194,8 +194,8 @@ public abstract class AbstractDataAccessController implements DataAccessControll
 
     /**
      * Retrieve the Identified Peptides related with one spectrum
-     * @param specId
-     * @return
+     * @param specId Spectrum Identifier
+     * @return java.util.List<Peptide> List of Peptides identified by this Spectrum
      */
     public List<Peptide> getPeptidesBySpectrum(Comparable specId){
         return CollectionUtils.createEmptyList();
@@ -368,7 +368,7 @@ public abstract class AbstractDataAccessController implements DataAccessControll
 
     /**
      * returns true if the proteins are inferred externally
-     * @return
+     * @return If the Proteins were inferred by Algorithm or is included in the original file
      */
     public final boolean proteinsAreInferred() {
     	return (inferredProteinGroups != null);

@@ -168,8 +168,8 @@ public abstract class CachedDataAccessController extends AbstractDataAccessContr
 
     /**
      * Convert PSM id to Spectrum ID
-     * @param psmID
-     * @return
+     * @param psmID Spectrum-Identification-Item Identifier
+     * @return  java.lang.Comparable the spectrumIdentifier in the Mapper
      */
 
     public Comparable getSpectrumIdForPeptide(Comparable psmID){
@@ -924,6 +924,10 @@ public abstract class CachedDataAccessController extends AbstractDataAccessContr
         return null;
     }
 
+    /**
+     * Return a collection of the protein group identifiers
+     * @return java.lang.Collection<java.lang.Comparable> of Protein group identifiers
+     */
     @Override
     public Collection<Comparable> getProteinAmbiguityGroupIds() {
     	if (proteinsAreInferred()) {
