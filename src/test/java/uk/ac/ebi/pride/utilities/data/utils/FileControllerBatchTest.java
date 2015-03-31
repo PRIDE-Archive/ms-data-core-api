@@ -1,4 +1,4 @@
-package uk.ac.ebi.pride.utilities.db;
+package uk.ac.ebi.pride.utilities.data.utils;
 
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessController;
 import uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl.MzMLControllerImpl;
