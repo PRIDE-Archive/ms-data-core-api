@@ -5,18 +5,25 @@ package uk.ac.ebi.pride.utilities.data.controller.impl.Transformer;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessUtilities;
 import uk.ac.ebi.pride.utilities.data.core.*;
 import uk.ac.ebi.pride.utilities.data.core.Assay;
+import uk.ac.ebi.pride.utilities.data.core.CvParam;
 import uk.ac.ebi.pride.utilities.data.core.Modification;
 import uk.ac.ebi.pride.utilities.data.core.Peptide;
 import uk.ac.ebi.pride.utilities.data.core.Protein;
+import uk.ac.ebi.pride.utilities.data.core.Reference;
 import uk.ac.ebi.pride.utilities.data.core.Sample;
 import uk.ac.ebi.pride.utilities.data.core.Software;
+import uk.ac.ebi.pride.utilities.data.core.SourceFile;
 import uk.ac.ebi.pride.utilities.data.core.StudyVariable;
 import uk.ac.ebi.pride.utilities.data.core.UserParam;
 import uk.ac.ebi.pride.utilities.data.utils.CvUtilities;
+import uk.ac.ebi.pride.utilities.data.utils.MzIdentMLUtils;
 import uk.ac.ebi.pride.utilities.data.utils.MzTabUtils;
 import uk.ac.ebi.pride.jmztab.model.*;
 import uk.ac.ebi.pride.jmztab.model.Contact;
+import uk.ac.ebi.pride.jmztab.model.Instrument;
+import uk.ac.ebi.pride.jmztab.model.Param;
 import uk.ac.ebi.pride.utilities.term.CvTermReference;
+import uk.ac.ebi.pride.utilities.term.QuantCvTermReference;
 import uk.ac.ebi.pride.utilities.util.NumberUtilities;
 import uk.ac.ebi.pride.utilities.util.Tuple;
 
@@ -277,6 +284,13 @@ public class MzTabTransformer {
             if(rawIdent.getOptionColumnValue(MzTabUtils.OPTIONAL_DECOY_COLUMN) != null && !rawIdent.getOptionColumnValue(MzTabUtils.OPTIONAL_DECOY_COLUMN).isEmpty())
                 paramGroup.addCvParam(CvUtilities.getCVTermFromCvReference(CvTermReference.PRIDE_DECOY_HIT, rawIdent.getOptionColumnValue(MzTabUtils.OPTIONAL_DECOY_COLUMN)));
 
+            if(rawIdent.getOptionColumnValue(MzTabUtils.OPTIONAL_PROTEIN_NAME_COLUMN) != null && !rawIdent.getOptionColumnValue(MzTabUtils.OPTIONAL_PROTEIN_NAME_COLUMN).isEmpty())
+                dbSequence.setName(rawIdent.getOptionColumnValue(MzTabUtils.OPTIONAL_PROTEIN_NAME_COLUMN));
+
+            if(rawIdent.getOptionColumnValue(MzTabUtils.OPTIONAL_PREDICTION_COLUMN) != null && !rawIdent.getOptionColumnValue(MzTabUtils.OPTIONAL_PREDICTION_COLUMN).isEmpty())
+                dbSequence.getUserParams().add(new UserParam("prediction", null, rawIdent.getOptionColumnValue(MzTabUtils.OPTIONAL_PREDICTION_COLUMN), null, null, null));
+
+
             //Quantitation Scores
             QuantScore quantScore = null;
             if(hasQuantitation)
@@ -303,9 +317,7 @@ public class MzTabTransformer {
                     quantPeptides.add(transformQuantPeptide(rawPeptide, dbSequence, rawPeptideIndex, metadata));
                 }
             }
-
             return new Protein(paramGroup, rawIndex.toString(), null, dbSequence, false, peptides, score, thresholdVal, seqConverageVal, null,quantScore,quantPeptides);
-
         }
         return ident;
     }
@@ -375,46 +387,61 @@ public class MzTabTransformer {
         params.addCvParams(transformPSMSearchEngineScoreCvTerm(rawPeptide, metadata));
         params.addCvParam(transformPSMPrecursorMZ(rawPeptide, metadata));
 
-            // start and stop position
-            int startPos = -1;
-            int stopPos = -1;
-            Integer start = rawPeptide.getStart();
-            if (start != null) {
-                startPos = start.intValue();
+        // start and stop position
+        int startPos = -1;
+        int stopPos = -1;
+        Integer start = rawPeptide.getStart();
+        if (start != null) {
+            startPos = start.intValue();
+        }
+
+        Integer stop = rawPeptide.getEnd();
+        if (stop != null) {
+            stopPos = stop.intValue();
+        }
+
+        PeptideSequence peptideSequence = new PeptideSequence(null, null, rawPeptide.getSequence(), modifications);
+        List<PeptideEvidence> peptideEvidences = new ArrayList<PeptideEvidence>();
+        PeptideEvidence peptideEvidence = new PeptideEvidence(null, null, startPos, stopPos, false, peptideSequence, dbSequence);
+        if(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_CHROM_COLUMN) != null && !rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_CHROM_COLUMN).isEmpty())
+            peptideEvidence.addUserParam(new UserParam("chr", null, rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_CHROM_COLUMN), null, null, null));
+
+        if(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_CHROMSTART_COLUMN) != null && !rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_CHROMSTART_COLUMN).isEmpty())
+            peptideEvidence.addUserParam(new UserParam("start_map", null, rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_CHROMSTART_COLUMN), null, null, null));
+
+        if(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_CHROMEND_COLUMN) != null && !rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_CHROMEND_COLUMN).isEmpty())
+            peptideEvidence.addUserParam(new UserParam("end_map", null, rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_CHROMEND_COLUMN), null, null, null));
+
+        if(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_STRAND_COLUMN) != null && !rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_STRAND_COLUMN).isEmpty())
+            peptideEvidence.addUserParam(new UserParam("strand", null, rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_STRAND_COLUMN), null, null, null));
+
+        if(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_PSM_FDRSCORE_COLUMN) != null && !rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_PSM_FDRSCORE_COLUMN).isEmpty())
+            peptideEvidence.addCvParam(new CvParam("MS:1002356", "PSM-level combined FDRScore", "PSI-MS", rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_PSM_FDRSCORE_COLUMN), null, null, null));
+
+        peptideEvidences.add(peptideEvidence);
+
+        //Retrieve Experimental Mass and Charge.
+        // todo: need to review this bit of code to set charge
+        Integer charge = rawPeptide.getCharge();
+        double mz = DataAccessUtilities.getPrecursorMz(params);
+        if (charge == null && spectrum != null) {
+            charge = DataAccessUtilities.getPrecursorChargeParamGroup(spectrum);
+            if (charge == null) {
+                charge = DataAccessUtilities.getPrecursorCharge(spectrum.getPrecursors());
             }
+        }
+        // Retrieve Score
+        Score score = DataAccessUtilities.getScore(params);
 
-            Integer stop = rawPeptide.getEnd();
-            if (stop != null) {
-                stopPos = stop.intValue();
-            }
+        if(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_DECOY_COLUMN) != null && !rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_DECOY_COLUMN).isEmpty())
+            params.addCvParam(CvUtilities.getCVTermFromCvReference(CvTermReference.MS_DECOY_PEPTIDE, rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_DECOY_COLUMN)));
 
-            PeptideSequence peptideSequence = new PeptideSequence(null, null, rawPeptide.getSequence(), modifications);
-            List<PeptideEvidence> peptideEvidences = new ArrayList<PeptideEvidence>();
-            PeptideEvidence peptideEvidence = new PeptideEvidence(null, null, startPos, stopPos, false, peptideSequence, dbSequence);
-            peptideEvidences.add(peptideEvidence);
+        int rank = -1;
+        if(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_RANK_COLUMN) != null && !rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_RANK_COLUMN).isEmpty() && NumberUtilities.isInteger(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_RANK_COLUMN)))
+            rank = Integer.parseInt(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_RANK_COLUMN));
 
-            //Retrieve Experimental Mass and Charge.
-            // todo: need to review this bit of code to set charge
-            Integer charge = rawPeptide.getCharge();
-            double mz = DataAccessUtilities.getPrecursorMz(params);
-            if (charge == null && spectrum != null) {
-                charge = DataAccessUtilities.getPrecursorChargeParamGroup(spectrum);
-                if (charge == null) {
-                    charge = DataAccessUtilities.getPrecursorCharge(spectrum.getPrecursors());
-                }
-            }
-            // Retrieve Score
-            Score score = DataAccessUtilities.getScore(params);
-
-            if(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_DECOY_COLUMN) != null && !rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_DECOY_COLUMN).isEmpty())
-                params.addCvParam(CvUtilities.getCVTermFromCvReference(CvTermReference.MS_DECOY_PEPTIDE, rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_DECOY_COLUMN)));
-
-            int rank = -1;
-            if(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_RANK_COLUMN) != null && !rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_RANK_COLUMN).isEmpty() && NumberUtilities.isInteger(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_RANK_COLUMN)))
-                rank = Integer.parseInt(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_RANK_COLUMN));
-            //Each PSM is associated in mzTab with more than one spectrum in ms-data-core-api is only one.
-            SpectrumIdentification spectrumIdentification = new SpectrumIdentification(params, index, null, (charge == null ? -1 : charge), mz, rawPeptide.getCalcMassToCharge(), -1, peptideSequence, rank, false, null, null, peptideEvidences, fragmentIons, score, spectrum, null);
-
+        //Each PSM is associated in mzTab with more than one spectrum in ms-data-core-api is only one.
+        SpectrumIdentification spectrumIdentification = new SpectrumIdentification(params, index, null, (charge == null ? -1 : charge), mz, rawPeptide.getCalcMassToCharge(), -1, peptideSequence, rank, false, null, null, peptideEvidences, fragmentIons, score, spectrum, null);
         return new Peptide(peptideEvidence, spectrumIdentification);
       }
 

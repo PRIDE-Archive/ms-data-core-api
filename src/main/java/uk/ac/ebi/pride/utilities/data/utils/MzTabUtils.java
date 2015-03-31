@@ -18,10 +18,18 @@ import java.util.List;
  */
 public class MzTabUtils {
 
-    public static final String OPTIONAL_ID_COLUMN         = "mzidentml_original_ID";
-    public static final String OPTIONAL_SEQUENCE_COLUMN   = "protein_sequence";
-    public static final String OPTIONAL_DECOY_COLUMN      = "cv_MS:1002217_decoy_peptide";
-    public static final String OPTIONAL_RANK_COLUMN       = "cv_PRIDE:0000091_rank";
+    public static final String OPTIONAL_ID_COLUMN            = "mzidentml_original_ID";
+    public static final String OPTIONAL_SEQUENCE_COLUMN      = "protein_sequence";
+    public static final String OPTIONAL_DECOY_COLUMN         = "cv_MS:1002217_decoy_peptide";
+    public static final String OPTIONAL_RANK_COLUMN          = "cv_PRIDE:0000091_rank";
+    public static final String OPTIONAL_PREDICTION_COLUMN    = "prediction";
+    public static final String OPTIONAL_CHROM_COLUMN         = "chom";
+    public static final String OPTIONAL_CHROMSTART_COLUMN    = "chomstart";
+    public static final String OPTIONAL_CHROMEND_COLUMN      = "chomend";
+    public static final String OPTIONAL_STRAND_COLUMN        = "strand";
+    public static final String OPTIONAL_PROTEIN_NAME_COLUMN  = "protein_name";
+    public static final String OPTIONAL_PSM_FDRSCORE_COLUMN  = "cv_MS:1002356_PSM-level_combined_FDRScore";
+    public static final String CUSTOM_CHROM_INF_PARAM = "Chromosome information present";
 
     /**
      * This function takes the value of a CVParam and retrieve the corresponding CVParam

@@ -8,7 +8,6 @@ import uk.ac.ebi.pride.utilities.term.SearchEngineCvTermReference;
 import uk.ac.ebi.pride.utilities.term.SearchEngineScoreCvTermReference;
 
 import java.util.Collection;
-import java.util.List;
 
 
 /**
@@ -146,7 +145,7 @@ public interface ProteinDataAccess {
      *
      * @return List of Protein Scores in CvTerm
      */
-    public List<SearchEngineScoreCvTermReference> getAvailableProteinLevelScores();
+    public Collection<SearchEngineScoreCvTermReference> getAvailableProteinLevelScores();
 
     /**
      * Get the sequence of the Identified Protein

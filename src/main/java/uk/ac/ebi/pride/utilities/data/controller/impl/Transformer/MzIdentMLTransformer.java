@@ -572,6 +572,17 @@ public final class MzIdentMLTransformer {
             int end = (oldPeptideEvidence.getEnd() != null) ? oldPeptideEvidence.getEnd() : -1;
             //System.out.println("Peptide Evidence: " + oldPeptideEvidence.getId());
             evidence = new PeptideEvidence(oldPeptideEvidence.getId(), oldPeptideEvidence.getName(), start, end, oldPeptideEvidence.isIsDecoy(), transformToPeptide(oldPeptideEvidence.getPeptide()), transformToDBSequence(oldPeptideEvidence.getDBSequence()));
+            ArrayList<UserParam> userParams = new ArrayList<>();
+            ArrayList<CvParam> cvParams= new ArrayList<>();
+            for (uk.ac.ebi.jmzidml.model.mzidml.UserParam userParam : oldPeptideEvidence.getUserParam()) {
+                userParams.add( new UserParam(userParam.getName(),null,userParam.getValue(),null,null,null));
+            }
+            for (uk.ac.ebi.jmzidml.model.mzidml.CvParam cvParam : oldPeptideEvidence.getCvParam()) {
+                cvParams.add( new CvParam(cvParam.getAccession(), cvParam.getName(), cvParam.getCvRef(), cvParam.getValue(), cvParam.getUnitAccession(), cvParam.getUnitName(), cvParam.getUnitCvRef()));
+            }
+            evidence.setUserParams(userParams);
+            evidence.setCvParams(cvParams);
+
         }
         return evidence;
     }
