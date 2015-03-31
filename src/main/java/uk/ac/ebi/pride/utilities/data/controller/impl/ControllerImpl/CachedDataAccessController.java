@@ -953,8 +953,8 @@ public abstract class CachedDataAccessController extends AbstractDataAccessContr
 
     /**
      * Retrieve the Identified Peptides related with one spectrum
-     * @param specId
-     * @return
+     * @param specId Spectrum Identification Identifier
+     * @return java.lang.List<Peptide> List of peptides identified by current Spectrum
      */
     public List<Peptide> getPeptidesBySpectrum(Comparable specId){
         Map<Comparable, Comparable> peptideToSpectrum = (Map<Comparable, Comparable>) getCache().get(CacheEntry.PEPTIDE_TO_SPECTRUM);
@@ -981,7 +981,7 @@ public abstract class CachedDataAccessController extends AbstractDataAccessContr
     /**
      * In some cases (WIFF files) the spectrum is referenced using the TITLE instead of using the index. In those cases we need to re-write the SpectraData
      * Object to reflect it. This is a hack of the mzIdentML specification.
-     * @return
+     * @return return true if the Spectrum identification title is based on title, special use case for WIFF files.
      */
     public boolean isSpectrumBasedOnTitle(){
         Map<String[], Comparable> indexToTitleSpectrum = (Map<String[], Comparable>) getCache().get(CacheEntry.MGF_INDEX_TITLE);
@@ -993,7 +993,7 @@ public abstract class CachedDataAccessController extends AbstractDataAccessContr
     /**
      * In some cases (WIFF files) the spectrum is referenced using the TITLE instead of using the index. In those cases we need to re-write the SpectraData
      * Object to reflect it. This is a hack of the mzIdentML specification.
-     * @return
+     * @return return java.lang.List<Comparable> of Spectra Data identifiers based on title, special use case for WIFF files.
      */
     public List<Comparable> getSpectraDataBasedOnTitle(){
         List<Comparable> indexToTitleSpectrum = (List<Comparable>) getCache().get(CacheEntry.SPECTRA_DATA_MGF_TITLE);
