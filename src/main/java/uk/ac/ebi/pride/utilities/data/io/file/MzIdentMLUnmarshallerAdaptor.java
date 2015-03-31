@@ -320,8 +320,8 @@ public class MzIdentMLUnmarshallerAdaptor extends MzIdentMLUnmarshaller {
     }
 
     /**
-     * Check for all the SpectraData if thet are referenced by title instead of using the normal index.
-     * @param spectraDataMap
+     * Check for all the SpectraData if they are referenced by title instead of using the normal index.
+     * @param spectraDataMap Map of all the SpectraData 
      * @return
      * @throws JAXBException
      */

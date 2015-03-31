@@ -104,15 +104,15 @@ public interface MzGraphDataAccess {
 
     /**
      * Retrieve the Identified Peptides related with one spectrum
-      * @param specId
-     * @return
+      * @param specId Spectrum-Identification-Item Identifier
+     * @return java.lang.List<Peptide> List of peptides identified for a current spectrum
      */
     public List<Peptide> getPeptidesBySpectrum(Comparable specId);
 
     /**
      * Convert the PSM id to spectrum ID
-      * @param psmID
-     * @return
+      * @param psmID Spectrum-Identification-Item Identifier
+     * @return java.lang.Comparable Identifier from the Mapper
      */
     public Comparable getSpectrumIdForPeptide(Comparable psmID);
 
