@@ -64,7 +64,7 @@ public class QuantScore extends IdentifiableParamGroup{
 
     /**
      * Set abundance Study Variable Map
-     * @param studyVariableScores
+     * @param studyVariableScores   Study Variable Scores to be set.
      */
     public void setStudyVariableScores(Map<Comparable, Double> studyVariableScores) {
         this.studyVariableScores = studyVariableScores;
@@ -74,7 +74,7 @@ public class QuantScore extends IdentifiableParamGroup{
 
     /**
      * Returns the Assay Abundance
-     * @return
+     * @return  Return a Map where the key is the AssayAbundance Variable and Double is the Value.
      */
     public Map<Comparable, Double> getAssayAbundance() {
         return assayAbundance;
@@ -82,7 +82,7 @@ public class QuantScore extends IdentifiableParamGroup{
 
     /**
      * Return the Assay Abundance
-     * @param assayAbundance
+     * @param assayAbundance  Set eh Map of AssayAbundance as a Key (AssayAbundanceVariable) and Double the value.
      */
     public void setAssayAbundance(Map<Comparable, Double> assayAbundance) {
         this.assayAbundance = assayAbundance;

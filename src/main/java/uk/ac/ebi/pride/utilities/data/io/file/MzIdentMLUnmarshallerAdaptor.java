@@ -321,8 +321,8 @@ public class MzIdentMLUnmarshallerAdaptor extends MzIdentMLUnmarshaller {
 
     /**
      * Check for all the SpectraData if they are referenced by title instead of using the normal index.
-     * @param spectraDataMap Map of all the SpectraData 
-     * @return
+     * @param spectraDataMap Map of all the SpectraData
+     * @return java.lang.List<Comparable> A list of Identifier from the Mapper
      * @throws JAXBException
      */
     public List<Comparable> getTitleReferenceFile(Map<Comparable, SpectraData> spectraDataMap) throws JAXBException {

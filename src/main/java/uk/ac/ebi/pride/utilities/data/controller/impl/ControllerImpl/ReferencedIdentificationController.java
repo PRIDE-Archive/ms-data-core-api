@@ -325,8 +325,8 @@ public abstract class ReferencedIdentificationController extends CachedDataAcces
 
     /**
      * Retrieve the Identified Peptides related with one spectrum
-     * @param specId
-     * @return
+     * @param specId The spectrum-identification identifier
+     * @return java.lang.List<Peptide> A list of peptides identified by this Spectrum
      */
     public List<Peptide> getPeptidesBySpectrum(Comparable specId){
         Map<Comparable, String[]> peptideToSpectrum = ((Map<Comparable, String[]>) getCache().get(CacheEntry.PEPTIDE_TO_SPECTRUM));
