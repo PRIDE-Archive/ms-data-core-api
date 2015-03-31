@@ -1,5 +1,6 @@
 package uk.ac.ebi.pride.utilities.data.exporters;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import uk.ac.ebi.pride.jmztab.model.Assay;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessController;
@@ -15,6 +16,7 @@ import uk.ac.ebi.pride.utilities.data.core.Sample;
 import uk.ac.ebi.pride.utilities.data.core.Software;
 import uk.ac.ebi.pride.utilities.data.core.SpectraData;
 import uk.ac.ebi.pride.utilities.data.core.SpectrumIdentificationProtocol;
+import uk.ac.ebi.pride.utilities.data.core.UserParam;
 import uk.ac.ebi.pride.utilities.data.utils.MzIdentMLUtils;
 import uk.ac.ebi.pride.utilities.data.utils.MzTabUtils;
 import uk.ac.ebi.pride.jmztab.model.*;
@@ -125,7 +127,11 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter{
         for(MsRun msRun: metadata.getMsRunMap().values())
             for(Integer idScore: metadata.getProteinSearchEngineScoreMap().keySet())
                 proteinColumnFactory.addSearchEngineScoreOptionalColumn(ProteinColumn.SEARCH_ENGINE_SCORE, idScore, msRun);
-
+        // check and set additional chromosome columns
+        if (hasChromInformation()) {
+            proteinColumnFactory.addOptionalColumn(MzTabUtils.OPTIONAL_PREDICTION_COLUMN, String.class);
+            proteinColumnFactory.addOptionalColumn(MzTabUtils.OPTIONAL_PROTEIN_NAME_COLUMN, String.class);
+        }
         return proteinColumnFactory;
     }
 
@@ -144,7 +150,14 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter{
         for (Integer id : metadata.getPsmSearchEngineScoreMap().keySet()) {
             psmColumnFactory.addSearchEngineScoreOptionalColumn(PSMColumn.SEARCH_ENGINE_SCORE, id, null);
         }
-
+        // check and set additional chromosome columns
+        if (hasChromInformation()) {
+            psmColumnFactory.addOptionalColumn(MzTabUtils.OPTIONAL_CHROM_COLUMN, String.class);
+            psmColumnFactory.addOptionalColumn(MzTabUtils.OPTIONAL_CHROMSTART_COLUMN, String.class);
+            psmColumnFactory.addOptionalColumn(MzTabUtils.OPTIONAL_CHROMEND_COLUMN, String.class);
+            psmColumnFactory.addOptionalColumn(MzTabUtils.OPTIONAL_STRAND_COLUMN, String.class);
+            psmColumnFactory.addOptionalColumn(MzTabUtils.OPTIONAL_PSM_FDRSCORE_COLUMN, String.class);
+        }
         return this.psmColumnFactory;
     }
 
@@ -541,6 +554,45 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter{
             Boolean decoy = oldPSM.getPeptideEvidence().isDecoy();
             psm.setOptionColumnValue(MzTabUtils.OPTIONAL_DECOY_COLUMN, (!decoy)?0:1);
             psm.setOptionColumnValue(MzTabUtils.OPTIONAL_RANK_COLUMN, oldPSM.getSpectrumIdentification().getRank());
+            // check and set additional chromosome information
+            if (hasChromInformation()) {
+                psm.setOptionColumnValue(MzTabUtils.OPTIONAL_CHROM_COLUMN, "null");
+                psm.setOptionColumnValue(MzTabUtils.OPTIONAL_CHROMSTART_COLUMN, "null");
+                psm.setOptionColumnValue(MzTabUtils.OPTIONAL_CHROMEND_COLUMN, "null");
+                psm.setOptionColumnValue(MzTabUtils.OPTIONAL_STRAND_COLUMN, "null");
+                psm.setOptionColumnValue(MzTabUtils.OPTIONAL_PSM_FDRSCORE_COLUMN, "null");
+                for (UserParam userParam : oldPSM.getPeptideEvidence().getUserParams()) {
+                    switch (userParam.getName()) {
+                        case ("chr"):
+                            String chromValue;
+                            if (!userParam.getValue().toLowerCase().startsWith("chr")) {
+                                chromValue = "chr" + userParam.getValue();
+                            } else {
+                                chromValue =  userParam.getValue();
+                            }
+                            psm.setOptionColumnValue(MzTabUtils.OPTIONAL_CHROM_COLUMN, chromValue);
+                            break;
+                        case ("start_map"):
+                            psm.setOptionColumnValue(MzTabUtils.OPTIONAL_CHROMSTART_COLUMN, userParam.getValue());
+                            break;
+                        case ("end_map"):
+                            psm.setOptionColumnValue(MzTabUtils.OPTIONAL_CHROMEND_COLUMN, userParam.getValue());
+                            break;
+                        case ("strand"):
+                            psm.setOptionColumnValue(MzTabUtils.OPTIONAL_STRAND_COLUMN, userParam.getValue());
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                for (CvParam cvParam : oldPSM.getSpectrumIdentification().getCvParams()) {
+                    if (cvParam.getAccession().equalsIgnoreCase("MS:1002356")) {
+                        psm.setOptionColumnValue(MzTabUtils.OPTIONAL_PSM_FDRSCORE_COLUMN, cvParam.getValue());
+                        break;
+                    }
+                }
+            }
+
             psmList.add(psm);
         }
 
@@ -623,6 +675,19 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter{
         if(sequence.getSequence() != null && !sequence.getSequence().isEmpty())
             protein.setOptionColumnValue(MzTabUtils.OPTIONAL_SEQUENCE_COLUMN, sequence.getSequence());
 
+        // check and set additional chromosome information
+        if (hasChromInformation()) {
+            protein.setOptionColumnValue(MzTabUtils.OPTIONAL_PREDICTION_COLUMN, "null");
+            protein.setOptionColumnValue(MzTabUtils.OPTIONAL_PROTEIN_NAME_COLUMN, "null");
+            String accession = sequence.getAccession();
+            if (accession.contains("|p:")) {
+                protein.setOptionColumnValue(MzTabUtils.OPTIONAL_PREDICTION_COLUMN, accession.substring(accession.indexOf("|p:")+3));
+            }
+
+            if (accession.startsWith("generic|")) {
+                protein.setOptionColumnValue(MzTabUtils.OPTIONAL_PROTEIN_NAME_COLUMN, StringUtils.substringBetween(accession, "|"));
+            }
+        }
 
         return protein;
 
@@ -764,4 +829,51 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter{
                 controller.getType() == DataAccessController.Type.MZTAB ||
                 controller.getType() == DataAccessController.Type.XML_FILE) && controller.hasProtein());
     }
+
+    /**
+     *  Returns the converted metadata, now including a check for chromosome information present, and if so,
+     *  is set as a user param entry.
+     *
+     * @return  the Metadata result.
+     */
+    @Override
+    protected Metadata convertMetadata() {
+        Metadata result = super.convertMetadata();
+        Collection<Comparable> proteinIds = source.getProteinIds();
+        chromSearch: {
+            for (Comparable proteinId : proteinIds) {
+                Collection<Comparable> peptideIDs = source.getPeptideIds(proteinId);
+                for (Comparable peptideID : peptideIDs) {
+                    Collection<PeptideEvidence> peptideEvidences = source.getPeptideEvidences(proteinId, peptideID);
+                    for (PeptideEvidence peptideEvidence : peptideEvidences) {
+                        List<UserParam> userParams = peptideEvidence.getUserParams();
+                        for (UserParam userParam : userParams) {
+                            if (userParam.getName().equalsIgnoreCase("chr")) {
+                                result.addCustom(new uk.ac.ebi.pride.jmztab.model.UserParam(MzTabUtils.CUSTOM_CHROM_INF_PARAM, "true"));
+                                break chromSearch;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
+     *  A check to see if chromosome information is present, flagged by a user param in the metadata.
+     *
+     * @return  true if chromosome information is present, false otherwise.
+     */
+    private boolean hasChromInformation() {
+        boolean result = false;
+        for (Param param : metadata.getCustomList()) {
+            if (param.getName().equalsIgnoreCase(MzTabUtils.CUSTOM_CHROM_INF_PARAM)) {
+                result = param.getValue().equalsIgnoreCase("true");
+                break;
+            }
+        }
+        return result;
+    }
+
 }

@@ -74,6 +74,7 @@
 
         <xxindex.version>0.14</xxindex.version>
         <commonscode.version>1.7</commonscode.version>
+        <commonslang.version>3.3.2</commonslang.version>
 
         <pride.jaxb.version>1.0.12</pride.jaxb.version>
         <mysql.connector.java>5.1.24</mysql.connector.java>
@@ -218,6 +219,12 @@
             <artifactId>commons-codec</artifactId>
             <version>${commonscode.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>${commonslang.version}</version>
+        </dependency>
+
 
         <!-- PRIDE XML dependency -->
         <dependency>
@@ -276,8 +283,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.1</version>
                 <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
+                    <source>1.7</source>
+                    <target>1.7</target>
                 </configuration>
             </plugin>
             <plugin>
