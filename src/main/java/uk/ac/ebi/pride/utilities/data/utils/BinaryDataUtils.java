@@ -61,7 +61,7 @@ public final class BinaryDataUtils {
 
                         break;
 
-                    case FLOAT_16_BIT:    // ToDo: *** provide implementation here ; break;
+                    case FLOAT_16_BIT:
                     case FLOAT_32_BIT:
                         num = buffer.getFloat(i);
 

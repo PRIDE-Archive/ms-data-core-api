@@ -46,8 +46,6 @@ public abstract class AbstractMzTabConverter extends ConvertProvider<DataAccessC
 
     protected Map<String, Integer> psmScoreToScoreIndex;
 
-    private final static Integer THRESHOLD_LOOP_FOR_SCORE = 200;
-
     public AbstractMzTabConverter(DataAccessController controller) {
         super(controller, null);
     }
@@ -282,7 +280,6 @@ public abstract class AbstractMzTabConverter extends ConvertProvider<DataAccessC
         Map<SearchEngineScoreParam, Integer> proteinScores = new HashMap<SearchEngineScoreParam, Integer>();
         proteinScoreToScoreIndex = new HashMap<String, Integer>();
         psmScoreToScoreIndex = new HashMap<String, Integer>();
-        String searchEngineName = null;
 
         /**
          * Look for all scores are protein level, PSM, and ProteinHypothesis, PeptideHypothesis. We should

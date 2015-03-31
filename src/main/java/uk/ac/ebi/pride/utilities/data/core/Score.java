@@ -101,7 +101,7 @@ public class Score {
     public void addScore(SearchEngineCvTermReference se, SearchEngineScoreCvTermReference ref, Number num) {
 
         // create a new if the search engine doesn't exist
-        Map<SearchEngineScoreCvTermReference, Number> scoreMap = null;
+        Map<SearchEngineScoreCvTermReference, Number> scoreMap;
         SearchEngineCvTermReference aux = null;
 
         if(se != null) {

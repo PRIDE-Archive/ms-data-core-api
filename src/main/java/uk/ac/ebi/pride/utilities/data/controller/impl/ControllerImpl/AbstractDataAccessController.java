@@ -418,8 +418,6 @@ public abstract class AbstractDataAccessController implements DataAccessControll
     			if (protPepIt.getValue() == null) {
     				// get the complete protein
     				proteinList.add(getProteinById(protPepIt.getKey()));
-    			} else {
-    				// TODO: implement the filters!
     			}
     		}
 
