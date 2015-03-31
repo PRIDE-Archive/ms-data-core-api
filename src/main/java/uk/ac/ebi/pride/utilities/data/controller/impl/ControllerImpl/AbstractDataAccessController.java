@@ -602,6 +602,7 @@ public abstract class AbstractDataAccessController implements DataAccessControll
         Protein protein = getProteinById(proteinId);
         Double coverage = null;
         if(protein != null){
+            // Protein Coverage is compute against a Percentage of the Sequence.
             coverage = (double) ((DataAccessUtilities.getProteinCoverage(protein) / protein.getDbSequence().getSequence().length()) * 100);
             protein.setSequenceCoverage(coverage);
         }
