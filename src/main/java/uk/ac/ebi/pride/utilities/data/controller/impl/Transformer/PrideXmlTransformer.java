@@ -358,7 +358,7 @@ public final class PrideXmlTransformer {
     /**
      * Convert two dimensional identification
      * <p/>
-     * ToDo: there are code dupliation between transformTwoDimIdent and transformGelFreeIdent
+     * ToDo: there are code duplication between transformTwoDimIdent and transformGelFreeIdent
      *
      * @param rawIdent pride xml two dimensional identification
      * @return TwoDimIdentification    two dimentional identification
@@ -465,9 +465,7 @@ public final class PrideXmlTransformer {
             Double threshold = rawIdent.getThreshold();
             double thresholdVal = threshold == null ? -1 : threshold;
 //            Score score = DataAccessUtilities.getScore(params);
-            //Todo: We need to define the best way to retrieve the SearchEngine value for PRIDE XML
             //The additional params don't store the score information in the identification is the getScore and getSearchEngine
-            //TODO Review
 //            Score score = DataAccessUtilities.getScore(params);
 
 //            if(score == null)

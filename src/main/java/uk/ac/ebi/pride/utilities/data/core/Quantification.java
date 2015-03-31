@@ -6,7 +6,6 @@ import java.util.*;
 
 /**
  * Quantitation object is a pseudo object which contains all the cv params related to quantitative data for PRIDE XMLs.
- * //Todo: We should think to merge this concept with mzTab quantitation model
  * <p/>
  * It also provides a set of methods for accessing these information
  * <p/>
