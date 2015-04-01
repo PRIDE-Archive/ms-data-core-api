@@ -13,8 +13,25 @@ import uk.ac.ebi.pride.utilities.data.utils.MzTabUtils;
 import java.util.*;
 
 /**
- * @author ntoro
- * @since 24/02/15 10:10
+ *  The filtering when exporting a mzIdentML to mzTab is done follows the next set of rules:
+ *
+ *      If there is not protein detection protocol in mzIdentML (e. g. no ambiguity groups provided) or there is not threshold define in the protein detection protocol:
+ *          -The filtering can not be done at protein level directly. In this case is needed to look into the spectrum identification protocol.
+ *              -If there is no threshold available at spectrum identification protocol
+ *                  The spectra is filtered using rank information. Only spectrum with rank one pass the filter
+ *              -If there is a threshold available at spectrum identification protocol
+ *                  The spectra is filtered using using the provided threshold
+ *          -Only the proteins whose spectra remain after the filtering will be kept.
+ *      If there is protein detection protocol in mzIdentML the proteins and protein groups will be filtered according to threshold first.
+ *               - After that the filtering by threshold at peptide level will be applied, because in the worst case scenario it will remove only proteins without spectra evidence that pass the filter.
+ *               Before NoPeptideFilter was used to avoid inconsistencies with the protein filter, however was observed that some spectra evidences that did not pass the threshold were
+ *               included because the threshold was provided but was incorrectly annotated in the file as NoThresholdAvailable. This option minimized the inclusion of spectra under the threshold.
+ *      If there is no threshold information at protein or peptide level available
+ *           -The spectra is filtered using rank information. Only spectrum with rank one pass the filter
+ *           -Only the proteins whose spectra remain after the filtering will be kept.
+ *
+ *  @author ntoro
+ *  @since 24/02/15 10:10
  */
 public class HQMzIdentMLMzTabConverter extends MzIdentMLMzTabConverter {
 
@@ -22,7 +39,6 @@ public class HQMzIdentMLMzTabConverter extends MzIdentMLMzTabConverter {
 
     public static final String NO_THRESHOLD_MS_AC = "MS:1001494";
     public static final String NO_THRESHOLD = "no threshold";
-    public static final String SAME_SET = "same_set";
     private final MzIdentMLControllerImpl controller;
 
 
@@ -31,8 +47,6 @@ public class HQMzIdentMLMzTabConverter extends MzIdentMLMzTabConverter {
         uk.ac.ebi.pride.utilities.data.core.Protein anchorProtein;
         List<uk.ac.ebi.pride.utilities.data.core.Protein> restOfMembers;
         List<Peptide> anchorPeptides;
-        boolean sameSet = false;
-
     }
 
 
@@ -50,10 +64,6 @@ public class HQMzIdentMLMzTabConverter extends MzIdentMLMzTabConverter {
     @Override
     protected MZTabColumnFactory convertProteinColumnFactory() {
         super.convertProteinColumnFactory();
-        //We add sameSet column to clarify the ambiguity in the groups
-
-//        proteinColumnFactory.addOptionalColumn(SAME_SET, String.class);
-
         return proteinColumnFactory;
 
     }
@@ -90,9 +100,11 @@ public class HQMzIdentMLMzTabConverter extends MzIdentMLMzTabConverter {
                 //Threshold filter. The proteins and protein groups will be filtered according to threshold first
                 proteinFilter = new ThresholdProteinFilter();
                 if (noThresholdAvailable(spectrumIdDetectionProtocols)) {
-                    //TODO Rewrite comment
-                    // The proteins and protein groups will not be filtered to avoid remove proteins that has passed the filter
-//                        peptideFilter = new NoPeptideFilter();
+                    //Threshold filter. After that the filtering by threshold at peptide level will be applied,
+                    // because in the worst case scenario it will remove only proteins without spectra evidence that pass the filter.
+                    // Before NoPeptideFilter was used to avoid inconsistencies with the protein filter,
+                    // however was observed that some spectra evidences that didn't pass the threshold were included because the threshold was provided but was
+                    // incorrectly annotated in the file as NoThresholdAvailable. This option minimized he inclusion of under the threshold spectra
                     peptideFilter = new ThresholdPeptideFilter();
 
                 } else {
@@ -142,9 +154,7 @@ public class HQMzIdentMLMzTabConverter extends MzIdentMLMzTabConverter {
                          //Loop for spectrum to get all the ms_run to repeat the score at protein level
                          Set<MsRun> msRuns = new HashSet<MsRun>();
                          for (int index = 0; index < identification.anchorPeptides.size(); index++) {
-//                             source.getSpectrumIdForPeptide(identification.anchorPeptides.get(index).getPeptideEvidence().getId());
                              Comparable id = controller.getSpectrumIdBySpectrumIdentificationItemId(identification.anchorPeptides.get(index).getSpectrumIdentification().getId());
-                             //id = identification.anchorPeptides.get(index).getPeptideEvidence().getId();
                              if (id != null) {
                                  String[] spectumMap = id.toString().split("!");
                                  MsRun msRun = metadata.getMsRunMap().get(spectraToRun.get(spectumMap[1]));
@@ -165,7 +175,6 @@ public class HQMzIdentMLMzTabConverter extends MzIdentMLMzTabConverter {
                              }
                          }
 
-//                         protein.setOptionColumnValue(SAME_SET, "" + identification.sameSet + "\"");
                          proteins.add(protein);
                          psms.addAll(loadPSMs(identification.anchorProtein, identification.anchorPeptides));
                      }
@@ -190,7 +199,6 @@ public class HQMzIdentMLMzTabConverter extends MzIdentMLMzTabConverter {
 
                 if (peptides != null) {
                     uk.ac.ebi.pride.jmztab.model.Protein identification = loadProtein(msProtein, peptides);
-//                    identification.setOptionColumnValue(SAME_SET, null);
                     proteins.add(identification);
                     psms.addAll(loadPSMs(msProtein, peptides));
                 }
@@ -211,10 +219,6 @@ public class HQMzIdentMLMzTabConverter extends MzIdentMLMzTabConverter {
 
         List<uk.ac.ebi.pride.utilities.data.core.Protein> msProteins = proteinFilter.filter(proteins);
 
-        /*
-            We annotate only the first protein, as the anchor protein,
-            and the proteins with different peptides to the core protein to avoid lost peptide identifications
-        */
         if (!msProteins.isEmpty()) {
 
             uk.ac.ebi.pride.utilities.data.core.Protein anchorProtein;
@@ -242,35 +246,6 @@ public class HQMzIdentMLMzTabConverter extends MzIdentMLMzTabConverter {
                 }
             }
         }
-
-        //Possible merge in case of same set
-//        if(!ambiguityGroups.isEmpty()) {
-//            List<AmbiguityGroup> aux = new ArrayList<AmbiguityGroup>(ambiguityGroups);
-//            boolean sameSet = true;
-//
-//            for (int i = 0; i < ambiguityGroups.size() - 1 && sameSet; i++) {
-//                Set<Peptide> one = new HashSet<Peptide>(ambiguityGroups.get(i).anchorPeptides);
-//                Set<Peptide> two = new HashSet<Peptide>(ambiguityGroups.get(i + 1).anchorPeptides);
-//
-//
-//                if (one.equals(two)) {
-//                    aux.remove(0); //always the head
-//                    //We can do it but we will loose the position of the mappings for the no anchor proteins
-//                    //because in reality these are not only psm, are peptideEvidences.
-//                } else {
-//                    sameSet = false;
-//                }
-//            }
-//
-//            if (sameSet) {
-//                ambiguityGroups = aux;
-//                if (ambiguityGroups.size() == 1) {
-//                    ambiguityGroups.get(0).sameSet = true;
-//                } else {
-//                    logger.warn("Same set with more that one protein");
-//                }
-//            }
-//        }
 
         return ambiguityGroups;
     }
