@@ -27,7 +27,7 @@ import static uk.ac.ebi.pride.utilities.data.utils.MzTabUtils.removeNewLineAndTa
 /**
  * ms-data-core api will plan to export all the data to mztab files using the jmzTab library.
  * At the very beginning we will support only the Identification exporter, but in the future we should be
- * able to support quantitation export.
+ * able to support Quantitation export.
  *
  * @author ypriverol
  * @author rwang
