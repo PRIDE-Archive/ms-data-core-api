@@ -241,6 +241,9 @@ public class MzTabUtils {
 
     /**
      * If there exists reserved characters in value, remove them all.
+     *
+     * @param value The Value of the MzTab Term
+     * @return Return a value without tab
      */
     public static String removeNewLineAndTab(String value) {
         if (value != null) {

@@ -5,8 +5,7 @@ package uk.ac.ebi.pride.utilities.data.core;
  * The location of the data file is given in the location attribute.
  *
  * @author Yasset Perez-Riverol
- * Date: 09/08/11
- * Time: 14:35
+ * @author Rui Wang
  */
 public class ExternalData extends Identifiable {
 

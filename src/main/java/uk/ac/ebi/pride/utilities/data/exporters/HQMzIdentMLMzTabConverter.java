@@ -42,14 +42,6 @@ public class HQMzIdentMLMzTabConverter extends MzIdentMLMzTabConverter {
     private final MzIdentMLControllerImpl controller;
 
 
-    private final class AmbiguityGroup {
-
-        uk.ac.ebi.pride.utilities.data.core.Protein anchorProtein;
-        List<uk.ac.ebi.pride.utilities.data.core.Protein> restOfMembers;
-        List<Peptide> anchorPeptides;
-    }
-
-
     /**
      * Default constructor
      *
@@ -283,6 +275,13 @@ public class HQMzIdentMLMzTabConverter extends MzIdentMLMzTabConverter {
             }
         }
         return false;
+    }
+
+    private final class AmbiguityGroup {
+
+        uk.ac.ebi.pride.utilities.data.core.Protein anchorProtein;
+        List<uk.ac.ebi.pride.utilities.data.core.Protein> restOfMembers;
+        List<Peptide> anchorPeptides;
     }
 
 }

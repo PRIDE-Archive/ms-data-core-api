@@ -149,8 +149,8 @@ public class MzIdentMLUnmarshallerAdaptor extends MzIdentMLUnmarshaller {
         return this.unmarshalCollectionFromXpath(uk.ac.ebi.jmzidml.MzIdentMLElement.BibliographicReference);
     }
 
-    public ProteinDetectionHypothesis getIdentificationById(Comparable IdentId) throws JAXBException {
-        return this.unmarshal(ProteinDetectionHypothesis.class, (String) IdentId);
+    public ProteinDetectionHypothesis getIdentificationById(Comparable identId) throws JAXBException {
+        return this.unmarshal(ProteinDetectionHypothesis.class, (String) identId);
     }
 
     public int getNumIdentifiedPeptides() throws ConfigurationException {

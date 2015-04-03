@@ -16,14 +16,12 @@ import uk.ac.ebi.pride.utilities.data.core.SourceFile;
 import uk.ac.ebi.pride.utilities.data.core.StudyVariable;
 import uk.ac.ebi.pride.utilities.data.core.UserParam;
 import uk.ac.ebi.pride.utilities.data.utils.CvUtilities;
-import uk.ac.ebi.pride.utilities.data.utils.MzIdentMLUtils;
 import uk.ac.ebi.pride.utilities.data.utils.MzTabUtils;
 import uk.ac.ebi.pride.jmztab.model.*;
 import uk.ac.ebi.pride.jmztab.model.Contact;
 import uk.ac.ebi.pride.jmztab.model.Instrument;
 import uk.ac.ebi.pride.jmztab.model.Param;
 import uk.ac.ebi.pride.utilities.term.CvTermReference;
-import uk.ac.ebi.pride.utilities.term.QuantCvTermReference;
 import uk.ac.ebi.pride.utilities.util.NumberUtilities;
 import uk.ac.ebi.pride.utilities.util.Tuple;
 

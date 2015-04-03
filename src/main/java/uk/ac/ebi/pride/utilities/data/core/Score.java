@@ -200,8 +200,8 @@ public class Score {
      */
     public Number getValueBySearchEngineScoreTerm(String accession){
         List<SearchEngineCvTermReference> searchEngines = getSearchEngineCvTermReferences();
-        for(SearchEngineCvTermReference SearchEngineCvTermReference: searchEngines){
-            Map<SearchEngineScoreCvTermReference, Number> mapScore = getScores(SearchEngineCvTermReference);
+        for(SearchEngineCvTermReference searchEngineCvTermReference: searchEngines){
+            Map<SearchEngineScoreCvTermReference, Number> mapScore = getScores(searchEngineCvTermReference);
             for(SearchEngineScoreCvTermReference ref: mapScore.keySet())
                 if(ref.getAccession().equalsIgnoreCase(accession))
                     return mapScore.get(ref);

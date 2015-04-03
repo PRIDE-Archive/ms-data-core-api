@@ -550,6 +550,22 @@ public class QuantitativeSample {
         return index;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        QuantitativeSample that = (QuantitativeSample) o;
+
+        return Arrays.equals(samples, that.samples);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return samples != null ? Arrays.hashCode(samples) : 0;
+    }
+
 
     private static class SubSample {
         /**
@@ -654,19 +670,5 @@ public class QuantitativeSample {
         }
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
 
-        QuantitativeSample that = (QuantitativeSample) o;
-
-        return Arrays.equals(samples, that.samples);
-
-    }
-
-    @Override
-    public int hashCode() {
-        return samples != null ? Arrays.hashCode(samples) : 0;
-    }
 }

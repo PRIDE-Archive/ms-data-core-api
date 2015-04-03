@@ -22,4 +22,15 @@ public abstract class AbstractCachingStrategy implements CachingStrategy {
         this.controller = controller;
     }
 
+    public Cache getCache() {
+        return cache;
+    }
+
+    public DataAccessController getController() {
+        return controller;
+    }
+
+    public void setController(DataAccessController controller) {
+        this.controller = controller;
+    }
 }

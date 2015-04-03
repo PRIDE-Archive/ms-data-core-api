@@ -14,7 +14,7 @@ import java.util.List;
  * @author Yasset Perez-Riverol
  * @author Rui Wang
  */
-public class Constants {
+public final class Constants {
 
     /** algebraic sign */
     private static final String SIGN = "[+-]";
@@ -26,16 +26,16 @@ public class Constants {
     }
 
     public static final String NOT_AVAILABLE = "N/A";
-    public static final String MGF_EXT = ".mgf";
-    public static final String DTA_EXT = ".dta";
-    public static final String MS2_EXT = ".ms2";
-    public static final String PKL_EXT = ".pkl";
+    public static final String MGF_EXT   = ".mgf";
+    public static final String DTA_EXT   = ".dta";
+    public static final String MS2_EXT   = ".ms2";
+    public static final String PKL_EXT   = ".pkl";
     public static final String MZXML_EXT = ".mzxml";
     public static final String APL_EXT   = ".apl";
     public static final String XML_EXT   = ".xml";
     public static final String MZML_EXT  = ".mzML";
-    public static final String MZTAB_EXT     = ".mztab";
-    public static final String WIFF_EXT = ".wiff";
+    public static final String MZTAB_EXT = ".mztab";
+    public static final String WIFF_EXT  = ".wiff";
 
 
 

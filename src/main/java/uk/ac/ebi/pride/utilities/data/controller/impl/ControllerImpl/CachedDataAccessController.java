@@ -794,10 +794,10 @@ public abstract class CachedDataAccessController extends AbstractDataAccessContr
      */
     @Override
     public List<SearchEngineCvTermReference> getSearchEngineCvTermReferences() {
-        Collection<SearchEngineCvTermReference> SearchEngineCvTermReferences = (Collection<SearchEngineCvTermReference>) cache.get(CacheEntry.SEARCH_ENGINE_TYPE);
+        Collection<SearchEngineCvTermReference> searchEngineCvTermReferences = (Collection<SearchEngineCvTermReference>) cache.get(CacheEntry.SEARCH_ENGINE_TYPE);
 
-        if (SearchEngineCvTermReferences != null && !SearchEngineCvTermReferences.isEmpty()) {
-            return new ArrayList<SearchEngineCvTermReference>(SearchEngineCvTermReferences);
+        if (searchEngineCvTermReferences != null && !searchEngineCvTermReferences.isEmpty()) {
+            return new ArrayList<SearchEngineCvTermReference>(searchEngineCvTermReferences);
         } else if (!DataAccessMode.CACHE_ONLY.equals(mode)) {
             return super.getSearchEngineCvTermReferences();
         }

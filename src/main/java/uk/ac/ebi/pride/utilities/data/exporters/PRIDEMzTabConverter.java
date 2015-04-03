@@ -1057,15 +1057,15 @@ public class PRIDEMzTabConverter extends AbstractMzTabConverter {
 
                 //Not mergeable  search_engine_score per ms_run
                 for (ProteinSearchEngineScore proteinSearchEngineScore : metadata.getProteinSearchEngineScoreMap().values()) {
-                    Param ro_param = proteinSearchEngineScore.getParam();   //not setValue allow in Param
+                    Param roParam = proteinSearchEngineScore.getParam();   //not setValue allow in Param
                     for (MsRun msRun : metadata.getMsRunMap().values()) {
 
                         Double searchEngineScore = duplicated.getSearchEngineScore(proteinSearchEngineScore.getId(), msRun);
                         CVParam cvParam;
                         if (searchEngineScore != null) {
-                            cvParam = new CVParam(ro_param.getCvLabel(), ro_param.getAccession(), ro_param.getName(), searchEngineScore.toString());
+                            cvParam = new CVParam(roParam.getCvLabel(), roParam.getAccession(), roParam.getName(), searchEngineScore.toString());
                         } else {
-                            cvParam = new CVParam(ro_param.getCvLabel(), ro_param.getAccession(), ro_param.getName(), null);
+                            cvParam = new CVParam(roParam.getCvLabel(), roParam.getAccession(), roParam.getName(), null);
                         }
                         dupProteinsSearchEngineScore.append(cvParam.toString());
                         if (proteinSearchEngineScore.getId() < numProteinSearchEngineScore) {
@@ -1080,14 +1080,14 @@ public class PRIDEMzTabConverter extends AbstractMzTabConverter {
 
                 //Not mergeable  best_search_engine_score
                 for (ProteinSearchEngineScore proteinSearchEngineScore : metadata.getProteinSearchEngineScoreMap().values()) {
-                    Param ro_param = proteinSearchEngineScore.getParam();   //not setValue allow
+                    Param roParam = proteinSearchEngineScore.getParam();   //not setValue allow
 
                     Double bestSearchEngineScore = duplicated.getBestSearchEngineScore(proteinSearchEngineScore.getId());
                     CVParam cvParam;
                     if (bestSearchEngineScore != null) {
-                        cvParam = new CVParam(ro_param.getCvLabel(), ro_param.getAccession(), ro_param.getName(), bestSearchEngineScore.toString());
+                        cvParam = new CVParam(roParam.getCvLabel(), roParam.getAccession(), roParam.getName(), bestSearchEngineScore.toString());
                     } else {
-                        cvParam = new CVParam(ro_param.getCvLabel(), ro_param.getAccession(), ro_param.getName(), null);
+                        cvParam = new CVParam(roParam.getCvLabel(), roParam.getAccession(), roParam.getName(), null);
                     }
 
                     dupProteinsBestSearchEngineScore.append(cvParam.toString());

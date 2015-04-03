@@ -32,7 +32,6 @@ public class MzTabUnmarshallerAdaptor extends MZTabFileParser{
 
     public MzTabUnmarshallerAdaptor(File tabFile, OutputStream out) throws IOException {
         super(tabFile, out);
-
         proteinPSMMap = new HashMap<Comparable, List<Comparable>>();
     }
 
