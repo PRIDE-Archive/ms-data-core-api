@@ -8,8 +8,8 @@ import java.util.List;
 /**
  * Abstract class for both GelFreeIdentification and TwoDimIdentification
  * <p/>
- * @author rwang
- * @author ypriverol
+ * @author Rui Wang
+ * @author Yasset Perez-Riverol
  */
 public class Protein extends IdentifiableParamGroup {
 

@@ -24,8 +24,8 @@ import java.util.Arrays;
  * Note: encodedLength is ignored
  * Note: In mzML, binary is always base64 encoded and is always "little endian".
  * <p/>
- * @author rwang
- * @author ypriverol
+ * @author Rui Wang
+ * @author Yasset Perez-Riverol
  */
 public class BinaryDataArray extends ParamGroup {
 

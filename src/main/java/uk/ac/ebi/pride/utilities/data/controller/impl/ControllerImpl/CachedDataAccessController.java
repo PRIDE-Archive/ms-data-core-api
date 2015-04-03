@@ -27,8 +27,8 @@ import java.util.*;
  * 1.CACHE_ONLY: only get the information from cache.
  * 2.CACHE_AND_SOURCE: it first checks the cache, if not exist, then read from data source.
  * <p/>
- * @author rwang
- * @author ypriverol
+ * @author Rui Wang
+ * @author Yasset Perez-Riverol
  */
 public abstract class CachedDataAccessController extends AbstractDataAccessController {
 

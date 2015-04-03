@@ -10,8 +10,8 @@ import java.util.Map;
 /**
  * QuantDataAccess defines methods for accessing quantitative proteomics data
  * <p/>
- * @author rwang
- * @author ypriverol
+ * @author Rui Wang
+ * @author Yasset Perez-Riverol
  *
  */
 public interface QuantDataAccess {

@@ -4,7 +4,7 @@ package uk.ac.ebi.pride.utilities.data.core;
  * Uncontrolled user parameters, allowing free text.
  * Should be created with caution.
  * <p/>
- * @author rwang, ypriverol
+ * @author Rui Wang, Yasset Perez-Riverol
  * Date: 27-Jan-2010
  * Time: 09:34:30
  */

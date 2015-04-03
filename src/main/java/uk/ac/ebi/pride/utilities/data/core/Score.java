@@ -9,7 +9,7 @@ import java.util.*;
 /**
  * Score stores a number of scores from a list of search engines.
  * <p/>
- * @author rwang, ypriverol
+ * @author Rui Wang, Yasset Perez-Riverol
  * Date: Dec 2, 2010
  * Time: 9:02:05 AM
  */

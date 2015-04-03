@@ -13,8 +13,8 @@ import java.util.*;
 /**
  * This class contains a set of static methods for converting jmzML object to the pride inspector core objects
  * <p/>
- * @author rwang
- * @author ypriverol
+ * @author Rui Wang
+ * @author Yasset Perez-Riverol
  */
 public final class MzMLTransformer {
 

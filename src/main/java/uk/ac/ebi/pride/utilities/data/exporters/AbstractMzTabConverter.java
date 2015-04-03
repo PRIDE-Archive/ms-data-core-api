@@ -29,8 +29,8 @@ import static uk.ac.ebi.pride.utilities.data.utils.MzTabUtils.removeNewLineAndTa
  * At the very beginning we will support only the Identification exporter, but in the future we should be
  * able to support Quantitation export.
  *
- * @author ypriverol
- * @author rwang
+ * @author Yasset Perez-Riverol
+ * @author Rui Wang
  */
 public abstract class AbstractMzTabConverter extends ConvertProvider<DataAccessController, Void> {
 

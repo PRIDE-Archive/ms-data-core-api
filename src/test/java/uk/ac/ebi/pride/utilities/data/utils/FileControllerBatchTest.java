@@ -13,7 +13,7 @@ import java.util.Collection;
 /**
  * Note: this is NOT a unit test, it will have to be run manually.
  * <p/>
- * @author rwang
+ * @author Rui Wang
  */
 public class FileControllerBatchTest {
 

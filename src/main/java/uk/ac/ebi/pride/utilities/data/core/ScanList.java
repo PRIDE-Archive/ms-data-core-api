@@ -12,7 +12,7 @@ import java.util.List;
  * 1. Must include only one child term of "spectra combination".
  * (sum of spectra, no combination)
  * <p/>
- * @author rwang
+ * @author Rui Wang
  * Date: 20-Feb-2010
  * Time: 18:57:52
  */

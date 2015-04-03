@@ -2,17 +2,16 @@ package uk.ac.ebi.pride.utilities.data.core;
 
 /**
  * Assay In the mzTab experiment with the corresponding Reagent and sample
- * @author ypriverol
- * @author rwang
+ * @author Yasset Perez-Riverol
+ * @author Rui Wang
  *
  */
 public class Assay extends IdentifiableParamGroup {
 
-    /**
-     * Sample reference by the assay
-     */
+    /** Sample reference by the assay */
     private Sample sample;
 
+    /** Type of Reagent used in the Assay described by CVParam **/
     private CvParam reagent;
 
     public Assay(Comparable id, String name) {

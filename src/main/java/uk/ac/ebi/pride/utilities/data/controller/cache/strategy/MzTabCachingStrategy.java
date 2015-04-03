@@ -18,7 +18,7 @@ import java.util.*;
  * //Todo: No way to match PSMs and Peptides which means that the current model is only for Protein + PMSs for identifications and Protein + Peptides for Quantitation.
  *
  *
- * @author ypriverol
+ * @author Yasset Perez-Riverol
  */
 public class MzTabCachingStrategy extends AbstractCachingStrategy {
 

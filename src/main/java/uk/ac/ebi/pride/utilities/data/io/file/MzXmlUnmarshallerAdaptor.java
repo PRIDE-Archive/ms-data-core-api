@@ -16,7 +16,7 @@ import java.util.List;
  * The MzXML Unmarshaller Adaptor provides the methods to retrieve the information form
  * the mzxml_parser library.
  * <p/>
- * @author ypriverol
+ * @author Yasset Perez-Riverol
  * Date: 2/27/12
  * Time: 2:27 PM
  */

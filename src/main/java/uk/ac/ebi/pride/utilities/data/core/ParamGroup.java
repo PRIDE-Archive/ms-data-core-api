@@ -12,7 +12,7 @@ import java.util.List;
  * This container is extended for some several classes that contain
  * cvParameters as information.
  * <p/>
- * @author ypriverol, rwang
+ * @author Yasset Perez-Riverol, Rui Wang
  * Date: 25-Jan-2010
  * Time: 15:58:01
  */

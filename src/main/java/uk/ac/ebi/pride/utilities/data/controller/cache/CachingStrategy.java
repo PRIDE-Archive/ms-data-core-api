@@ -5,8 +5,8 @@ import uk.ac.ebi.pride.utilities.data.controller.DataAccessController;
 /**
  * Interface for building the cache.
  * <p/>
- * @author rwang
- * @author ypriverol
+ * @author Rui Wang
+ * @author Yasset Perez-Riverol
  */
 
 public interface CachingStrategy {

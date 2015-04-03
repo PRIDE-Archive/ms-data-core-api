@@ -15,7 +15,7 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * @author ypriverol
+ * @author Yasset Perez-Riverol
  */
 public class MzTabControllerImplTest {
 

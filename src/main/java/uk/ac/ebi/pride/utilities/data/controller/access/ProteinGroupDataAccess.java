@@ -9,8 +9,7 @@ import java.util.Map;
 /**
  * ProteinAmbiguityGroupDataAccess defines the interface for accessing protein grouping information.
  *
- * @author rwang
- * @version $Id$
+ * @author Rui Wang
  */
 public interface ProteinGroupDataAccess {
 

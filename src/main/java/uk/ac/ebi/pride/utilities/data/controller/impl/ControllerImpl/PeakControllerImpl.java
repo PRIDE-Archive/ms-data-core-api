@@ -31,7 +31,7 @@ import java.util.Map;
  * Peak Controller keep the information from different Peak files. It support mgf, ms2, pkl,
  * and DTa files. This files only contain the name of the file, the
  * <p/>
- * @author ypriverol
+ * @author Yasset Perez-Riverol
  * Date: 3/15/12
  * Time: 10:27 PM
  * To change this template use File | Settings | File Templates.

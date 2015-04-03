@@ -4,8 +4,9 @@ package uk.ac.ebi.pride.utilities.data.core;
  * CVLookup is referenced in every CvParam.
  * It serves as a reference to the original controlled vocabulary source.
  * <p/>
- * @author rwang
- * @author ypriverol
+ *
+ * @author Rui Wang
+ * @author Yasset Perez-Riverol
  */
 
 public class CVLookup implements MassSpecObject {

@@ -16,7 +16,7 @@ import java.util.Map;
  * PeakCacheBuilder provides the methods to initialize the Cache Categories
  * for pure peaks list file formats.
  * <p/>
- * @author ypriverol
+ * @author Yasset Perez-Riverol
  * Date: 3/15/12
  * Time: 10:45 PM
  */

@@ -7,8 +7,8 @@ import java.util.Map;
  * Cache interface defines methods for storing data into cache
  * and retrieving data from cache.
  * <p/>
- * @author rwang
- * @author ypriverol
+ * @author Rui Wang
+ * @author Yasset Perez-Riverol
  * Date: 07-Sep-2010
  * Time: 11:14:53
  */

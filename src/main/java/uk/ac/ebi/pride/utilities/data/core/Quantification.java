@@ -10,8 +10,8 @@ import java.util.*;
  * It also provides a set of methods for accessing these information
  * <p/>
  * <p/>
- * @author rwang
- * @author ypriverol
+ * @author Rui Wang
+ * @author Yasset Perez-Riverol
  */
 
 public class Quantification {

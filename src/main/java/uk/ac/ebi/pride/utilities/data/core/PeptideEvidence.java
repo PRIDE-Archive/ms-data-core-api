@@ -14,7 +14,7 @@ package uk.ac.ebi.pride.utilities.data.core;
  * - frame: The translation frame of this sequence if this is PeptideEvidence derived from nucleic acid sequence.
  * - Translation Table: A reference to the translation table used if this is PeptideEvidence derived from nucleic acid sequence
  * </p>
- * @author ypriverol
+ * @author Yasset Perez-Riverol
  * Date: 04/08/11
  * Time: 14:48
  */

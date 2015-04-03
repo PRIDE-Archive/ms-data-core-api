@@ -18,8 +18,8 @@ import java.util.List;
 /**
  * PrideXmlTransformer contains a list of static methods which convert pride-jaxb objects to pride inspector core objects
  * <p/>
- * @author ypriverol
- * @author rwang
+ * @author Yasset Perez-Riverol
+ * @author Rui Wang
  */
 public final class PrideXmlTransformer {
 

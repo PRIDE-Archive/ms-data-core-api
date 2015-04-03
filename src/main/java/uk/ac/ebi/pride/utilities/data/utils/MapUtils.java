@@ -4,8 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author rwang
- * @version $Id$
+ * @author Rui Wang
  */
 public final class MapUtils {
 

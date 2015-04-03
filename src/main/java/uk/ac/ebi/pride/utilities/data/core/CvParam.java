@@ -3,8 +3,9 @@ package uk.ac.ebi.pride.utilities.data.core;
 /**
  * This object holds additional data in controlled vocabulary.
  * <p/>
- * @author rwang
- * @author ypriverol
+ *
+ * @author Rui Wang
+ * @author Yasset Perez-Riverol
  */
 public class CvParam extends Parameter {
 

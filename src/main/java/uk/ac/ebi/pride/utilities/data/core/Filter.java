@@ -2,7 +2,7 @@ package uk.ac.ebi.pride.utilities.data.core;
 
 /**
  * Filter controlled the database filters with CVParams and UserParams.
- * @author ypriverol
+ * @author Yasset Perez-Riverol
  * Date: 05/08/11
  * Time: 17:11
  */

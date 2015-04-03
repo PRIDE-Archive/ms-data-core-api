@@ -12,7 +12,7 @@ import java.util.List;
  * Identification.
  * <p/>
  * <p/>
- * @author ypriverol
+ * @author Yasset Perez-Riverol
  * Date: 05/08/11
  * Time: 16:04
  */

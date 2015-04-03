@@ -15,7 +15,7 @@ import java.util.Map;
  * - File Creation Date.
  * - An a List of References.
  * <p/>
- * @author ypriverol
+ * @author Yasset Perez-Riverol
  * Date: 08-Mar-2010
  * Time: 10:48:29
  */

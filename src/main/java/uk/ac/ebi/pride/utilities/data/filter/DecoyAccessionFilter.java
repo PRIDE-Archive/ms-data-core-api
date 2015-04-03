@@ -4,7 +4,6 @@ package uk.ac.ebi.pride.utilities.data.filter;
  * Decoy filter for protein accession
  *
  * @author Rui Wang
- * @version $Id$
  */
 public class DecoyAccessionFilter implements AccessionFilter<String>{
 

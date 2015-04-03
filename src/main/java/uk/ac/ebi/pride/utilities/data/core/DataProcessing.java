@@ -9,8 +9,8 @@ import java.util.List;
  * the information of each Step of Data Processing. The list structure represent the relation between an
  * specific Software and a List of CvPrarams related with this software.
  * <p/>
- * @author rwang
- * @author ypriverol
+ * @author Rui Wang
+ * @author Yasset Perez-Riverol
  */
 public class DataProcessing extends Identifiable {
 

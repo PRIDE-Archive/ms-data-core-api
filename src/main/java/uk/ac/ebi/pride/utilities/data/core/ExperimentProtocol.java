@@ -11,8 +11,8 @@ import java.util.List;
  * In the case of MzIdentMl the Protocol is specified at the level of ProteinDetection and SpectrumDetection.
  * but we can create an objetc of this type integrating the information from SpectrumidentificationObject and ProteinDetection Object
  * <p/>
- * @author rwang
- * @author ypriverol
+ * @author Rui Wang
+ * @author Yasset Perez-Riverol
  */
 public class ExperimentProtocol extends IdentifiableParamGroup {
 

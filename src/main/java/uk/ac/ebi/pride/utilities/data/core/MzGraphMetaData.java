@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * This class storage the information related with metadata at the spectrum level. the object that are support by this
  * class are PRIDE Object, mzML, mgf, etc.
- * @author ypriverol
+ * @author Yasset Perez-Riverol
  * Date: 15/08/11
  * Time: 11:35
  */

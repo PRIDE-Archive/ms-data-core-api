@@ -4,7 +4,7 @@ import java.util.List;
 
 /**
  * The class Peptide Manage the information for peptide Identifications
- * @author ypriverol
+ * @author Yasset Perez-Riverol
  * Date: 08/08/11
  * Time: 12:39
  */

@@ -6,7 +6,7 @@ package uk.ac.ebi.pride.utilities.data.core;
  * acid Asparagine (N) is replaced by Aspartic Acid (D)
  *
  * <p/>
- * @author ypriverol
+ * @author Yasset Perez-Riverol
  * Date: 04/08/11
  * Time: 14:18
  */

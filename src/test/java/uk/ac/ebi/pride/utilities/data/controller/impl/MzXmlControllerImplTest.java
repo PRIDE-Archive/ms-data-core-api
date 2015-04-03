@@ -16,7 +16,7 @@ import static org.junit.Assert.assertTrue;
 /**
  * Test Class for MzXML Controller
  *
- * @author ypriverol
+ * @author Yasset Perez-Riverol
  * Date: 3/13/12
  * Time: 9:58 PM
  */

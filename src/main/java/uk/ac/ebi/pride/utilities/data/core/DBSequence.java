@@ -3,7 +3,7 @@ package uk.ac.ebi.pride.utilities.data.core;
 /**
  * A database sequence from the specified SearchDatabase (nucleic acid or amino acid). If the sequence is nucleic acid,
  * the source nucleic acid sequence should be given in the seq attribute rather than a translated sequence.
- * @author ypriverol
+ * @author Yasset Perez-Riverol
  * Date: 04/08/11
  * Time: 13:47
  */

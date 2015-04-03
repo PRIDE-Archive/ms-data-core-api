@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
  * to retrieve the information from mzData files. The mzData files support Spectrum and Chromatogram
  * Information and also other important Metadata.
  *
- * @author ypriverol
+ * @author Yasset Perez-Riverol
  * Date: 3/15/12
  * Time: 8:17 AM
  *

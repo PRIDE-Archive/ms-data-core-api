@@ -16,7 +16,7 @@ import java.util.Set;
 /**
  * MzMLUnmarshallerHelper provides a list of convenient methods to access mzML files
  * <p/>
- * @author rwang, ypriverol
+ * @author Rui Wang, Yasset Perez-Riverol
  * Date: 17-May-2010
  * Time: 10:37:45
  */

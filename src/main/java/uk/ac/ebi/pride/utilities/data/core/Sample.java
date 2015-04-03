@@ -12,7 +12,7 @@ import java.util.Map;
  * This Sample class represent the basic information contained in the mzMl files.
  * If the Object instance is MzMl Sample the Sample parent and the contactRoles must be null;
  * <p/>
- * @author rwang, ypriverol
+ * @author Rui Wang, Yasset Perez-Riverol
  * Date: 04-Feb-2011
  * Time: 15:50:55
  */

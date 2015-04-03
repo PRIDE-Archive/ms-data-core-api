@@ -14,8 +14,8 @@ import static org.junit.Assert.assertTrue;
 
 /**
  * MzTab Controller Test
- * @author ypriverol
- * @author rwang
+ * @author Yasset Perez-Riverol
+ * @author Rui Wang
  */
 public class MzTabMzIdentMLConverterTest {
 

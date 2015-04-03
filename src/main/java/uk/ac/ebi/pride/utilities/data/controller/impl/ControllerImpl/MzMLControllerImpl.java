@@ -36,8 +36,8 @@ import java.util.regex.Pattern;
 /**
  * MzMlControllerImpl provides methods to access mzML files.
  * <p/>
- * @author rwang
- * @author  ypriverol
+ * @author Rui Wang
+ * @author  Yasset Perez-Riverol
  */
 public class MzMLControllerImpl extends CachedDataAccessController {
 

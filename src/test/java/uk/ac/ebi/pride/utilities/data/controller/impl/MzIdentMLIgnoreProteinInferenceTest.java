@@ -17,8 +17,8 @@ import static org.junit.Assert.assertTrue;
 
 /**
  * Tesing Protein Inference for ms-data-core-api
- * @author ypriverol
- * @author rwang
+ * @author Yasset Perez-Riverol
+ * @author Rui Wang
  */
 public class MzIdentMLIgnoreProteinInferenceTest {
     private MzIdentMLControllerImpl mzIdentMlController = null;

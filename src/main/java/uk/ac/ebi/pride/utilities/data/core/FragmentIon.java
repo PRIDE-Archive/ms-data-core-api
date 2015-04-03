@@ -11,8 +11,8 @@ import java.util.List;
  * a list of convenient methods to access the values of m/z, intensity and etc.
  * For mzIdentMl, the SpectrumIdentificationItem have the information of
  * <p/>
- * @author rwang
- * @author ypriverol
+ * @author Rui Wang
+ * @author Yasset Perez-Riverol
  */
 
 public class FragmentIon extends ParamGroup {

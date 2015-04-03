@@ -6,7 +6,7 @@ import java.util.List;
 
 /**
  * Represents the set of all search results from SpectrumIdentification.
- * @author ypriverol
+ * @author Yasset Perez-Riverol
  * Date: 08/08/11
  * Time: 12:14
  */

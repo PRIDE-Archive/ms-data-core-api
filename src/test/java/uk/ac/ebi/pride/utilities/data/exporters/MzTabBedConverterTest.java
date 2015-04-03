@@ -24,8 +24,8 @@ import static org.junit.Assert.assertTrue;
  * This class tests converting an mzIdentML file with annotated chromosome information into mzTab,
  * and then testing the mzTab into the bed format.
  *
- * @author tobias
- * @author ypriverol
+ * @author Tobias Ternent
+ * @author Yasset Perez-Riverol
  */
 public class MzTabBedConverterTest {
 

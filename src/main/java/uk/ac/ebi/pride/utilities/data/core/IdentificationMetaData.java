@@ -8,7 +8,7 @@ import java.util.List;
  * This class is used to manage and store the information of the metadata for protein and spectrum
  * identifications.
  * <p/>
- * @author ypriverol
+ * @author Yasset Perez-Riverol
  * Date: 19/08/11
  * Time: 11:56
  */

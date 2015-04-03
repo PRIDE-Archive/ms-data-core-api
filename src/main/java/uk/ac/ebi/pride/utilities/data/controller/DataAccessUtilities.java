@@ -12,10 +12,13 @@ import uk.ac.ebi.pride.utilities.util.NumberUtilities;
 import java.util.*;
 
 /**
- * DataAccessUtilities provides methods for getting information out from the core objects.
+ * <p>
+ *   DataAccessUtilities provides methods for getting information out from the
+ *   core objects.
  * <p/>
- * @author rwang
- * @author ypriverol
+ *
+ * @author Rui Wang
+ * @author Yasset Perez-Riverol
  */
 public final class DataAccessUtilities {
 

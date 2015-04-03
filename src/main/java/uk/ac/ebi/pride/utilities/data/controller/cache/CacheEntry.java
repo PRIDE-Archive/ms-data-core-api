@@ -9,8 +9,8 @@ import java.util.HashMap;
  * CacheCategory provides a list of cache categories
  * Each category defines the type of the data and the type of data structure to store the data.
  * <p/>
- * @author ypriverol
- * @author rwang
+ * @author Yasset Perez-Riverol
+ * @author Rui Wang
  */
 public enum CacheEntry {
 

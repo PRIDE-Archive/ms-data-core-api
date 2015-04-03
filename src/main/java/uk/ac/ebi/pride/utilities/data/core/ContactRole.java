@@ -7,9 +7,9 @@ package uk.ac.ebi.pride.utilities.data.core;
  * A Contact may have several Roles within scope, and as such, associations to ContactRole allow
  * the use of a Contact in a certain manner. Examples might include a provider, or a data analyst.
  * <p/>
- * @author ypriverol
- * Date: 19/08/11
- * Time: 15:40
+ *
+ * @author Yasset Perez-Riverol
+ * @author Rui Wang
  */
 
 public class ContactRole {

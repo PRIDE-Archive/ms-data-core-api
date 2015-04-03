@@ -10,8 +10,7 @@ import java.util.List;
  * A set of logically related results from a protein detection, for example to represent conflicting assignments of
  * peptides to proteins
  *
- * @author rwang, ypriverol
- * @version $Id$
+ * @author Rui Wang, Yasset Perez-Riverol
  */
 public class ProteinGroup extends IdentifiableParamGroup{
 

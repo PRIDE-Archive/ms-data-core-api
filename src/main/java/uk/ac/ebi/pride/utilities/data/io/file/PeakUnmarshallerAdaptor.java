@@ -11,7 +11,7 @@ import java.util.List;
  * Retrieve the information from different pure file formats using the JMzReader
  * library.
  *
- * @author ypriverol
+ * @author Yasset Perez-Riverol
  * Date: 3/15/12
  * Time: 10:30 PM
  */

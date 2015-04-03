@@ -9,8 +9,8 @@ import java.util.List;
 
 /**
  * A utility class to enhance Collections class in JDK
- * @author rwang
- * @author ypriverol
+ * @author Rui Wang
+ * @author Yasset Perez-Riverol
  * Date: 16-Apr-2010
  * Time: 11:05:42
  */

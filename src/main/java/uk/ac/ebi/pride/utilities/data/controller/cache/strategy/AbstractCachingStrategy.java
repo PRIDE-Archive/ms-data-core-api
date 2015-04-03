@@ -5,9 +5,8 @@ import uk.ac.ebi.pride.utilities.data.controller.cache.Cache;
 import uk.ac.ebi.pride.utilities.data.controller.cache.CachingStrategy;
 
 /**
- * @author rwang
- * @author ypriverol
- * @version $Id$
+ * @author Rui Wang
+ * @author Yasset Perez-Riverol
  */
 public abstract class AbstractCachingStrategy implements CachingStrategy {
 

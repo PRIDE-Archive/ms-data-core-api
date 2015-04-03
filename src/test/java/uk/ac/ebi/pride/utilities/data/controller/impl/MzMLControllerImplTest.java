@@ -16,8 +16,8 @@ import static org.junit.Assert.assertTrue;
 
 /**
  * Test class for a MzML file
- * @author ypriverol
- * @author rwang
+ * @author Yasset Perez-Riverol
+ * @author Rui Wang
  */
 public class MzMLControllerImplTest {
 

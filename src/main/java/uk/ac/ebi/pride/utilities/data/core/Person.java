@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * A person's name and contact details. Any additional information such as the address, contact email etc.
  * should be supplied using CV parameters or user parameters.
- * @author ypriverol
+ * @author Yasset Perez-Riverol
  * Date: 08/08/11
  * Time: 16:35
  * <p/>

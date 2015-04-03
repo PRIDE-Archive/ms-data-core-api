@@ -10,8 +10,8 @@ import java.util.*;
 /**
  * CacheAccessor is the implementation of cache.
  * <p/>
- * @author rwang
- * @author ypriverol
+ * @author Rui Wang
+ * @author Yasset Perez-Riverol
  */
 public class CacheAccessor implements Cache {
     private static final Logger logger = LoggerFactory.getLogger(CacheAccessor.class);

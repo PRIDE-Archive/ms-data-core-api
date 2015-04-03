@@ -12,7 +12,7 @@ import java.util.Map;
  * PeakTransformer provides the functionality to convert peak objects to ms-core-api
  * objects.
  * <p/>
- * @author ypriverol
+ * @author Yasset Perez-Riverol
  * Date: 3/15/12
  * Time: 10:49 PM
  */

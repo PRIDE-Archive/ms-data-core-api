@@ -13,7 +13,7 @@ import java.util.Map;
  * MZXml transformer provides the methods to convert MzXml objects to
  * ms-core-api objetcs.
  * <p/>
- * @author ypriverol
+ * @author Yasset Perez-Riverol
  * Date: 2/27/12
  * Time: 2:12 PM
  */

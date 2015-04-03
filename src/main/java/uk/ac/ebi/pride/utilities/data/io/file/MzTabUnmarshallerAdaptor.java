@@ -15,8 +15,8 @@ import java.util.*;
 
 /**
  * Unmarshaller an MZTab file
- * @author ypriverol
- * @author rwang
+ * @author Yasset Perez-Riverol
+ * @author Rui Wang
  */
 public class MzTabUnmarshallerAdaptor extends MZTabFileParser{
 

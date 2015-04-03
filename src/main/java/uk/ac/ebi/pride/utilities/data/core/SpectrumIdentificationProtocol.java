@@ -7,7 +7,7 @@ import java.util.List;
 
 /**
  * The parameters and settings of a SpectrumIdentification analysis.
- * @author ypriverol
+ * @author Yasset Perez-Riverol
  * Date: 05/08/11
  * Time: 15:56
  */

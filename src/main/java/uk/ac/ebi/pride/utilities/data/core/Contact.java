@@ -6,9 +6,9 @@ package uk.ac.ebi.pride.utilities.data.core;
  * in order to organize the code we create a new abstract class named AbstractContact to separate the Contacts types
  * from the IdentifiableParamGroup.
  * <p/>
- * @author ypriverol
- * Date: 19/08/11
- * Time: 15:31
+ *
+ * @author Yasset Perez-Riverol
+ * @author Rui Wang
  */
 public abstract class Contact extends IdentifiableParamGroup {
 

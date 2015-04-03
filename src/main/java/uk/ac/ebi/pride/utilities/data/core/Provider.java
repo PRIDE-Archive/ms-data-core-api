@@ -9,7 +9,7 @@ package uk.ac.ebi.pride.utilities.data.core;
  * This object contains a reference to the last software used to generate the file
  * this software is called the provider.
  * <p/>
- * @author ypriverol
+ * @author Yasset Perez-Riverol
  * Date: 04/08/11
  * Time: 11:11
  */

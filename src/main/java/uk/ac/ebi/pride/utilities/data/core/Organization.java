@@ -3,7 +3,7 @@ package uk.ac.ebi.pride.utilities.data.core;
 /**
  * Organizations are entities like companies, universities, government agencies. Any additional information such as the address,
  * email etc. should be supplied either as CV parameters or as user parameters.
- * @author ypriverol, rwang
+ * @author Yasset Perez-Riverol, Rui Wang
  * Date: 04/08/11
  * Time: 11:46
  */

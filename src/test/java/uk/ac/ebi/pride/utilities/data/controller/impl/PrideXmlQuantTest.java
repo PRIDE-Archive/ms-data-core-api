@@ -19,8 +19,8 @@ import static org.junit.Assert.*;
 
 /**
  * Test reading quantitative data from PRIDE Xml
- * @author ypriverol
- * @author rwang
+ * @author Yasset Perez-Riverol
+ * @author Rui Wang
  */
 public class PrideXmlQuantTest {
 

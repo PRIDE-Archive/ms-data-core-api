@@ -8,7 +8,7 @@ import java.util.List;
  * Description of the acquisition settings or the instrument prior to the start of
  * the run.
  * <p/>
- * @author rwang
+ * @author Rui Wang
  * Date: 05-Feb-2010
  * Time: 11:00:53
  */

@@ -11,7 +11,7 @@ import java.util.List;
  * The UnmarshallerAdaptor for MzData files retrieve the mzData objects
  * from the mzdata_parser.
  *
- * @author ypriverol
+ * @author Yasset Perez-Riverol
  * Date: 3/15/12
  * Time: 8:26 AM
  */

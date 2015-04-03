@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * @author ypriverol
+ * @author Yasset Perez-Riverol
  * Date: 05/08/11
  * Time: 16:40
  */

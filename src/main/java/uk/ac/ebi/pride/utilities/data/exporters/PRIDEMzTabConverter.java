@@ -36,8 +36,8 @@ import static uk.ac.ebi.pride.jmztab.model.MZTabUtils.isEmpty;
 import static uk.ac.ebi.pride.utilities.data.utils.MzTabUtils.removeNewLineAndTab;
 
 /**
- * @author ypriverol
- * @author rwang
+ * @author Yasset Perez-Riverol
+ * @author Rui Wang
  */
 public class PRIDEMzTabConverter extends AbstractMzTabConverter {
 

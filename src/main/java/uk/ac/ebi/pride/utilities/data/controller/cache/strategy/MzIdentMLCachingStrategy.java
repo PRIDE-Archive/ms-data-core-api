@@ -23,8 +23,8 @@ import java.util.*;
 /**
  * The MzIdentMLCacheBuilder initialize the cache for mzidentml file  reading.
  * <p/>
- * @author ypriverol
- * @author rwang
+ * @author Yasset Perez-Riverol
+ * @author Rui Wang
  */
 public class MzIdentMLCachingStrategy extends AbstractCachingStrategy {
 

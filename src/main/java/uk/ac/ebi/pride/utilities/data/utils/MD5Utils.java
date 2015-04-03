@@ -9,7 +9,7 @@ import java.security.NoSuchAlgorithmException;
 /**
  * MD5Utils provides static method
  * <p/>
- * @author rwang, ypriverol
+ * @author Rui Wang, Yasset Perez-Riverol
  * Date: 24/06/11
  * Time: 10:01
  */

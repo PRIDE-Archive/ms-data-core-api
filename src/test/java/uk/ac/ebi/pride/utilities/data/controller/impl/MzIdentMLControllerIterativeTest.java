@@ -18,8 +18,8 @@ import java.util.*;
 
 /**
  * Created with IntelliJ IDEA.
- * @author ypriverol
- * @author rwang
+ * @author Yasset Perez-Riverol
+ * @author Rui Wang
  */
 
 public class MzIdentMLControllerIterativeTest {

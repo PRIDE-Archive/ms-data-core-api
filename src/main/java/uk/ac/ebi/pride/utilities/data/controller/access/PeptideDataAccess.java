@@ -11,8 +11,8 @@ import java.util.Collection;
  * You may find the concept of peptide id alien to PRIDE XML files, the index of peptide in
  * the identification should be used in this case.
  * <p/>
- * @author ypriverol
- * @author rwang
+ * @author Yasset Perez-Riverol
+ * @author Rui Wang
  */
 
 public interface PeptideDataAccess {

@@ -9,8 +9,8 @@ import java.util.ArrayList;
 /**
  * MzMlAccessCacheBuilder initialize the cache for mzML reading.
  * <p/>
- * @author rwang
- * @author ypriverol
+ * @author Rui Wang
+ * @author Yasset Perez-Riverol
  */
 public class MzXmlCachingStrategy extends AbstractCachingStrategy {
 

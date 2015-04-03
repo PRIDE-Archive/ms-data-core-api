@@ -27,8 +27,8 @@ import java.util.regex.Pattern;
  * PSMs and not Peptide Information is store because the link between both objects is missed. MzTab will be supported only based in
  * the PSMs and Core proteins the ambiguity proteins will not be supported.
  *
- * @author ypriverol
- * @author rwang
+ * @author Yasset Perez-Riverol
+ * @author Rui Wang
  */
 
 public class MzTabControllerImpl extends ReferencedIdentificationController{

@@ -15,7 +15,7 @@ import static org.junit.Assert.assertTrue;
 
 /**
  * Created with IntelliJ IDEA.
- * @author ypriverol
+ * @author Yasset Perez-Riverol
  * Date: 8/14/12
  * Time: 3:11 PM
  * To change this template use File | Settings | File Templates.

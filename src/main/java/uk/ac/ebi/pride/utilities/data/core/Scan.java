@@ -18,7 +18,7 @@ import java.util.List;
  * <p/>
  * 3. May include only one child term of "scan law" (exponential, linear and quadratic)
  * <p/>
- * @author rwang
+ * @author Rui Wang
  * Date: 20-Feb-2010
  * Time: 18:58:53
  */

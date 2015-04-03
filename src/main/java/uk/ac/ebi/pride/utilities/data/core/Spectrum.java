@@ -21,8 +21,8 @@ import java.util.List;
  * 4. It may have one or more "spectrum attribute" (total ion current,
  * zoom scan, base peak m/z, ms level, spectrum title and etc al)
  * <p/>
- * @author ypriverol
- * @author rwang
+ * @author Yasset Perez-Riverol
+ * @author Rui Wang
  * Date: 03-Feb-2010
  * Time: 08:46:05
  */

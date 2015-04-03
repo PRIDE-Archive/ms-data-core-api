@@ -13,8 +13,8 @@ import java.util.List;
  * It also defines mzgraph related property changing event messages.
  * <p/>
  * <p/>
- * @author rwang
- * @author ypriverol
+ * @author Rui Wang
+ * @author Yasset Perez-Riverol
  */
 public interface MzGraphDataAccess {
 

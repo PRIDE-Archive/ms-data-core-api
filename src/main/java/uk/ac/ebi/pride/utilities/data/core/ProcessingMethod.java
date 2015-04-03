@@ -17,7 +17,7 @@ package uk.ac.ebi.pride.utilities.data.core;
  * high intensity data point removal and et al.
  * <p/>
  * <p/>
- * @author rwang
+ * @author Rui Wang
  * Date: 04-Feb-2010
  * Time: 16:58:59
  */

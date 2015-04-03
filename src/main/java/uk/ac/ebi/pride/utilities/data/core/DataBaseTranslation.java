@@ -7,9 +7,9 @@ import java.util.List;
 /**
  * DataBaseTranslation control and storage the information of Nucleotide Databases.
  * <p/>
- * @author ypriverol
- * Date: 05/08/11
- * Time: 17:36
+ *
+ * @author Yasset Perez-Riverol
+ * @author Rui Wang
  */
 public class DataBaseTranslation {
 

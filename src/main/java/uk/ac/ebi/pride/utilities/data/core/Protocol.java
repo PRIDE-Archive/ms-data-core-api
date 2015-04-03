@@ -6,7 +6,7 @@ package uk.ac.ebi.pride.utilities.data.core;
  * This class Represent the information for MzIdentMl Experiments at the Protein and Spectrum Level
  * </p>
  * <p/>
- * @author ypriverol
+ * @author Yasset Perez-Riverol
  * Date: 08/08/11
  * Time: 11:32
  */

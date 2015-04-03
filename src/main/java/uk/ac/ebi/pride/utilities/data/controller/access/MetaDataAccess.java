@@ -5,9 +5,8 @@ import uk.ac.ebi.pride.utilities.data.core.IdentificationMetaData;
 import uk.ac.ebi.pride.utilities.data.core.MzGraphMetaData;
 
 /**
- * @author ypriverol
- * @author rwang
- * @version $Id$
+ * @author Yasset Perez-Riverol
+ * @author Rui Wang
  */
 public interface MetaDataAccess {
 

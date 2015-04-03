@@ -11,8 +11,8 @@ import java.util.List;
  * This class is used for Metadata Terms transformation, including changes from one particular CVTerm to another
  * type of CVTerm. It also allows to find particular CVterms in a list, etc.
  *
- * @author ypriverol
- * @author rwang
+ * @author Yasset Perez-Riverol
+ * @author Rui Wang
  */
 public class CvUtilities {
 

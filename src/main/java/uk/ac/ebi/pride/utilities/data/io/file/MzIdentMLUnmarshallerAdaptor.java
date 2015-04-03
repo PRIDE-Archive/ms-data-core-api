@@ -17,8 +17,8 @@ import java.util.*;
  * MzMLIdentMLUnmarshallerAdaptor provides a list of convenient
  * methods to access mzidentML files.
  * <p/>
- * @author ypriverol
- * @author rwang
+ * @author Yasset Perez-Riverol
+ * @author Rui Wang
  * Date: 23/09/11
  * Time: 15:28
  */

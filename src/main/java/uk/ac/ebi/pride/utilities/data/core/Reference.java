@@ -8,7 +8,7 @@ import java.util.List;
  * <p/>
  * This object represents the information for MzIdentMl and PRIDE Reference Objects.
  * <p/>
- * @author rwang
+ * @author Rui Wang
  * Date: 27-Jan-2010
  * Time: 09:45:42
  */

@@ -4,8 +4,8 @@ package uk.ac.ebi.pride.utilities.data.core;
  * InstrumentComponent is key to keep the order of different instrument
  * component.
  * <p/>
- * @author rwang
- * @author ypriverol
+ * @author Rui Wang
+ * @author Yasset Perez-Riverol
  */
 public class InstrumentComponent extends ParamGroup {
 

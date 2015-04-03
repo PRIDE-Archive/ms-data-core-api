@@ -3,7 +3,7 @@ package uk.ac.ebi.pride.utilities.data.core;
 /**
  * Enzyme used during the search in Databases.
  * <p/>
- * @author ypriverol
+ * @author Yasset Perez-Riverol
  * Date: 05/08/11
  * Time: 16:16
  */

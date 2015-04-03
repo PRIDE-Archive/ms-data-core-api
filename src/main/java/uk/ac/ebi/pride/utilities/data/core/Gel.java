@@ -4,8 +4,8 @@ package uk.ac.ebi.pride.utilities.data.core;
  * Gel is a class to Describe the Gel Spot for each Protein. it contains the GelLink
  * and the X and Y coordinates for the protein identification.
  * <p/>
- * @author ypriverol
- * @author rwang
+ * @author Yasset Perez-Riverol
+ * @author Rui Wang
  */
 public class Gel extends ParamGroup {
 

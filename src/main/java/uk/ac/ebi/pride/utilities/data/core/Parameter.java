@@ -3,7 +3,7 @@ package uk.ac.ebi.pride.utilities.data.core;
 /**
  * Parameter exist in neither PRIDE XML nor mzML, it created for method sharing.
  * <p/>
- * @author rwang, ypriverol
+ * @author Rui Wang, Yasset Perez-Riverol
  * Date: 27-Jan-2010
  * Time: 09:36:25
  */

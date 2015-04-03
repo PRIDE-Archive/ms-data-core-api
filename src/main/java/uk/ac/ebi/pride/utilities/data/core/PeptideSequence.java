@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * One (poly)peptide (a sequence with modifications). The combination of Peptide sequence
  * and modifications must be unique in the file.
- * @author ypriverol
+ * @author Yasset Perez-Riverol
  * Date: 04/08/11
  * <p/>
  */

@@ -39,8 +39,8 @@ import java.util.regex.Pattern;
  * portable to the ms-core-api information from the mzXML files. this controller use the MzXMLFile Api
  * to parse an retrieve the information from mzXML files.
  *
- * @author ypriverol
- * @author rwang
+ * @author Yasset Perez-Riverol
+ * @author Rui Wang
  */
 
 public class MzXmlControllerImpl extends CachedDataAccessController {

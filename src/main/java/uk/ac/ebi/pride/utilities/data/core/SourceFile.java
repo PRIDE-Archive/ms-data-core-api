@@ -16,7 +16,7 @@ package uk.ac.ebi.pride.utilities.data.core;
  * 3. Must include only one child term of "source file type" (waters raw file,
  * ABI WIFF file, Thermo RAW file and et al)
  * <p/>
- * @author rwang, ypriverol
+ * @author Rui Wang, Yasset Perez-Riverol
  * Date: 04-Feb-2010
  * Time: 15:53:36
  */

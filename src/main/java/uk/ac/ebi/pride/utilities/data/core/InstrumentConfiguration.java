@@ -21,8 +21,8 @@ import java.util.List;
  * 4. Must include only one "instrument mode" or any of its children. (4000 Q TRAP,
  * API 4000 and et al)
  * <p/>
- * @author rwang
- * @author ypriverol
+ * @author Rui Wang
+ * @author Yasset Perez-Riverol
  */
 public class InstrumentConfiguration extends ParamGroup {
 

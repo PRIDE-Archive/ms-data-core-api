@@ -10,7 +10,7 @@ import java.util.List;
  * This is a General Class representation of Spectrums and Chromatograms.
  * <p/>
  * <p/>
- * @author rwang
+ * @author Rui Wang
  * Date: 05-Feb-2010
  * Time: 15:41:15
  */

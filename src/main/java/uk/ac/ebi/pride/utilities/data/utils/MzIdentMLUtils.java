@@ -27,8 +27,8 @@ import java.util.List;
  * MzIdentML utilities class. It contains all functions related with mzidentMl validation
  * file format,
  * <p/>
- * @author ypriverol
- * @author rwang
+ * @author Yasset Perez-Riverol
+ * @author Rui Wang
  */
 public final class MzIdentMLUtils {
 

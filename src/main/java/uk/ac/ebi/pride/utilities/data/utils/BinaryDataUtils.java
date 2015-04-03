@@ -19,8 +19,8 @@ import java.util.zip.Inflater;
  * big endian is the most significant byte first. for example: 149 -> 10010101
  * little endian is the least significant byte first.
  * <p/>
- * @author rwang
- * @author ypriverol
+ * @author Rui Wang
+ * @author Yasset Perez-Riverol
  * Date: 29-Mar-2010
  * Time: 11:58:24
  */

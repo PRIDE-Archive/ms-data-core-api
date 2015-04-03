@@ -5,8 +5,8 @@ package uk.ac.ebi.pride.utilities.data.core;
  * Especially the MZIdentMl Classes. Identifiable gives classes a unique identifier within the scope and
  * a name that need not be unique. Identifiable also provides a mechanism for annotating objects with
  * BibliographicReference(s) and DatabaseEntry(s).
- * @author ypriverol
- * @author rwang
+ * @author Yasset Perez-Riverol
+ * @author Rui Wang
  */
 
 public class Identifiable implements MassSpecObject {

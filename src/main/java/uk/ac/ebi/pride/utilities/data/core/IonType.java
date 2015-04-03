@@ -14,7 +14,7 @@ import java.util.Map;
  * have been identified, the index attribute will contain 3 7 8 10, and the
  * corresponding values will be reported in parallel arrays below.
  * <p/>
- * @author ypriverol
+ * @author Yasset Perez-Riverol
  * Date: 08/08/11
  * Time: 14:01
  */

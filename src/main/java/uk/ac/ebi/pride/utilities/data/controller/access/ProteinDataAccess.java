@@ -13,8 +13,8 @@ import java.util.Collection;
 /**
  * ProteinDataAccess defines the interface for accessing identification data.
  * <p/>
- * @author rwang
- * @author ypriverol
+ * @author Rui Wang
+ * @author Yasset Perez-Riverol
  */
 
 public interface ProteinDataAccess {

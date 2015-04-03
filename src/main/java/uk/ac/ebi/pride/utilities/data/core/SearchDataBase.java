@@ -13,8 +13,8 @@ import java.util.List;
  * - name of the database: CvTerms and CvParm
  * - Description of the DataBase.
  * </p>
- * @author ypriverol
- * @author rwang
+ * @author Yasset Perez-Riverol
+ * @author Rui Wang
  */
 public class SearchDataBase extends ExternalData {
 

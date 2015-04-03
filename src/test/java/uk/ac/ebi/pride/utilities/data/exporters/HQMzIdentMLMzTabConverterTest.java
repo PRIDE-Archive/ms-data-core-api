@@ -14,9 +14,9 @@ import static org.junit.Assert.assertTrue;
 
 /**
  * MzTab Controller Test
- * @author ypriverol
- * @author rwang
- * @author ntoro
+ * @author Yasset Perez-Riverol
+ * @author Rui Wang
+ * @author Noemi del Toro
  */
 public class HQMzIdentMLMzTabConverterTest {
 

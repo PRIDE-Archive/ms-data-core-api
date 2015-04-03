@@ -12,8 +12,8 @@ import java.io.File;
 import java.net.URL;
 
 /**
- * @author rwang
- * @version $Id$
+ * @author Rui Wang
+ * @author Yasset Perez-Riverol
  */
 public class MzIdentMLProteinGroupTest {
 

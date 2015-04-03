@@ -2,7 +2,7 @@ package uk.ac.ebi.pride.utilities.data.core;
 
 /**
  * A data set containing spectra data (consisting of one or more spectra).
- * @author ypriverol
+ * @author Yasset Perez-Riverol
  * Date: 08/08/11
  * Time: 12:07
  */

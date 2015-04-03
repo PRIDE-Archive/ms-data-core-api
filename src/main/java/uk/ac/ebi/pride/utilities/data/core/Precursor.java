@@ -6,7 +6,7 @@ import java.util.List;
 
 /**
  * The method of precursor ion selection and activation
- * @author rwang
+ * @author Rui Wang
  * Date: 05-Feb-2010
  * Time: 14:03:21
  */

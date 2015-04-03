@@ -20,8 +20,9 @@ import java.util.List;
  * (total ion current chromatogram, selected ion current chromatogram,
  * basepeak chromatogram)
  * <p/>
- * @author ypriverol
- * @author rwang
+ *
+ * @author Yasset Perez-Riverol
+ * @author Rui Wang
  */
 public class Chromatogram extends MzGraph {
 

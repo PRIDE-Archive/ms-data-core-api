@@ -7,7 +7,7 @@ import java.util.Map;
 /**
  * Referenceable param group stores a map of reference string to param group.
  * <p/>
- * @author rwang
+ * @author Rui Wang
  */
 public class ReferenceableParamGroup implements MassSpecObject {
     private final Map<String, ParamGroup> refMap;

@@ -15,8 +15,8 @@ import static org.junit.Assert.assertTrue;
 
 /**
  * Test PrideXmlControllerImpl
- * @author ypriverol
- * @author rwang
+ * @author Yasset Perez-Riverol
+ * @author Rui Wang
  */
 public class PrideXmlControllerImplTest {
 

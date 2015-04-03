@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * PSM Spectrum identification match. The relation between an Spectrum and a PeptideEvidence.
  * It contains a number of Scores from different search Engines.
- * @author ypriverol
+ * @author Yasset Perez-Riverol
  * Date: 05/08/11
  * Time: 15:49
  */

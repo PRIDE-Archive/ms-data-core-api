@@ -10,7 +10,7 @@ package uk.ac.ebi.pride.utilities.data.core;
  * 2. It is important to know that the first term of the CVPAram list always will correspond with the Cvterm format of
  *    the name. For those cases that needs the name in CV Format like MzTab Converter.
  * <p/>
- * @author ypriverol, rwang
+ * @author Yasset Perez-Riverol, Rui Wang
  * Date: 04-Feb-2010
  * Time: 16:06:45
  */

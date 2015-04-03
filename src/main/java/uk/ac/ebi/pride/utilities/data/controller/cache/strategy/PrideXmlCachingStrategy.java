@@ -9,8 +9,8 @@ import java.util.ArrayList;
 /**
  * PrideXmlAccessCacheBuilder initialize the cache for pride xml reading.
  * <p/>
- * @author rwang
- * @author ypriverol
+ * @author Rui Wang
+ * @author Yasset Perez-Riverol
  */
 public class PrideXmlCachingStrategy extends AbstractCachingStrategy {
 

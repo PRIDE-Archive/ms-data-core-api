@@ -2,8 +2,8 @@ package uk.ac.ebi.pride.utilities.data.exporters;
 
 /**
  * Exporter to Protein List
- * @author ypriverol
- * @author rwang
+ * @author Yasset Perez-Riverol
+ * @author Rui Wang
  */
 public class TabProteinList {
 }

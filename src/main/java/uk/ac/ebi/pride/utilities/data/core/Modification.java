@@ -27,7 +27,7 @@ import java.util.List;
  * - Modification database version is (used for PRIDE Objects)
  * </p>
  * <p/>
- * @author ypriverol
+ * @author Yasset Perez-Riverol
  * Date: 04/08/11
  * Time: 14:11
  */

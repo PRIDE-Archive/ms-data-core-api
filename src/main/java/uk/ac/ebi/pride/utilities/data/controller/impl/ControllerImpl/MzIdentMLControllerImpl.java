@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
  * supported for this files because they not contains information about spectrum. The controller
  * support the mzidentml schema version 1.1.
  * <p/>
- * @author ypriverol
+ * @author Yasset Perez-Riverol
  * Date: 19/09/11
  */
 public class MzIdentMLControllerImpl extends ReferencedIdentificationController {

@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 /**
  * Class to Create the Cache for MzData Files.
- * @author ypriverol
+ * @author Yasset Perez-Riverol
  * Date: 3/15/12
  * Time: 8:00 AM
  */

@@ -11,8 +11,8 @@ import java.util.Map;
  * Note: this cache map is not thread safe,
  * one must use CacheFactory to create a thread safe version.
  * <p/>
- * @author rwang
- * @author ypriverol
+ * @author Rui Wang
+ * @author Yasset Perez-Riverol
  */
 
 public class CachedMap<K, V> extends LinkedHashMap<K, V> {

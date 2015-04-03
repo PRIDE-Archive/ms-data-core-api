@@ -29,7 +29,7 @@ import java.util.*;
 import static uk.ac.ebi.pride.utilities.data.utils.MzTabUtils.removeNewLineAndTab;
 
 /**
- * @author ypriverol
+ * @author Yasset Perez-Riverol
  * @author ntoro
  */
 public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {

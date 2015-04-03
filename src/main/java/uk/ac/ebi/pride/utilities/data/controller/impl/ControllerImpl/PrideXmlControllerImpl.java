@@ -26,8 +26,8 @@ import java.util.regex.Pattern;
 /**
  * PrideXmlControllerImpl is responsible for reading Pride Xml files.
  * <p/>
- * @author rwang
- * @author ypriverol
+ * @author Rui Wang
+ * @author Yasset Perez-Riverol
  */
 
 public class PrideXmlControllerImpl extends CachedDataAccessController {

@@ -33,8 +33,8 @@ import java.util.*;
  * MzTab Transformer to ms-data-core-api Objects. We are only converting proteins and psm without the peptide information in the first release. In the near future we will
  * also convert peptide information.
  *
- * @author ypriverol
- * @author rwang
+ * @author Yasset Perez-Riverol
+ * @author Rui Wang
  */
 public class MzTabTransformer {
 

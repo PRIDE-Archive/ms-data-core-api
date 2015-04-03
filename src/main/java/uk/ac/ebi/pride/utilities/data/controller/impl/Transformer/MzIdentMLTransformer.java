@@ -36,7 +36,7 @@ import java.util.*;
  * Objects.
  * <p/>
  * <p/>
- * @author ypriverol
+ * @author Yasset Perez-Riverol
  * Date: 19/09/11
  * Time: 16:08
  */

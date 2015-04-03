@@ -8,8 +8,8 @@ import java.util.regex.Pattern;
  * QuantitativeSample which contains quantitative related information
  * This is mainly for PRIDE XMl
  * <p/>
- * @author rwang
- * @author ypriverol
+ * @author Rui Wang
+ * @author Yasset Perez-Riverol
  * Date: 09/08/2011
  * Time: 13:51
  */

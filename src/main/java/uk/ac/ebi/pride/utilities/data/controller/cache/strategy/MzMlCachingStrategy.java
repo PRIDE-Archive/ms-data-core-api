@@ -10,7 +10,7 @@ import java.util.ArrayList;
  * The CacheBuilder class provides the functionality to initialize the cache
  * categories for mzML files.
  * <p/>
- * @author ypriverol
+ * @author Yasset Perez-Riverol
  * Date: 3/13/12
  * Time: 2:48 PM
  */

@@ -22,8 +22,8 @@ import java.util.*;
  * Abstract Class that contains methods shared by mzTab controller and
  * mzIdentML controller and also some data structures share for both classes. This class is specialized in the
  * Controller of the MS files referenced from the mzIdentML and mzTab files.
- * @author ypriverol
- * @author rwang
+ * @author Yasset Perez-Riverol
+ * @author Rui Wang
  */
 public abstract class ReferencedIdentificationController extends CachedDataAccessController {
 

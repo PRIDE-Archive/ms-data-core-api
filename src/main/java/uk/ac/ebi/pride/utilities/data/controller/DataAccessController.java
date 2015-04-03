@@ -7,14 +7,14 @@ import java.util.Collection;
 
 
 /**
+ * <p>
  * DataAccessController is an aggregate interface for data access.
  * It extends a list of interfaces, also added methods for accessing metadata.
  * Setting the state of the data access controller.
  * <p/>
- * @author ypriverol
- * @author rwang
- * Date: 09-Apr-2010
- * Time: 14:25:49
+ *
+ * @author Yasset Perez-Riverol
+ * @author Rui Wang
  */
 public interface DataAccessController
         extends MetaDataAccess, MzGraphDataAccess,

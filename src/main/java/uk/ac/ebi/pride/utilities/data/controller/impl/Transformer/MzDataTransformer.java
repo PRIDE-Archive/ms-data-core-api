@@ -12,7 +12,7 @@ import java.util.Map;
  * This class provide the functions to convert and transform mzData objects
  * to ms-core-api objetcs.
  * <p/>
- * @author ypriverol
+ * @author Yasset Perez-Riverol
  * Date: 3/15/12
  * Time: 9:19 AM
  */

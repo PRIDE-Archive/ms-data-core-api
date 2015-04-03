@@ -3,13 +3,16 @@ package uk.ac.ebi.pride.utilities.data.core;
 /**
  * Abundance Assay is the Class to storage the abundance variables for each Protein. This is the value of Score Quantitation
  * like Score is for identification, but per assays.
- * @author ypriverol
- * @author rwang
+ *
+ * @author Yasset Perez-Riverol
+ * @author Rui Wang
  */
 public class AbundanceAssay extends IdentifiableParamGroup {
 
+    /** Assay description including **/
     private Assay assay;
 
+    /** Abundance Value **/
     private Double value;
 
 

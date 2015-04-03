@@ -17,7 +17,7 @@ import static org.junit.Assert.assertTrue;
  * This class is the controller for mzData files. It is responsable to retrieve
  * the information for Spectrum and MetaData.
  *
- * @author ypriverol
+ * @author Yasset Perez-Riverol
  * Date: 3/15/12
  * Time: 12:45 PM
  */
