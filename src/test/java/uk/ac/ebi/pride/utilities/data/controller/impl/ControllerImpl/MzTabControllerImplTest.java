@@ -1,9 +1,8 @@
-package uk.ac.ebi.pride.utilities.data.controller.impl;
+package uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl.MzTabControllerImpl;
 import uk.ac.ebi.pride.utilities.data.core.*;
 
 import static org.junit.Assert.assertEquals;

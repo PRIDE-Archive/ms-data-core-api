@@ -14,7 +14,7 @@ import java.util.*;
  * AbstractDataAccessController provides an abstract implementation of DataAccessController.
  * This is solely based on getting the data directly from data source.
  * <p/>
- * 
+ *
  * @author Rui Wang
  * @author Yasset Perez-Riverol
  */
