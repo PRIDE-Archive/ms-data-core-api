@@ -13,7 +13,9 @@ import java.net.URL;
 import static org.junit.Assert.assertTrue;
 
 /**
- * MzTab Controller Test
+ * MzTab Converter of mzIdentML files. The class allow to convert mzIdentML
+ * files to mzTab including the protein groups and PSMs.
+ *
  * @author Yasset Perez-Riverol
  * @author Rui Wang
  */
