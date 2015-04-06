@@ -16,7 +16,7 @@ import static org.junit.Assert.assertTrue;
  * Conversion of PRIDE XML to mzTab file.
  * @author Yasset Prez-Riverol
  * @author Noemi del Toro
- * 
+ *
  */
 public class MzTabPRIDEConverterTest {
 
