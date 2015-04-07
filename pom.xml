@@ -26,7 +26,7 @@
 
     <developers>
         <developer>
-            <id>ypriverol</id>
+            <id>Yasset Perez-Riverol</id>
             <name>Yasset Perez-Riverol</name>
             <url>http://computationalproteomic.blogspot.co.uk/</url>
             <organization>Proteomics Services Team, PANDA Group, EMBL-European Bioinformatics Institute</organization>
@@ -40,7 +40,7 @@
         </developer>
 
         <developer>
-            <id>rwang</id>
+            <id>Rui Wang</id>
             <name>Rui Wang</name>
             <organization>Proteomics Services Team, PANDA Group, EMBL-European Bioinformatics Institute</organization>
             <organizationUrl>http://www.ebi.ac.uk/pride</organizationUrl>
@@ -345,9 +345,23 @@
                             <goal>jar</goal>
                         </goals>
                     </execution>
+                    <execution>
+                            <goals>
+                                <goal>javadoc</goal>
+                            </goals>
+                            <phase>site</phase>
+                    </execution>
                 </executions>
             </plugin>
-        </plugins>
+
+            <plugin>
+                <artifactId>maven-site-plugin</artifactId>
+                    <configuration>
+                        <skip>true</skip>
+                        <skipDeploy>true</skipDeploy>
+                    </configuration>
+            </plugin>
+     </plugins>
     </build>
 
     <repositories>
