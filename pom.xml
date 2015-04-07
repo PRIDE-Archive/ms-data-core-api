@@ -86,7 +86,6 @@
         <jmzidentml.version>1.2.2</jmzidentml.version>
         <xmlschemavalidator.version>2.1</xmlschemavalidator.version>
         <jmztab.version>3.0.2</jmztab.version>
-        <spring.web.version>4.1.1.RELEASE</spring.web.version>
 
         <jmzreader.version>1.2.0</jmzreader.version>
         <mzxml.parser.version>1.3.1</mzxml.parser.version>
@@ -102,9 +101,7 @@
         <commonscode.version>1.7</commonscode.version>
 
         <pride.jaxb.version>1.0.12</pride.jaxb.version>
-        <mysql.connector.java>5.1.24</mysql.connector.java>
         <c3p0.version>0.9.1.2</c3p0.version>
-        <springframewrok.version>3.2.3.RELEASE</springframewrok.version>
         <pride-utilities.version>2.0.4-SNAPSHOT</pride-utilities.version>
        <json.version>20090211</json.version>
 
@@ -263,30 +260,13 @@
             <artifactId>c3p0</artifactId>
             <version>${c3p0.version}</version>
         </dependency>
-        <!--spring jdbc template-->
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-jdbc</artifactId>
-            <version>${springframewrok.version}</version>
-        </dependency>
-        <!-- spring web client -->
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-web</artifactId>
-            <version>${spring.web.version}</version>
-        </dependency>
-
 
         <dependency>
             <groupId>uk.ac.ebi.pride.utilities</groupId>
             <artifactId>pride-utilities</artifactId>
             <version>${pride-utilities.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.json</groupId>
-            <artifactId>json</artifactId>
-            <version>${json.version}</version>
-        </dependency>
+
     </dependencies>
 
 
