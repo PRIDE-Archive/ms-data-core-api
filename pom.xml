@@ -50,6 +50,30 @@
             </roles>
             <timezone>0</timezone>
         </developer>
+
+        <developer>
+            <id>ntoro</id>
+                <name>Noemi del Toro Ayllón</name>
+            <organization>Proteomics Services Team, PANDA Group, EMBL-European Bioinformatics Institute</organization>
+            <organizationUrl>http://www.ebi.ac.uk/pride</organizationUrl>
+            <roles>
+                <role>developer</role>
+                <role>tester</role>
+            </roles>
+            <timezone>0</timezone>
+        </developer>
+
+        <developer>
+            <id>tobias</id>
+            <name>Tobias Ternent</name>
+            <organization>Proteomics Services Team, PANDA Group, EMBL-European Bioinformatics Institute</organization>
+            <organizationUrl>http://www.ebi.ac.uk/pride</organizationUrl>
+            <roles>
+                <role>developer</role>
+                <role>tester</role>
+            </roles>
+            <timezone>0</timezone>
+        </developer>
     </developers>
 
     <properties>
@@ -70,7 +94,7 @@
         <apl.parser.version>1.0.0</apl.parser.version>
         <ms2.parser.version>1.2.2</ms2.parser.version>
         <dta.parser.version>1.2.1</dta.parser.version>
-        <mgf.parser.version>1.2.10-SNAPSHOT</mgf.parser.version>
+        <mgf.parser.version>1.2.9</mgf.parser.version>
         <mzdata.parser.version>1.2.1</mzdata.parser.version>
 
 
@@ -79,7 +103,6 @@
 
         <pride.jaxb.version>1.0.12</pride.jaxb.version>
         <mysql.connector.java>5.1.24</mysql.connector.java>
-        <jdom.version>2.0.2</jdom.version>
         <c3p0.version>0.9.1.2</c3p0.version>
         <springframewrok.version>3.2.3.RELEASE</springframewrok.version>
         <pride-utilities.version>2.0.4-SNAPSHOT</pride-utilities.version>
@@ -233,11 +256,6 @@
             <groupId>uk.ac.ebi.pride.jaxb</groupId>
             <artifactId>pride-jaxb</artifactId>
             <version>${pride.jaxb.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jdom</groupId>
-            <artifactId>jdom</artifactId>
-            <version>${jdom.version}</version>
         </dependency>
         <!-- db connection pool -->
         <dependency>
