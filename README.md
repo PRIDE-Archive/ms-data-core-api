@@ -1,5 +1,6 @@
 ms-data-core-api
 ===============
+[![Build Status](https://travis-ci.org/PRIDE-Utilities/ms-data-core-api.svg)](https://travis-ci.org/PRIDE-Utilities/ms-data-core-api)
 
 # About mz-data-core-api
 
