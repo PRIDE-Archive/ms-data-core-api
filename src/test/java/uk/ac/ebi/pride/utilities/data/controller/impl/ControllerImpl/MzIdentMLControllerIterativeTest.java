@@ -36,7 +36,7 @@ public class MzIdentMLControllerIterativeTest {
     @Before
     public void setUp() throws Exception {
         URL url = MzIdentMLControllerIterativeTest.class.getClassLoader().getResource("small.mzid");
-        URL urlMfg = MzIdentMLControllerIterativeTest.class.getClassLoader().getResource("small.mgf");
+        URL urlMgf = MzIdentMLControllerIterativeTest.class.getClassLoader().getResource("small.mgf");
 
         if (url == null) {
             throw new IllegalStateException("no file for input found!");
@@ -44,10 +44,10 @@ public class MzIdentMLControllerIterativeTest {
         File inputFile = new File(url.toURI());
 
         mzIdentMLController = new MzIdentMLControllerImpl(inputFile,true);
-        mzMLController      = new PeakControllerImpl(new File(urlMfg != null ? urlMfg.toURI() : null));
+        mzMLController      = new PeakControllerImpl(new File(urlMgf != null ? urlMgf.toURI() : null));
 
         List<File> files = new ArrayList<File>();
-        files.add(new File(urlMfg.toURI()));
+        files.add(new File(urlMgf.toURI()));
         mzIdentMLController.addMSController(files);
     }
 

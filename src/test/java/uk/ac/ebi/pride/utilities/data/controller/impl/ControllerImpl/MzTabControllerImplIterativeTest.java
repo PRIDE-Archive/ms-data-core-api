@@ -32,7 +32,7 @@ public class MzTabControllerImplIterativeTest {
     @Before
     public void setUp() throws Exception {
         URL url = MzTabControllerImplIterativeTest.class.getClassLoader().getResource("small-silac.mztab");
-        URL urlMfg = MzTabControllerImplIterativeTest.class.getClassLoader().getResource("small-silac.mgf");
+        URL urlMgf = MzTabControllerImplIterativeTest.class.getClassLoader().getResource("small-silac.mgf");
 
         if (url == null) {
             throw new IllegalStateException("no file for input found!");
@@ -40,10 +40,10 @@ public class MzTabControllerImplIterativeTest {
         File inputFile = new File(url.toURI());
 
         mzTabController = new MzTabControllerImpl(inputFile);
-        peakController = new PeakControllerImpl(new File(urlMfg != null ? urlMfg.toURI() : null));
+        peakController = new PeakControllerImpl(new File(urlMgf != null ? urlMgf.toURI() : null));
 
         List<File> files = new ArrayList<File>();
-        files.add(new File(urlMfg.toURI()));
+        files.add(new File(urlMgf.toURI()));
         mzTabController.addMSController(files);
     }
 
