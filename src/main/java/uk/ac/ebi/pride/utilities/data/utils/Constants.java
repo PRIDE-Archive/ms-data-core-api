@@ -19,6 +19,10 @@ public final class Constants {
     /** algebraic sign */
     private static final String SIGN = "[+-]";
 
+    public static  final String TAB  = "\t";
+
+    public static  final String LINE_SEPARATOR = "\n";
+
     /** integer expression */
     public static final String INTEGER = SIGN + "?\\d+";
 
