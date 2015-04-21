@@ -280,12 +280,18 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
                                 }
 
                                 if (searchModification.getSpecificities() != null && !searchModification.getSpecificities().isEmpty()) {
-                                    if (searchModification.getSpecificities().size() > 1) {
-                                        //We annotate only one site in mzTab
-                                        logger.warn("More than one residue specify");
-                                    }
 
                                     site = searchModification.getSpecificities().get(0);
+
+                                    final int size = searchModification.getSpecificities().size();
+                                    if (size > 1) {
+                                        //We annotate only one site in mzTab
+                                        logger.warn("More than one residue specify");
+                                        for (int k = 1; k < size; k++) {
+                                            site = site + " " + searchModification.getSpecificities().get(k);
+                                        }
+                                    }
+
                                     if (site.equalsIgnoreCase(".")) {
                                         //We try to find a more specific site in the rules
                                         for (CvParam rule : searchModification.getSpecificityRules()) {
@@ -785,7 +791,7 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
         // set the description if available
         String description = (getDescriptionFromCVParams(sequence.getCvParams()) != null && !getDescriptionFromCVParams(sequence.getCvParams()).isEmpty()) ? getDescriptionFromCVParams(sequence.getCvParams()) : null;
         protein.setDescription(description);
-//Todo: check here what we need to do
+        //Todo: check here what we need to do
         if (sequence.getSequence() != null && !sequence.getSequence().isEmpty()) {
             protein.setOptionColumnValue(MZIdentMLUtils.OPTIONAL_SEQUENCE_COLUMN, sequence.getSequence());
         } else
