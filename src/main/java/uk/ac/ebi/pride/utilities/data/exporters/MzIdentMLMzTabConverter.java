@@ -727,13 +727,7 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
                 for (UserParam userParam : oldPSM.getPeptideEvidence().getUserParams()) {
                     switch (userParam.getName()) {
                         case ("chr"):
-                            String chromValue;
-                            if (!userParam.getValue().toLowerCase().startsWith("chr")) {
-                                chromValue = "chr" + userParam.getValue();
-                            } else {
-                                chromValue =  userParam.getValue();
-                            }
-                            psm.setOptionColumnValue(MzTabUtils.OPTIONAL_CHROM_COLUMN, chromValue);
+                            psm.setOptionColumnValue(MzTabUtils.OPTIONAL_CHROM_COLUMN, userParam.getValue());
                             break;
                         case ("start_map"):
                             psm.setOptionColumnValue(MzTabUtils.OPTIONAL_CHROMSTART_COLUMN, userParam.getValue());
