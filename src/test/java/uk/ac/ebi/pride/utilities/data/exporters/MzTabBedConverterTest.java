@@ -111,7 +111,7 @@ public class MzTabBedConverterTest {
         BufferedReader bufferedReader = new BufferedReader(new FileReader(temp));
         String firstLine = bufferedReader.readLine();
         final boolean test = firstLine != null && !firstLine.isEmpty();
-        assertTrue("Chromosome information present in generated bed file", test);
+        assertTrue("Chromosome information must be present in generated bed file", test);
         temp.deleteOnExit();
     }
 
