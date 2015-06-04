@@ -25,7 +25,6 @@ public class MzTabBedConverter {
      */
     public MzTabBedConverter(MzTabControllerImpl mzTabFile) {
         this.mzTabController = mzTabFile;
-
     }
 
     /**
@@ -38,6 +37,7 @@ public class MzTabBedConverter {
         BufferedWriter bf = new BufferedWriter(file);
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.setLength(0);
+        int lineNumber = 1;
         for (Comparable proteinID : mzTabController.getProteinIds()) {
             Protein protein = mzTabController.getProteinById(proteinID);
             ArrayList<PeptideEvidence> evidences = new ArrayList<>();
@@ -97,10 +97,26 @@ public class MzTabBedConverter {
                             stringBuilder.append('\t');
                             stringBuilder.append(chromend); // chromend
                             stringBuilder.append('\t');
+                            stringBuilder.append(++lineNumber + "_" + protein.getDbSequence().getName()); // name
+                            stringBuilder.append('\t');
+                            stringBuilder.append(1000); // score (1000)
+                            stringBuilder.append('\t');
                             stringBuilder.append(strand); // strand
                             stringBuilder.append('\t');
-                            stringBuilder.append(protein.getDbSequence().getName()); // protein_name
+                            stringBuilder.append(chromstart); // thickStart
                             stringBuilder.append('\t');
+                            stringBuilder.append(chromend); // thickEnd
+                            stringBuilder.append('\t');
+                            stringBuilder.append("0"); // reserved - (0 only)
+                            stringBuilder.append('\t');
+                            stringBuilder.append("1"); // blockCount (1 only)
+                            stringBuilder.append('\t');
+                            stringBuilder.append(Integer.parseInt(chromend) - Integer.parseInt(chromstart)); // blockSizes (1 only)
+                            stringBuilder.append('\t');
+                            stringBuilder.append("0"); // blockStarts (0 only)
+                            stringBuilder.append('\t') ;
+                            stringBuilder.append(protein.getDbSequence().getName()); // protein_name
+                            stringBuilder.append('\t') ;
                             stringBuilder.append(prediction); // prediction
                             stringBuilder.append('\t');
                             stringBuilder.append(peptideEvidence.getPeptideSequence().getSequence());  // peptide_sequence
@@ -129,5 +145,4 @@ public class MzTabBedConverter {
         }
         bf.close();
     }
-
 }
