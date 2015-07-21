@@ -18,6 +18,8 @@ import java.util.ArrayList;
 public class MzTabBedConverter {
 
     private MzTabControllerImpl mzTabController;
+    private String projectAccession;
+    private String assayAccession;
 
     /**
      * Constructor to setup conversion of an mzTabFile into a bed file.
@@ -25,7 +27,16 @@ public class MzTabBedConverter {
      */
     public MzTabBedConverter(MzTabControllerImpl mzTabFile) {
         this.mzTabController = mzTabFile;
+        this.projectAccession = "";
+        this.assayAccession = "";
     }
+
+    public MzTabBedConverter(MzTabControllerImpl mzTabFile, String projectAccession, String assayAccession) {
+        this.mzTabController = mzTabFile;
+        this.projectAccession = projectAccession;
+        this.assayAccession = assayAccession;
+    }
+
 
     /**
      * Performs the conversion of the mzTabFile into a bed file.
@@ -97,7 +108,15 @@ public class MzTabBedConverter {
                             stringBuilder.append('\t');
                             stringBuilder.append(chromend); // chromend
                             stringBuilder.append('\t');
-                            stringBuilder.append(++lineNumber + "_" + protein.getDbSequence().getName()); // name
+                            String name =  protein.getDbSequence().getName();
+                            if (!projectAccession.isEmpty()) {
+                                name = name + "_" + projectAccession;
+                            }
+                            if (!assayAccession.isEmpty()) {
+                                name = name + "_" + assayAccession;
+                            }
+                            name = name + "_" + ++lineNumber;
+                            stringBuilder.append(name); // name
                             stringBuilder.append('\t');
                             stringBuilder.append(1000); // score (1000)
                             stringBuilder.append('\t');
@@ -134,6 +153,17 @@ public class MzTabBedConverter {
                             stringBuilder.append(peptide.getSpectrumIdentification().getExperimentalMassToCharge()); // exp_mass_to_charge
                             stringBuilder.append('\t');
                             stringBuilder.append(peptide.getSpectrumIdentification().getCalculatedMassToCharge()); // calc_mass_to_charge
+                            stringBuilder.append('\t');
+                            stringBuilder.append(projectAccession); // project_accession
+                            stringBuilder.append('\t');
+                            stringBuilder.append(assayAccession); // assay_accession
+                            stringBuilder.append('\t');
+                            if (!projectAccession.isEmpty()) {
+                                stringBuilder.append("http://www.ebi.ac.uk/pride/archive/projects/" + projectAccession); // project_uri
+                            }  else {
+                                stringBuilder.append(""); // project_uri
+                            }
+
                             stringBuilder.append('\n');
                             bf.write(stringBuilder.toString());
                             bf.flush();
