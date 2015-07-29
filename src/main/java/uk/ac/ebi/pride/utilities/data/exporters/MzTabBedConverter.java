@@ -97,8 +97,6 @@ public class MzTabBedConverter {
                                 case ("prediction"):
                                     prediction = userParam.getValue();
                                     break;
-                                default:
-                                    break;
                             }
                         }
                         if (!chrom.equalsIgnoreCase("null")) {
