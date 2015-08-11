@@ -285,10 +285,6 @@ public class MzTabTransformer {
             if(rawIdent.getOptionColumnValue(MzTabUtils.OPTIONAL_PROTEIN_NAME_COLUMN) != null && !rawIdent.getOptionColumnValue(MzTabUtils.OPTIONAL_PROTEIN_NAME_COLUMN).isEmpty())
                 dbSequence.setName(rawIdent.getOptionColumnValue(MzTabUtils.OPTIONAL_PROTEIN_NAME_COLUMN));
 
-            if(rawIdent.getOptionColumnValue(MzTabUtils.OPTIONAL_PREDICTION_COLUMN) != null && !rawIdent.getOptionColumnValue(MzTabUtils.OPTIONAL_PREDICTION_COLUMN).isEmpty())
-                dbSequence.getUserParams().add(new UserParam("prediction", null, rawIdent.getOptionColumnValue(MzTabUtils.OPTIONAL_PREDICTION_COLUMN), null, null, null));
-
-
             //Quantitation Scores
             QuantScore quantScore = null;
             if(hasQuantitation)

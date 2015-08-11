@@ -56,8 +56,7 @@ public class MzTabBedConverter {
                 for (PeptideEvidence peptideEvidence : peptide.getPeptideEvidenceList()) {
                     if (!evidences.contains(peptide.getPeptideEvidence())) {
                         evidences.add(peptide.getPeptideEvidence());
-                        String chrom = "null", chromstart = "null", chromend = "null", strand = "null", mods = "null", prediction = "null",
-                                psmScore = "null";
+                        String chrom = "null", chromstart = "null", chromend = "null", strand = "null", mods = "null", psmScore = "null";
                         for (UserParam userParam : peptideEvidence.getUserParams()) {
                             switch (userParam.getName()) {
                                 case ("chr"):
@@ -77,7 +76,8 @@ public class MzTabBedConverter {
                             }
                             for (CvParam cvParam : peptideEvidence.getCvParams()) {
                                 if (cvParam.getAccession().equalsIgnoreCase("MS:1002356")) {
-                                    psmScore = cvParam.getValue();
+                                    psmScore = "[" + cvParam.getCvLookupID() + ", " + cvParam.getAccession() + ", " + cvParam.getName()
+                                            + ", " + cvParam.getValue() + "]";
                                     break;
                                 }
                             }
@@ -92,13 +92,7 @@ public class MzTabBedConverter {
                         if (modifications.size() > 0) {
                             mods = StringUtils.join(modifications, ", ");
                         }
-                        for (UserParam userParam : protein.getDbSequence().getUserParams()) {
-                            switch (userParam.getName()) {
-                                case ("prediction"):
-                                    prediction = userParam.getValue();
-                                    break;
-                            }
-                        }
+
                         if (!chrom.equalsIgnoreCase("null")) {
                             stringBuilder.append(chrom); // chrom
                             stringBuilder.append('\t');
@@ -134,8 +128,6 @@ public class MzTabBedConverter {
                             stringBuilder.append('\t') ;
                             stringBuilder.append(protein.getDbSequence().getName()); // protein_name
                             stringBuilder.append('\t') ;
-                            stringBuilder.append(prediction); // prediction
-                            stringBuilder.append('\t');
                             stringBuilder.append(peptideEvidence.getPeptideSequence().getSequence());  // peptide_sequence
                             stringBuilder.append('\t');
                             stringBuilder.append(peptideEvidence.getStartPosition()); // pep_start
