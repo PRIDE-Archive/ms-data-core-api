@@ -137,7 +137,6 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
                 proteinColumnFactory.addSearchEngineScoreOptionalColumn(ProteinColumn.SEARCH_ENGINE_SCORE, idScore, msRun);
         // check and set additional chromosome columns
         if (hasChromInformation()) {
-            proteinColumnFactory.addOptionalColumn(MzTabUtils.OPTIONAL_PREDICTION_COLUMN, String.class);
             proteinColumnFactory.addOptionalColumn(MzTabUtils.OPTIONAL_PROTEIN_NAME_COLUMN, String.class);
         }
         return proteinColumnFactory;
@@ -838,16 +837,16 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
 
         // check and set additional chromosome information
         if (hasChromInformation()) {
-            protein.setOptionColumnValue(MzTabUtils.OPTIONAL_PREDICTION_COLUMN, "null");
-            protein.setOptionColumnValue(MzTabUtils.OPTIONAL_PROTEIN_NAME_COLUMN, "null");
-            String accession = sequence.getAccession();
-            if (accession.contains("|p:")) {
-                protein.setOptionColumnValue(MzTabUtils.OPTIONAL_PREDICTION_COLUMN, accession.substring(accession.indexOf("|p:")+3));
+            String proteinName;
+            if (sequence.getAccession().startsWith("generic|")) {
+                proteinName = StringUtils.substringBetween(sequence.getAccession(), "|");
+                if (proteinName.startsWith("A_")) {
+                    proteinName = proteinName.substring(2);
+                }
+            } else {
+                proteinName = "null";
             }
-
-            if (accession.startsWith("generic|")) {
-                protein.setOptionColumnValue(MzTabUtils.OPTIONAL_PROTEIN_NAME_COLUMN, StringUtils.substringBetween(accession, "|"));
-            }
+            protein.setOptionColumnValue(MzTabUtils.OPTIONAL_PROTEIN_NAME_COLUMN, proteinName);
         }
 
         return protein;
