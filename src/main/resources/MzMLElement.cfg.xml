@@ -195,7 +195,7 @@
         <xpath>/mzML/run/spectrumList/spectrum/precursorList/precursor</xpath>
         <idMapped>false</idMapped>
         <clazz>uk.ac.ebi.jmzml.model.mzml.Precursor</clazz>
-        <autoRefResolving>true</autoRefResolving>
+        <autoRefResolving>false</autoRefResolving>
         <refResolverClass>uk.ac.ebi.jmzml.xml.jaxb.resolver.PrecursorRefResolver</refResolverClass>
     </configurations>
     <configurations>

@@ -6,10 +6,7 @@ import uk.ac.ebi.jmzml.model.mzml.*;
 import uk.ac.ebi.jmzml.xml.io.MzMLUnmarshaller;
 
 import java.io.File;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -77,6 +74,10 @@ public class MzMLUnmarshallerAdaptor extends MzMLUnmarshaller {
             dateCreation = calendar.getTime();
         }
         return dateCreation;
+    }
+
+    public List<Precursor> getPrecursors(){
+        return null;
     }
 }
 

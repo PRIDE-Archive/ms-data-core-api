@@ -1,9 +1,23 @@
 package uk.ac.ebi.pride.utilities.data.controller.impl.Transformer;
 
-import uk.ac.ebi.jmzml.model.mzml.ComponentList;
-import uk.ac.ebi.jmzml.model.mzml.FileDescription;
+import uk.ac.ebi.jmzml.model.mzml.*;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessUtilities;
 import uk.ac.ebi.pride.utilities.data.core.*;
+import uk.ac.ebi.pride.utilities.data.core.BinaryDataArray;
+import uk.ac.ebi.pride.utilities.data.core.Chromatogram;
+import uk.ac.ebi.pride.utilities.data.core.DataProcessing;
+import uk.ac.ebi.pride.utilities.data.core.InstrumentConfiguration;
+import uk.ac.ebi.pride.utilities.data.core.ParamGroup;
+import uk.ac.ebi.pride.utilities.data.core.Precursor;
+import uk.ac.ebi.pride.utilities.data.core.ProcessingMethod;
+import uk.ac.ebi.pride.utilities.data.core.ReferenceableParamGroup;
+import uk.ac.ebi.pride.utilities.data.core.Sample;
+import uk.ac.ebi.pride.utilities.data.core.Scan;
+import uk.ac.ebi.pride.utilities.data.core.ScanList;
+import uk.ac.ebi.pride.utilities.data.core.Software;
+import uk.ac.ebi.pride.utilities.data.core.SourceFile;
+import uk.ac.ebi.pride.utilities.data.core.Spectrum;
+import uk.ac.ebi.pride.utilities.data.core.UserParam;
 import uk.ac.ebi.pride.utilities.data.utils.BinaryDataUtils;
 import uk.ac.ebi.pride.utilities.term.CvTermReference;
 
@@ -47,12 +61,69 @@ public final class MzMLTransformer {
             List<BinaryDataArray> binaryArray = transformBinaryDataArrayList(spectrum.getBinaryDataArrayList());
             ParamGroup paramGroup = transformParamGroup(spectrum);
 
+            CvTermReference cvTerm = CvTermReference.ION_SELECTION_CHARGE_STATE;
+            CvParam cvParam = new CvParam(cvTerm.getAccession(), cvTerm.getName(), cvTerm.getCvLabel(), getPrecursorIonCharge(spectrum), null, null, null);
+            paramGroup.addCvParam(cvParam);
+
+
             newSpec = new Spectrum(paramGroup, specId, null, index, dataProcessing, arrLen,
                     binaryArray, spotId, sourceFile, scans, precursors, products);
         }
         return newSpec;
     }
 
+    private static String getPrecursorIonCharge(uk.ac.ebi.jmzml.model.mzml.Spectrum spectrum) {
+        if(spectrum != null && spectrum.getPrecursorList() != null &&
+                spectrum.getPrecursorList().getPrecursor() != null &&
+                ! spectrum.getPrecursorList().getPrecursor().isEmpty()){
+            for(uk.ac.ebi.jmzml.model.mzml.Precursor precursor: spectrum.getPrecursorList().getPrecursor()){
+                if(precursor != null && precursor.getSelectedIonList() != null && precursor.getSelectedIonList().getSelectedIon() != null){
+                    for(uk.ac.ebi.jmzml.model.mzml.ParamGroup term: precursor.getSelectedIonList().getSelectedIon()){
+                        if(term != null && term.getCvParam() != null && ! term.getCvParam().isEmpty()){
+                            for(CVParam param: term.getCvParam()){
+                                if(param != null && param.getAccession() != null){
+                                    if((param.getAccession().equalsIgnoreCase(CvTermReference.PSI_ION_SELECTION_CHARGE_STATE.getAccession()) ||
+                                       param.getAccession().equalsIgnoreCase(CvTermReference.ION_SELECTION_CHARGE_STATE.getAccession())) &&
+                                            param.getValue() != null && !param.getValue().isEmpty()){
+                                        return param.getValue();
+                                    }
+
+                                }
+                            }
+                        }
+                    }
+                }
+
+            }
+        }
+        return null;
+    }
+
+    private static String getPrecursorMSLevel(uk.ac.ebi.jmzml.model.mzml.Spectrum spectrum) {
+        if(spectrum != null && spectrum.getPrecursorList() != null &&
+                spectrum.getPrecursorList().getPrecursor() != null &&
+                ! spectrum.getPrecursorList().getPrecursor().isEmpty()){
+            for(uk.ac.ebi.jmzml.model.mzml.Precursor precursor: spectrum.getPrecursorList().getPrecursor()){
+                if(precursor != null && precursor.getSelectedIonList() != null && precursor.getSelectedIonList().getSelectedIon() != null){
+                    for(uk.ac.ebi.jmzml.model.mzml.ParamGroup term: precursor.getSelectedIonList().getSelectedIon()){
+                        if(term != null && term.getCvParam() != null && ! term.getCvParam().isEmpty()){
+                            for(CVParam param: term.getCvParam()){
+                                if(param != null && param.getAccession() != null){
+                                    if((param.getAccession().equalsIgnoreCase(CvTermReference.MS_LEVEL.getAccession())) &&
+                                            param.getValue() != null && !param.getValue().isEmpty()){
+                                        return param.getValue();
+                                    }
+
+                                }
+                            }
+                        }
+                    }
+                }
+
+            }
+        }
+        return null;
+    }
     /**
      * Convert param group
      *

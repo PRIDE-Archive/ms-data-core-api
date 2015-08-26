@@ -124,7 +124,7 @@ public final class DataAccessUtilities {
      *
      * @param paramGroup param group
      * @param refs       a list of possible cv terms to search for
-     * @return Double  value of the cv paramter
+     * @return Double  value of the cv parameter
      */
     private static Double getSelectedIonCvParamValue(ParamGroup paramGroup, CvTermReference... refs) {
         Double value = null;

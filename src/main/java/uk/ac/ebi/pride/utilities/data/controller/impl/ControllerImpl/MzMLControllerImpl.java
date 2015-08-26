@@ -7,6 +7,7 @@ import uk.ac.ebi.jmzml.xml.io.MzMLUnmarshallerException;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessController;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessException;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessMode;
+import uk.ac.ebi.pride.utilities.data.controller.DataAccessUtilities;
 import uk.ac.ebi.pride.utilities.data.controller.cache.CacheEntry;
 import uk.ac.ebi.pride.utilities.data.controller.cache.strategy.MzMlCachingStrategy;
 import uk.ac.ebi.pride.utilities.data.controller.impl.Transformer.MzMLTransformer;
@@ -369,11 +370,14 @@ public class MzMLControllerImpl extends CachedDataAccessController {
         Spectrum spectrum = super.getSpectrumById(id, useCache);
         if (spectrum == null) {
             try {
+//                System.out.println(id);
                 uk.ac.ebi.jmzml.model.mzml.Spectrum
                         rawSpec = unmarshaller.getSpectrumById(id.toString());
+
                 spectrum = MzMLTransformer.transformSpectrum(rawSpec);
                 if (useCache) {
                     getCache().store(CacheEntry.SPECTRUM, id, spectrum);
+                    getCache().store(CacheEntry.SPECTRUM_LEVEL_PRECURSOR_CHARGE,id, DataAccessUtilities.getPrecursorCharge(spectrum.getPrecursors()));
                 }
             } catch (MzMLUnmarshallerException ex) {
                 logger.error("Get spectrum by id", ex);
