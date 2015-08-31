@@ -166,6 +166,11 @@ public abstract class CachedDataAccessController extends AbstractDataAccessContr
         return useCache ? (Spectrum) cache.get(CacheEntry.SPECTRUM, id) : null;
     }
 
+
+    public Object getObjectByID(CacheEntry cacheEntry, Comparable id, boolean useCache){
+        return useCache ? cache.get(cacheEntry, id): null;
+    }
+
     /**
      * Convert PSM id to Spectrum ID
      * @param psmID Spectrum-Identification-Item Identifier

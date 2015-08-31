@@ -28,6 +28,8 @@ public class MzIdentMLUnmarshallerAdaptor extends MzIdentMLUnmarshaller {
 
     private Map<String, Map<String, List<IndexElement>>> scannedIdMappings;
 
+    private Map<String, SpectrumIdentificationItem> spectrumIdentificationItemMap = null;
+
     private Inputs inputs = null;
 
     private AuditCollection auditCollection = null;
@@ -37,7 +39,9 @@ public class MzIdentMLUnmarshallerAdaptor extends MzIdentMLUnmarshaller {
 
     public MzIdentMLUnmarshallerAdaptor(File mzIdentMLFile, boolean inMemory) throws ConfigurationException {
         super(mzIdentMLFile, inMemory);
+        spectrumIdentificationItemMap = null;
         scanIdMappings();
+
     }
 
     public MzIdentMLUnmarshallerAdaptor(File mzIdentMLFile, boolean inMemory, boolean avoidProteinInference) throws ConfigurationException{

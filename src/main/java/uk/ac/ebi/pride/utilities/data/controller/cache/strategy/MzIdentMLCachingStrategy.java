@@ -57,9 +57,9 @@ public class MzIdentMLCachingStrategy extends AbstractCachingStrategy {
                 cachePrescanIdMaps(unmarshaller);
             }
         } catch (ConfigurationException e) {
-            throw new DataAccessException("Failed to prescan id maps for mzIdentML file", e);
+            throw new DataAccessException("Failed to Prescan id maps for mzIdentML file", e);
         } catch (JAXBException e) {
-            throw new DataAccessException("Failed to prescan id maps for mzIdentML file", e);
+            throw new DataAccessException("Failed to Prescan id maps for mzIdentML file", e);
         }
 
         // cache spectra data
@@ -131,6 +131,8 @@ public class MzIdentMLCachingStrategy extends AbstractCachingStrategy {
 
     private void cacheProteinGroups(MzIdentMLUnmarshallerAdaptor unmarshaller) throws ConfigurationException {
 
+        long date = System.currentTimeMillis();
+
         Set<String> proteinAmbiguityGroupIds = unmarshaller.getIDsForElement(MzIdentMLElement.ProteinAmbiguityGroup);
 
         if (proteinAmbiguityGroupIds != null && !proteinAmbiguityGroupIds.isEmpty()) {
@@ -145,6 +147,7 @@ public class MzIdentMLCachingStrategy extends AbstractCachingStrategy {
                 cache.storeInBatch(CacheEntry.PROTEIN_ID, proteinHIds);
             }
         }
+        System.out.println(System.currentTimeMillis() - date);
     }
 
     private void cacheSpectrumIds(MzIdentMLUnmarshallerAdaptor unmarshaller) throws ConfigurationException, JAXBException {
@@ -157,6 +160,8 @@ public class MzIdentMLCachingStrategy extends AbstractCachingStrategy {
          * In these cases the process will be slow because we need to retrieve for each SpectrumIdentificationResult the title from a CVparam. We will start to support this cases
          * only for ProteinPilot software, but it can be also the case in the future for other search engines.
          */
+
+        long date = System.currentTimeMillis();
 
         boolean mgfTitleReference = false;
 
@@ -234,6 +239,7 @@ public class MzIdentMLCachingStrategy extends AbstractCachingStrategy {
             cache.clear(CacheEntry.SPECTRA_DATA_MGF_TITLE);
             cache.storeInBatch(CacheEntry.SPECTRA_DATA_MGF_TITLE, spectraDataToMGF);
         }
+        System.out.println(System.currentTimeMillis() - date);
     }
 
     /**

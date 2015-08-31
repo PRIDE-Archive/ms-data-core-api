@@ -15,14 +15,14 @@ import java.util.HashMap;
 public enum CacheEntry {
 
     SPECTRUM(CachedMap.class, 10),                             // Map<Spectrum id, Spectrum>
-    SPECTRADATA_TO_SPECTRUMIDS(HashMap.class, null),            // Map<Comparable, List<Comparable>>
+    SPECTRADATA_TO_SPECTRUMIDS(HashMap.class, null),           // Map<Comparable, List<Comparable>>
     PROTEIN_TO_PEPTIDE_EVIDENCES(HashMap.class, null),         //Map<db squence id,List<Spectrum identification item id>>>
-    PROTEIN_TO_PROTEIN_GROUP_ID(HashMap.class, null),           // Map<Comparable, Comparable>
+    PROTEIN_TO_PROTEIN_GROUP_ID(HashMap.class, null),          // Map<Comparable, Comparable>
     PROTEIN_GROUP_ID(ArrayList.class, null),                   // List of Protein Groups
     CHROMATOGRAM(CachedMap.class, 10),                         // Map<Chromatogram id, Chromatogram>
-    PROTEIN(CachedMap.class, 10),                              // Map<Identification id, Identification>
-    PROTEIN_GROUP(CachedMap.class, 5),                        // Map<Protein group id, Protein group>
-    PEPTIDE(CachedMap.class, 10),                              // Map<Tuple<Comparable, Comparable>, Peptide>
+    PROTEIN(CachedMap.class, 100),                              // Map<Identification id, Identification>
+    PROTEIN_GROUP(CachedMap.class, 5),                         // Map<Protein group id, Protein group>
+    PEPTIDE(CachedMap.class, 100),                              // Map<Tuple<Comparable, Comparable>, Peptide>
     EXPERIMENT_ACC(ArrayList.class, null),                     // List<Experiement Accession>
     EXPERIMENT_METADATA(ArrayList.class, null),                // List<Experiment Metadata>
     PROTEIN_METADATA(ArrayList.class, null),                   // List of Identification Metadata for Protein Identification
@@ -39,6 +39,7 @@ public enum CacheEntry {
     PRECURSOR_INTENSITY(HashMap.class, null),                  // Map<Spectrum id, Precursor intensity>
     PROTEIN_ACCESSION(HashMap.class, null),                    // Map<Identification id, Protein accession>
     PROTEIN_ACCESSION_VERSION(HashMap.class, null),            // Map<Identification id, Protein accession version>
+    DB_SEQUENCE(HashMap.class, null),                          // Map<DBSequence Id, DBSequence>
     PROTEIN_SEARCH_DATABASE(HashMap.class, null),              // Map<Identification id, Protein search database>
     PROTEIN_SEARCH_DATABASE_VERSION(HashMap.class, null),      // Map<Identification id, Protein search database version>
     SCORE(HashMap.class, null),                                // Map<Identification id, Score>

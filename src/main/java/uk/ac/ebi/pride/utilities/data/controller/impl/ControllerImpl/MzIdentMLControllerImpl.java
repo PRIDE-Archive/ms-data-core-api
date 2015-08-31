@@ -3,9 +3,8 @@ package uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.ebi.jmzidml.model.mzidml.ProteinAmbiguityGroup;
-import uk.ac.ebi.jmzidml.model.mzidml.ProteinDetectionHypothesis;
-import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentificationItem;
+import uk.ac.ebi.jmzidml.model.mzidml.*;
+import uk.ac.ebi.jmzidml.model.mzidml.DBSequence;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessController;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessException;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessMode;
@@ -13,6 +12,14 @@ import uk.ac.ebi.pride.utilities.data.controller.cache.CacheEntry;
 import uk.ac.ebi.pride.utilities.data.controller.cache.strategy.MzIdentMLCachingStrategy;
 import uk.ac.ebi.pride.utilities.data.controller.impl.Transformer.MzIdentMLTransformer;
 import uk.ac.ebi.pride.utilities.data.core.*;
+import uk.ac.ebi.pride.utilities.data.core.CvParam;
+import uk.ac.ebi.pride.utilities.data.core.Organization;
+import uk.ac.ebi.pride.utilities.data.core.Person;
+import uk.ac.ebi.pride.utilities.data.core.Provider;
+import uk.ac.ebi.pride.utilities.data.core.Sample;
+import uk.ac.ebi.pride.utilities.data.core.SourceFile;
+import uk.ac.ebi.pride.utilities.data.core.SpectraData;
+import uk.ac.ebi.pride.utilities.data.core.SpectrumIdentificationProtocol;
 import uk.ac.ebi.pride.utilities.data.io.file.MzIdentMLUnmarshallerAdaptor;
 import uk.ac.ebi.pride.utilities.data.utils.MD5Utils;
 
@@ -311,7 +318,7 @@ public class MzIdentMLControllerImpl extends ReferencedIdentificationController 
     }
 
     /**
-     * The mzidentml do not support Quatitation Data
+     * The mzidentml do not support Quantitation Data
      *
      * @return false.
      */
@@ -485,13 +492,22 @@ public class MzIdentMLControllerImpl extends ReferencedIdentificationController 
                 // get protein hypothesis
                 if (!hasProteinAmbiguityGroup() || proteinsAreInferred()) {
                     // when protein groups are not present or inferred from all proteins
-                    uk.ac.ebi.jmzidml.model.mzidml.DBSequence dbSequence = unmarshaller.getDBSequenceById(proteinId);
+                    uk.ac.ebi.jmzidml.model.mzidml.DBSequence dbSequence = (DBSequence) super.getObjectByID(CacheEntry.DB_SEQUENCE,proteinId, true);
+                    if(dbSequence == null){
+                        dbSequence = unmarshaller.getDBSequenceById(proteinId);
+                        getCache().store(CacheEntry.DB_SEQUENCE, proteinId, dbSequence);
+                    }
+                    dbSequence = unmarshaller.getDBSequenceById(proteinId);
                     List<SpectrumIdentificationItem> spectrumIdentificationItems = getScannedSpectrumIdentificationItems(proteinId);
                     ident = MzIdentMLTransformer.transformSpectrumIdentificationItemToIdentification(dbSequence, spectrumIdentificationItems);
                 } else {
                     uk.ac.ebi.jmzidml.model.mzidml.ProteinDetectionHypothesis proteinHypothesis = unmarshaller.getIdentificationById(proteinId);
                     // when protein groups are present
-                    uk.ac.ebi.jmzidml.model.mzidml.DBSequence dbSequence = unmarshaller.getDBSequenceById(proteinHypothesis.getDBSequenceRef());
+                    uk.ac.ebi.jmzidml.model.mzidml.DBSequence dbSequence = (uk.ac.ebi.jmzidml.model.mzidml.DBSequence)super.getObjectByID(CacheEntry.DB_SEQUENCE, proteinHypothesis.getDBSequenceRef(), true);
+                    if(dbSequence == null){
+                        dbSequence = unmarshaller.getDBSequenceById(proteinHypothesis.getDBSequenceRef());
+                        getCache().store(CacheEntry.DB_SEQUENCE, proteinHypothesis.getDBSequenceRef(), dbSequence);
+                    }
                     proteinHypothesis.setDBSequence(dbSequence);
 
                     ident = MzIdentMLTransformer.transformProteinHypothesisToIdentification(proteinHypothesis);

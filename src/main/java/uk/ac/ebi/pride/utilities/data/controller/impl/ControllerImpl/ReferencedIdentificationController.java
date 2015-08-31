@@ -78,7 +78,6 @@ public abstract class ReferencedIdentificationController extends CachedDataAcces
                     peptides.add(peptide);
                     spectrum.setPeptide(peptides);
                     peptide.setSpectrum(spectrum);
-
                     getCache().store(CacheEntry.SPECTRUM_LEVEL_PRECURSOR_CHARGE, spectrum.getId(), DataAccessUtilities.getPrecursorChargeParamGroup(spectrum));
                     getCache().store(CacheEntry.SPECTRUM_LEVEL_PRECURSOR_MZ, spectrum.getId(), DataAccessUtilities.getPrecursorMz(spectrum));
                 }
