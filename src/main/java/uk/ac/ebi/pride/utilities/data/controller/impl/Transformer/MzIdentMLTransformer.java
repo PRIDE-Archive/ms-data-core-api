@@ -362,7 +362,19 @@ public final class MzIdentMLTransformer {
         return new Protein(paramGroup, oldIdent.getId(), name, dbSequence, passThreshold, peptides, score, -1, -1, null);
     }
 
-    private static Peptide transformToPeptideFromSpectrumItemAndPeptideEvidence(SpectrumIdentificationItem oldSpectrumidentification,
+    public static Protein transformProteinHypothesisToIdentification(uk.ac.ebi.jmzidml.model.mzidml.ProteinDetectionHypothesis oldIdent, List<Peptide> peptides) {
+
+        DBSequence dbSequence = transformToDBSequence(oldIdent.getDBSequence());
+
+        ParamGroup paramGroup = new ParamGroup(transformToCvParam(oldIdent.getCvParam()), transformToUserParam(oldIdent.getUserParam()));
+        Score score = DataAccessUtilities.getScore(paramGroup);
+        String name = oldIdent.getName();
+        boolean passThreshold = oldIdent.isPassThreshold();
+
+        return new Protein(paramGroup, oldIdent.getId(), name, dbSequence, passThreshold, peptides, score, -1, -1, null);
+    }
+
+    public static Peptide transformToPeptideFromSpectrumItemAndPeptideEvidence(SpectrumIdentificationItem oldSpectrumidentification,
                                                                                 uk.ac.ebi.jmzidml.model.mzidml.PeptideEvidence oldPeptideEvidence) {
         SpectrumIdentification spectrumIdent = transformToPeptideIdentification(oldSpectrumidentification);
         PeptideEvidence peptideEvidence = transformToPeptideEvidence(oldPeptideEvidence);
@@ -967,6 +979,13 @@ public final class MzIdentMLTransformer {
             Protein protein = transformProteinHypothesisToIdentification(proteinDetectionHypothesi);
             proteins.add(protein);
         }
+
+        return new ProteinGroup(paramGroup, proteinAmbiguityGroup.getId(), proteinAmbiguityGroup.getName(), proteins);
+    }
+
+    public static ProteinGroup transformProteinAmbiguityGroupToProteinGroup(ProteinAmbiguityGroup proteinAmbiguityGroup, List<Protein> proteins) {
+
+        ParamGroup paramGroup = new ParamGroup(transformToCvParam(proteinAmbiguityGroup.getCvParam()), transformToUserParam(proteinAmbiguityGroup.getUserParam()));
 
         return new ProteinGroup(paramGroup, proteinAmbiguityGroup.getId(), proteinAmbiguityGroup.getName(), proteins);
     }

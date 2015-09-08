@@ -766,7 +766,7 @@ public abstract class AbstractDataAccessController implements DataAccessControll
         if (protein != null) {
             Peptide peptide = DataAccessUtilities.getPeptide(protein, Integer.parseInt(peptideId.toString()));
             if (peptide != null) {
-                start = (peptide.getPeptideEvidenceList().get(0).getStartPosition() != null) ? peptide.getPeptideEvidenceList().get(0).getStartPosition() : start;
+                start = (peptide.getPeptideEvidence().getStartPosition() != null) ? peptide.getPeptideEvidence().getStartPosition() : start;
             }
         }
         return start;
@@ -779,7 +779,7 @@ public abstract class AbstractDataAccessController implements DataAccessControll
         if (protein != null) {
             Peptide peptide = DataAccessUtilities.getPeptide(protein, Integer.parseInt(peptideId.toString()));
             if (peptide != null) {
-                stop = (peptide.getPeptideEvidenceList().get(0).getEndPosition() != null) ? peptide.getPeptideEvidenceList().get(0).getEndPosition() : stop;
+                stop = (peptide.getPeptideEvidence().getEndPosition() != null) ? peptide.getPeptideEvidence().getEndPosition() : stop;
             }
         }
         return stop;

@@ -40,6 +40,8 @@ public enum CacheEntry {
     PROTEIN_ACCESSION(HashMap.class, null),                    // Map<Identification id, Protein accession>
     PROTEIN_ACCESSION_VERSION(HashMap.class, null),            // Map<Identification id, Protein accession version>
     DB_SEQUENCE(HashMap.class, null),                          // Map<DBSequence Id, DBSequence>
+    SPECTRUM_ID_ITEM(HashMap.class, 20000),                     // Map<Spectrum Identification Id, Spectrum IdentificationItem>
+    PEPTIDE_EVIDENCE(HashMap.class, 200000),                   // Map<PEPTIDE EVIDENCE ID , PEPTIDE EVIDENCE>
     PROTEIN_SEARCH_DATABASE(HashMap.class, null),              // Map<Identification id, Protein search database>
     PROTEIN_SEARCH_DATABASE_VERSION(HashMap.class, null),      // Map<Identification id, Protein search database version>
     SCORE(HashMap.class, null),                                // Map<Identification id, Score>

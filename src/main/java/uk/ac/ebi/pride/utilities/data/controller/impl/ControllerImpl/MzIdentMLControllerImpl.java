@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.jmzidml.model.mzidml.*;
 import uk.ac.ebi.jmzidml.model.mzidml.DBSequence;
+import uk.ac.ebi.jmzidml.xml.io.MzIdentMLUnmarshaller;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessController;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessException;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessMode;
@@ -14,6 +15,7 @@ import uk.ac.ebi.pride.utilities.data.controller.impl.Transformer.MzIdentMLTrans
 import uk.ac.ebi.pride.utilities.data.core.*;
 import uk.ac.ebi.pride.utilities.data.core.CvParam;
 import uk.ac.ebi.pride.utilities.data.core.Organization;
+import uk.ac.ebi.pride.utilities.data.core.Peptide;
 import uk.ac.ebi.pride.utilities.data.core.Person;
 import uk.ac.ebi.pride.utilities.data.core.Provider;
 import uk.ac.ebi.pride.utilities.data.core.Sample;
@@ -501,8 +503,29 @@ public class MzIdentMLControllerImpl extends ReferencedIdentificationController 
                     List<SpectrumIdentificationItem> spectrumIdentificationItems = getScannedSpectrumIdentificationItems(proteinId);
                     ident = MzIdentMLTransformer.transformSpectrumIdentificationItemToIdentification(dbSequence, spectrumIdentificationItems);
                 } else {
+                    List<Peptide> peptides = new ArrayList<Peptide>();
                     uk.ac.ebi.jmzidml.model.mzidml.ProteinDetectionHypothesis proteinHypothesis = unmarshaller.getIdentificationById(proteinId);
                     // when protein groups are present
+                    for(PeptideHypothesis peptideHypothesis: proteinHypothesis.getPeptideHypothesis()){
+
+                        if(peptideHypothesis != null &&
+                                peptideHypothesis.getSpectrumIdentificationItemRef() != null &&
+                                !peptideHypothesis.getSpectrumIdentificationItemRef().isEmpty()){
+                            uk.ac.ebi.jmzidml.model.mzidml.PeptideEvidence peptideEvidence = (uk.ac.ebi.jmzidml.model.mzidml.PeptideEvidence) super.getObjectByID(CacheEntry.PEPTIDE_EVIDENCE, peptideHypothesis.getPeptideEvidenceRef(), true);
+                            if(peptideEvidence == null){
+                                peptideEvidence = unmarshaller.getPeptideEvidenceById(peptideHypothesis.getPeptideEvidenceRef());
+                                getCache().store(CacheEntry.PEPTIDE_EVIDENCE, peptideHypothesis.getPeptideEvidenceRef(), peptideEvidence);
+                            }
+                            for(SpectrumIdentificationItemRef ref: peptideHypothesis.getSpectrumIdentificationItemRef()){
+                                uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentificationItem spectrumID = (uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentificationItem) super.getObjectByID(CacheEntry.SPECTRUM_ID_ITEM, ref.getSpectrumIdentificationItemRef(), true);
+                                if(spectrumID == null){
+                                    spectrumID = unmarshaller.getSpectrumIdentificationsById(ref.getSpectrumIdentificationItemRef());
+                                    getCache().store(CacheEntry.SPECTRUM_ID_ITEM, ref.getSpectrumIdentificationItemRef(), spectrumID);
+                                    peptides.add(MzIdentMLTransformer.transformToPeptideFromSpectrumItemAndPeptideEvidence(spectrumID,peptideEvidence));
+                                }
+                            }
+                        }
+                    }
                     uk.ac.ebi.jmzidml.model.mzidml.DBSequence dbSequence = (uk.ac.ebi.jmzidml.model.mzidml.DBSequence)super.getObjectByID(CacheEntry.DB_SEQUENCE, proteinHypothesis.getDBSequenceRef(), true);
                     if(dbSequence == null){
                         dbSequence = unmarshaller.getDBSequenceById(proteinHypothesis.getDBSequenceRef());
@@ -510,7 +533,7 @@ public class MzIdentMLControllerImpl extends ReferencedIdentificationController 
                     }
                     proteinHypothesis.setDBSequence(dbSequence);
 
-                    ident = MzIdentMLTransformer.transformProteinHypothesisToIdentification(proteinHypothesis);
+                    ident = MzIdentMLTransformer.transformProteinHypothesisToIdentification(proteinHypothesis,peptides);
                 }
 
                 if (ident != null) {
@@ -606,13 +629,13 @@ public class MzIdentMLControllerImpl extends ReferencedIdentificationController 
 
             try {
                 ProteinAmbiguityGroup proteinAmbiguityGroup = unmarshaller.getProteinAmbiguityGroup(proteinGroupId);
+                List<Protein> proteins = new ArrayList<>();
 
                 for (ProteinDetectionHypothesis proteinDetectionHypothesis : proteinAmbiguityGroup.getProteinDetectionHypothesis()) {
-                    uk.ac.ebi.jmzidml.model.mzidml.DBSequence dbSequence = unmarshaller.getDBSequenceById(proteinDetectionHypothesis.getDBSequenceRef());
-                    proteinDetectionHypothesis.setDBSequence(dbSequence);
+                  proteins.add(getProteinById(proteinDetectionHypothesis.getId()));
                 }
 
-                proteinGroup = MzIdentMLTransformer.transformProteinAmbiguityGroupToProteinGroup(proteinAmbiguityGroup);
+                proteinGroup = MzIdentMLTransformer.transformProteinAmbiguityGroupToProteinGroup(proteinAmbiguityGroup, proteins);
 
                 if (proteinGroup != null) {
                     // store identification into cache
