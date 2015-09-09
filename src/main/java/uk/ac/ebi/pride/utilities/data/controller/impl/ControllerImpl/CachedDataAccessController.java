@@ -308,12 +308,11 @@ public abstract class CachedDataAccessController extends AbstractDataAccessContr
     public Integer getPeptidePrecursorCharge(Comparable proteinId, Comparable peptideId) {
         Integer charge = null;
         // get peptide additional parameters
-        ParamGroup paramGroup = (ParamGroup) cache.get(CacheEntry.PEPTIDE_TO_PARAM, peptideId);
-        if (paramGroup != null) {
+        charge = (Integer) cache.get(CacheEntry.PEPTIDE_PRECURSOR_CHARGE, new Tuple<Comparable, Comparable>(proteinId,peptideId));
+        if (charge == null) {
             // get peptide precursor charge
+            ParamGroup paramGroup = (ParamGroup) cache.get(CacheEntry.PEPTIDE_TO_PARAM, new Tuple<Comparable, Comparable>(proteinId,peptideId));
             charge = DataAccessUtilities.getPrecursorChargeParamGroup(paramGroup);
-        } else if (!DataAccessMode.CACHE_ONLY.equals(mode)) {
-            charge = super.getPeptidePrecursorCharge(proteinId, peptideId);
         }
 
         return charge;
@@ -346,14 +345,13 @@ public abstract class CachedDataAccessController extends AbstractDataAccessContr
      */
     @Override
     public double getPeptidePrecursorMz(Comparable proteinId, Comparable peptideId) {
-        double mz = -1;
+        Double mz = null;
         // get peptide additional parameters
-        ParamGroup paramGroup = (ParamGroup) cache.get(CacheEntry.PEPTIDE_TO_PARAM, peptideId);
-        if (paramGroup != null) {
+        mz = (Double) cache.get(CacheEntry.PEPTIDE_PRECURSOR_MZ, new Tuple<Comparable, Comparable>(proteinId,peptideId));
+        if (mz == null) {
             // get peptide precursor charge
+            ParamGroup paramGroup = (ParamGroup) cache.get(CacheEntry.PEPTIDE_TO_PARAM, new Tuple<Comparable, Comparable>(proteinId,peptideId));
             mz = DataAccessUtilities.getPrecursorMz(paramGroup);
-        } else if (!DataAccessMode.CACHE_ONLY.equals(mode)) {
-            mz = super.getPeptidePrecursorMz(proteinId, peptideId);
         }
         return mz;
     }
@@ -662,7 +660,7 @@ public abstract class CachedDataAccessController extends AbstractDataAccessContr
      */
     @Override
     public String getPeptideSequence(Comparable proteinId, Comparable peptideId) {
-        String seq = (String) cache.get(CacheEntry.PEPTIDE_SEQUENCE, peptideId);
+        String seq = (String) cache.get(CacheEntry.PEPTIDE_SEQUENCE, new Tuple<Comparable, Comparable>(proteinId, peptideId));
         if (!DataAccessMode.CACHE_ONLY.equals(mode) && seq == null) {
             seq = super.getPeptideSequence(proteinId, peptideId);
             // note: peptide id is not supported by pride xml
@@ -680,7 +678,7 @@ public abstract class CachedDataAccessController extends AbstractDataAccessContr
      */
     @Override
     public int getPeptideSequenceStart(Comparable proteinId, Comparable peptideId) {
-        Integer start = (Integer) cache.get(CacheEntry.PEPTIDE_START, peptideId);
+        Integer start = (Integer) cache.get(CacheEntry.PEPTIDE_START, new Tuple<Comparable, Comparable>(proteinId, peptideId));
         if (!DataAccessMode.CACHE_ONLY.equals(mode) && start == null) {
             start = super.getPeptideSequenceStart(proteinId, peptideId);
             // note: peptide id is not supported by pride xml
@@ -698,7 +696,7 @@ public abstract class CachedDataAccessController extends AbstractDataAccessContr
      */
     @Override
     public int getPeptideSequenceEnd(Comparable proteinId, Comparable peptideId) {
-        Integer stop = (Integer) cache.get(CacheEntry.PEPTIDE_END, peptideId);
+        Integer stop = (Integer) cache.get(CacheEntry.PEPTIDE_END, new Tuple<Comparable, Comparable>(proteinId, peptideId));
         if (!DataAccessMode.CACHE_ONLY.equals(mode) && stop == null) {
             stop = super.getPeptideSequenceEnd(proteinId, peptideId);
             // note: peptide id is not supported by pride xml
@@ -735,23 +733,13 @@ public abstract class CachedDataAccessController extends AbstractDataAccessContr
     @Override
     @SuppressWarnings("unchecked")
     public List<Modification> getPTMs(Comparable proteinId, Comparable peptideId) {
-        List<Tuple<String, Integer>> ptms = (List<Tuple<String, Integer>>) cache.get(CacheEntry.PEPTIDE_TO_MODIFICATION, peptideId);
+        List<Modification> ptms = (List<Modification>) cache.get(CacheEntry.PEPTIDE_TO_MODIFICATION, new Tuple<Comparable, Comparable>(proteinId, peptideId));
 
-        Set<Modification> mods = new HashSet<Modification>();
-
-        if (ptms != null && !ptms.isEmpty()) {
-            // create modification from cache
-            for (Tuple<String, Integer> ptm : ptms) {
-                String modAcc = ptm.getKey();
-                Integer location = ptm.getValue();
-                Modification mod = (Modification) cache.get(CacheEntry.MODIFICATION, modAcc);
-                Modification newMod = new Modification(modAcc, mod.getName(), location, mod.getResidues(), mod.getAvgMassDelta(), mod.getMonoisotopicMassDelta(), mod.getModDatabase(), mod.getModDatabaseVersion());
-                mods.add(newMod);
-            }
-        } else if (!DataAccessMode.CACHE_ONLY.equals(mode)) {
-            return super.getPTMs(proteinId, peptideId);
+        if (ptms == null || ptms.isEmpty()) {
+            Peptide peptide = getPeptideByIndex(proteinId, peptideId);
+            ptms = peptide.getModifications();
         }
-        return new ArrayList<Modification>(mods);
+        return ptms;
     }
 
     /**
@@ -763,7 +751,7 @@ public abstract class CachedDataAccessController extends AbstractDataAccessContr
      */
     @Override
     public int getNumberOfFragmentIons(Comparable proteinId, Comparable peptideId) {
-        Integer num = (Integer) cache.get(CacheEntry.NUMBER_OF_FRAGMENT_IONS, peptideId);
+        Integer num = (Integer) cache.get(CacheEntry.NUMBER_OF_FRAGMENT_IONS, new Tuple<Comparable, Comparable>(proteinId, peptideId));
         if (!DataAccessMode.CACHE_ONLY.equals(mode) && num == null) {
             num = super.getNumberOfFragmentIons(proteinId, peptideId);
         }
@@ -781,7 +769,7 @@ public abstract class CachedDataAccessController extends AbstractDataAccessContr
     public Score getPeptideScore(Comparable proteinId, Comparable peptideId) {
         Score score = null;
         // get peptide additional parameters
-        ParamGroup paramGroup = (ParamGroup) cache.get(CacheEntry.PEPTIDE_TO_PARAM, peptideId);
+        ParamGroup paramGroup = (ParamGroup) cache.get(CacheEntry.PEPTIDE_TO_PARAM, new Tuple<Comparable, Comparable>(proteinId, peptideId));
         if (paramGroup != null) {
             // get peptide score
             score = DataAccessUtilities.getScore(paramGroup);

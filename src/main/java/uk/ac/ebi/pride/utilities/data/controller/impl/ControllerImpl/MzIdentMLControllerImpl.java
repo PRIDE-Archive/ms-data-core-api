@@ -502,7 +502,9 @@ public class MzIdentMLControllerImpl extends ReferencedIdentificationController 
                     dbSequence = unmarshaller.getDBSequenceById(proteinId);
                     List<SpectrumIdentificationItem> spectrumIdentificationItems = getScannedSpectrumIdentificationItems(proteinId);
                     ident = MzIdentMLTransformer.transformSpectrumIdentificationItemToIdentification(dbSequence, spectrumIdentificationItems);
+
                 } else {
+
                     List<Peptide> peptides = new ArrayList<Peptide>();
                     uk.ac.ebi.jmzidml.model.mzidml.ProteinDetectionHypothesis proteinHypothesis = unmarshaller.getIdentificationById(proteinId);
                     // when protein groups are present
@@ -521,8 +523,9 @@ public class MzIdentMLControllerImpl extends ReferencedIdentificationController 
                                 if(spectrumID == null){
                                     spectrumID = unmarshaller.getSpectrumIdentificationsById(ref.getSpectrumIdentificationItemRef());
                                     getCache().store(CacheEntry.SPECTRUM_ID_ITEM, ref.getSpectrumIdentificationItemRef(), spectrumID);
-                                    peptides.add(MzIdentMLTransformer.transformToPeptideFromSpectrumItemAndPeptideEvidence(spectrumID,peptideEvidence));
                                 }
+                                if(spectrumID != null && peptideEvidence != null)
+                                    peptides.add(MzIdentMLTransformer.transformToPeptideFromSpectrumItemAndPeptideEvidence(spectrumID,peptideEvidence, peptides.size()));
                             }
                         }
                     }
@@ -543,7 +546,6 @@ public class MzIdentMLControllerImpl extends ReferencedIdentificationController 
                 throw new DataAccessException("Failed to retrieve protein identification: " + proteinId, ex);
             }
         }
-
         return ident;
     }
 
@@ -632,7 +634,7 @@ public class MzIdentMLControllerImpl extends ReferencedIdentificationController 
                 List<Protein> proteins = new ArrayList<>();
 
                 for (ProteinDetectionHypothesis proteinDetectionHypothesis : proteinAmbiguityGroup.getProteinDetectionHypothesis()) {
-                  proteins.add(getProteinById(proteinDetectionHypothesis.getId()));
+                    proteins.add(getProteinById(proteinDetectionHypothesis.getId()));
                 }
 
                 proteinGroup = MzIdentMLTransformer.transformProteinAmbiguityGroupToProteinGroup(proteinAmbiguityGroup, proteins);
@@ -641,9 +643,9 @@ public class MzIdentMLControllerImpl extends ReferencedIdentificationController 
                     // store identification into cache
                     getCache().store(CacheEntry.PROTEIN_GROUP, proteinGroupId, proteinGroup);
 
-                    for (Protein protein : proteinGroup.getProteinDetectionHypothesis()) {
-                        cacheProtein(protein);
-                    }
+//                    for (Protein protein : proteins) {
+//                        cacheProtein(protein);
+//                    }
                 }
 
             } catch (Exception ex) {

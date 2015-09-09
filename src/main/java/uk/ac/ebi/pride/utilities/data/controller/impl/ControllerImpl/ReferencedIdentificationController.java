@@ -7,10 +7,7 @@ import uk.ac.ebi.pride.utilities.data.controller.DataAccessException;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessMode;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessUtilities;
 import uk.ac.ebi.pride.utilities.data.controller.cache.CacheEntry;
-import uk.ac.ebi.pride.utilities.data.core.Peptide;
-import uk.ac.ebi.pride.utilities.data.core.Protein;
-import uk.ac.ebi.pride.utilities.data.core.SpectraData;
-import uk.ac.ebi.pride.utilities.data.core.Spectrum;
+import uk.ac.ebi.pride.utilities.data.core.*;
 import uk.ac.ebi.pride.utilities.data.utils.Constants;
 import uk.ac.ebi.pride.utilities.data.utils.MzIdentMLUtils;
 import uk.ac.ebi.pride.utilities.util.Tuple;
@@ -33,7 +30,7 @@ public abstract class ReferencedIdentificationController extends CachedDataAcces
     /*
       * This is a set of controllers related with the MS information in the mzidentml file
       * one or more controllers can be related with the same file formats. The Comparable
-      * name of the file is an id of SPECTRADADATA the file and the controller is the DataAccessController
+      * name of the file is an id of SPECTRA DATA the file and the controller is the DataAccessController
        * related with the file.
      */
     protected Map<Comparable, DataAccessController> msDataAccessControllers;
@@ -66,22 +63,34 @@ public abstract class ReferencedIdentificationController extends CachedDataAcces
         // store identification into cache
         getCache().store(CacheEntry.PROTEIN, ident.getId(), ident);
         // store precursor charge and m/z
-        for (Peptide peptide : ident.getPeptides()) {
-            getCache().store(CacheEntry.PEPTIDE, new Tuple<Comparable, Comparable>(ident.getId(), peptide.getSpectrumIdentification().getId()), peptide);
-            Comparable spectrumId = getSpectrumIdBySpectrumIdentificationItemId(peptide.getSpectrumIdentification().getId());
-            if (hasSpectrum() && spectrumId != null) {
-                Spectrum spectrum = getSpectrumById(spectrumId);
-                if(spectrum != null) {
-                    List<Peptide> peptides = new ArrayList<Peptide>();
-                    if(spectrum.getPeptide() != null)
-                        peptides = spectrum.getPeptide();
-                    peptides.add(peptide);
-                    spectrum.setPeptide(peptides);
-                    peptide.setSpectrum(spectrum);
-                    getCache().store(CacheEntry.SPECTRUM_LEVEL_PRECURSOR_CHARGE, spectrum.getId(), DataAccessUtilities.getPrecursorChargeParamGroup(spectrum));
-                    getCache().store(CacheEntry.SPECTRUM_LEVEL_PRECURSOR_MZ, spectrum.getId(), DataAccessUtilities.getPrecursorMz(spectrum));
-                }
+        Iterator<Peptide> itPeptide = ident.getPeptides().iterator();
+        while(itPeptide.hasNext()){
+            Peptide peptide = itPeptide.next();
+            getCache().store(CacheEntry.PEPTIDE, new Tuple<Comparable, Comparable>(ident.getId(), peptide.getId()), peptide);
+            getCache().store(CacheEntry.PEPTIDE_START, new Tuple<Comparable, Comparable>(ident.getId(), peptide.getId()), peptide.getPeptideEvidence().getStartPosition());
+            getCache().store(CacheEntry.PEPTIDE_END, new Tuple<Comparable, Comparable>(ident.getId(), peptide.getId()), peptide.getPeptideEvidence().getEndPosition());
+            getCache().store(CacheEntry.PEPTIDE_TO_MODIFICATION, new Tuple<Comparable, Comparable>(ident.getId(), peptide.getId()), peptide.getModifications());
+            getCache().store(CacheEntry.PEPTIDE_SEQUENCE, new Tuple<Comparable, Comparable>(ident.getId(), peptide.getId()), peptide.getPeptideSequence().getSequence());
+            getCache().store(CacheEntry.PEPTIDE_RANK, new Tuple<Comparable, Comparable>(ident.getId(), peptide.getId()), peptide.getSpectrumIdentification().getRank());
+            getCache().store(CacheEntry.PEPTIDE_TO_PARAM, new Tuple<Comparable, Comparable>(ident.getId(), peptide.getId()), peptide.getParamGroup());
+            getCache().store(CacheEntry.PEPTIDE_PRECURSOR_CHARGE, new Tuple<Comparable, Comparable>(ident.getId(), peptide.getId()), peptide.getPrecursorCharge());
+            getCache().store(CacheEntry.PEPTIDE_PRECURSOR_MZ, new Tuple<Comparable, Comparable>(ident.getId(), peptide.getId()), peptide.getPrecursorMz());
 
+            if (hasSpectrum()) {
+                Comparable spectrumId = getSpectrumIdBySpectrumIdentificationItemId(peptide.getSpectrumIdentification().getId());
+                if(spectrumId != null){
+                    Spectrum spectrum = getSpectrumById(spectrumId);
+                    if(spectrum != null) {
+                        List<Peptide> peptides = new ArrayList<Peptide>();
+                        if(spectrum.getPeptide() != null)
+                            peptides = spectrum.getPeptide();
+                        peptides.add(peptide);
+                        spectrum.setPeptide(peptides);
+                        peptide.setSpectrum(spectrum);
+                        getCache().store(CacheEntry.SPECTRUM_LEVEL_PRECURSOR_CHARGE, spectrum.getId(), DataAccessUtilities.getPrecursorChargeParamGroup(spectrum));
+                        getCache().store(CacheEntry.SPECTRUM_LEVEL_PRECURSOR_MZ, spectrum.getId(), DataAccessUtilities.getPrecursorMz(spectrum));
+                    }
+                }
             }
         }
     }
@@ -469,8 +478,8 @@ public abstract class ReferencedIdentificationController extends CachedDataAcces
             Protein ident = getProteinById(proteinId);
             peptide = ident.getPeptides().get(Integer.parseInt(peptideId.toString()));
 
-            getCache().store(CacheEntry.PROTEIN, proteinId, ident);
-            getCache().store(CacheEntry.PEPTIDE, new Tuple<Comparable, Comparable>(ident.getId(), peptide.getSpectrumIdentification().getId()), peptide);
+            //getCache().store(CacheEntry.PROTEIN, proteinId, ident);
+            //getCache().store(CacheEntry.PEPTIDE, new Tuple<Comparable, Comparable>(ident.getId(), peptide.getSpectrumIdentification().getId()), peptide);
         }
 
         Comparable spectrumIdentificationId = peptide.getSpectrumIdentification().getId();
@@ -493,7 +502,7 @@ public abstract class ReferencedIdentificationController extends CachedDataAcces
 
             peptide = ident.getPeptides().get(Integer.parseInt(index.toString()));
             if (useCache && peptide != null) {
-                getCache().store(CacheEntry.PEPTIDE, new Tuple<Comparable, Comparable>(proteinId, index), peptide);
+                //getCache().store(CacheEntry.PEPTIDE, new Tuple<Comparable, Comparable>(proteinId, index), peptide);
                 Spectrum spectrum = peptide.getSpectrum();
                 if (hasSpectrum()) {
                     spectrum = getSpectrumById(peptide.getSpectrumIdentification().getId());
@@ -517,18 +526,19 @@ public abstract class ReferencedIdentificationController extends CachedDataAcces
 
     @Override
     public int getPeptideRank(Comparable proteinId, Comparable peptideId) {
-        Peptide peptide = super.getPeptideByIndex(proteinId, peptideId, true);
+        Integer rank = (Integer) getCache().get(CacheEntry.PEPTIDE_RANK, new Tuple<Comparable, Comparable>(proteinId, peptideId));
 
-        if (peptide == null) {
+        if (rank == null) {
             logger.debug("Get new peptide from file: {}", peptideId);
             Protein ident = getProteinById(proteinId);
-            peptide = ident.getPeptides().get(Integer.parseInt(peptideId.toString()));
+            Peptide peptide = ident.getPeptides().get(Integer.parseInt(peptideId.toString()));
+            rank = peptide.getSpectrumIdentification().getRank();
 
-            getCache().store(CacheEntry.PROTEIN, proteinId, ident);
-            getCache().store(CacheEntry.PEPTIDE, new Tuple<Comparable, Comparable>(ident.getId(), peptide.getSpectrumIdentification().getId()), peptide);
+            //getCache().store(CacheEntry.PROTEIN, proteinId, ident);
+            //getCache().store(CacheEntry.PEPTIDE, new Tuple<Comparable, Comparable>(ident.getId(), peptide.getSpectrumIdentification().getId()), peptide);
         }
 
-        return peptide.getSpectrumIdentification().getRank();
+        return rank;
     }
 
     /**

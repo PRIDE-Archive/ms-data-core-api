@@ -354,7 +354,7 @@ public final class MzIdentMLTransformer {
             uk.ac.ebi.jmzidml.model.mzidml.PeptideEvidence oldPeptideEvidence = peptideHypothesis.getPeptideEvidence();
             for (SpectrumIdentificationItemRef spectrumIdentificationItemRef : peptideHypothesis.getSpectrumIdentificationItemRef()) {
                 SpectrumIdentificationItem oldSpectrumIdentificationItem = spectrumIdentificationItemRef.getSpectrumIdentificationItem();
-                Peptide peptide = transformToPeptideFromSpectrumItemAndPeptideEvidence(oldSpectrumIdentificationItem, oldPeptideEvidence);
+                Peptide peptide = transformToPeptideFromSpectrumItemAndPeptideEvidence(oldSpectrumIdentificationItem, oldPeptideEvidence, peptides.size());
                 peptides.add(peptide);
             }
         }
@@ -375,10 +375,10 @@ public final class MzIdentMLTransformer {
     }
 
     public static Peptide transformToPeptideFromSpectrumItemAndPeptideEvidence(SpectrumIdentificationItem oldSpectrumidentification,
-                                                                                uk.ac.ebi.jmzidml.model.mzidml.PeptideEvidence oldPeptideEvidence) {
+                                                                                uk.ac.ebi.jmzidml.model.mzidml.PeptideEvidence oldPeptideEvidence, int id) {
         SpectrumIdentification spectrumIdent = transformToPeptideIdentification(oldSpectrumidentification);
         PeptideEvidence peptideEvidence = transformToPeptideEvidence(oldPeptideEvidence);
-        return new Peptide(peptideEvidence, spectrumIdent);
+        return new Peptide(peptideEvidence, spectrumIdent, id);
     }
 
     public static Protein transformSpectrumIdentificationItemToIdentification(uk.ac.ebi.jmzidml.model.mzidml.DBSequence oldDbSequence,

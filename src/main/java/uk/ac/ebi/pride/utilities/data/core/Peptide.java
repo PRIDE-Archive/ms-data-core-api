@@ -14,10 +14,19 @@ public class Peptide {
 
     private SpectrumIdentification spectrumIdentification;
 
+    private int Id;
+
+
     public Peptide(PeptideEvidence peptideEvidence, SpectrumIdentification spectrumIdentification) {
         this.peptideEvidence = peptideEvidence;
         this.spectrumIdentification = spectrumIdentification;
     }
+
+    public Peptide(PeptideEvidence peptideEvidence, SpectrumIdentification spectrumIdentification, int id) {
+        this(peptideEvidence, spectrumIdentification);
+        this.Id = id;
+    }
+
 
     public PeptideEvidence getPeptideEvidence() {
         return peptideEvidence;
@@ -115,6 +124,30 @@ public class Peptide {
         int result = peptideEvidence != null ? peptideEvidence.hashCode() : 0;
         result = 31 * result + (spectrumIdentification != null ? spectrumIdentification.hashCode() : 0);
         return result;
+    }
+
+    public int getId() {
+        return Id;
+    }
+
+    public void setId(int id) {
+        Id = id;
+    }
+
+    public ParamGroup getParamGroup() {
+        ParamGroup paramGroup = new ParamGroup();
+        if(peptideEvidence.getCvParams() != null)
+            paramGroup.addCvParams(peptideEvidence.getCvParams());
+        if(spectrumIdentification.getCvParams() != null)
+            paramGroup.addCvParams(spectrumIdentification.getCvParams());
+
+        if(peptideEvidence.getUserParams() != null)
+            paramGroup.addUserParams(peptideEvidence.getUserParams());
+        if(spectrumIdentification.getUserParams() != null)
+            paramGroup.addUserParams(spectrumIdentification.getUserParams());
+
+        return paramGroup;
+
     }
 }
 
