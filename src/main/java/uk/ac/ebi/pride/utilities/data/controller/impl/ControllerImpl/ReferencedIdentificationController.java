@@ -59,6 +59,25 @@ public abstract class ReferencedIdentificationController extends CachedDataAcces
         return numberOfSpectra;
     }
 
+    /**
+     * This function return the number of spectra wihout reference in the file
+     * @return
+     */
+    @Override
+    public int getNumberOfMissingSpectra(){
+        Map<Comparable, List<Comparable>> spectraDataIdMap = (Map<Comparable, List<Comparable>>) getCache().get(CacheEntry.SPECTRADATA_TO_SPECTRUMIDS);
+        int cnt = 0;
+        int cint = 0;
+        for(Comparable spectData: spectraDataIdMap.keySet()){
+            int currentsize = spectraDataIdMap.get(spectData).size();
+            cnt = cnt + currentsize;
+            if (msDataAccessControllers != null && msDataAccessControllers.containsKey(spectData))
+                cint = cint + currentsize;
+        }
+        return cnt-cint;
+
+    }
+
     protected void cacheProtein(Protein ident) {
         // store identification into cache
         getCache().store(CacheEntry.PROTEIN, ident.getId(), ident);
@@ -477,9 +496,6 @@ public abstract class ReferencedIdentificationController extends CachedDataAcces
             logger.debug("Get new peptide from file: {}", peptideId);
             Protein ident = getProteinById(proteinId);
             peptide = ident.getPeptides().get(Integer.parseInt(peptideId.toString()));
-
-            //getCache().store(CacheEntry.PROTEIN, proteinId, ident);
-            //getCache().store(CacheEntry.PEPTIDE, new Tuple<Comparable, Comparable>(ident.getId(), peptide.getSpectrumIdentification().getId()), peptide);
         }
 
         Comparable spectrumIdentificationId = peptide.getSpectrumIdentification().getId();

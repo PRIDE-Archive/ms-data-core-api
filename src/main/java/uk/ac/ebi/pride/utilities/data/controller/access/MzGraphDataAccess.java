@@ -48,6 +48,13 @@ public interface MzGraphDataAccess {
     public boolean hasChromatogram();
 
     /**
+     * For the identification files we provide the number of spectra that is missing because
+     * not link to the original spectra files has been provided.
+     * @return int number with the missing spectra
+     */
+    public int getNumberOfMissingSpectra();
+
+    /**
      * Get the number of spectra.
      *
      * @return int  number of spectra.

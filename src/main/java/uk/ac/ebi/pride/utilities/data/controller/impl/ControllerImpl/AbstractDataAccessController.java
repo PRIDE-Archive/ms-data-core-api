@@ -157,6 +157,11 @@ public abstract class AbstractDataAccessController implements DataAccessControll
         return getSpectrumIds().size();
     }
 
+    @Override
+    public int getNumberOfMissingSpectra(){
+        return getSpectrumIds().size();
+    }
+
     public int getNumberOfIdentifiedSpectra() {
         return 0;
     }
