@@ -374,6 +374,13 @@ public final class MzIdentMLTransformer {
         return new Protein(paramGroup, oldIdent.getId(), name, dbSequence, passThreshold, peptides, score, -1, -1, null);
     }
 
+    public static Protein transformDBSequenceToIdentification(uk.ac.ebi.jmzidml.model.mzidml.DBSequence dbSequence, List<Peptide> peptides) {
+
+        DBSequence sequence = transformToDBSequence(dbSequence);
+        String name = dbSequence.getName();
+        return new Protein(null, dbSequence.getId(), name, sequence, false, peptides, null, -1, -1, null);
+    }
+
     public static Peptide transformToPeptideFromSpectrumItemAndPeptideEvidence(SpectrumIdentificationItem oldSpectrumidentification,
                                                                                 uk.ac.ebi.jmzidml.model.mzidml.PeptideEvidence oldPeptideEvidence, int id) {
         SpectrumIdentification spectrumIdent = transformToPeptideIdentification(oldSpectrumidentification);

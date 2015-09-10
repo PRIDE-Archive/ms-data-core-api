@@ -65,6 +65,7 @@ public abstract class ReferencedIdentificationController extends CachedDataAcces
         // store precursor charge and m/z
         Iterator<Peptide> itPeptide = ident.getPeptides().iterator();
         while(itPeptide.hasNext()){
+
             Peptide peptide = itPeptide.next();
             getCache().store(CacheEntry.PEPTIDE, new Tuple<Comparable, Comparable>(ident.getId(), peptide.getId()), peptide);
             getCache().store(CacheEntry.PEPTIDE_START, new Tuple<Comparable, Comparable>(ident.getId(), peptide.getId()), peptide.getPeptideEvidence().getStartPosition());
@@ -315,18 +316,19 @@ public abstract class ReferencedIdentificationController extends CachedDataAcces
      */
     @Override
     public boolean isIdentifiedSpectrum(Comparable specId) {
-        String[] spectrumIdArray = ((Map<Comparable, String[]>) getCache().get(CacheEntry.PEPTIDE_TO_SPECTRUM)).get(specId);
 
-        if (spectrumIdArray != null && spectrumIdArray.length > 0) {
+        if(((Map<Comparable, String[]>) getCache().get(CacheEntry.PEPTIDE_TO_SPECTRUM)).get(specId) != null){
             return true;
         } else {
             Collection<String[]> ids = ((Map<Comparable, String[]>) getCache().get(CacheEntry.PEPTIDE_TO_SPECTRUM)).values();
-            Set<String> idsSet = new TreeSet<String>();
-            for (String[] values : ids) {
-                if(values != null && values[0] != null && values[1] != null)
-                    idsSet.add(values[0] + "!" + values[1]);
+            Iterator<String[]> itId  = ids.iterator();
+            if(ids != null){
+                while(itId.hasNext()) {
+                    String[] value = itId.next();
+                    if(value[0] != null && value[1] != null && (value[0]+"!"+value[1]).equalsIgnoreCase(specId.toString()))
+                        return true;
+                }
             }
-            if (idsSet.contains(specId)) return true;
         }
         return false;
     }
@@ -388,11 +390,7 @@ public abstract class ReferencedIdentificationController extends CachedDataAcces
 
         String[] spectrumIdArray = ((String) id).split("!");
         if (spectrumIdArray.length != 2) {
-            if(((Map<Comparable, String[]>) getCache().get(CacheEntry.PEPTIDE_TO_SPECTRUM)).containsKey(id)){
-                spectrumIdArray = ((Map<Comparable, String[]>) getCache().get(CacheEntry.PEPTIDE_TO_SPECTRUM)).get(id);
-            }else{
-                spectrumIdArray = null;
-            }
+            spectrumIdArray = ((Map<Comparable, String[]>) getCache().get(CacheEntry.PEPTIDE_TO_SPECTRUM)).get(id);
         }
 
         Spectrum spectrum = super.getSpectrumById(id, useCache);

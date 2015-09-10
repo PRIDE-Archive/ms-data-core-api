@@ -16,11 +16,13 @@ import uk.ac.ebi.pride.utilities.data.core.*;
 import uk.ac.ebi.pride.utilities.data.core.CvParam;
 import uk.ac.ebi.pride.utilities.data.core.Organization;
 import uk.ac.ebi.pride.utilities.data.core.Peptide;
+import uk.ac.ebi.pride.utilities.data.core.PeptideEvidence;
 import uk.ac.ebi.pride.utilities.data.core.Person;
 import uk.ac.ebi.pride.utilities.data.core.Provider;
 import uk.ac.ebi.pride.utilities.data.core.Sample;
 import uk.ac.ebi.pride.utilities.data.core.SourceFile;
 import uk.ac.ebi.pride.utilities.data.core.SpectraData;
+import uk.ac.ebi.pride.utilities.data.core.SpectrumIdentification;
 import uk.ac.ebi.pride.utilities.data.core.SpectrumIdentificationProtocol;
 import uk.ac.ebi.pride.utilities.data.io.file.MzIdentMLUnmarshallerAdaptor;
 import uk.ac.ebi.pride.utilities.data.utils.MD5Utils;
@@ -501,7 +503,17 @@ public class MzIdentMLControllerImpl extends ReferencedIdentificationController 
                     }
                     dbSequence = unmarshaller.getDBSequenceById(proteinId);
                     List<SpectrumIdentificationItem> spectrumIdentificationItems = getScannedSpectrumIdentificationItems(proteinId);
-                    ident = MzIdentMLTransformer.transformSpectrumIdentificationItemToIdentification(dbSequence, spectrumIdentificationItems);
+                    Iterator<SpectrumIdentificationItem> itSpec = spectrumIdentificationItems.iterator();
+                    List<Peptide> peptides = new ArrayList<Peptide>();
+                    while(itSpec.hasNext()){
+                        SpectrumIdentificationItem item = itSpec.next();
+                        for(PeptideEvidenceRef ref: item.getPeptideEvidenceRef()){
+                            uk.ac.ebi.jmzidml.model.mzidml.PeptideEvidence evidence = unmarshaller.getPeptideEvidenceById(ref.getPeptideEvidenceRef());
+                            peptides.add(MzIdentMLTransformer.transformToPeptideFromSpectrumItemAndPeptideEvidence(item,evidence,peptides.size()));
+                        }
+                    }
+
+                    ident = MzIdentMLTransformer.transformDBSequenceToIdentification(dbSequence, peptides);
 
                 } else {
 
