@@ -684,9 +684,7 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
                 if(spectumMap[1] != null && spectrumReference != null)
                     psm.addSpectraRef(new SpectraRef(metadata.getMsRunMap().get(spectraToRun.get(spectumMap[1])), spectrumReference));
             }
-
-
-
+            
             // See which psm scores are supported
             for(CvParam cvPAram: oldPSM.getSpectrumIdentification().getCvParams()){
                 if(psmScoreToScoreIndex.containsKey(cvPAram.getAccession())){

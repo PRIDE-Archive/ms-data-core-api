@@ -201,7 +201,7 @@ public class MzTabCachingStrategy extends AbstractCachingStrategy {
 
     private void cacheQuantPeptideIds(MzTabUnmarshallerAdaptor unmarshaller, Map<String, String> proteinAccession) {
 
-        Map<Comparable, String[]> identSpectrumMap    = new HashMap<Comparable, String[]>();
+        Map<Comparable, Tuple<String, String>> identSpectrumMap    = new HashMap<Comparable, Tuple<String, String>>();
 
         Map<Comparable, SpectraData> spectraDataIds   = MzTabTransformer.transformMsRunMap(unmarshaller.getMRunMap());
 
@@ -230,7 +230,7 @@ public class MzTabCachingStrategy extends AbstractCachingStrategy {
 
                     // extract the spectrum ID from the provided identifier
                     String formattedSpectrumID = MzTabUtils.getSpectrumId(spectraDataIds.get(msRunId), reference);
-                    String[] spectrumFeatures = {formattedSpectrumID, msRunId};
+                    Tuple<String, String> spectrumFeatures = new Tuple<String, String>(formattedSpectrumID, msRunId);
                     identSpectrumMap.put(currentPeptideId, spectrumFeatures);
                     count++;
                     for(Map.Entry proteinEntry: proteinAccession.entrySet()){

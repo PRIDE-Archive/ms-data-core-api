@@ -15,6 +15,7 @@ import uk.ac.ebi.pride.utilities.data.core.IdentifiableParamGroup;
 import uk.ac.ebi.pride.utilities.data.io.file.MzIdentMLUnmarshallerAdaptor;
 import uk.ac.ebi.pride.utilities.data.utils.Constants;
 import uk.ac.ebi.pride.utilities.data.utils.MzIdentMLUtils;
+import uk.ac.ebi.pride.utilities.util.Tuple;
 
 import javax.naming.ConfigurationException;
 import javax.xml.bind.JAXBException;
@@ -165,9 +166,9 @@ public class MzIdentMLCachingStrategy extends AbstractCachingStrategy {
 
         boolean mgfTitleReference = false;
 
-        Map<String[], Comparable> mgfTitleReferenceMap = new HashMap<String[], Comparable>();
+        Map<Tuple<String,String>, Comparable> mgfTitleReferenceMap = new HashMap<Tuple<String,String>, Comparable>();
 
-        Map<Comparable, String[]> identSpectrumMap = new HashMap<Comparable, String[]>();
+        Map<Comparable, Tuple<String, String>> identSpectrumMap = new HashMap<Comparable, Tuple<String,String>>();
 
 
         Set<String> spectrumIdentResultIds = unmarshaller.getIDsForElement(MzIdentMLElement.SpectrumIdentificationResult);
@@ -210,7 +211,7 @@ public class MzIdentMLCachingStrategy extends AbstractCachingStrategy {
                 if(mgfTitleReference && possibleMGMTitleReferenced.contains(spectrumDataReference)){
                     Comparable title = unmarshaller.getMGFTitleReference(spectrumIdentResultId);
                     if(title != null){
-                        String[] spectrumFeatures = {title.toString(), spectrumDataReference};
+                        Tuple<String, String> spectrumFeatures = new Tuple<String, String>(title.toString(), spectrumDataReference);
                         identSpectrumMap.put(spectrumIdentItemId, spectrumFeatures);
                         mgfTitleReferenceMap.put(spectrumFeatures, unmarshaller.getMGFTitleReference(spectrumIdentResultId));
                         if(!spectraDataToMGF.contains(spectrumDataReference))
@@ -219,7 +220,7 @@ public class MzIdentMLCachingStrategy extends AbstractCachingStrategy {
                 }else{
                     // extract the spectrum ID from the provided identifier
                     String formattedSpectrumID = MzIdentMLUtils.getSpectrumId(spectraData, spectrumID);
-                    String[] spectrumFeatures = {formattedSpectrumID, spectrumDataReference};
+                    Tuple<String, String> spectrumFeatures = new Tuple<String, String>(formattedSpectrumID, spectrumDataReference);
                     identSpectrumMap.put(spectrumIdentItemId, spectrumFeatures);
                 }
 
@@ -275,9 +276,9 @@ public class MzIdentMLCachingStrategy extends AbstractCachingStrategy {
          * without the Protein information.
          * ???? PeptideEvidence ????
          *
-         * Map of SII IDs to a String[2] of spectrum ID and spectrum file ID
+         * Map of SII IDs to a Tuple< of spectrum ID, spectrum file ID>
          */
-        Map<Comparable, String[]> identSpectrumMap = new HashMap<Comparable, String[]>();
+        Map<Comparable, Tuple<String, String>> identSpectrumMap = new HashMap<Comparable, Tuple<String, String>>();
 
 
         /**
@@ -305,7 +306,7 @@ public class MzIdentMLCachingStrategy extends AbstractCachingStrategy {
             mgfTitleReference = true;
         }
 
-        Map<String[], Comparable> mgfTitleReferenceMap = new HashMap<String[], Comparable>();
+        Map<Tuple<String, String>, Comparable> mgfTitleReferenceMap = new HashMap<Tuple<String, String>, Comparable>();
         List<Comparable> spectraDataToMGF    = new ArrayList<Comparable>();
 
         /*
@@ -337,7 +338,7 @@ public class MzIdentMLCachingStrategy extends AbstractCachingStrategy {
                 if(mgfTitleReference && possibleMGMTitleReferenced.contains(spectrumDataReference)){
                     Comparable title = unmarshaller.getMGFTitleReference(spectrumIdentResultId);
                     if(title != null){
-                        String[] spectrumFeatures = {title.toString(), spectrumDataReference};
+                        Tuple<String, String> spectrumFeatures = new Tuple<>(title.toString(), spectrumDataReference);
                         identSpectrumMap.put(spectrumIdentItemId, spectrumFeatures);
                         mgfTitleReferenceMap.put(spectrumFeatures, unmarshaller.getMGFTitleReference(spectrumIdentResultId));
                         if(!spectraDataToMGF.contains(spectrumDataReference))
@@ -349,7 +350,7 @@ public class MzIdentMLCachingStrategy extends AbstractCachingStrategy {
 
                     // extract the spectrum ID from the provided identifier
                     String formattedSpectrumID = MzIdentMLUtils.getSpectrumId(spectraData, spectrumID);
-                    String[] spectrumFeatures = {formattedSpectrumID, spectrumDataReference};
+                    Tuple<String, String> spectrumFeatures = new Tuple<>(formattedSpectrumID, spectrumDataReference);
 
                     identSpectrumMap.put(spectrumIdentItemId, spectrumFeatures);
                 }

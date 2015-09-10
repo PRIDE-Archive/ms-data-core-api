@@ -180,9 +180,9 @@ public abstract class CachedDataAccessController extends AbstractDataAccessContr
     public Comparable getSpectrumIdForPeptide(Comparable psmID){
         String[] spectrumIdArray = ((String) psmID).split("!");
         if (spectrumIdArray.length != 2) {
-            if(((Map<Comparable, String[]>) getCache().get(CacheEntry.PEPTIDE_TO_SPECTRUM)).containsKey(psmID)){
-                spectrumIdArray = ((Map<Comparable, String[]>) getCache().get(CacheEntry.PEPTIDE_TO_SPECTRUM)).get(psmID);
-                if(spectrumIdArray != null & spectrumIdArray.length == 2){
+            if(((Map<Comparable, Tuple<String, String>>) getCache().get(CacheEntry.PEPTIDE_TO_SPECTRUM)).containsKey(psmID)){
+                Tuple<String, String> spectrumIdArrayTuple = ((Map<Comparable, Tuple<String, String>>) getCache().get(CacheEntry.PEPTIDE_TO_SPECTRUM)).get(psmID);
+                if(spectrumIdArrayTuple != null & spectrumIdArrayTuple.getKey() != null && spectrumIdArrayTuple.getValue() != null ){
                     return spectrumIdArray[0] + "!" + spectrumIdArray[1];
                 }
             }else{
@@ -982,7 +982,7 @@ public abstract class CachedDataAccessController extends AbstractDataAccessContr
      * @return return true if the Spectrum identification title is based on title, special use case for WIFF files.
      */
     public boolean isSpectrumBasedOnTitle(){
-        Map<String[], Comparable> indexToTitleSpectrum = (Map<String[], Comparable>) getCache().get(CacheEntry.MGF_INDEX_TITLE);
+        Map<Tuple<String, String>, Comparable> indexToTitleSpectrum = (Map<Tuple<String, String>, Comparable>) getCache().get(CacheEntry.MGF_INDEX_TITLE);
         return indexToTitleSpectrum != null;
     }
 

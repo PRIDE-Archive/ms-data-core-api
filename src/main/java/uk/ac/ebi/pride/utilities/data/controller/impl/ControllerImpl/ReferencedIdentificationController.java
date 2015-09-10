@@ -317,15 +317,15 @@ public abstract class ReferencedIdentificationController extends CachedDataAcces
     @Override
     public boolean isIdentifiedSpectrum(Comparable specId) {
 
-        if(((Map<Comparable, String[]>) getCache().get(CacheEntry.PEPTIDE_TO_SPECTRUM)).get(specId) != null){
+        if(((Map<Comparable, Tuple<String, String>>) getCache().get(CacheEntry.PEPTIDE_TO_SPECTRUM)).get(specId) != null){
             return true;
         } else {
-            Collection<String[]> ids = ((Map<Comparable, String[]>) getCache().get(CacheEntry.PEPTIDE_TO_SPECTRUM)).values();
-            Iterator<String[]> itId  = ids.iterator();
+            Collection<Tuple<String, String>> ids = ((Map<Comparable, Tuple<String, String>>) getCache().get(CacheEntry.PEPTIDE_TO_SPECTRUM)).values();
+            Iterator<Tuple<String, String>> itId  = ids.iterator();
             if(ids != null){
                 while(itId.hasNext()) {
-                    String[] value = itId.next();
-                    if(value[0] != null && value[1] != null && (value[0]+"!"+value[1]).equalsIgnoreCase(specId.toString()))
+                    Tuple<String, String> value = itId.next();
+                    if(value.getKey() != null && value.getValue() != null && (value.getKey()+"!"+value.getValue()).equalsIgnoreCase(specId.toString()))
                         return true;
                 }
             }
@@ -339,14 +339,14 @@ public abstract class ReferencedIdentificationController extends CachedDataAcces
      * @return java.lang.List<Peptide> A list of peptides identified by this Spectrum
      */
     public List<Peptide> getPeptidesBySpectrum(Comparable specId){
-        Map<Comparable, String[]> peptideToSpectrum = ((Map<Comparable, String[]>) getCache().get(CacheEntry.PEPTIDE_TO_SPECTRUM));
+        Map<Comparable, Tuple<String,String>> peptideToSpectrum = ((Map<Comparable, Tuple<String,String>>) getCache().get(CacheEntry.PEPTIDE_TO_SPECTRUM));
         Map<Comparable, List<Comparable>> proteinToPeptide  = ((Map<Comparable, List<Comparable>>) getCache().get(CacheEntry.PROTEIN_TO_PEPTIDE_EVIDENCES));
         List<Peptide> peptides = new ArrayList<Peptide>();
 
         for(Map.Entry spectrumIDEntry: peptideToSpectrum.entrySet()){
             Comparable peptideID = (Comparable) spectrumIDEntry.getKey();
-            String[] spectrumID  = (String[]) spectrumIDEntry.getValue();
-            String spectrumIDString = spectrumID[0] + "!" + spectrumID[1];
+            Tuple<String,String> spectrumID  = (Tuple<String,String>) spectrumIDEntry.getValue();
+            String spectrumIDString = spectrumID.getKey() + "!" + spectrumID.getValue();
             if(spectrumIDString.equalsIgnoreCase(specId.toString()) && proteinToPeptide != null){
                 for(Map.Entry proteinEntry: proteinToPeptide.entrySet()){
                     Comparable proteinId = (Comparable) proteinEntry.getKey();
@@ -388,18 +388,20 @@ public abstract class ReferencedIdentificationController extends CachedDataAcces
     @Override
     public Spectrum getSpectrumById(Comparable id, boolean useCache) {
 
-        String[] spectrumIdArray = ((String) id).split("!");
-        if (spectrumIdArray.length != 2) {
-            spectrumIdArray = ((Map<Comparable, String[]>) getCache().get(CacheEntry.PEPTIDE_TO_SPECTRUM)).get(id);
+        Tuple<String,String> spectrumIdArray;
+        if (((String) id).split("!").length != 2) {
+            spectrumIdArray = ((Map<Comparable, Tuple<String,String>>) getCache().get(CacheEntry.PEPTIDE_TO_SPECTRUM)).get(id);
+        }else{
+            spectrumIdArray = new Tuple<>(((String) id).split("!")[0], ((String) id).split("!")[1]);
         }
 
         Spectrum spectrum = super.getSpectrumById(id, useCache);
         if (spectrum == null && spectrumIdArray != null) {
             logger.debug("Get new spectrum from file: {}", id);
             try {
-                DataAccessController spectrumController = msDataAccessControllers.get(spectrumIdArray[1]);
-                if (spectrumController != null && spectrumController.getSpectrumIds().contains(spectrumIdArray[0])) {
-                    spectrum = spectrumController.getSpectrumById(spectrumIdArray[0]);
+                DataAccessController spectrumController = msDataAccessControllers.get(spectrumIdArray.getValue());
+                if (spectrumController != null && spectrumController.getSpectrumIds().contains(spectrumIdArray.getKey())) {
+                    spectrum = spectrumController.getSpectrumById(spectrumIdArray.getKey());
                     if (useCache && spectrum != null) {
                         getCache().store(CacheEntry.SPECTRUM, id, spectrum);
                     }
@@ -455,15 +457,15 @@ public abstract class ReferencedIdentificationController extends CachedDataAcces
 
     public Comparable getSpectrumIdBySpectrumIdentificationItemId(Comparable id) {
 
-        String[] spectrumIdArray = ((Map<Comparable, String[]>) getCache().get(CacheEntry.PEPTIDE_TO_SPECTRUM)).get(id);
+        Tuple<String, String> spectrumIdArray = ((Map<Comparable, Tuple<String, String>>) getCache().get(CacheEntry.PEPTIDE_TO_SPECTRUM)).get(id);
 
         /** To store in cache the Spectrum files, an Id was constructed using the spectrum ID and the
          *  id of the File.
          **/
-        if (spectrumIdArray == null || spectrumIdArray.length <= 0) {
+        if (spectrumIdArray == null || spectrumIdArray.getKey() != null && spectrumIdArray.getValue() != null) {
             return null;
         } else {
-            return spectrumIdArray[0] + "!" + spectrumIdArray[1];
+            return spectrumIdArray.getKey() + "!" + spectrumIdArray.getValue();
         }
     }
 
