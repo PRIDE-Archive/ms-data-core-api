@@ -598,7 +598,10 @@ public abstract class CachedDataAccessController extends AbstractDataAccessContr
         List<Comparable> ids = (List<Comparable>) cache.get(CacheEntry.PROTEIN_TO_PEPTIDE, proteinId);
         if (ids != null && cache.hasCacheEntry(CacheEntry.PEPTIDE_SEQUENCE)) {
             Collection<String> seqs = (Collection<String>) cache.getInBatch(CacheEntry.PEPTIDE_SEQUENCE, ids);
-            cnt = (new HashSet<String>(seqs)).size();
+            if(seqs == null || seqs.isEmpty()){
+                return super.getNumberOfUniquePeptides(proteinId);
+            }
+            return (new HashSet<String>(seqs)).size();
         } else if (!DataAccessMode.CACHE_ONLY.equals(mode)) {
             cnt = super.getNumberOfUniquePeptides(proteinId);
         }
@@ -623,6 +626,8 @@ public abstract class CachedDataAccessController extends AbstractDataAccessContr
             for (List<Tuple<String, Integer>> ptm : ptms) {
                 cnt += ptm.size();
             }
+            if(cnt == 0)
+                cnt = super.getNumberOfPTMs(proteinId);
         } else if (!DataAccessMode.CACHE_ONLY.equals(mode)) {
             cnt = super.getNumberOfPTMs(proteinId);
         }
