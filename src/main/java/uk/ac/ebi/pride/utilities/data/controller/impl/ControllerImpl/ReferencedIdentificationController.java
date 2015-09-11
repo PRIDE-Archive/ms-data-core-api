@@ -335,19 +335,14 @@ public abstract class ReferencedIdentificationController extends CachedDataAcces
      */
     @Override
     public boolean isIdentifiedSpectrum(Comparable specId) {
-
-        if(((Map<Comparable, Tuple<String, String>>) getCache().get(CacheEntry.PEPTIDE_TO_SPECTRUM)).get(specId) != null){
-            return true;
-        } else {
-            Collection<Tuple<String, String>> ids = ((Map<Comparable, Tuple<String, String>>) getCache().get(CacheEntry.PEPTIDE_TO_SPECTRUM)).values();
-            Iterator<Tuple<String, String>> itId  = ids.iterator();
-            if(ids != null){
-                while(itId.hasNext()) {
-                    Tuple<String, String> value = itId.next();
-                    if(value.getKey() != null && value.getValue() != null && (value.getKey()+"!"+value.getValue()).equalsIgnoreCase(specId.toString()))
-                        return true;
-                }
-            }
+        String[] array = specId.toString().split("!");
+        if(array.length < 2){
+            if(((Map<Comparable, Tuple<String, String>>) getCache().get(CacheEntry.PEPTIDE_TO_SPECTRUM)).get(specId) != null)
+                return true;
+        }else{
+            Tuple<String, String> specTuple = new Tuple<String, String>(array[0], array[1]);
+            if(((List<Tuple<String, String>>) getCache().get(CacheEntry.SPECTRUM_IDENTIFIED)).contains(specTuple))
+                return true;
         }
         return false;
     }

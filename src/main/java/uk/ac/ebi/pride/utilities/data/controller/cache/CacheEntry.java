@@ -74,7 +74,8 @@ public enum CacheEntry {
 
     MGF_INDEX_TITLE(HashMap.class, null),                      // In some cases it would be interesting to retrieve the file instead of using index using the title.
     SPECTRA_DATA_MGF_TITLE(ArrayList.class, null),
-    TITLE_MGF_INDEX(HashMap.class, null);
+    TITLE_MGF_INDEX(HashMap.class, null),
+    SPECTRUM_IDENTIFIED(ArrayList.class, 10000);
 
     private final Class dataStructType;
     private final Integer size;

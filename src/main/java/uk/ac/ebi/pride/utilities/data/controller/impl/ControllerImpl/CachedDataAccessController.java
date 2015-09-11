@@ -183,7 +183,7 @@ public abstract class CachedDataAccessController extends AbstractDataAccessContr
             if(((Map<Comparable, Tuple<String, String>>) getCache().get(CacheEntry.PEPTIDE_TO_SPECTRUM)).containsKey(psmID)){
                 Tuple<String, String> spectrumIdArrayTuple = ((Map<Comparable, Tuple<String, String>>) getCache().get(CacheEntry.PEPTIDE_TO_SPECTRUM)).get(psmID);
                 if(spectrumIdArrayTuple != null & spectrumIdArrayTuple.getKey() != null && spectrumIdArrayTuple.getValue() != null ){
-                    return spectrumIdArray[0] + "!" + spectrumIdArray[1];
+                    return spectrumIdArrayTuple.getKey() + "!" + spectrumIdArrayTuple.getValue();
                 }
             }else{
                 return psmID;
