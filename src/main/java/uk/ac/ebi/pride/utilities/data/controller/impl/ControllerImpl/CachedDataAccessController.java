@@ -740,7 +740,7 @@ public abstract class CachedDataAccessController extends AbstractDataAccessContr
     public List<Modification> getPTMs(Comparable proteinId, Comparable peptideId) {
         List<Modification> ptms = (List<Modification>) cache.get(CacheEntry.PEPTIDE_TO_MODIFICATION, new Tuple<Comparable, Comparable>(proteinId, peptideId));
 
-        if (ptms == null || ptms.isEmpty()) {
+        if (ptms == null) {
             Peptide peptide = getPeptideByIndex(proteinId, peptideId);
             ptms = peptide.getModifications();
         }

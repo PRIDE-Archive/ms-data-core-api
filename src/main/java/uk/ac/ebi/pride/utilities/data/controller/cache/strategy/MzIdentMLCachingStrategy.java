@@ -31,6 +31,8 @@ public class MzIdentMLCachingStrategy extends AbstractCachingStrategy {
 
     private static final Logger logger = LoggerFactory.getLogger(MzIdentMLCachingStrategy.class);
 
+    private static final int INIT_BIG_HASH = 10000;
+
 
     /**
      * Spectrum ids and identification ids are cached.
@@ -166,10 +168,9 @@ public class MzIdentMLCachingStrategy extends AbstractCachingStrategy {
 
         boolean mgfTitleReference = false;
 
-        Map<Tuple<String,String>, Comparable> mgfTitleReferenceMap = new HashMap<Tuple<String,String>, Comparable>();
+        Map<Tuple<String,String>, Comparable> mgfTitleReferenceMap = new HashMap<Tuple<String,String>, Comparable>(INIT_BIG_HASH);
 
-        Map<Comparable, Tuple<String, String>> identSpectrumMap = new HashMap<Comparable, Tuple<String,String>>();
-
+        Map<Comparable, Tuple<String, String>> identSpectrumMap = new HashMap<Comparable, Tuple<String,String>>(INIT_BIG_HASH);
 
         Set<String> spectrumIdentResultIds = unmarshaller.getIDsForElement(MzIdentMLElement.SpectrumIdentificationResult);
 
@@ -179,7 +180,7 @@ public class MzIdentMLCachingStrategy extends AbstractCachingStrategy {
 
         List<Comparable> spectraDataToMGF    = new ArrayList<Comparable>();
 
-        List<Tuple<String, String>> spectrumIdentified = new ArrayList<>(10000);
+        List<Tuple<String, String>> spectrumIdentified = new ArrayList<>(INIT_BIG_HASH);
 
         if(spectrumIdentResultIds != null && possibleMGMTitleReferenced.size() > 0 ){
             mgfTitleReference = true;
@@ -284,7 +285,7 @@ public class MzIdentMLCachingStrategy extends AbstractCachingStrategy {
          *
          * Map of SII IDs to a Tuple< of spectrum ID, spectrum file ID>
          */
-        Map<Comparable, Tuple<String, String>> identSpectrumMap = new HashMap<Comparable, Tuple<String, String>>();
+        Map<Comparable, Tuple<String, String>> identSpectrumMap = new HashMap<Comparable, Tuple<String, String>>(INIT_BIG_HASH);
 
 
         /**
@@ -299,9 +300,9 @@ public class MzIdentMLCachingStrategy extends AbstractCachingStrategy {
          * the original id of the spectrum in the Spectrum file and the id of the spectrum file.
          *
          */
-        Map<Comparable, List<Comparable>> identProteinsMap = new HashMap<Comparable, List<Comparable>>();
+        Map<Comparable, List<Comparable>> identProteinsMap = new HashMap<Comparable, List<Comparable>>(INIT_BIG_HASH);
 
-        List<Tuple<String,String>> spectrumIdentified = new ArrayList<Tuple<String, String>>();
+        List<Tuple<String,String>> spectrumIdentified = new ArrayList<Tuple<String, String>>(INIT_BIG_HASH);
 
         /*
           Check is the file is using a different reference way
