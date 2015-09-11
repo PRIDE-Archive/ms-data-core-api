@@ -44,7 +44,7 @@ public class MzIdentMLControllerIterativeTest {
         File inputFile = new File(url.toURI());
 
         mzIdentMLController = new MzIdentMLControllerImpl(inputFile,true);
-        mzMLController      = new PeakControllerImpl(new File(urlMgf != null ? urlMgf.toURI() : null));
+        mzMLController      = new PeakControllerImpl(new File(urlMgf != null ? urlMgf.toURI() : null != null ? urlMgf != null ? urlMgf.toURI() : null : null));
 
         List<File> files = new ArrayList<File>();
         files.add(new File(urlMgf.toURI()));

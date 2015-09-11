@@ -120,8 +120,7 @@ public class PeptideSequence extends IdentifiableParamGroup implements Comparabl
 
         PeptideSequence that = (PeptideSequence) o;
 
-        if (!modifications.equals(that.modifications)) return false;
-        return !(sequence != null ? !sequence.equals(that.sequence) : that.sequence != null) && substitutionModifications.equals(that.substitutionModifications);
+        return modifications.equals(that.modifications) && !(sequence != null ? !sequence.equals(that.sequence) : that.sequence != null) && substitutionModifications.equals(that.substitutionModifications);
 
     }
 

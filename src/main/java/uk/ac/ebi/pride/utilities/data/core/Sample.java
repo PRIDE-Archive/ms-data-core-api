@@ -63,9 +63,7 @@ public class Sample extends IdentifiableParamGroup implements Comparable{
 
         Sample sample = (Sample) o;
 
-        if (contactRoles != null ? !contactRoles.equals(sample.contactRoles) : sample.contactRoles != null)
-            return false;
-        return !(subSamples != null ? !subSamples.equals(sample.subSamples) : sample.subSamples != null);
+        return !(contactRoles != null ? !contactRoles.equals(sample.contactRoles) : sample.contactRoles != null) && !(subSamples != null ? !subSamples.equals(sample.subSamples) : sample.subSamples != null);
 
     }
 

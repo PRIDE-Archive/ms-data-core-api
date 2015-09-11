@@ -115,9 +115,7 @@ public class DBSequence extends IdentifiableParamGroup {
         if (accession != null ? !accession.equals(that.accession) : that.accession != null) return false;
         if (accessionVersion != null ? !accessionVersion.equals(that.accessionVersion) : that.accessionVersion != null)
             return false;
-        if (searchDataBase != null ? !searchDataBase.equals(that.searchDataBase) : that.searchDataBase != null)
-            return false;
-        return !(sequence != null ? !sequence.equals(that.sequence) : that.sequence != null) && !(spliceIsoform != null ? !spliceIsoform.equals(that.spliceIsoform) : that.spliceIsoform != null);
+        return !(searchDataBase != null ? !searchDataBase.equals(that.searchDataBase) : that.searchDataBase != null) && !(sequence != null ? !sequence.equals(that.sequence) : that.sequence != null) && !(spliceIsoform != null ? !spliceIsoform.equals(that.spliceIsoform) : that.spliceIsoform != null);
 
     }
 

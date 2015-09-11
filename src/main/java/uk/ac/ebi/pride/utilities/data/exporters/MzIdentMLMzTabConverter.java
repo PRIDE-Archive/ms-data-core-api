@@ -225,11 +225,11 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
 
         //Loop for spectrum to get all the ms_run to repeat the score at protein level
         Set<MsRun> msRuns = new HashSet<MsRun>();
-        for(int index = 0; index < peptides.size(); index++){
+        for (Peptide peptide : peptides) {
 //            Comparable id = source.getPeptideSpectrumId(firstProteinDetectionHypothesis.getId(), index);
-            Comparable id = controller.getSpectrumIdBySpectrumIdentificationItemId(peptides.get(index).getSpectrumIdentification().getId());
+            Comparable id = controller.getSpectrumIdBySpectrumIdentificationItemId(peptide.getSpectrumIdentification().getId());
 
-            if(id != null){
+            if (id != null) {
                 String[] spectumMap = id.toString().split("!");
                 MsRun msRun = metadata.getMsRunMap().get(spectraToRun.get(spectumMap[1]));
                 msRuns.add(msRun);
@@ -568,9 +568,7 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
 
         List<PSM> psmList = new ArrayList<PSM>();
 
-        for (int index = 0; index < peptides.size(); index++) {
-            Peptide oldPSM = peptides.get(index);
-
+        for (Peptide oldPSM : peptides) {
             PSM psm = new PSM(psmColumnFactory, metadata);
             psm.setSequence(oldPSM.getPeptideSequence().getSequence());
             psm.setPSM_ID(oldPSM.getSpectrumIdentification().getId().toString());
@@ -580,18 +578,18 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
             psm.setDatabase(getDatabaseName(nameDatabase.getCvParams(), nameDatabase.getUserParams()));
 
             String dbVersion = oldPSM.getPeptideEvidence().getDbSequence().getSearchDataBase().getVersion();
-            String version = (dbVersion != null && !dbVersion.isEmpty())? dbVersion :null;
+            String version = (dbVersion != null && !dbVersion.isEmpty()) ? dbVersion : null;
             psm.setDatabaseVersion(version);
 
-            if(oldPSM.getPeptideEvidence().getStartPosition() != null && oldPSM.getPeptideEvidence().getStartPosition()>=0) {
+            if (oldPSM.getPeptideEvidence().getStartPosition() != null && oldPSM.getPeptideEvidence().getStartPosition() >= 0) {
                 psm.setStart(oldPSM.getPeptideEvidence().getStartPosition());
             }
 
-            if(oldPSM.getPeptideEvidence().getEndPosition() != null && oldPSM.getPeptideEvidence().getEndPosition()>=0) {
+            if (oldPSM.getPeptideEvidence().getEndPosition() != null && oldPSM.getPeptideEvidence().getEndPosition() >= 0) {
                 psm.setEnd(oldPSM.getPeptideEvidence().getEndPosition());
             }
 
-            String pre  = String.valueOf(oldPSM.getPeptideEvidence().getPreResidue());
+            String pre = String.valueOf(oldPSM.getPeptideEvidence().getPreResidue());
             String post = String.valueOf(oldPSM.getPeptideEvidence().getPostResidue());
             psm.setPre((pre == null || pre.isEmpty() || pre.equalsIgnoreCase(String.valueOf('\u0000'))) ? null : pre);
             psm.setPost((post == null || post.isEmpty() || pre.equalsIgnoreCase(String.valueOf('\u0000'))) ? null : post);
@@ -599,8 +597,8 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
             //TODO: Review
             List<Modification> mods = new ArrayList<Modification>();
 
-            for(uk.ac.ebi.pride.utilities.data.core.Modification oldMod: oldPSM.getPeptideSequence().getModifications()){
-                if(oldMod.getCvParams()!= null) {
+            for (uk.ac.ebi.pride.utilities.data.core.Modification oldMod : oldPSM.getPeptideSequence().getModifications()) {
+                if (oldMod.getCvParams() != null) {
                     Double mass = (oldMod.getMonoisotopicMassDelta() != null && !oldMod.getMonoisotopicMassDelta().isEmpty()) ? oldMod.getMonoisotopicMassDelta().get(0) : null;
 
                     for (CvParam param : oldMod.getCvParams()) {
@@ -631,17 +629,16 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
 
 
                         } else if (param.getAccession().equalsIgnoreCase(UNKNOWN_MOD) && mass != null) {  //Unknown mod
-                                //Transform in a CHEMMOD Type modification
-                                mzTabMod = new Modification(Section.PSM, Modification.Type.CHEMMOD, mass.toString());
-                                mzTabMod.addPosition(oldMod.getLocation(), null);
-                                mods.add(mzTabMod);
+                            //Transform in a CHEMMOD Type modification
+                            mzTabMod = new Modification(Section.PSM, Modification.Type.CHEMMOD, mass.toString());
+                            mzTabMod.addPosition(oldMod.getLocation(), null);
+                            mods.add(mzTabMod);
                         } else if (param.getAccession().equalsIgnoreCase(CvTermReference.MS_NEUTRAL_LOSS.getAccession())) { //Neutral losses
-                             Double value = 0.0;
-                            if(param.getValue()!=null){
+                            Double value = 0.0;
+                            if (param.getValue() != null) {
                                 try {
                                     value = Double.valueOf(param.getValue());
-                                }
-                                catch (NumberFormatException e){
+                                } catch (NumberFormatException e) {
                                     logger.warn("Neutral loss value: " + param.getValue() + " cannot be converted.");
                                     value = 0.0;
                                 }
@@ -664,7 +661,7 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
                 }
             }
 
-            for(Modification mod: mods)
+            for (Modification mod : mods)
                 psm.addModification(mod);
 
             psm.setExpMassToCharge(oldPSM.getSpectrumIdentification().getExperimentalMassToCharge());
@@ -673,29 +670,29 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
             Comparable idSpectrum = controller.getSpectrumIdBySpectrumIdentificationItemId(oldPSM.getSpectrumIdentification().getId());
 
 
-            if(idSpectrum != null){
+            if (idSpectrum != null) {
                 String[] spectumMap = idSpectrum.toString().split("!");
                 String spectrumReference = null;
-                for(SpectraData spec: source.getExperimentMetaData().getSpectraDatas()){
-                    if(spec.getId().toString().equalsIgnoreCase(spectumMap[1])){
+                for (SpectraData spec : source.getExperimentMetaData().getSpectraDatas()) {
+                    if (spec.getId().toString().equalsIgnoreCase(spectumMap[1])) {
                         spectrumReference = MzTabUtils.getOriginalSpectrumId(spec, spectumMap[0]);
                     }
                 }
-                if(spectumMap[1] != null && spectrumReference != null)
+                if (spectumMap[1] != null && spectrumReference != null)
                     psm.addSpectraRef(new SpectraRef(metadata.getMsRunMap().get(spectraToRun.get(spectumMap[1])), spectrumReference));
             }
 
             // See which psm scores are supported
-            for(CvParam cvPAram: oldPSM.getSpectrumIdentification().getCvParams()){
-                if(psmScoreToScoreIndex.containsKey(cvPAram.getAccession())){
+            for (CvParam cvPAram : oldPSM.getSpectrumIdentification().getCvParams()) {
+                if (psmScoreToScoreIndex.containsKey(cvPAram.getAccession())) {
                     CVParam param = MzTabUtils.convertCvParamToCVParam(cvPAram);
                     int idCount = psmScoreToScoreIndex.get(cvPAram.getAccession());
                     psm.setSearchEngineScore(idCount, param.getValue());
                 }
             }
             //loadModifications(psm,peptideEvidenceRef.getPeptideEvidence());
-            if(!indexSpectrumID.containsKey(oldPSM.getSpectrumIdentification().getId())){
-                int indexMzTab = indexSpectrumID.size()+1;
+            if (!indexSpectrumID.containsKey(oldPSM.getSpectrumIdentification().getId())) {
+                int indexMzTab = indexSpectrumID.size() + 1;
                 indexSpectrumID.put(oldPSM.getSpectrumIdentification().getId(), indexMzTab);
             }
             //Set Search Engine
@@ -704,7 +701,7 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
             List<SearchEngineParam> searchEngineParams = MzIdentMLUtils.getSearchEngineCvTermReferences(oldPSM.getSpectrumIdentification().getCvParams());
             searchEngines.addAll(searchEngineParams);
 
-            for(SearchEngineParam searchEngineParam: searchEngines)
+            for (SearchEngineParam searchEngineParam : searchEngines)
                 psm.addSearchEngineParam(searchEngineParam.getParam());
 
             //Set optional parameter
@@ -712,7 +709,7 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
             psm.setPSM_ID(indexSpectrumID.get(oldPSM.getSpectrumIdentification().getId()));
             psm.setOptionColumnValue(MzTabUtils.OPTIONAL_ID_COLUMN, oldPSM.getSpectrumIdentification().getId());
             Boolean decoy = oldPSM.getPeptideEvidence().isDecoy();
-            psm.setOptionColumnValue(MzTabUtils.OPTIONAL_DECOY_COLUMN, (!decoy)?0:1);
+            psm.setOptionColumnValue(MzTabUtils.OPTIONAL_DECOY_COLUMN, (!decoy) ? 0 : 1);
             psm.setOptionColumnValue(MzTabUtils.OPTIONAL_RANK_COLUMN, oldPSM.getSpectrumIdentification().getRank());
             // check and set additional chromosome information
             if (hasChromInformation()) {

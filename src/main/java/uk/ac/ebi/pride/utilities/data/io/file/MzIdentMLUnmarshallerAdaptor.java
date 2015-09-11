@@ -14,7 +14,6 @@ import uk.ac.ebi.jmzidml.model.mzidml.SourceFile;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectraData;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentificationProtocol;
 import uk.ac.ebi.jmzidml.xml.io.MzIdentMLUnmarshaller;
-import uk.ac.ebi.pride.utilities.data.core.*;
 import uk.ac.ebi.pride.utilities.data.utils.MzIdentMLUtils;
 
 import javax.naming.ConfigurationException;
@@ -38,8 +37,6 @@ public class MzIdentMLUnmarshallerAdaptor extends MzIdentMLUnmarshaller {
 
     private Map<String, Map<String, List<IndexElement>>> scannedIdMappings;
 
-    private Map<String, SpectrumIdentificationItem> spectrumIdentificationItemMap = null;
-
     private Inputs inputs = null;
 
     private AuditCollection auditCollection = null;
@@ -49,7 +46,6 @@ public class MzIdentMLUnmarshallerAdaptor extends MzIdentMLUnmarshaller {
 
     public MzIdentMLUnmarshallerAdaptor(File mzIdentMLFile, boolean inMemory) throws ConfigurationException {
         super(mzIdentMLFile, inMemory);
-        spectrumIdentificationItemMap = null;
         scanIdMappings();
 
     }
@@ -350,7 +346,7 @@ public class MzIdentMLUnmarshallerAdaptor extends MzIdentMLUnmarshaller {
     }
 
     public Comparable getMGFTitleReference(String spectrumIdentResultId) throws JAXBException {
-        SpectrumIdentificationResult result = this.unmarshal(SpectrumIdentificationResult.class, (String) spectrumIdentResultId);
+        SpectrumIdentificationResult result = this.unmarshal(SpectrumIdentificationResult.class, spectrumIdentResultId);
         if(result != null)
             return MzIdentMLUtils.MGFTitleCVtermValue(result.getCvParam());
 

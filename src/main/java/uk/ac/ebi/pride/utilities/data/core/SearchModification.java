@@ -85,8 +85,7 @@ public class SearchModification {
         SearchModification that = (SearchModification) o;
 
         if (fixedMod != that.fixedMod) return false;
-        if (Double.compare(that.massDelta, massDelta) != 0) return false;
-        return cvParams.equals(that.cvParams) && specificities.equals(that.specificities) && specificityRules.equals(that.specificityRules);
+        return Double.compare(that.massDelta, massDelta) == 0 && cvParams.equals(that.cvParams) && specificities.equals(that.specificities) && specificityRules.equals(that.specificityRules);
 
     }
 

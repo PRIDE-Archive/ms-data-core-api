@@ -95,8 +95,7 @@ public class Enzyme extends Identifiable {
         if (missedCleavages != enzyme.missedCleavages) return false;
         if (semiSpecific != enzyme.semiSpecific) return false;
         if (cTermGain != null ? !cTermGain.equals(enzyme.cTermGain) : enzyme.cTermGain != null) return false;
-        if (enzymeName != null ? !enzymeName.equals(enzyme.enzymeName) : enzyme.enzymeName != null) return false;
-        return !(nTermGain != null ? !nTermGain.equals(enzyme.nTermGain) : enzyme.nTermGain != null) && !(siteRegExp != null ? !siteRegExp.equals(enzyme.siteRegExp) : enzyme.siteRegExp != null);
+        return !(enzymeName != null ? !enzymeName.equals(enzyme.enzymeName) : enzyme.enzymeName != null) && !(nTermGain != null ? !nTermGain.equals(enzyme.nTermGain) : enzyme.nTermGain != null) && !(siteRegExp != null ? !siteRegExp.equals(enzyme.siteRegExp) : enzyme.siteRegExp != null);
 
     }
 

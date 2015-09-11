@@ -3,13 +3,10 @@ package uk.ac.ebi.pride.utilities.data.exporters;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import uk.ac.ebi.pride.utilities.data.controller.DataAccessController;
 import uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl.PrideXmlControllerImpl;
 
 import java.io.File;
 import java.net.URL;
-
-import static org.junit.Assert.*;
 
 /**
  * Test the MGF exporter

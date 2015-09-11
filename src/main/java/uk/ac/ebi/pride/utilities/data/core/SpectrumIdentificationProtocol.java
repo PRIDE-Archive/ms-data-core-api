@@ -173,8 +173,7 @@ public class SpectrumIdentificationProtocol extends Protocol {
         if (!enzymes.equals(that.enzymes)) return false;
         if (!filters.equals(that.filters)) return false;
         if (!fragmentTolerance.equals(that.fragmentTolerance)) return false;
-        if (!massTables.equals(that.massTables)) return false;
-        return parentTolerance.equals(that.parentTolerance) && searchModifications.equals(that.searchModifications) && !(searchType != null ? !searchType.equals(that.searchType) : that.searchType != null);
+        return massTables.equals(that.massTables) && parentTolerance.equals(that.parentTolerance) && searchModifications.equals(that.searchModifications) && !(searchType != null ? !searchType.equals(that.searchType) : that.searchType != null);
 
     }
 

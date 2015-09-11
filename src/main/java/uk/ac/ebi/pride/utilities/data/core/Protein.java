@@ -248,8 +248,7 @@ public class Protein extends IdentifiableParamGroup {
         if (dbSequence != null ? !dbSequence.equals(protein.dbSequence) : protein.dbSequence != null) return false;
         if (gel != null ? !gel.equals(protein.gel) : protein.gel != null) return false;
         if (peptides != null ? !peptides.equals(protein.peptides) : protein.peptides != null) return false;
-        if (quantScore != null ? !quantScore.equals(protein.quantScore) : protein.quantScore != null) return false;
-        return !(score != null ? !score.equals(protein.score) : protein.score != null);
+        return !(quantScore != null ? !quantScore.equals(protein.quantScore) : protein.quantScore != null) && !(score != null ? !score.equals(protein.score) : protein.score != null);
 
     }
 

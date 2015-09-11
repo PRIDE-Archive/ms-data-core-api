@@ -97,8 +97,7 @@ public class MzGraphMetaData extends IdentifiableParamGroup {
 
         MzGraphMetaData that = (MzGraphMetaData) o;
 
-        if (!dataProcessings.equals(that.dataProcessings)) return false;
-        return instrumentConfigurations.equals(that.instrumentConfigurations) && scanSettings.equals(that.scanSettings);
+        return dataProcessings.equals(that.dataProcessings) && instrumentConfigurations.equals(that.instrumentConfigurations) && scanSettings.equals(that.scanSettings);
 
     }
 

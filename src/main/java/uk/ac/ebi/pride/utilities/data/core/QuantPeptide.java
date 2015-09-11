@@ -12,8 +12,10 @@ public class QuantPeptide extends Peptide {
      */
     private QuantScore quantScore;
 
-    public QuantPeptide(PeptideEvidence peptideEvidence, SpectrumIdentification spectrumIdentification, QuantScore quantScore) {
-        super(peptideEvidence, spectrumIdentification);
+    public QuantPeptide(PeptideEvidence peptideEvidence, SpectrumIdentification spectrumIdentification,
+                        QuantScore quantScore,
+                        int index) {
+        super(peptideEvidence, spectrumIdentification,index);
         this.quantScore = quantScore;
     }
 
@@ -24,4 +26,5 @@ public class QuantPeptide extends Peptide {
     public void setQuantScore(QuantScore quantScore) {
         this.quantScore = quantScore;
     }
+
 }

@@ -188,7 +188,7 @@ public class MzIdentMLCachingStrategy extends AbstractCachingStrategy {
 
         Map<Comparable, List<Comparable>> spectraDataMap = new HashMap<Comparable, List<Comparable>>(spectraDataIds.size());
 
-        for (String spectrumIdentResultId : spectrumIdentResultIds) {
+        for (String spectrumIdentResultId : spectrumIdentResultIds != null ? spectrumIdentResultIds : null) {
 
             Map<String, String> spectrumIdentificationResultAttributes = unmarshaller.getElementAttributes(spectrumIdentResultId, SpectrumIdentificationResult.class);
             String spectrumDataReference = spectrumIdentificationResultAttributes.get("spectraData_ref");

@@ -98,8 +98,7 @@ public class IonType extends CvParam {
 
         IonType ionType = (IonType) o;
 
-        if (charge != ionType.charge) return false;
-        return index.equals(ionType.index) && measures.equals(ionType.measures);
+        return charge == ionType.charge && index.equals(ionType.index) && measures.equals(ionType.measures);
 
     }
 

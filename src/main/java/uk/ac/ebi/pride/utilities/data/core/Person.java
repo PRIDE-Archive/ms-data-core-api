@@ -97,8 +97,7 @@ public class Person extends Contact {
         Person person = (Person) o;
 
         if (!affiliation.equals(person.affiliation)) return false;
-        if (contactInfo != null ? !contactInfo.equals(person.contactInfo) : person.contactInfo != null) return false;
-        return !(firstname != null ? !firstname.equals(person.firstname) : person.firstname != null) && !(lastname != null ? !lastname.equals(person.lastname) : person.lastname != null) && !(midInitials != null ? !midInitials.equals(person.midInitials) : person.midInitials != null);
+        return !(contactInfo != null ? !contactInfo.equals(person.contactInfo) : person.contactInfo != null) && !(firstname != null ? !firstname.equals(person.firstname) : person.firstname != null) && !(lastname != null ? !lastname.equals(person.lastname) : person.lastname != null) && !(midInitials != null ? !midInitials.equals(person.midInitials) : person.midInitials != null);
 
     }
 

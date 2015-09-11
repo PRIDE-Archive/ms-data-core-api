@@ -69,8 +69,7 @@ public class StudyVariable extends IdentifiableParamGroup{
         StudyVariable that = (StudyVariable) o;
 
         if (!assays.equals(that.assays)) return false;
-        if (!description.equals(that.description)) return false;
-        return samples.equals(that.samples);
+        return description.equals(that.description) && samples.equals(that.samples);
 
     }
 }

@@ -204,6 +204,7 @@ public class CacheAccessor implements Cache {
 
     @SuppressWarnings("unchecked")
     private Object createIfNotExist(CacheEntry type) {
+
         Object content = contents.get(type);
 
         if (content == null) {
@@ -226,7 +227,7 @@ public class CacheAccessor implements Cache {
             }
 
             // synchronized wrapping
-            if (content instanceof Map) {
+            if (content != null && content instanceof Map) {
                 content = Collections.synchronizedMap((Map) content);
             } else if (content instanceof Collection) {
                 content = Collections.synchronizedCollection((Collection) content);
@@ -261,7 +262,7 @@ public class CacheAccessor implements Cache {
         }
 
         // return a new data structure which contains all the elements
-        if (result instanceof Map) {
+        if (result != null && result instanceof Map) {
             Map temp = new LinkedHashMap();
 
             temp.putAll((Map) result);

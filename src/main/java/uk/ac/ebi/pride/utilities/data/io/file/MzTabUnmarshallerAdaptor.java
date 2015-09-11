@@ -24,8 +24,6 @@ public class MzTabUnmarshallerAdaptor extends MZTabFileParser{
 
     Map<Comparable, List<Comparable>> proteinPSMMap;
 
-    private static Integer NUMBER_PROTEIN_LOOP = 10;
-
 
     private int numIdentifiedPeptides;
     private Map<Integer, Peptide> peptides;
@@ -205,6 +203,7 @@ public class MzTabUnmarshallerAdaptor extends MZTabFileParser{
         Set<Tuple<String, String>> databases = new HashSet<Tuple<String, String>>();
         Iterator<Protein> proteinIterator = getMZTabFile().getProteinsWithLineNumber().values().iterator();
         int countLoop = 0;
+        Integer NUMBER_PROTEIN_LOOP = 10;
         while(proteinIterator.hasNext() && countLoop < NUMBER_PROTEIN_LOOP){
            Protein protein = proteinIterator.next();
             if(protein.getDatabase() != null){
@@ -235,8 +234,8 @@ public class MzTabUnmarshallerAdaptor extends MZTabFileParser{
         Map<String, PSM> psmList = new HashMap<String, PSM>();
         for(Comparable id: spectrumIdentIds){
            String idTofind = (id.toString().split("!").length > 0)? id.toString().split("!")[0]: (String) id;
-           if(idTofind != null && NumberUtilities.isInteger(idTofind.toString())){
-               PSM psm = getMZTabFile().getPSMsWithLineNumber().get(Integer.parseInt(idTofind.toString()));
+           if(idTofind != null && NumberUtilities.isInteger(idTofind)){
+               PSM psm = getMZTabFile().getPSMsWithLineNumber().get(Integer.parseInt(idTofind));
                if(psm != null)
                    psmList.put(id.toString(), psm);
            }
@@ -269,8 +268,8 @@ public class MzTabUnmarshallerAdaptor extends MZTabFileParser{
        Map<String, Peptide> peptides = new HashMap<String, Peptide>();
         for(Comparable id: peptideIds){
             String idToFind = (id.toString().split("!").length > 0)? id.toString().split("!")[0]: (String) id;
-            if(idToFind != null && NumberUtilities.isInteger(idToFind.toString())){
-                Peptide peptide = getMZTabFile().getPeptidesWithLineNumber().get(Integer.parseInt(idToFind.toString()));
+            if(idToFind != null && NumberUtilities.isInteger(idToFind)){
+                Peptide peptide = getMZTabFile().getPeptidesWithLineNumber().get(Integer.parseInt(idToFind));
                 if(peptide != null)
                     peptides.put(id.toString(), peptide);
             }

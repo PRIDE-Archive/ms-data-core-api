@@ -145,11 +145,9 @@ public final class MzIdentMLUtils {
     }
 
     public static boolean isSpectraDataReferencedByTitle(SpectraData spectraData) {
-        if(spectraData.getSpectrumIDFormat() != null &&
+        return spectraData.getSpectrumIDFormat() != null &&
                 spectraData.getSpectrumIDFormat().getCvParam().getAccession().equalsIgnoreCase(CvTermReference.MS_ID_FORMAT_WIFF.getAccession()) &&
-                spectraData.getFileFormat() != null && spectraData.getFileFormat().getCvParam().getAccession().equalsIgnoreCase(CvTermReference.MS_FILE_FORMAT_WIFF.getAccession()))
-            return true;
-        return false;
+                spectraData.getFileFormat() != null && spectraData.getFileFormat().getCvParam().getAccession().equalsIgnoreCase(CvTermReference.MS_FILE_FORMAT_WIFF.getAccession());
     }
 
     /**
