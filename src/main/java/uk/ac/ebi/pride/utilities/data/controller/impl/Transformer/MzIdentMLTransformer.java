@@ -385,6 +385,9 @@ public final class MzIdentMLTransformer {
                                                                                 uk.ac.ebi.jmzidml.model.mzidml.PeptideEvidence oldPeptideEvidence, int id) {
         SpectrumIdentification spectrumIdent = transformToPeptideIdentification(oldSpectrumidentification);
         PeptideEvidence peptideEvidence = transformToPeptideEvidence(oldPeptideEvidence);
+        List<PeptideEvidence> peptideEvidences = new ArrayList<PeptideEvidence>();
+        peptideEvidences.add(peptideEvidence);
+        spectrumIdent.setPeptideEvidenceList(peptideEvidences);
         return new Peptide(peptideEvidence, spectrumIdent, id);
     }
 

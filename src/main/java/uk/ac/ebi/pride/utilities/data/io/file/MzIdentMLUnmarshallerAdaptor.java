@@ -81,6 +81,7 @@ public class MzIdentMLUnmarshallerAdaptor extends MzIdentMLUnmarshaller {
                                    List<IndexElement> peptideEvidenceRefIndexElements,
                                    boolean proteinGroupPresent) {
 
+
         for (String spectrumIdentResultId : spectrumIdentResultIdToIndexElements.keySet()) {
             IndexElement spectrumIdentResultIndexElement = spectrumIdentResultIdToIndexElements.get(spectrumIdentResultId);
 

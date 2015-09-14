@@ -35,6 +35,8 @@ public abstract class ReferencedIdentificationController extends CachedDataAcces
      */
     protected Map<Comparable, DataAccessController> msDataAccessControllers;
 
+    protected Set<Comparable> spectrumIds = new HashSet<Comparable>();
+
 
     public ReferencedIdentificationController(File file, DataAccessMode cacheAndSource) {
         super(file, cacheAndSource);
@@ -107,8 +109,7 @@ public abstract class ReferencedIdentificationController extends CachedDataAcces
                         peptides.add(peptide);
                         spectrum.setPeptide(peptides);
                         peptide.setSpectrum(spectrum);
-                        getCache().store(CacheEntry.SPECTRUM_LEVEL_PRECURSOR_CHARGE, spectrum.getId(), DataAccessUtilities.getPrecursorChargeParamGroup(spectrum));
-                        getCache().store(CacheEntry.SPECTRUM_LEVEL_PRECURSOR_MZ, spectrum.getId(), DataAccessUtilities.getPrecursorMz(spectrum));
+
                     }
                 }
             }
@@ -337,11 +338,11 @@ public abstract class ReferencedIdentificationController extends CachedDataAcces
     public boolean isIdentifiedSpectrum(Comparable specId) {
         String[] array = specId.toString().split("!");
         if(array.length < 2){
-            if(((Map<Comparable, Tuple<String, String>>) getCache().get(CacheEntry.PEPTIDE_TO_SPECTRUM)).get(specId) != null)
+            if(getCache().get(CacheEntry.PEPTIDE_TO_SPECTRUM, specId) != null)
                 return true;
         }else{
             Tuple<String, String> specTuple = new Tuple<String, String>(array[0], array[1]);
-            if(((List<Tuple<String, String>>) getCache().get(CacheEntry.SPECTRUM_IDENTIFIED)).contains(specTuple))
+            if(getCache().get(CacheEntry.SPECTRUM_IDENTIFIED,specTuple) != null)
                 return true;
         }
         return false;
@@ -380,14 +381,16 @@ public abstract class ReferencedIdentificationController extends CachedDataAcces
     public Collection<Comparable> getSpectrumIds() {
         Collection<Comparable> spectrumIds = super.getSpectrumIds();
         if (spectrumIds.size() == 0 && hasSpectrum()) {
-            spectrumIds = new ArrayList<Comparable>();
+            spectrumIds = new HashSet<Comparable>();
             for (Comparable id : msDataAccessControllers.keySet()) {
                 if (msDataAccessControllers.get(id) != null)
                     for (Comparable idSpectrum : msDataAccessControllers.get(id).getSpectrumIds()) {
                         spectrumIds.add(idSpectrum + "!" + id);
                     }
             }
+            getCache().storeInBatch(CacheEntry.SPECTRUM_ID, spectrumIds);
         }
+
         return spectrumIds;
     }
 
@@ -401,32 +404,35 @@ public abstract class ReferencedIdentificationController extends CachedDataAcces
      */
     @Override
     public Spectrum getSpectrumById(Comparable id, boolean useCache) {
-
-        Tuple<String,String> spectrumIdArray;
-        if (((String) id).split("!").length != 2) {
-            spectrumIdArray = ((Map<Comparable, Tuple<String,String>>) getCache().get(CacheEntry.PEPTIDE_TO_SPECTRUM)).get(id);
-        }else{
-            spectrumIdArray = new Tuple<>(((String) id).split("!")[0], ((String) id).split("!")[1]);
-        }
-
         Spectrum spectrum = super.getSpectrumById(id, useCache);
-        if (spectrum == null && spectrumIdArray != null) {
-            logger.debug("Get new spectrum from file: {}", id);
-            try {
-                DataAccessController spectrumController = msDataAccessControllers.get(spectrumIdArray.getValue());
-                if (spectrumController != null && spectrumController.getSpectrumIds().contains(spectrumIdArray.getKey())) {
-                    spectrum = spectrumController.getSpectrumById(spectrumIdArray.getKey());
-                    if (useCache && spectrum != null) {
-                        getCache().store(CacheEntry.SPECTRUM, id, spectrum);
+
+        if(spectrum == null){
+            Tuple<String,String> spectrumIdArray;
+            if (((String) id).split("!").length != 2) {
+                spectrumIdArray = ((Map<Comparable, Tuple<String,String>>) getCache().get(CacheEntry.PEPTIDE_TO_SPECTRUM)).get(id);
+            }else{
+                spectrumIdArray = new Tuple<>(((String) id).split("!")[0], ((String) id).split("!")[1]);
+            }
+            if (spectrumIdArray != null) {
+                logger.debug("Get new spectrum from file: {}", id);
+                try {
+                    DataAccessController spectrumController = msDataAccessControllers.get(spectrumIdArray.getValue());
+                    Collection<Comparable> spectrumIds = spectrumController.getSpectrumIds();
+                    if (spectrumController != null && spectrumIds.contains(spectrumIdArray.getKey())) {
+                        spectrum = spectrumController.getSpectrumById(spectrumIdArray.getKey());
+                        if (useCache && spectrum != null) {
+                            getCache().store(CacheEntry.SPECTRUM, id, spectrum);
+                            getCache().store(CacheEntry.SPECTRUM_LEVEL_PRECURSOR_CHARGE, id, DataAccessUtilities.getPrecursorChargeParamGroup(spectrum));
+                            getCache().store(CacheEntry.SPECTRUM_LEVEL_PRECURSOR_MZ, id, DataAccessUtilities.getPrecursorMz(spectrum));
+                        }
                     }
+                } catch (Exception ex) {
+                    String msg = "Error while getting spectrum: " + id;
+                    logger.error(msg, ex);
+                    throw new DataAccessException(msg, ex);
                 }
-            } catch (Exception ex) {
-                String msg = "Error while getting spectrum: " + id;
-                logger.error(msg, ex);
-                throw new DataAccessException(msg, ex);
             }
         }
-
         if (spectrum != null) {
             spectrum.setId(id);
         }
@@ -471,7 +477,7 @@ public abstract class ReferencedIdentificationController extends CachedDataAcces
 
     public Comparable getSpectrumIdBySpectrumIdentificationItemId(Comparable id) {
 
-        Tuple<String, String> spectrumIdArray = ((Map<Comparable, Tuple<String, String>>) getCache().get(CacheEntry.PEPTIDE_TO_SPECTRUM)).get(id);
+        Tuple<String, String> spectrumIdArray = (Tuple<String, String>) getCache().get(CacheEntry.PEPTIDE_TO_SPECTRUM,id);
 
         /** To store in cache the Spectrum files, an Id was constructed using the spectrum ID and the
          *  id of the File.
@@ -544,9 +550,6 @@ public abstract class ReferencedIdentificationController extends CachedDataAcces
             Protein ident = getProteinById(proteinId);
             Peptide peptide = ident.getPeptides().get(Integer.parseInt(peptideId.toString()));
             rank = peptide.getSpectrumIdentification().getRank();
-
-            //getCache().store(CacheEntry.PROTEIN, proteinId, ident);
-            //getCache().store(CacheEntry.PEPTIDE, new Tuple<Comparable, Comparable>(ident.getId(), peptide.getSpectrumIdentification().getId()), peptide);
         }
 
         return rank;

@@ -263,15 +263,17 @@ public class CacheAccessor implements Cache {
 
         // return a new data structure which contains all the elements
         if (result != null && result instanceof Map) {
-            Map temp = new LinkedHashMap();
-
-            temp.putAll((Map) result);
-            result = temp;
+//            Map temp = new LinkedHashMap();
+//
+//            temp.putAll((Map) result);
+//            result = temp;
+            return result;
         } else if (result instanceof Collection) {
-            List temp = new ArrayList();
-
-            temp.addAll((Collection) result);
-            result = temp;
+//            List temp = new ArrayList();
+//
+//            temp.addAll((Collection) result);
+//            result = temp;
+            return result;
         }
 
         return result;

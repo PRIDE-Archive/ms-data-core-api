@@ -4,6 +4,7 @@ package uk.ac.ebi.pride.utilities.data.controller.cache;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  * CacheCategory provides a list of cache categories
@@ -30,7 +31,7 @@ public enum CacheEntry {
     SEARCH_ENGINE_TYPE(ArrayList.class, null),                 // List<SearchEngineCvTermReferences>
     PROTEIN_LEVEL_SCORES(ArrayList.class, null),               // List<SearchEngineScoreCvTermReferences>
     PEPTIDE_LEVEL_SCORES(ArrayList.class, null),               // List<SearchEngineScoreCvTermReferences>
-    SPECTRUM_ID(ArrayList.class, null),                        // List<Spectrum id>
+    SPECTRUM_ID(HashSet.class, null),                        // List<Spectrum id>
     CHROMATOGRAM_ID(ArrayList.class, null),                    // List<Chromatogram id>
     PROTEIN_ID(ArrayList.class, null),                         // List<Identification id>
     MS_LEVEL(HashMap.class, null),                             // Map<Spectrum id, Ms level>
