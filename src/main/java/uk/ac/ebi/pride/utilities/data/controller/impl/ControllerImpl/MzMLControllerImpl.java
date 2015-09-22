@@ -134,7 +134,7 @@ public class MzMLControllerImpl extends CachedDataAccessController {
     }
 
     /**
-     * Get referenceable paramgroup, this concept is only available in mzML
+     * Get Referenceable paramgroup, this concept is only available in mzML
      * It is a paramgroup with id and this is not cached
      *
      * @return ReferenceableParamGroup param group

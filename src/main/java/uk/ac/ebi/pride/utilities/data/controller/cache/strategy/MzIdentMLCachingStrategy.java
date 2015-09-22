@@ -134,7 +134,7 @@ public class MzIdentMLCachingStrategy extends AbstractCachingStrategy {
 
     private void cacheProteinGroups(MzIdentMLUnmarshallerAdaptor unmarshaller) throws ConfigurationException {
 
-        long date = System.currentTimeMillis();
+      long date = System.currentTimeMillis();
 
         Set<String> proteinAmbiguityGroupIds = unmarshaller.getIDsForElement(MzIdentMLElement.ProteinAmbiguityGroup);
 
@@ -150,7 +150,7 @@ public class MzIdentMLCachingStrategy extends AbstractCachingStrategy {
                 cache.storeInBatch(CacheEntry.PROTEIN_ID, proteinHIds);
             }
         }
-        System.out.println(System.currentTimeMillis() - date);
+        logger.debug(Long.toString(System.currentTimeMillis() - date));
     }
 
     private void cacheSpectrumIds(MzIdentMLUnmarshallerAdaptor unmarshaller) throws ConfigurationException, JAXBException {
@@ -247,7 +247,7 @@ public class MzIdentMLCachingStrategy extends AbstractCachingStrategy {
             cache.clear(CacheEntry.SPECTRA_DATA_MGF_TITLE);
             cache.storeInBatch(CacheEntry.SPECTRA_DATA_MGF_TITLE, spectraDataToMGF);
         }
-        System.out.println(System.currentTimeMillis() - date);
+        logger.debug(Long.toString(System.currentTimeMillis() - date));
     }
 
     /**
