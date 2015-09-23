@@ -192,8 +192,7 @@ public class    Spectrum extends MzGraph implements Cloneable{
         if (peptide != null ? !peptide.equals(spectrum.peptide) : spectrum.peptide != null) return false;
         if (!precursors.equals(spectrum.precursors)) return false;
         if (!products.equals(spectrum.products)) return false;
-        if (scanList != null ? !scanList.equals(spectrum.scanList) : spectrum.scanList != null) return false;
-        return !(sourceFile != null ? !sourceFile.equals(spectrum.sourceFile) : spectrum.sourceFile != null) && !(spotID != null ? !spotID.equals(spectrum.spotID) : spectrum.spotID != null);
+        return !(scanList != null ? !scanList.equals(spectrum.scanList) : spectrum.scanList != null) && !(sourceFile != null ? !sourceFile.equals(spectrum.sourceFile) : spectrum.sourceFile != null) && !(spotID != null ? !spotID.equals(spectrum.spotID) : spectrum.spotID != null);
 
     }
 

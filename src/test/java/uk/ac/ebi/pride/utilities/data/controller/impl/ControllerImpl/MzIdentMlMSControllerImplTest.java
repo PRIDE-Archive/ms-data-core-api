@@ -40,7 +40,7 @@ public class MzIdentMlMSControllerImplTest {
     @Test
     public void addMSController() throws Exception {
         URL url = MzIdentMlControllerImplTest.class.getClassLoader().getResource("small.mgf");
-        File filems = new File(url != null ? url.getFile() : null);
+        File filems = new File(url != null ? url.getFile() : null != null ? url != null ? url.getFile() : null : null);
         List<File> fileList = new ArrayList<File>();
         fileList.add(filems);
         mzIdentMlController.addMSController(fileList);

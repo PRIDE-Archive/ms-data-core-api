@@ -343,8 +343,7 @@ public class ExperimentMetaData extends IdentifiableParamGroup {
         if (!references.equals(that.references)) return false;
         if (!samples.equals(that.samples)) return false;
         if (shortLabel != null ? !shortLabel.equals(that.shortLabel) : that.shortLabel != null) return false;
-        if (!softwares.equals(that.softwares)) return false;
-        return sourceFiles.equals(that.sourceFiles) && spectraDatas.equals(that.spectraDatas) && !(version != null ? !version.equals(that.version) : that.version != null);
+        return softwares.equals(that.softwares) && sourceFiles.equals(that.sourceFiles) && spectraDatas.equals(that.spectraDatas) && !(version != null ? !version.equals(that.version) : that.version != null);
 
     }
 

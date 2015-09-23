@@ -5,22 +5,17 @@ package uk.ac.ebi.pride.utilities.data.controller.impl.Transformer;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessUtilities;
 import uk.ac.ebi.pride.utilities.data.core.*;
 import uk.ac.ebi.pride.utilities.data.core.Assay;
-import uk.ac.ebi.pride.utilities.data.core.CvParam;
 import uk.ac.ebi.pride.utilities.data.core.Modification;
 import uk.ac.ebi.pride.utilities.data.core.Peptide;
 import uk.ac.ebi.pride.utilities.data.core.Protein;
-import uk.ac.ebi.pride.utilities.data.core.Reference;
 import uk.ac.ebi.pride.utilities.data.core.Sample;
 import uk.ac.ebi.pride.utilities.data.core.Software;
-import uk.ac.ebi.pride.utilities.data.core.SourceFile;
 import uk.ac.ebi.pride.utilities.data.core.StudyVariable;
 import uk.ac.ebi.pride.utilities.data.core.UserParam;
 import uk.ac.ebi.pride.utilities.data.utils.CvUtilities;
 import uk.ac.ebi.pride.utilities.data.utils.MzTabUtils;
 import uk.ac.ebi.pride.jmztab.model.*;
 import uk.ac.ebi.pride.jmztab.model.Contact;
-import uk.ac.ebi.pride.jmztab.model.Instrument;
-import uk.ac.ebi.pride.jmztab.model.Param;
 import uk.ac.ebi.pride.utilities.term.CvTermReference;
 import uk.ac.ebi.pride.utilities.util.NumberUtilities;
 import uk.ac.ebi.pride.utilities.util.Tuple;
@@ -297,7 +292,7 @@ public class MzTabTransformer {
                 for (Map.Entry rawPeptide : rawPsms.entrySet()) {
                     String rawPsmIndex = rawPeptide.getKey().toString();
                     uk.ac.ebi.pride.jmztab.model.PSM rawPSM = (uk.ac.ebi.pride.jmztab.model.PSM) rawPeptide.getValue();
-                    peptides.add(transformPeptide(rawPSM, dbSequence, rawPsmIndex, metadata));
+                    peptides.add(transformPeptide(rawPSM, dbSequence, rawPsmIndex, metadata, peptides.size()));
                 }
             }
 
@@ -308,7 +303,7 @@ public class MzTabTransformer {
                 for (Map.Entry entry : rawPeptides.entrySet()) {
                     String rawPeptideIndex =  entry.getKey().toString();
                     uk.ac.ebi.pride.jmztab.model.Peptide rawPeptide = (uk.ac.ebi.pride.jmztab.model.Peptide) entry.getValue();
-                    quantPeptides.add(transformQuantPeptide(rawPeptide, dbSequence, rawPeptideIndex, metadata));
+                    quantPeptides.add(transformQuantPeptide(rawPeptide, dbSequence, rawPeptideIndex, metadata, quantPeptides.size()));
                 }
             }
             return new Protein(paramGroup, rawIndex.toString(), null, dbSequence, false, peptides, score, thresholdVal, seqConverageVal, null,quantScore,quantPeptides);
@@ -361,7 +356,7 @@ public class MzTabTransformer {
     public static Peptide transformPeptide(uk.ac.ebi.pride.jmztab.model.PSM rawPeptide,
                                            DBSequence dbSequence,
                                            Comparable index,
-                                           Metadata metadata) {
+                                           Metadata metadata, int indexPeptide) {
 
        // spectrum is reference from external
 
@@ -386,12 +381,12 @@ public class MzTabTransformer {
         int stopPos = -1;
         Integer start = rawPeptide.getStart();
         if (start != null) {
-            startPos = start.intValue();
+            startPos = start;
         }
 
         Integer stop = rawPeptide.getEnd();
         if (stop != null) {
-            stopPos = stop.intValue();
+            stopPos = stop;
         }
 
         PeptideSequence peptideSequence = new PeptideSequence(null, null, rawPeptide.getSequence(), modifications);
@@ -436,7 +431,7 @@ public class MzTabTransformer {
 
         //Each PSM is associated in mzTab with more than one spectrum in ms-data-core-api is only one.
         SpectrumIdentification spectrumIdentification = new SpectrumIdentification(params, index, null, (charge == null ? -1 : charge), mz, rawPeptide.getCalcMassToCharge(), -1, peptideSequence, rank, false, null, null, peptideEvidences, fragmentIons, score, spectrum, null);
-        return new Peptide(peptideEvidence, spectrumIdentification);
+        return new Peptide(peptideEvidence, spectrumIdentification, indexPeptide);
       }
 
     private static CvParam transformPSMPrecursorMZ(PSM rawPeptide, Metadata metadata) {
@@ -455,7 +450,7 @@ public class MzTabTransformer {
     public static QuantPeptide transformQuantPeptide(uk.ac.ebi.pride.jmztab.model.Peptide rawPeptide,
                                                 DBSequence dbSequence,
                                                 Comparable index,
-                                                Metadata metadata) {
+                                                Metadata metadata, int indexPeptide) {
 
             // spectrum is reference from external
             Spectrum spectrum = null;
@@ -506,7 +501,7 @@ public class MzTabTransformer {
 
             SpectrumIdentification spectrumIdentification = new SpectrumIdentification(params, index, null, (charge == null ? -1 : charge), mz, -1, -1, peptideSequence, rank, false, null, null, peptideEvidences, fragmentIons, score, spectrum, null);
 
-           return new QuantPeptide(peptideEvidence, spectrumIdentification, quantScore);
+           return new QuantPeptide(peptideEvidence, spectrumIdentification, quantScore, indexPeptide);
 
     }
 
@@ -659,7 +654,7 @@ public class MzTabTransformer {
     }
 
     private static String getAccesion(uk.ac.ebi.pride.jmztab.model.Modification rawMod) {
-        if (!rawMod.getType().equals(uk.ac.ebi.pride.utilities.term.CvTermReference.MS_NEUTRAL_LOSS))
+        if (rawMod != null && !rawMod.getType().equals(uk.ac.ebi.pride.utilities.term.CvTermReference.MS_NEUTRAL_LOSS))
             return  rawMod.getType().name() + ":" + rawMod.getAccession();
         return rawMod.getAccession();
     }

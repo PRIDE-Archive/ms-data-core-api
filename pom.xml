@@ -4,7 +4,7 @@
 
     <groupId>uk.ac.ebi.pride.utilities</groupId>
     <artifactId>ms-data-core-api</artifactId>
-    <version>2.0.5-SNAPSHOT</version>
+    <version>2.0.6-SNAPSHOT</version>
 
     <name>Open-source Data Model for computational proteomics</name>
     <url>http://github.com/PRIDE-Utilities/ms-data-core-api</url>
@@ -33,8 +33,7 @@
             <organizationUrl>http://www.ebi.ac.uk/pride</organizationUrl>
             <roles>
                 <role>developer</role>
-                <role>researcher</role>
-                <role>tester</role>
+                <role>architect</role>
             </roles>
             <timezone>0</timezone>
         </developer>
@@ -82,28 +81,18 @@
         <junit.version>4.11</junit.version>
         <slf4j-api.version>1.7.5</slf4j-api.version>
         <logback-core.version>1.0.11</logback-core.version>
-        <jmzml.version>1.7.2</jmzml.version>
-        <jmzidentml.version>1.2.2</jmzidentml.version>
+        <jmzml.version>1.7.3</jmzml.version>
+        <jmzidentml.version>1.2.3</jmzidentml.version>
         <xmlschemavalidator.version>2.1</xmlschemavalidator.version>
         <jmztab.version>3.0.2</jmztab.version>
 
-        <jmzreader.version>1.2.0</jmzreader.version>
-        <mzxml.parser.version>1.3.1</mzxml.parser.version>
-        <pkl.parser.version>1.2.1</pkl.parser.version>
-        <apl.parser.version>1.0.0</apl.parser.version>
-        <ms2.parser.version>1.2.2</ms2.parser.version>
-        <dta.parser.version>1.2.1</dta.parser.version>
-        <mgf.parser.version>1.2.10</mgf.parser.version>
-        <mzdata.parser.version>1.2.1</mzdata.parser.version>
-
-
-        <xxindex.version>0.14</xxindex.version>
+        <xxindex.version>0.15</xxindex.version>
         <commonscode.version>1.7</commonscode.version>
 
-        <pride.jaxb.version>1.0.12</pride.jaxb.version>
+        <pride.jaxb.version>1.0.13</pride.jaxb.version>
         <c3p0.version>0.9.1.2</c3p0.version>
-        <pride-utilities.version>2.0.4</pride-utilities.version>
-       <json.version>20090211</json.version>
+        <pride-utilities.version>2.0.5</pride-utilities.version>
+        <json.version>20090211</json.version>
 
     </properties>
 
@@ -193,7 +182,7 @@
         <dependency>
             <groupId>uk.ac.ebi.pride.tools</groupId>
             <artifactId>jmzreader</artifactId>
-            <version>${jmzreader.version}</version>
+            <version>1.2.1</version>
             <type>jar</type>
             <scope>compile</scope>
         </dependency>
@@ -201,39 +190,39 @@
         <dependency>
             <groupId>uk.ac.ebi.pride.tools</groupId>
             <artifactId>mzxml-parser</artifactId>
-            <version>${mzxml.parser.version}</version>
+            <version>1.3.4</version>
         </dependency>
         <!-- pkl file dependencies -->
         <dependency>
             <groupId>uk.ac.ebi.pride.tools</groupId>
             <artifactId>pkl-parser</artifactId>
-            <version>${pkl.parser.version}</version>
+            <version>1.2.2</version>
         </dependency>
         <dependency>
             <groupId>uk.ac.ebi.pride.tools</groupId>
             <artifactId>apl-parser</artifactId>
-            <version>${apl.parser.version}</version>
+            <version>1.2.0</version>
         </dependency>
 
         <dependency>
             <groupId>uk.ac.ebi.pride.tools</groupId>
             <artifactId>dta-parser</artifactId>
-            <version>${dta.parser.version}</version>
+            <version>1.2.2</version>
         </dependency>
         <dependency>
             <groupId>uk.ac.ebi.pride.tools</groupId>
             <artifactId>ms2-parser</artifactId>
-            <version>${ms2.parser.version}</version>
+            <version>1.2.3</version>
         </dependency>
         <dependency>
             <groupId>uk.ac.ebi.pride.tools</groupId>
             <artifactId>mgf-parser</artifactId>
-            <version>${mgf.parser.version}</version>
+            <version>1.3.5</version>
         </dependency>
         <dependency>
             <groupId>uk.ac.ebi.pride.tools</groupId>
             <artifactId>mzdata-parser</artifactId>
-            <version>${mzdata.parser.version}</version>
+            <version>1.2.2</version>
         </dependency>
         <!-- End of the jmzReader Dependencies -->
 

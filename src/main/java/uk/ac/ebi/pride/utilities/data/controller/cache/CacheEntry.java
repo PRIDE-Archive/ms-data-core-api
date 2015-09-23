@@ -4,6 +4,7 @@ package uk.ac.ebi.pride.utilities.data.controller.cache;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 
 /**
  * CacheCategory provides a list of cache categories
@@ -15,14 +16,14 @@ import java.util.HashMap;
 public enum CacheEntry {
 
     SPECTRUM(CachedMap.class, 10),                             // Map<Spectrum id, Spectrum>
-    SPECTRADATA_TO_SPECTRUMIDS(HashMap.class, null),            // Map<Comparable, List<Comparable>>
+    SPECTRADATA_TO_SPECTRUMIDS(HashMap.class, null),           // Map<Comparable, List<Comparable>>
     PROTEIN_TO_PEPTIDE_EVIDENCES(HashMap.class, null),         //Map<db squence id,List<Spectrum identification item id>>>
-    PROTEIN_TO_PROTEIN_GROUP_ID(HashMap.class, null),           // Map<Comparable, Comparable>
+    PROTEIN_TO_PROTEIN_GROUP_ID(HashMap.class, null),          // Map<Comparable, Comparable>
     PROTEIN_GROUP_ID(ArrayList.class, null),                   // List of Protein Groups
     CHROMATOGRAM(CachedMap.class, 10),                         // Map<Chromatogram id, Chromatogram>
-    PROTEIN(CachedMap.class, 10),                              // Map<Identification id, Identification>
-    PROTEIN_GROUP(CachedMap.class, 5),                        // Map<Protein group id, Protein group>
-    PEPTIDE(CachedMap.class, 10),                              // Map<Tuple<Comparable, Comparable>, Peptide>
+    PROTEIN(CachedMap.class, 100),                              // Map<Identification id, Identification>
+    PROTEIN_GROUP(CachedMap.class, 5),                         // Map<Protein group id, Protein group>
+    PEPTIDE(CachedMap.class, 100),                              // Map<Tuple<Comparable, Comparable>, Peptide>
     EXPERIMENT_ACC(ArrayList.class, null),                     // List<Experiement Accession>
     EXPERIMENT_METADATA(ArrayList.class, null),                // List<Experiment Metadata>
     PROTEIN_METADATA(ArrayList.class, null),                   // List of Identification Metadata for Protein Identification
@@ -30,15 +31,20 @@ public enum CacheEntry {
     SEARCH_ENGINE_TYPE(ArrayList.class, null),                 // List<SearchEngineCvTermReferences>
     PROTEIN_LEVEL_SCORES(ArrayList.class, null),               // List<SearchEngineScoreCvTermReferences>
     PEPTIDE_LEVEL_SCORES(ArrayList.class, null),               // List<SearchEngineScoreCvTermReferences>
-    SPECTRUM_ID(ArrayList.class, null),                        // List<Spectrum id>
+    SPECTRUM_ID(HashSet.class, null),                        // List<Spectrum id>
     CHROMATOGRAM_ID(ArrayList.class, null),                    // List<Chromatogram id>
     PROTEIN_ID(ArrayList.class, null),                         // List<Identification id>
     MS_LEVEL(HashMap.class, null),                             // Map<Spectrum id, Ms level>
     SPECTRUM_LEVEL_PRECURSOR_CHARGE(HashMap.class, null),      // Map<Spectrum id, Precursor charge>
+    PEPTIDE_PRECURSOR_CHARGE(HashMap.class, null),             // Map<ProteinID, PeptideID, charge>
+    PEPTIDE_PRECURSOR_MZ(HashMap.class, null),                 // Map<ProteinID, PeptideID, mz>
     SPECTRUM_LEVEL_PRECURSOR_MZ(HashMap.class, null),          // Map<Spectrum id, Precursor m/z>
     PRECURSOR_INTENSITY(HashMap.class, null),                  // Map<Spectrum id, Precursor intensity>
     PROTEIN_ACCESSION(HashMap.class, null),                    // Map<Identification id, Protein accession>
     PROTEIN_ACCESSION_VERSION(HashMap.class, null),            // Map<Identification id, Protein accession version>
+    DB_SEQUENCE(HashMap.class, null),                          // Map<DBSequence Id, DBSequence>
+    SPECTRUM_ID_ITEM(HashMap.class, null),                     // Map<Spectrum Identification Id, Spectrum IdentificationItem>
+    PEPTIDE_EVIDENCE(HashMap.class, null),                   // Map<PEPTIDE EVIDENCE ID , PEPTIDE EVIDENCE>
     PROTEIN_SEARCH_DATABASE(HashMap.class, null),              // Map<Identification id, Protein search database>
     PROTEIN_SEARCH_DATABASE_VERSION(HashMap.class, null),      // Map<Identification id, Protein search database version>
     SCORE(HashMap.class, null),                                // Map<Identification id, Score>
@@ -46,6 +52,7 @@ public enum CacheEntry {
     PROTEIN_TO_PARAM(HashMap.class, null),                     // Map<Identification id, ParamGroup>
     PROTEIN_TO_PEPTIDE(HashMap.class, null),                   // Map<Identification id, List<Peptide id>>
     PEPTIDE_SEQUENCE(HashMap.class, null),                     // Map<Peptide Id, peptide sequence>
+    PEPTIDE_RANK(HashMap.class, null),                         // Map<Tuple<ProteinID, PetideID>, rank>
     PEPTIDE_START(HashMap.class, null),                        // Map<Peptide Id, peptide start location>
     PEPTIDE_END(HashMap.class, null),                          // Map<Peptide Id, peptide end location>
     PEPTIDE_TO_SPECTRUM(HashMap.class, null),                  // Map<Peptide Id, spectrum id>  in mzidentml the spectrum have two
@@ -68,7 +75,8 @@ public enum CacheEntry {
 
     MGF_INDEX_TITLE(HashMap.class, null),                      // In some cases it would be interesting to retrieve the file instead of using index using the title.
     SPECTRA_DATA_MGF_TITLE(ArrayList.class, null),
-    TITLE_MGF_INDEX(HashMap.class, null);
+    TITLE_MGF_INDEX(HashMap.class, null),
+    SPECTRUM_IDENTIFIED(ArrayList.class, 10000);
 
     private final Class dataStructType;
     private final Integer size;

@@ -143,8 +143,7 @@ public class SearchDataBase extends ExternalData {
         if (numDatabaseResidue != that.numDatabaseResidue) return false;
         if (numDatabaseSequence != that.numDatabaseSequence) return false;
         if (!description.equals(that.description)) return false;
-        if (nameDatabase != null ? !nameDatabase.equals(that.nameDatabase) : that.nameDatabase != null) return false;
-        return !(releaseDate != null ? !releaseDate.equals(that.releaseDate) : that.releaseDate != null) && !(version != null ? !version.equals(that.version) : that.version != null);
+        return !(nameDatabase != null ? !nameDatabase.equals(that.nameDatabase) : that.nameDatabase != null) && !(releaseDate != null ? !releaseDate.equals(that.releaseDate) : that.releaseDate != null) && !(version != null ? !version.equals(that.version) : that.version != null);
 
     }
 

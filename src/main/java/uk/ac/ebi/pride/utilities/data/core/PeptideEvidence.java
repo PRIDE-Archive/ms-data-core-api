@@ -176,9 +176,7 @@ public class PeptideEvidence extends IdentifiableParamGroup {
         if (decoy != null ? !decoy.equals(that.decoy) : that.decoy != null) return false;
         if (endPosition != null ? !endPosition.equals(that.endPosition) : that.endPosition != null) return false;
         if (frame != null ? !frame.equals(that.frame) : that.frame != null) return false;
-        if (peptideSequence != null ? !peptideSequence.equals(that.peptideSequence) : that.peptideSequence != null)
-            return false;
-        return !(startPosition != null ? !startPosition.equals(that.startPosition) : that.startPosition != null) && !(translationTable != null ? !translationTable.equals(that.translationTable) : that.translationTable != null);
+        return !(peptideSequence != null ? !peptideSequence.equals(that.peptideSequence) : that.peptideSequence != null) && !(startPosition != null ? !startPosition.equals(that.startPosition) : that.startPosition != null) && !(translationTable != null ? !translationTable.equals(that.translationTable) : that.translationTable != null);
 
     }
 

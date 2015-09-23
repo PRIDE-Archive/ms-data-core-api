@@ -84,6 +84,7 @@ public class MzTabBedConverterTest {
                                 if (userParam.getName().equalsIgnoreCase("chr")) {
                                     result = true;
                                     break chromCheck;
+                                    //Todo: Tobias we need to check this because the use of Goto is not recommended
                                 }
                             }
                         }
@@ -92,7 +93,7 @@ public class MzTabBedConverterTest {
             }
         }
         mzTabController.close();
-        assertTrue("No errors reported during the conversion from annotated mzIdentML to MzTab", result);
+        assertTrue("No errors reported during the conversion from annotated mzIdentML to MzTab", checker.getErrorList().size() == 0);
         temp.deleteOnExit();
     }
 

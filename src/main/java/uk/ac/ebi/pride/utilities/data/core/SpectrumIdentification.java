@@ -333,8 +333,7 @@ public class SpectrumIdentification extends IdentifiableParamGroup {
             return false;
         if (sample != null ? !sample.equals(that.sample) : that.sample != null) return false;
         if (score != null ? !score.equals(that.score) : that.score != null) return false;
-        if (spectraData != null ? !spectraData.equals(that.spectraData) : that.spectraData != null) return false;
-        return !(spectrum != null ? !spectrum.equals(that.spectrum) : that.spectrum != null);
+        return !(spectraData != null ? !spectraData.equals(that.spectraData) : that.spectraData != null) && !(spectrum != null ? !spectrum.equals(that.spectrum) : that.spectrum != null);
 
     }
 

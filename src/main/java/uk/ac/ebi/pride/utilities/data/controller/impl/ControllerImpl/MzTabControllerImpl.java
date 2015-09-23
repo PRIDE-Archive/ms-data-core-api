@@ -543,7 +543,7 @@ public class MzTabControllerImpl extends ReferencedIdentificationController{
     public static boolean isValidFormat(File file) {
         boolean valid = false;
         BufferedReader reader = null;
-        int quantitationCount   = 0;
+        int quantitationCount = 0;
         int identificationCount = 0;
 
         /**
@@ -555,13 +555,13 @@ public class MzTabControllerImpl extends ReferencedIdentificationController{
             // read the first 200 lines
             for (int i = 0; i < 200; i++) {
                 String line = reader.readLine();
-                if(mzTabProteinSection.matcher(line).find() || mzTabVersion.matcher(line).find()){
+                if (mzTabProteinSection.matcher(line).find() || mzTabVersion.matcher(line).find()) {
                     quantitationCount++;
                     identificationCount++;
                 }
-                if(mzTabPSMSection.matcher(line).find())
+                if (mzTabPSMSection.matcher(line).find())
                     identificationCount++;
-                if(mzTabPeptideSection.matcher(line).find())
+                if (mzTabPeptideSection.matcher(line).find())
                     quantitationCount++;
             }
         } catch (Exception e) {
@@ -576,10 +576,8 @@ public class MzTabControllerImpl extends ReferencedIdentificationController{
             }
         }
         String filename = file.getName().toLowerCase();
-        if (filename.endsWith(Constants.MZTAB_EXT) && (quantitationCount >= 3 || identificationCount >= 3))
-            return true;
+        return filename.endsWith(Constants.MZTAB_EXT) && (quantitationCount >= 3 || identificationCount >= 3) || valid;
 
-        return valid;
     }
 
     /**

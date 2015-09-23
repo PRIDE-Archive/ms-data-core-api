@@ -4,6 +4,15 @@ package uk.ac.ebi.pride.utilities.data.io.file;
 import psidev.psi.tools.xxindex.index.IndexElement;
 import uk.ac.ebi.jmzidml.MzIdentMLElement;
 import uk.ac.ebi.jmzidml.model.mzidml.*;
+import uk.ac.ebi.jmzidml.model.mzidml.DBSequence;
+import uk.ac.ebi.jmzidml.model.mzidml.Organization;
+import uk.ac.ebi.jmzidml.model.mzidml.PeptideEvidence;
+import uk.ac.ebi.jmzidml.model.mzidml.Person;
+import uk.ac.ebi.jmzidml.model.mzidml.Provider;
+import uk.ac.ebi.jmzidml.model.mzidml.Sample;
+import uk.ac.ebi.jmzidml.model.mzidml.SourceFile;
+import uk.ac.ebi.jmzidml.model.mzidml.SpectraData;
+import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentificationProtocol;
 import uk.ac.ebi.jmzidml.xml.io.MzIdentMLUnmarshaller;
 import uk.ac.ebi.pride.utilities.data.utils.MzIdentMLUtils;
 
@@ -38,6 +47,7 @@ public class MzIdentMLUnmarshallerAdaptor extends MzIdentMLUnmarshaller {
     public MzIdentMLUnmarshallerAdaptor(File mzIdentMLFile, boolean inMemory) throws ConfigurationException {
         super(mzIdentMLFile, inMemory);
         scanIdMappings();
+
     }
 
     public MzIdentMLUnmarshallerAdaptor(File mzIdentMLFile, boolean inMemory, boolean avoidProteinInference) throws ConfigurationException{
@@ -70,6 +80,7 @@ public class MzIdentMLUnmarshallerAdaptor extends MzIdentMLUnmarshaller {
                                    Map<String, IndexElement> spectrumIdentItemIdToIndexElements,
                                    List<IndexElement> peptideEvidenceRefIndexElements,
                                    boolean proteinGroupPresent) {
+
 
         for (String spectrumIdentResultId : spectrumIdentResultIdToIndexElements.keySet()) {
             IndexElement spectrumIdentResultIndexElement = spectrumIdentResultIdToIndexElements.get(spectrumIdentResultId);
@@ -336,10 +347,24 @@ public class MzIdentMLUnmarshallerAdaptor extends MzIdentMLUnmarshaller {
     }
 
     public Comparable getMGFTitleReference(String spectrumIdentResultId) throws JAXBException {
-        SpectrumIdentificationResult result = this.unmarshal(SpectrumIdentificationResult.class, (String) spectrumIdentResultId);
+        SpectrumIdentificationResult result = this.unmarshal(SpectrumIdentificationResult.class, spectrumIdentResultId);
         if(result != null)
             return MzIdentMLUtils.MGFTitleCVtermValue(result.getCvParam());
 
+        return null;
+    }
+
+    public SpectrumIdentificationItem getSpectrumIdentificationsById(String ref) throws JAXBException {
+        if(ref != null){
+            return  this.unmarshal(SpectrumIdentificationItem.class, ref);
+        }
+        return null;
+    }
+
+    public PeptideEvidence getPeptideEvidenceById(String peptideEvidenceRef) throws JAXBException {
+        if(peptideEvidenceRef != null){
+            return this.unmarshal(PeptideEvidence.class, peptideEvidenceRef);
+        }
         return null;
     }
 }

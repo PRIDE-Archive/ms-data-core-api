@@ -15,6 +15,7 @@ import uk.ac.ebi.pride.utilities.data.core.IdentifiableParamGroup;
 import uk.ac.ebi.pride.utilities.data.io.file.MzIdentMLUnmarshallerAdaptor;
 import uk.ac.ebi.pride.utilities.data.utils.Constants;
 import uk.ac.ebi.pride.utilities.data.utils.MzIdentMLUtils;
+import uk.ac.ebi.pride.utilities.util.Tuple;
 
 import javax.naming.ConfigurationException;
 import javax.xml.bind.JAXBException;
@@ -29,6 +30,8 @@ import java.util.*;
 public class MzIdentMLCachingStrategy extends AbstractCachingStrategy {
 
     private static final Logger logger = LoggerFactory.getLogger(MzIdentMLCachingStrategy.class);
+
+    private static final int INIT_BIG_HASH = 10000;
 
 
     /**
@@ -57,9 +60,9 @@ public class MzIdentMLCachingStrategy extends AbstractCachingStrategy {
                 cachePrescanIdMaps(unmarshaller);
             }
         } catch (ConfigurationException e) {
-            throw new DataAccessException("Failed to prescan id maps for mzIdentML file", e);
+            throw new DataAccessException("Failed to Prescan id maps for mzIdentML file", e);
         } catch (JAXBException e) {
-            throw new DataAccessException("Failed to prescan id maps for mzIdentML file", e);
+            throw new DataAccessException("Failed to Prescan id maps for mzIdentML file", e);
         }
 
         // cache spectra data
@@ -131,6 +134,8 @@ public class MzIdentMLCachingStrategy extends AbstractCachingStrategy {
 
     private void cacheProteinGroups(MzIdentMLUnmarshallerAdaptor unmarshaller) throws ConfigurationException {
 
+      long date = System.currentTimeMillis();
+
         Set<String> proteinAmbiguityGroupIds = unmarshaller.getIDsForElement(MzIdentMLElement.ProteinAmbiguityGroup);
 
         if (proteinAmbiguityGroupIds != null && !proteinAmbiguityGroupIds.isEmpty()) {
@@ -145,6 +150,7 @@ public class MzIdentMLCachingStrategy extends AbstractCachingStrategy {
                 cache.storeInBatch(CacheEntry.PROTEIN_ID, proteinHIds);
             }
         }
+        logger.debug(Long.toString(System.currentTimeMillis() - date));
     }
 
     private void cacheSpectrumIds(MzIdentMLUnmarshallerAdaptor unmarshaller) throws ConfigurationException, JAXBException {
@@ -158,12 +164,13 @@ public class MzIdentMLCachingStrategy extends AbstractCachingStrategy {
          * only for ProteinPilot software, but it can be also the case in the future for other search engines.
          */
 
+        long date = System.currentTimeMillis();
+
         boolean mgfTitleReference = false;
 
-        Map<String[], Comparable> mgfTitleReferenceMap = new HashMap<String[], Comparable>();
+        Map<Tuple<String,String>, Comparable> mgfTitleReferenceMap = new HashMap<Tuple<String,String>, Comparable>(INIT_BIG_HASH);
 
-        Map<Comparable, String[]> identSpectrumMap = new HashMap<Comparable, String[]>();
-
+        Map<Comparable, Tuple<String, String>> identSpectrumMap = new HashMap<Comparable, Tuple<String,String>>(INIT_BIG_HASH);
 
         Set<String> spectrumIdentResultIds = unmarshaller.getIDsForElement(MzIdentMLElement.SpectrumIdentificationResult);
 
@@ -173,13 +180,15 @@ public class MzIdentMLCachingStrategy extends AbstractCachingStrategy {
 
         List<Comparable> spectraDataToMGF    = new ArrayList<Comparable>();
 
+        List<Tuple<String, String>> spectrumIdentified = new ArrayList<>(INIT_BIG_HASH);
+
         if(spectrumIdentResultIds != null && possibleMGMTitleReferenced.size() > 0 ){
             mgfTitleReference = true;
         }
 
         Map<Comparable, List<Comparable>> spectraDataMap = new HashMap<Comparable, List<Comparable>>(spectraDataIds.size());
 
-        for (String spectrumIdentResultId : spectrumIdentResultIds) {
+        for (String spectrumIdentResultId : spectrumIdentResultIds != null ? spectrumIdentResultIds : null) {
 
             Map<String, String> spectrumIdentificationResultAttributes = unmarshaller.getElementAttributes(spectrumIdentResultId, SpectrumIdentificationResult.class);
             String spectrumDataReference = spectrumIdentificationResultAttributes.get("spectraData_ref");
@@ -201,11 +210,11 @@ public class MzIdentMLCachingStrategy extends AbstractCachingStrategy {
             // proceed to populate the identSpectrumMap
             Set<String> spectrumIdentItemIds = unmarshaller.getSpectrumIdentificationItemIds(spectrumIdentResultId);
             for (String spectrumIdentItemId : spectrumIdentItemIds) {
-
+                Tuple<String, String> spectrumFeatures = null;
                 if(mgfTitleReference && possibleMGMTitleReferenced.contains(spectrumDataReference)){
                     Comparable title = unmarshaller.getMGFTitleReference(spectrumIdentResultId);
                     if(title != null){
-                        String[] spectrumFeatures = {title.toString(), spectrumDataReference};
+                        spectrumFeatures = new Tuple<String, String>(title.toString(), spectrumDataReference);
                         identSpectrumMap.put(spectrumIdentItemId, spectrumFeatures);
                         mgfTitleReferenceMap.put(spectrumFeatures, unmarshaller.getMGFTitleReference(spectrumIdentResultId));
                         if(!spectraDataToMGF.contains(spectrumDataReference))
@@ -214,9 +223,11 @@ public class MzIdentMLCachingStrategy extends AbstractCachingStrategy {
                 }else{
                     // extract the spectrum ID from the provided identifier
                     String formattedSpectrumID = MzIdentMLUtils.getSpectrumId(spectraData, spectrumID);
-                    String[] spectrumFeatures = {formattedSpectrumID, spectrumDataReference};
+                    spectrumFeatures = new Tuple<String, String>(formattedSpectrumID, spectrumDataReference);
                     identSpectrumMap.put(spectrumIdentItemId, spectrumFeatures);
                 }
+                if(spectrumFeatures != null)
+                   spectrumIdentified.add(spectrumFeatures);
 
             }
         }
@@ -227,6 +238,8 @@ public class MzIdentMLCachingStrategy extends AbstractCachingStrategy {
         cache.clear(CacheEntry.PEPTIDE_TO_SPECTRUM);
         cache.storeInBatch(CacheEntry.PEPTIDE_TO_SPECTRUM, identSpectrumMap);
 
+        cache.storeInBatch(CacheEntry.SPECTRUM_IDENTIFIED, spectrumIdentified);
+
         if(mgfTitleReference && mgfTitleReferenceMap.size() > 0){
             cache.clear(CacheEntry.MGF_INDEX_TITLE);
             cache.storeInBatch(CacheEntry.MGF_INDEX_TITLE, mgfTitleReferenceMap);
@@ -234,6 +247,7 @@ public class MzIdentMLCachingStrategy extends AbstractCachingStrategy {
             cache.clear(CacheEntry.SPECTRA_DATA_MGF_TITLE);
             cache.storeInBatch(CacheEntry.SPECTRA_DATA_MGF_TITLE, spectraDataToMGF);
         }
+        logger.debug(Long.toString(System.currentTimeMillis() - date));
     }
 
     /**
@@ -269,9 +283,9 @@ public class MzIdentMLCachingStrategy extends AbstractCachingStrategy {
          * without the Protein information.
          * ???? PeptideEvidence ????
          *
-         * Map of SII IDs to a String[2] of spectrum ID and spectrum file ID
+         * Map of SII IDs to a Tuple< of spectrum ID, spectrum file ID>
          */
-        Map<Comparable, String[]> identSpectrumMap = new HashMap<Comparable, String[]>();
+        Map<Comparable, Tuple<String, String>> identSpectrumMap = new HashMap<Comparable, Tuple<String, String>>(INIT_BIG_HASH);
 
 
         /**
@@ -286,7 +300,9 @@ public class MzIdentMLCachingStrategy extends AbstractCachingStrategy {
          * the original id of the spectrum in the Spectrum file and the id of the spectrum file.
          *
          */
-        Map<Comparable, List<Comparable>> identProteinsMap = new HashMap<Comparable, List<Comparable>>();
+        Map<Comparable, List<Comparable>> identProteinsMap = new HashMap<Comparable, List<Comparable>>(INIT_BIG_HASH);
+
+        List<Tuple<String,String>> spectrumIdentified = new ArrayList<Tuple<String, String>>(INIT_BIG_HASH);
 
         /*
           Check is the file is using a different reference way
@@ -299,7 +315,7 @@ public class MzIdentMLCachingStrategy extends AbstractCachingStrategy {
             mgfTitleReference = true;
         }
 
-        Map<String[], Comparable> mgfTitleReferenceMap = new HashMap<String[], Comparable>();
+        Map<Tuple<String, String>, Comparable> mgfTitleReferenceMap = new HashMap<Tuple<String, String>, Comparable>();
         List<Comparable> spectraDataToMGF    = new ArrayList<Comparable>();
 
         /*
@@ -327,11 +343,12 @@ public class MzIdentMLCachingStrategy extends AbstractCachingStrategy {
             Set<String> spectrumIdentItemIds = unmarshaller.getSpectrumIdentificationItemIds(spectrumIdentResultId);
 
             for (String spectrumIdentItemId : spectrumIdentItemIds) {
+                Tuple<String, String> spectrumFeatures = null;
 
                 if(mgfTitleReference && possibleMGMTitleReferenced.contains(spectrumDataReference)){
                     Comparable title = unmarshaller.getMGFTitleReference(spectrumIdentResultId);
                     if(title != null){
-                        String[] spectrumFeatures = {title.toString(), spectrumDataReference};
+                         spectrumFeatures = new Tuple<>(title.toString(), spectrumDataReference);
                         identSpectrumMap.put(spectrumIdentItemId, spectrumFeatures);
                         mgfTitleReferenceMap.put(spectrumFeatures, unmarshaller.getMGFTitleReference(spectrumIdentResultId));
                         if(!spectraDataToMGF.contains(spectrumDataReference))
@@ -343,10 +360,13 @@ public class MzIdentMLCachingStrategy extends AbstractCachingStrategy {
 
                     // extract the spectrum ID from the provided identifier
                     String formattedSpectrumID = MzIdentMLUtils.getSpectrumId(spectraData, spectrumID);
-                    String[] spectrumFeatures = {formattedSpectrumID, spectrumDataReference};
+                    spectrumFeatures = new Tuple<>(formattedSpectrumID, spectrumDataReference);
 
                     identSpectrumMap.put(spectrumIdentItemId, spectrumFeatures);
                 }
+
+                if(spectrumFeatures != null)
+                    spectrumIdentified.add(spectrumFeatures);
 
                 Set<Comparable> idProteins = new HashSet<Comparable>();
                 Set<String> peptideEvidenceReferences = unmarshaller.getPeptideEvidenceReferences(spectrumIdentResultId, spectrumIdentItemId);
@@ -371,6 +391,7 @@ public class MzIdentMLCachingStrategy extends AbstractCachingStrategy {
         // Protein To to Peptides Evidences, It retrieve the peptides per Proteins
         cache.clear(CacheEntry.PROTEIN_TO_PEPTIDE_EVIDENCES);
         cache.storeInBatch(CacheEntry.PROTEIN_TO_PEPTIDE_EVIDENCES, identProteinsMap);
+        cache.storeInBatch(CacheEntry.SPECTRUM_IDENTIFIED, spectrumIdentified);
 
         cache.clear(CacheEntry.PROTEIN_ID);
         cache.storeInBatch(CacheEntry.PROTEIN_ID, new ArrayList<Comparable>(identProteinsMap.keySet()));

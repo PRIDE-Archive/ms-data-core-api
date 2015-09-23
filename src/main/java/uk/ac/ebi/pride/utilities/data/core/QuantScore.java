@@ -96,9 +96,7 @@ public class QuantScore extends IdentifiableParamGroup{
 
         QuantScore that = (QuantScore) o;
 
-        if (assayAbundance != null ? !assayAbundance.equals(that.assayAbundance) : that.assayAbundance != null)
-            return false;
-        return !(studyVariableScores != null ? !studyVariableScores.equals(that.studyVariableScores) : that.studyVariableScores != null);
+        return !(assayAbundance != null ? !assayAbundance.equals(that.assayAbundance) : that.assayAbundance != null) && !(studyVariableScores != null ? !studyVariableScores.equals(that.studyVariableScores) : that.studyVariableScores != null);
 
     }
 

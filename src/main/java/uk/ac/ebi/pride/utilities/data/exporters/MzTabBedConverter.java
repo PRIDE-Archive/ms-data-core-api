@@ -149,7 +149,7 @@ public class MzTabBedConverter {
                             stringBuilder.append(assayAccession); // assay_accession
                             stringBuilder.append('\t');
                             if (!projectAccession.isEmpty()) {
-                                stringBuilder.append("http://www.ebi.ac.uk/pride/archive/projects/" + projectAccession); // project_uri
+                                stringBuilder.append("http://www.ebi.ac.uk/pride/archive/projects/").append(projectAccession); // project_uri
                             }  else {
                                 stringBuilder.append(""); // project_uri
                             }

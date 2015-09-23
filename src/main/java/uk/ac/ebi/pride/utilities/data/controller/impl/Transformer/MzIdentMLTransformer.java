@@ -354,7 +354,7 @@ public final class MzIdentMLTransformer {
             uk.ac.ebi.jmzidml.model.mzidml.PeptideEvidence oldPeptideEvidence = peptideHypothesis.getPeptideEvidence();
             for (SpectrumIdentificationItemRef spectrumIdentificationItemRef : peptideHypothesis.getSpectrumIdentificationItemRef()) {
                 SpectrumIdentificationItem oldSpectrumIdentificationItem = spectrumIdentificationItemRef.getSpectrumIdentificationItem();
-                Peptide peptide = transformToPeptideFromSpectrumItemAndPeptideEvidence(oldSpectrumIdentificationItem, oldPeptideEvidence);
+                Peptide peptide = transformToPeptideFromSpectrumItemAndPeptideEvidence(oldSpectrumIdentificationItem, oldPeptideEvidence, peptides.size());
                 peptides.add(peptide);
             }
         }
@@ -362,11 +362,33 @@ public final class MzIdentMLTransformer {
         return new Protein(paramGroup, oldIdent.getId(), name, dbSequence, passThreshold, peptides, score, -1, -1, null);
     }
 
-    private static Peptide transformToPeptideFromSpectrumItemAndPeptideEvidence(SpectrumIdentificationItem oldSpectrumidentification,
-                                                                                uk.ac.ebi.jmzidml.model.mzidml.PeptideEvidence oldPeptideEvidence) {
+    public static Protein transformProteinHypothesisToIdentification(uk.ac.ebi.jmzidml.model.mzidml.ProteinDetectionHypothesis oldIdent, List<Peptide> peptides) {
+
+        DBSequence dbSequence = transformToDBSequence(oldIdent.getDBSequence());
+
+        ParamGroup paramGroup = new ParamGroup(transformToCvParam(oldIdent.getCvParam()), transformToUserParam(oldIdent.getUserParam()));
+        Score score = DataAccessUtilities.getScore(paramGroup);
+        String name = oldIdent.getName();
+        boolean passThreshold = oldIdent.isPassThreshold();
+
+        return new Protein(paramGroup, oldIdent.getId(), name, dbSequence, passThreshold, peptides, score, -1, -1, null);
+    }
+
+    public static Protein transformDBSequenceToIdentification(uk.ac.ebi.jmzidml.model.mzidml.DBSequence dbSequence, List<Peptide> peptides) {
+
+        DBSequence sequence = transformToDBSequence(dbSequence);
+        String name = dbSequence.getName();
+        return new Protein(null, dbSequence.getId(), name, sequence, false, peptides, null, -1, -1, null);
+    }
+
+    public static Peptide transformToPeptideFromSpectrumItemAndPeptideEvidence(SpectrumIdentificationItem oldSpectrumidentification,
+                                                                                uk.ac.ebi.jmzidml.model.mzidml.PeptideEvidence oldPeptideEvidence, int id) {
         SpectrumIdentification spectrumIdent = transformToPeptideIdentification(oldSpectrumidentification);
         PeptideEvidence peptideEvidence = transformToPeptideEvidence(oldPeptideEvidence);
-        return new Peptide(peptideEvidence, spectrumIdent);
+        List<PeptideEvidence> peptideEvidences = new ArrayList<PeptideEvidence>();
+        peptideEvidences.add(peptideEvidence);
+        spectrumIdent.setPeptideEvidenceList(peptideEvidences);
+        return new Peptide(peptideEvidence, spectrumIdent, id);
     }
 
     public static Protein transformSpectrumIdentificationItemToIdentification(uk.ac.ebi.jmzidml.model.mzidml.DBSequence oldDbSequence,
@@ -967,6 +989,13 @@ public final class MzIdentMLTransformer {
             Protein protein = transformProteinHypothesisToIdentification(proteinDetectionHypothesi);
             proteins.add(protein);
         }
+
+        return new ProteinGroup(paramGroup, proteinAmbiguityGroup.getId(), proteinAmbiguityGroup.getName(), proteins);
+    }
+
+    public static ProteinGroup transformProteinAmbiguityGroupToProteinGroup(ProteinAmbiguityGroup proteinAmbiguityGroup, List<Protein> proteins) {
+
+        ParamGroup paramGroup = new ParamGroup(transformToCvParam(proteinAmbiguityGroup.getCvParam()), transformToUserParam(proteinAmbiguityGroup.getUserParam()));
 
         return new ProteinGroup(paramGroup, proteinAmbiguityGroup.getId(), proteinAmbiguityGroup.getName(), proteins);
     }

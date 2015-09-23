@@ -1,6 +1,8 @@
 package uk.ac.ebi.pride.utilities.data.controller.cache.strategy;
 
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.ac.ebi.pride.jmztab.model.*;
 import uk.ac.ebi.pride.utilities.data.controller.cache.CacheEntry;
 import uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl.MzTabControllerImpl;
@@ -21,6 +23,11 @@ import java.util.*;
  * @author Yasset Perez-Riverol
  */
 public class MzTabCachingStrategy extends AbstractCachingStrategy {
+
+    private static final int INIT_BIG_HASH = 10000;
+
+    private static final Logger logger = LoggerFactory.getLogger(MzTabCachingStrategy.class);
+
 
     /**
      * Spectrum ids and identification ids are cached.
@@ -90,13 +97,15 @@ public class MzTabCachingStrategy extends AbstractCachingStrategy {
      */
     private Map<String, String> cacheSpectrumIds(MzTabUnmarshallerAdaptor unmarshaller){
 
-        Map<Comparable, String[]> identSpectrumMap    = new HashMap<Comparable, String[]>();
+        Map<Comparable, Tuple<String, String>> identSpectrumMap    = new HashMap<Comparable, Tuple<String, String>>(INIT_BIG_HASH);
 
         Map<Comparable, List<String>> spectraDataMap  = new HashMap<Comparable, List<String>>();
 
-        Map<String, List<String>> proteinPSMIds = new HashMap<String, List<String>>();
+        Map<String, List<String>> proteinPSMIds = new HashMap<String, List<String>>(INIT_BIG_HASH);
 
-        Map<String, String> proteinAccessions    = new HashMap<String, String>();
+        Map<String, String> proteinAccessions    = new HashMap<String, String>(INIT_BIG_HASH);
+
+        List<Tuple<String, String>> spectrumIdentified = new ArrayList<Tuple<String, String>>();
 
         Map<Comparable, SpectraData> spectraDataIds   = MzTabTransformer.transformMsRunMap(unmarshaller.getMRunMap());
 
@@ -117,7 +126,7 @@ public class MzTabCachingStrategy extends AbstractCachingStrategy {
 
                 String reference = ref.getReference();
 
-                String currentPSMId = psmId.toString() + "!" + count;
+                String currentPSMId = psmId + "!" + count;
 
                 if(spectraDataMap.containsKey(msRunId))
                     spectraDataMap.get(msRunId).add(currentPSMId);
@@ -128,8 +137,9 @@ public class MzTabCachingStrategy extends AbstractCachingStrategy {
                 }
                 // extract the spectrum ID from the provided identifier
                 String formattedSpectrumID = MzTabUtils.getSpectrumId(spectraDataIds.get(msRunId), reference);
-                String[] spectrumFeatures = {formattedSpectrumID, msRunId};
+                Tuple<String, String> spectrumFeatures = new Tuple<String, String>(formattedSpectrumID, msRunId);
                 identSpectrumMap.put(currentPSMId, spectrumFeatures);
+                spectrumIdentified.add(spectrumFeatures);
 
                 for(Map.Entry proteinEntry: unmarshaller.getAllProteins().entrySet()){
                     Protein protein = (Protein) proteinEntry.getValue();
@@ -154,6 +164,8 @@ public class MzTabCachingStrategy extends AbstractCachingStrategy {
 
         cache.clear(CacheEntry.PEPTIDE_TO_SPECTRUM);
         cache.storeInBatch(CacheEntry.PEPTIDE_TO_SPECTRUM, identSpectrumMap);
+
+        cache.storeInBatch(CacheEntry.SPECTRUM_IDENTIFIED, spectrumIdentified);
 
         cache.clear(CacheEntry.SPECTRA_DATA);
         cache.storeInBatch(CacheEntry.SPECTRA_DATA, spectraDataIds);
@@ -201,11 +213,13 @@ public class MzTabCachingStrategy extends AbstractCachingStrategy {
 
     private void cacheQuantPeptideIds(MzTabUnmarshallerAdaptor unmarshaller, Map<String, String> proteinAccession) {
 
-        Map<Comparable, String[]> identSpectrumMap    = new HashMap<Comparable, String[]>();
+        Map<Comparable, Tuple<String, String>> identSpectrumMap    = new HashMap<Comparable, Tuple<String, String>>();
 
         Map<Comparable, SpectraData> spectraDataIds   = MzTabTransformer.transformMsRunMap(unmarshaller.getMRunMap());
 
         Map<String, List<String>> proteinPeptides     = new HashMap<String, List<String>>();
+
+        List<Tuple<String, String>> spectrumIdentified = new ArrayList<Tuple<String, String>>();
 
         for (Map.Entry peptideEntry : unmarshaller.getPeptides().entrySet()) {
 
@@ -224,14 +238,15 @@ public class MzTabCachingStrategy extends AbstractCachingStrategy {
                 for(SpectraRef ref: refs){
 
                     String msRunId = ref.getMsRun().getId().toString();
-                    String currentPeptideId = peptideId.toString() + "!" + count;
+                    String currentPeptideId = peptideId + "!" + count;
 
                     String reference = ref.getReference();
 
                     // extract the spectrum ID from the provided identifier
                     String formattedSpectrumID = MzTabUtils.getSpectrumId(spectraDataIds.get(msRunId), reference);
-                    String[] spectrumFeatures = {formattedSpectrumID, msRunId};
+                    Tuple<String, String> spectrumFeatures = new Tuple<String, String>(formattedSpectrumID, msRunId);
                     identSpectrumMap.put(currentPeptideId, spectrumFeatures);
+                    spectrumIdentified.add(spectrumFeatures);
                     count++;
                     for(Map.Entry proteinEntry: proteinAccession.entrySet()){
                         String proteinID = proteinEntry.getKey().toString();
@@ -247,7 +262,7 @@ public class MzTabCachingStrategy extends AbstractCachingStrategy {
 
                 }
             }else{
-                identSpectrumMap.put(peptideId.toString() + "!" + count, null);
+                identSpectrumMap.put(peptideId + "!" + count, null);
                 for(Map.Entry proteinEntry: proteinAccession.entrySet()){
                     String proteinID = proteinEntry.getKey().toString();
                     String accession = proteinEntry.getValue().toString();
@@ -255,7 +270,7 @@ public class MzTabCachingStrategy extends AbstractCachingStrategy {
                     if(peptide.getAccession().equalsIgnoreCase(accession)){
                         if(proteinPeptides.containsKey(proteinID))
                             peptideIds = proteinPeptides.get(proteinID);
-                        peptideIds.add(peptideId.toString() + "!" + count);
+                        peptideIds.add(peptideId + "!" + count);
                         proteinPeptides.put(proteinID, peptideIds);
                     }
                 }
@@ -265,6 +280,8 @@ public class MzTabCachingStrategy extends AbstractCachingStrategy {
 
         cache.clear(CacheEntry.QUANTPEPTIDE_TO_SPECTREUM);
         cache.storeInBatch(CacheEntry.QUANTPEPTIDE_TO_SPECTREUM, identSpectrumMap);
+
+        cache.storeInBatch(CacheEntry.SPECTRUM_IDENTIFIED, spectrumIdentified);
 
         cache.clear(CacheEntry.PROTEIN_TO_QUANTPEPTIDES);
         cache.storeInBatch(CacheEntry.PROTEIN_TO_QUANTPEPTIDES, proteinPeptides);

@@ -52,8 +52,6 @@ public class BinaryDataArray extends ParamGroup {
         setDoubleArray(binaryDataArray.getDoubleArray());
     }
 
-
-
     public double[] getDoubleArray() {
         return Arrays.copyOf(binaryDoubleArray, binaryDoubleArray.length);
     }
@@ -61,8 +59,7 @@ public class BinaryDataArray extends ParamGroup {
     public void setDoubleArray(double[] binaryDoubleArr) {
         //this.binaryDoubleArray = Arrays.copyOf(binaryDoubleArr, binaryDoubleArr.length);
         this.binaryDoubleArray = new double[binaryDoubleArr.length];
-        for(int i =0; i < binaryDoubleArr.length; i++)
-            this.binaryDoubleArray[i] = binaryDoubleArr[i];
+        System.arraycopy(binaryDoubleArr, 0, this.binaryDoubleArray, 0, binaryDoubleArr.length);
     }
 
     public DataProcessing getDataProcessing() {
