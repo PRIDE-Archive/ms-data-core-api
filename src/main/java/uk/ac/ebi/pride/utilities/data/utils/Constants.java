@@ -40,6 +40,7 @@ public final class Constants {
     public static final String MZML_EXT  = ".mzML";
     public static final String MZTAB_EXT = ".mztab";
     public static final String WIFF_EXT  = ".wiff";
+    public static final String NETCDF_EXT = ".cdf";
 
 
 
@@ -257,10 +258,4 @@ public final class Constants {
         }
         return classType;
     }
-
-
-
-
-
-
 }

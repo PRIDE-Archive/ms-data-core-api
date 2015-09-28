@@ -239,7 +239,7 @@ public final class MzXmlTransformer {
     }
 
     /**
-     * Convert a list of data prcessings
+     * Convert a list of data processings
      *
      * @param rawDataProcList mzXML data processing list
      * @return List<DataProcessing>    a list of data processings
