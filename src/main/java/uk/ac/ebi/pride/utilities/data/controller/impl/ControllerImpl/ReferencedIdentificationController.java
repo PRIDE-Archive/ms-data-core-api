@@ -482,7 +482,7 @@ public abstract class ReferencedIdentificationController extends CachedDataAcces
         /** To store in cache the Spectrum files, an Id was constructed using the spectrum ID and the
          *  id of the File.
          **/
-        if (spectrumIdArray == null || spectrumIdArray.getKey() != null && spectrumIdArray.getValue() != null) {
+        if (spectrumIdArray == null || spectrumIdArray.getKey() == null || spectrumIdArray.getValue() == null) {
             return null;
         } else {
             return spectrumIdArray.getKey() + "!" + spectrumIdArray.getValue();
