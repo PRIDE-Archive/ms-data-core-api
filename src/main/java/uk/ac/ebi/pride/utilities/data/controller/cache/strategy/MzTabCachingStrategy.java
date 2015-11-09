@@ -47,6 +47,13 @@ public class MzTabCachingStrategy extends AbstractCachingStrategy {
         if(unmarshaller.hasQuantitationData())
             cacheQuantPeptideIds(unmarshaller, proteinAccession);
 
+        if (!getCache().hasCacheEntry(CacheEntry.PROTEIN_ID)) {
+            cacheProteins(unmarshaller);
+        }
+
+        if (hasProteinGroup(unmarshaller)) {
+            cacheProteinGroups(unmarshaller);
+        }
     }
     /**
      * Check if the MzTab File contrains Protein Group Information
