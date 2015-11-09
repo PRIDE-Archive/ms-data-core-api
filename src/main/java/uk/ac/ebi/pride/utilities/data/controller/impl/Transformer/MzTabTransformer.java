@@ -277,8 +277,8 @@ public class MzTabTransformer {
             if(rawIdent.getOptionColumnValue(MzTabUtils.OPTIONAL_DECOY_COLUMN) != null && !rawIdent.getOptionColumnValue(MzTabUtils.OPTIONAL_DECOY_COLUMN).isEmpty())
                 paramGroup.addCvParam(CvUtilities.getCVTermFromCvReference(CvTermReference.PRIDE_DECOY_HIT, rawIdent.getOptionColumnValue(MzTabUtils.OPTIONAL_DECOY_COLUMN)));
 
-            if(rawIdent.getOptionColumnValue(MzTabUtils.OPTIONAL_PROTEIN_NAME_COLUMN) != null && !rawIdent.getOptionColumnValue(MzTabUtils.OPTIONAL_PROTEIN_NAME_COLUMN).isEmpty())
-                dbSequence.setName(rawIdent.getOptionColumnValue(MzTabUtils.OPTIONAL_PROTEIN_NAME_COLUMN));
+            if(rawIdent.getOptionColumnValue(MzTabUtils.OPTIONAL_PROTEIN_ACC_COLUMN) != null && !rawIdent.getOptionColumnValue(MzTabUtils.OPTIONAL_PROTEIN_ACC_COLUMN).isEmpty())
+                dbSequence.setName(rawIdent.getOptionColumnValue(MzTabUtils.OPTIONAL_PROTEIN_ACC_COLUMN));
 
             //Quantitation Scores
             QuantScore quantScore = null;
@@ -395,11 +395,20 @@ public class MzTabTransformer {
         if(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_CHROM_COLUMN) != null && !rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_CHROM_COLUMN).isEmpty())
             peptideEvidence.addUserParam(new UserParam("chr", null, rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_CHROM_COLUMN), null, null, null));
 
-        if(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_CHROMSTART_COLUMN) != null && !rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_CHROMSTART_COLUMN).isEmpty())
-            peptideEvidence.addUserParam(new UserParam("start_map", null, rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_CHROMSTART_COLUMN), null, null, null));
+        if(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_CHROMSTARTS_COLUMN) != null && !rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_CHROMSTARTS_COLUMN).isEmpty()) {
+            List<String> startItems = Arrays.asList(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_CHROMSTARTS_COLUMN).split(","));
+            for (String item : startItems) {
+                peptideEvidence.addUserParam(new UserParam("start_map", null, item, null, null, null));
+            }
+        }
 
-        if(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_CHROMEND_COLUMN) != null && !rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_CHROMEND_COLUMN).isEmpty())
-            peptideEvidence.addUserParam(new UserParam("end_map", null, rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_CHROMEND_COLUMN), null, null, null));
+        if(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_CHROMENDS_COLUMN) != null && !rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_CHROMENDS_COLUMN).isEmpty()) {
+            List<String> endItems = Arrays.asList(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_CHROMENDS_COLUMN).split(","));
+            for (String item : endItems) {
+                peptideEvidence.addUserParam(new UserParam("end_map", null, item, null, null, null));
+            }
+        }
+
 
         if(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_STRAND_COLUMN) != null && !rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_STRAND_COLUMN).isEmpty())
             peptideEvidence.addUserParam(new UserParam("strand", null, rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_STRAND_COLUMN), null, null, null));

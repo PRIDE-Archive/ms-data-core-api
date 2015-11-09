@@ -1,13 +1,18 @@
 package uk.ac.ebi.pride.utilities.data.exporters;
 
 import org.apache.commons.lang3.StringUtils;
+import uk.ac.ebi.pride.jmztab.model.*;
 import uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl.MzTabControllerImpl;
 import uk.ac.ebi.pride.utilities.data.core.*;
+import uk.ac.ebi.pride.utilities.data.core.Modification;
+import uk.ac.ebi.pride.utilities.data.core.Peptide;
+import uk.ac.ebi.pride.utilities.data.core.Protein;
+import uk.ac.ebi.pride.utilities.data.core.UserParam;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
-import java.util.ArrayList;
+import java.util.*;
 
 
 /**
@@ -20,6 +25,7 @@ public class MzTabBedConverter {
     private MzTabControllerImpl mzTabController;
     private String projectAccession;
     private String assayAccession;
+    private boolean peptideLocation;
 
     /**
      * Constructor to setup conversion of an mzTabFile into a bed file.
@@ -29,12 +35,21 @@ public class MzTabBedConverter {
         this.mzTabController = mzTabFile;
         this.projectAccession = "";
         this.assayAccession = "";
+        peptideLocation = true;
     }
 
     public MzTabBedConverter(MzTabControllerImpl mzTabFile, String projectAccession, String assayAccession) {
         this.mzTabController = mzTabFile;
         this.projectAccession = projectAccession;
         this.assayAccession = assayAccession;
+        peptideLocation = true;
+    }
+
+    public MzTabBedConverter(MzTabControllerImpl mzTabFile, String projectAccession, String assayAccession, boolean peptideLocation) {
+        this.mzTabController = mzTabFile;
+        this.projectAccession = projectAccession;
+        this.assayAccession = assayAccession;
+        this.peptideLocation = peptideLocation;
     }
 
 
@@ -56,17 +71,21 @@ public class MzTabBedConverter {
                 for (PeptideEvidence peptideEvidence : peptide.getPeptideEvidenceList()) {
                     if (!evidences.contains(peptide.getPeptideEvidence())) {
                         evidences.add(peptide.getPeptideEvidence());
-                        String chrom = "null", chromstart = "null", chromend = "null", strand = "null", mods = "null", psmScore = "null";
+                        String chrom = "null", chromstart = "null", chromend = "null", strand = "null", mods = "null", psmScore = "null", fdrScore = "null",
+                                blockStarts = "null", blockSizes = "null", blockCount="1";
+                        ArrayList<Position> positions = new ArrayList<>();
                         for (UserParam userParam : peptideEvidence.getUserParams()) {
                             switch (userParam.getName()) {
                                 case ("chr"):
                                     chrom = userParam.getValue();
                                     break;
                                 case ("start_map"):
-                                    chromstart = userParam.getValue();
+                                    positions.add(new Position(Position.LocationEnum.START.name(), Integer.parseInt(userParam.getValue())));
+                                    //chromstart = userParam.getValue();
                                     break;
                                 case ("end_map"):
-                                    chromend = userParam.getValue();
+                                    positions.add(new Position(Position.LocationEnum.END.name(), Integer.parseInt(userParam.getValue())));
+                                    //chromend = userParam.getValue();
                                     break;
                                 case ("strand"):
                                     strand = userParam.getValue();
@@ -74,17 +93,80 @@ public class MzTabBedConverter {
                                 default:
                                     break;
                             }
-                            for (CvParam cvParam : peptideEvidence.getCvParams()) {
-                                if (cvParam.getAccession().equalsIgnoreCase("MS:1002356")) {
-                                    psmScore = "[" + cvParam.getCvLookupID() + ", " + cvParam.getAccession() + ", " + cvParam.getName()
-                                            + ", " + cvParam.getValue() + "]";
-                                    break;
+                        }
+                            Collections.sort(positions);
+                            Iterator iterator = positions.iterator();
+                            String previousLocation = Position.LocationEnum.END.name();
+                            int previousEndValue = 0;
+                            ArrayList<Integer> startIntegers = new ArrayList<>();
+                            ArrayList<Integer> endIntegers = new ArrayList<>();
+                            while (iterator.hasNext()) {
+                                Position element = (Position) iterator.next();
+                                if (previousLocation.equalsIgnoreCase(Position.LocationEnum.START.name())) {
+                                    if (element.location.equalsIgnoreCase(Position.LocationEnum.START.name())) {
+                                        // - START, then now START - do nothing
+                                    } else {
+                                        // - START, then now END - add new end
+                                        endIntegers.add(new Integer(element.value));
+                                        previousLocation = element.location;
+                                        previousEndValue = element.value;
+                                    }
+                                } else {
+                                    if (element.location.equalsIgnoreCase(Position.LocationEnum.START.name())) {
+                                        // - END, then now START -  add new start
+                                        startIntegers.add(new Integer(element.value));
+                                        previousLocation = element.location;
+                                    } else {
+                                        // - END, then now END - replace previous end
+                                        endIntegers.remove(new Integer(previousEndValue));
+                                        endIntegers.add(new Integer(element.value));
+                                        previousEndValue = element.value;
+                                    }
                                 }
                             }
-                        }
+                            if (startIntegers.size()>0) {
+                                Collections.sort(startIntegers);
+                                Collections.sort(endIntegers);
+                                chromstart = startIntegers.get(0).toString();
+                                chromend = endIntegers.get(endIntegers.size()-1).toString();
+                                ArrayList<Integer> blockSizesIntegers = new ArrayList<>();
+                                ArrayList<Integer> blockStartsIntegers = new ArrayList<>();
+                                for (int i =0; i < startIntegers.size(); i++) {
+                                    blockSizesIntegers.add(new Integer(endIntegers.get(i) - startIntegers.get(i)));
+                                    blockStartsIntegers.add(new Integer(startIntegers.get(i) - Integer.parseInt(chromstart)));
+                                }
+
+                                List<String> blockStartsStrings = new ArrayList<String>(blockStartsIntegers.size());
+                                for (Integer myInt : blockStartsIntegers) {
+                                    blockStartsStrings.add(String.valueOf(myInt));
+                                }
+                                List<String> blockSizesStrings = new ArrayList<String>(blockSizesIntegers.size());
+                                for (Integer myInt : blockSizesIntegers) {
+                                    blockSizesStrings.add(String.valueOf(myInt));
+                                }
+                                blockStarts = StringUtils.join(blockStartsStrings, ",");
+                                blockSizes = StringUtils.join(blockSizesStrings, ",");
+                                blockCount =  "" + startIntegers.size();
+
+
+                                for (CvParam cvParam : peptideEvidence.getCvParams()) {
+                                    if (cvParam.getAccession().equalsIgnoreCase("MS:1002356")) {
+                                        fdrScore = "[" + cvParam.getCvLookupID() + ", " + cvParam.getAccession() + ", " + cvParam.getName()
+                                                + ", " + cvParam.getValue() + "]";
+                                        break;
+                                    }
+                                }
+                            }
                         ArrayList<String> modifications = new ArrayList<>();
                         for (Modification modification : peptideEvidence.getPeptideSequence().getModifications()) {
-                            int location = modification.getLocation();
+                            int location;
+                            if (peptideLocation) {
+                                location = modification.getLocation();
+                            } else {
+                                final int TOTAL = peptideEvidence.getPeptideSequence().getSequence().length();
+                                int i = modification.getLocation() / peptideEvidence.getPeptideSequence().getSequence().length();
+                                location;
+                            }
                             for (CvParam cvParam : modification.getCvParams()) {
                                 modifications.add(location + "-" + cvParam.getAccession());
                             }
@@ -120,40 +202,46 @@ public class MzTabBedConverter {
                             stringBuilder.append('\t');
                             stringBuilder.append("0"); // reserved - (0 only)
                             stringBuilder.append('\t');
-                            stringBuilder.append("1"); // blockCount (1 only)
+                            stringBuilder.append(blockCount); // blockCount
                             stringBuilder.append('\t');
-                            stringBuilder.append(Integer.parseInt(chromend) - Integer.parseInt(chromstart)); // blockSizes (1 only)
+                            stringBuilder.append(blockSizes); // blockSizes
                             stringBuilder.append('\t');
-                            stringBuilder.append("0"); // blockStarts (0 only)
+                            stringBuilder.append(blockStarts); // chromStarts (actual name, but refers to blocks)
                             stringBuilder.append('\t') ;
-                            stringBuilder.append(protein.getDbSequence().getName()); // protein_name
+                            stringBuilder.append(protein.getDbSequence().getName()); // proteinAccession
                             stringBuilder.append('\t') ;
-                            stringBuilder.append(peptideEvidence.getPeptideSequence().getSequence());  // peptide_sequence
+                            stringBuilder.append(peptideEvidence.getPeptideSequence().getSequence());  // peptideSequence
                             stringBuilder.append('\t');
-                            stringBuilder.append(peptideEvidence.getStartPosition()); // pep_start
+                            stringBuilder.append(psmScore); // psmScore
                             stringBuilder.append('\t');
-                            stringBuilder.append(peptideEvidence.getEndPosition()); // pep_end
-                            stringBuilder.append('\t');
-                            stringBuilder.append(psmScore); // psm_score
+                            stringBuilder.append(fdrScore); // fdrScore
                             stringBuilder.append('\t');
                             stringBuilder.append(mods); // modifications
                             stringBuilder.append('\t');
                             stringBuilder.append(peptide.getPrecursorCharge()); // charge
                             stringBuilder.append('\t');
-                            stringBuilder.append(peptide.getSpectrumIdentification().getExperimentalMassToCharge()); // exp_mass_to_charge
+                            stringBuilder.append(peptide.getSpectrumIdentification().getExperimentalMassToCharge()); // expMassToCharge
                             stringBuilder.append('\t');
-                            stringBuilder.append(peptide.getSpectrumIdentification().getCalculatedMassToCharge()); // calc_mass_to_charge
+                            stringBuilder.append(peptide.getSpectrumIdentification().getCalculatedMassToCharge()); // calcMassToCharge
                             stringBuilder.append('\t');
-                            stringBuilder.append(projectAccession); // project_accession
-                            stringBuilder.append('\t');
-                            stringBuilder.append(assayAccession); // assay_accession
-                            stringBuilder.append('\t');
+                            String datasetID = "";
                             if (!projectAccession.isEmpty()) {
-                                stringBuilder.append("http://www.ebi.ac.uk/pride/archive/projects/").append(projectAccession); // project_uri
-                            }  else {
-                                stringBuilder.append(""); // project_uri
+                                datasetID = projectAccession;
+                                if (!assayAccession.isEmpty()) {
+                                    datasetID = datasetID + "_" + assayAccession;
+                                }
+                            } else {
+                                datasetID = mzTabController.getReader().getMetadata().getMZTabID();
                             }
-
+                            stringBuilder.append(datasetID); // datasetID
+                            stringBuilder.append('\t');
+                            String projectUri ;
+                            if (!projectAccession.isEmpty()) {
+                                projectUri = "http://www.ebi.ac.uk/pride/archive/projects/" + projectAccession;
+                            }  else {
+                                projectUri = "null";
+                            }
+                            stringBuilder.append(projectUri); // projectURI
                             stringBuilder.append('\n');
                             bf.write(stringBuilder.toString());
                             bf.flush();
@@ -165,4 +253,22 @@ public class MzTabBedConverter {
         }
         bf.close();
     }
+}
+
+class Position implements Comparable<Position>{
+    String location;
+    int value;
+    public enum LocationEnum {
+        START, END
+    }
+
+    Position(String location, int value) {
+        this.location = location;
+        this.value = value;
+    }
+
+    public int compareTo(Position anotherPosition) {
+        return Integer.compare(value, anotherPosition.value);
+    }
+
 }

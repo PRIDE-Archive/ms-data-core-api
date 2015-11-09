@@ -137,7 +137,7 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
                 proteinColumnFactory.addSearchEngineScoreOptionalColumn(ProteinColumn.SEARCH_ENGINE_SCORE, idScore, msRun);
         // check and set additional chromosome columns
         if (hasChromInformation()) {
-            proteinColumnFactory.addOptionalColumn(MzTabUtils.OPTIONAL_PROTEIN_NAME_COLUMN, String.class);
+            proteinColumnFactory.addOptionalColumn(MzTabUtils.OPTIONAL_PROTEIN_ACC_COLUMN, String.class);
         }
         return proteinColumnFactory;
     }
@@ -160,8 +160,8 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
         // check and set additional chromosome columns
         if (hasChromInformation()) {
             psmColumnFactory.addOptionalColumn(MzTabUtils.OPTIONAL_CHROM_COLUMN, String.class);
-            psmColumnFactory.addOptionalColumn(MzTabUtils.OPTIONAL_CHROMSTART_COLUMN, String.class);
-            psmColumnFactory.addOptionalColumn(MzTabUtils.OPTIONAL_CHROMEND_COLUMN, String.class);
+            psmColumnFactory.addOptionalColumn(MzTabUtils.OPTIONAL_CHROMSTARTS_COLUMN, String.class);
+            psmColumnFactory.addOptionalColumn(MzTabUtils.OPTIONAL_CHROMENDS_COLUMN, String.class);
             psmColumnFactory.addOptionalColumn(MzTabUtils.OPTIONAL_STRAND_COLUMN, String.class);
             psmColumnFactory.addOptionalColumn(MzTabUtils.OPTIONAL_PSM_FDRSCORE_COLUMN, String.class);
         }
@@ -714,20 +714,22 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
             // check and set additional chromosome information
             if (hasChromInformation()) {
                 psm.setOptionColumnValue(MzTabUtils.OPTIONAL_CHROM_COLUMN, "null");
-                psm.setOptionColumnValue(MzTabUtils.OPTIONAL_CHROMSTART_COLUMN, "null");
-                psm.setOptionColumnValue(MzTabUtils.OPTIONAL_CHROMEND_COLUMN, "null");
+                psm.setOptionColumnValue(MzTabUtils.OPTIONAL_CHROMSTARTS_COLUMN, "null");
+                psm.setOptionColumnValue(MzTabUtils.OPTIONAL_CHROMENDS_COLUMN, "null");
                 psm.setOptionColumnValue(MzTabUtils.OPTIONAL_STRAND_COLUMN, "null");
                 psm.setOptionColumnValue(MzTabUtils.OPTIONAL_PSM_FDRSCORE_COLUMN, "null");
+                Set<String> starts = new HashSet<>();
+                Set<String> ends = new HashSet<>();
                 for (UserParam userParam : oldPSM.getPeptideEvidence().getUserParams()) {
                     switch (userParam.getName()) {
                         case ("chr"):
                             psm.setOptionColumnValue(MzTabUtils.OPTIONAL_CHROM_COLUMN, userParam.getValue());
                             break;
                         case ("start_map"):
-                            psm.setOptionColumnValue(MzTabUtils.OPTIONAL_CHROMSTART_COLUMN, userParam.getValue());
+                            starts.add(userParam.getValue());
                             break;
                         case ("end_map"):
-                            psm.setOptionColumnValue(MzTabUtils.OPTIONAL_CHROMEND_COLUMN, userParam.getValue());
+                            ends.add(userParam.getValue());
                             break;
                         case ("strand"):
                             psm.setOptionColumnValue(MzTabUtils.OPTIONAL_STRAND_COLUMN, userParam.getValue());
@@ -735,6 +737,24 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
                         default:
                             break;
                     }
+                }
+                //remove starts and ends that are identical (0-sized exons)
+                Set<String> endsToRemove = new HashSet<>();
+                for (String end : ends) {
+                    if (starts.contains(end)) {
+                        endsToRemove.add(end);
+                    }
+                }
+                for (String endToRemove : endsToRemove) {
+                       ends.remove(endToRemove);
+                       starts.remove(endToRemove);
+                }
+
+                if (starts.size()>0) {
+                    psm.setOptionColumnValue(MzTabUtils.OPTIONAL_CHROMSTARTS_COLUMN, StringUtils.join(starts, ","));
+                }
+                if (ends.size()>0) {
+                    psm.setOptionColumnValue(MzTabUtils.OPTIONAL_CHROMENDS_COLUMN, StringUtils.join(ends, ","));
                 }
                 for (CvParam cvParam : oldPSM.getSpectrumIdentification().getCvParams()) {
                     if (cvParam.getAccession().equalsIgnoreCase("MS:1002356")) {
@@ -835,13 +855,13 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
             String proteinName;
             if (sequence.getAccession().startsWith("generic|")) {
                 proteinName = StringUtils.substringBetween(sequence.getAccession(), "|");
-                if (proteinName.startsWith("A_")) {
+                if (proteinName.startsWith("A_") || proteinName.startsWith("B_")) {
                     proteinName = proteinName.substring(2);
                 }
             } else {
                 proteinName = "null";
             }
-            protein.setOptionColumnValue(MzTabUtils.OPTIONAL_PROTEIN_NAME_COLUMN, proteinName);
+            protein.setOptionColumnValue(MzTabUtils.OPTIONAL_PROTEIN_ACC_COLUMN, proteinName);
         }
 
         return protein;
