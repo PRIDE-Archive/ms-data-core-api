@@ -163,30 +163,14 @@ public abstract class CachedDataAccessController extends AbstractDataAccessContr
      * @return Spectrum spectrum object
      */
     Spectrum getSpectrumById(Comparable id, boolean useCache) {
-        Object object = null;
-        if (id==null) {
-            logger.info("id is null!");
-        } else {
-            logger.info("id: " + id.toString());
-        }
-        object = cache.get(CacheEntry.SPECTRUM, id);
-        if (useCache && object!=null) {
-            logger.info("object " + object);
-            if (object instanceof IdentifiableParamGroup) {
-                return (Spectrum) object;
+        Spectrum result = null;
+        if (useCache) {
+            Object obj = cache.get(CacheEntry.SPECTRUM, id);
+            if (obj!=null) {
+                result = (Spectrum) obj;
             }
-            Map<String, IdentifiableParamGroup> map = java.util.Collections.synchronizedMap((Map)  object);
-            logger.info("    size " + map.size());
-            for (String key : (map.keySet())) {
-                logger.info("    key " + key);
-                logger.info("    value " + (map.get(key).toString()));
-                return null;//(Spectrum) map.get(key);
-            }
-        }  else if (useCache && object==null){
-            logger.info("object is null");
-            return null;
         }
-        return useCache ? (Spectrum) cache.get(CacheEntry.SPECTRUM, id) : null;
+        return result;
     }
 
 
