@@ -1,6 +1,7 @@
 package uk.ac.ebi.pride.utilities.data.exporters;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.math3.distribution.IntegerDistribution;
 import uk.ac.ebi.pride.jmztab.model.*;
 import uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl.MzTabControllerImpl;
 import uk.ac.ebi.pride.utilities.data.core.*;
@@ -71,7 +72,8 @@ public class MzTabBedConverter {
                 for (PeptideEvidence peptideEvidence : peptide.getPeptideEvidenceList()) {
                     if (!evidences.contains(peptide.getPeptideEvidence())) {
                         evidences.add(peptide.getPeptideEvidence());
-                        String chrom = "null", chromstart = "null", chromend = "null", strand = "null", mods = "null", psmScore = "null", fdrScore = "null",
+                        String chrom = "null", chromstart = "null", chromend = "null", strand = "null", pepMods = "null",
+                                genMods = "null",psmScore = "null", fdrScore = "null",
                                 blockStarts = "null", blockSizes = "null", blockCount="1";
                         ArrayList<Position> positions = new ArrayList<>();
                         for (UserParam userParam : peptideEvidence.getUserParams()) {
@@ -94,85 +96,102 @@ public class MzTabBedConverter {
                                     break;
                             }
                         }
-                            Collections.sort(positions);
-                            Iterator iterator = positions.iterator();
-                            String previousLocation = Position.LocationEnum.END.name();
-                            int previousEndValue = 0;
-                            ArrayList<Integer> startIntegers = new ArrayList<>();
-                            ArrayList<Integer> endIntegers = new ArrayList<>();
-                            while (iterator.hasNext()) {
-                                Position element = (Position) iterator.next();
-                                if (previousLocation.equalsIgnoreCase(Position.LocationEnum.START.name())) {
-                                    if (element.location.equalsIgnoreCase(Position.LocationEnum.START.name())) {
-                                        // - START, then now START - do nothing
-                                    } else {
-                                        // - START, then now END - add new end
-                                        endIntegers.add(new Integer(element.value));
-                                        previousLocation = element.location;
-                                        previousEndValue = element.value;
-                                    }
+                        int totalBlocksSize = 0;
+                        List<String> blockStartsStrings = new ArrayList<>();
+                        List<String> blockSizesStrings  = new ArrayList<>();
+                        Collections.sort(positions);
+                        Iterator iterator = positions.iterator();
+                        String previousLocation = Position.LocationEnum.END.name();
+                        int previousEndValue = 0;
+                        ArrayList<Integer> startIntegers = new ArrayList<>();
+                        ArrayList<Integer> endIntegers = new ArrayList<>();
+                        while (iterator.hasNext()) {
+                            Position element = (Position) iterator.next();
+                            if (previousLocation.equalsIgnoreCase(Position.LocationEnum.START.name())) {
+                                if (element.location.equalsIgnoreCase(Position.LocationEnum.START.name())) {
+                                    // - START, then now START - do nothing
                                 } else {
-                                    if (element.location.equalsIgnoreCase(Position.LocationEnum.START.name())) {
-                                        // - END, then now START -  add new start
-                                        startIntegers.add(new Integer(element.value));
-                                        previousLocation = element.location;
-                                    } else {
-                                        // - END, then now END - replace previous end
-                                        endIntegers.remove(new Integer(previousEndValue));
-                                        endIntegers.add(new Integer(element.value));
-                                        previousEndValue = element.value;
-                                    }
+                                    // - START, then now END - add new end
+                                    endIntegers.add(new Integer(element.value));
+                                    previousLocation = element.location;
+                                    previousEndValue = element.value;
                                 }
-                            }
-                            if (startIntegers.size()>0) {
-                                Collections.sort(startIntegers);
-                                Collections.sort(endIntegers);
-                                chromstart = startIntegers.get(0).toString();
-                                chromend = endIntegers.get(endIntegers.size()-1).toString();
-                                ArrayList<Integer> blockSizesIntegers = new ArrayList<>();
-                                ArrayList<Integer> blockStartsIntegers = new ArrayList<>();
-                                for (int i =0; i < startIntegers.size(); i++) {
-                                    blockSizesIntegers.add(new Integer(endIntegers.get(i) - startIntegers.get(i)));
-                                    blockStartsIntegers.add(new Integer(startIntegers.get(i) - Integer.parseInt(chromstart)));
-                                }
-
-                                List<String> blockStartsStrings = new ArrayList<String>(blockStartsIntegers.size());
-                                for (Integer myInt : blockStartsIntegers) {
-                                    blockStartsStrings.add(String.valueOf(myInt));
-                                }
-                                List<String> blockSizesStrings = new ArrayList<String>(blockSizesIntegers.size());
-                                for (Integer myInt : blockSizesIntegers) {
-                                    blockSizesStrings.add(String.valueOf(myInt));
-                                }
-                                blockStarts = StringUtils.join(blockStartsStrings, ",");
-                                blockSizes = StringUtils.join(blockSizesStrings, ",");
-                                blockCount =  "" + startIntegers.size();
-
-
-                                for (CvParam cvParam : peptideEvidence.getCvParams()) {
-                                    if (cvParam.getAccession().equalsIgnoreCase("MS:1002356")) {
-                                        fdrScore = "[" + cvParam.getCvLookupID() + ", " + cvParam.getAccession() + ", " + cvParam.getName()
-                                                + ", " + cvParam.getValue() + "]";
-                                        break;
-                                    }
-                                }
-                            }
-                        ArrayList<String> modifications = new ArrayList<>();
-                        for (Modification modification : peptideEvidence.getPeptideSequence().getModifications()) {
-                            int location;
-                            if (peptideLocation) {
-                                location = modification.getLocation();
                             } else {
-                                final int TOTAL = peptideEvidence.getPeptideSequence().getSequence().length();
-                                int i = modification.getLocation() / peptideEvidence.getPeptideSequence().getSequence().length();
-                                location;
-                            }
-                            for (CvParam cvParam : modification.getCvParams()) {
-                                modifications.add(location + "-" + cvParam.getAccession());
+                                if (element.location.equalsIgnoreCase(Position.LocationEnum.START.name())) {
+                                    // - END, then now START -  add new start
+                                    startIntegers.add(new Integer(element.value));
+                                    previousLocation = element.location;
+                                } else {
+                                    // - END, then now END - replace previous end
+                                    endIntegers.remove(new Integer(previousEndValue));
+                                    endIntegers.add(new Integer(element.value));
+                                    previousEndValue = element.value;
+                                }
                             }
                         }
-                        if (modifications.size() > 0) {
-                            mods = StringUtils.join(modifications, ", ");
+                        if (startIntegers.size()>0) {
+                            Collections.sort(startIntegers);
+                            Collections.sort(endIntegers);
+                            chromstart = startIntegers.get(0).toString();
+                            chromend = endIntegers.get(endIntegers.size()-1).toString();
+                            ArrayList<Integer> blockSizesIntegers = new ArrayList<>();
+                            ArrayList<Integer> blockStartsIntegers = new ArrayList<>();
+                            for (int i =0; i < startIntegers.size(); i++) {
+                                blockSizesIntegers.add(new Integer(endIntegers.get(i).intValue() - startIntegers.get(i).intValue()));
+                                blockStartsIntegers.add(new Integer(startIntegers.get(i) - Integer.parseInt(chromstart)));
+                            }
+
+                            blockStartsStrings = new ArrayList<String>(blockStartsIntegers.size());
+                            for (Integer myInt : blockStartsIntegers) {
+                                blockStartsStrings.add(String.valueOf(myInt));
+                            }
+                            blockSizesStrings = new ArrayList<String>(blockSizesIntegers.size());
+                            for (Integer myInt : blockSizesIntegers) {
+                                blockSizesStrings.add(String.valueOf(myInt));
+                                totalBlocksSize += myInt.intValue();
+                            }
+                            blockStarts = StringUtils.join(blockStartsStrings, ",");
+                            blockSizes = StringUtils.join(blockSizesStrings, ",");
+                            blockCount =  "" + startIntegers.size();
+
+
+                            for (CvParam cvParam : peptideEvidence.getCvParams()) {
+                                if (cvParam.getAccession().equalsIgnoreCase("MS:1002356")) {
+                                    fdrScore = "[" + cvParam.getCvLookupID() + ", " + cvParam.getAccession() + ", " + cvParam.getName()
+                                            + ", " + cvParam.getValue() + "]";
+                                    break;
+                                }
+                            }
+                        }
+                        ArrayList<String> peptideModifications = new ArrayList<>();
+                        ArrayList<String> genomeModifications = new ArrayList<>();
+                        for (Modification modification : peptideEvidence.getPeptideSequence().getModifications()) {
+                            int peptideLocation = modification.getLocation();
+                            int genomeLocation;
+                            final int TOTAL = peptideEvidence.getPeptideSequence().getSequence().length();
+                            double i = modification.getLocation() / TOTAL;
+                            double j = i * totalBlocksSize;
+                            int blockIndex = 0;
+                            int currentBlockTotal = 0;
+                            genomeLocation = (int) Math.round(j);
+                            for (String blockSize : blockSizesStrings) {
+                                int block = Integer.valueOf(blockSize);
+                                currentBlockTotal += block;
+                                if (j <= currentBlockTotal) {
+                                    genomeLocation = Integer.valueOf(blockStartsStrings.get(blockIndex)) + genomeLocation;
+                                    break;
+                                }
+                                genomeLocation -= block;
+                                blockIndex++;
+                            }
+                            for (CvParam cvParam : modification.getCvParams()) {
+                                peptideModifications.add(peptideLocation + "-" + cvParam.getAccession());
+                                genomeModifications.add(genomeLocation + "-" + cvParam.getAccession());
+                            }
+                        }
+                        if (peptideModifications.size() > 0) {
+                            pepMods = StringUtils.join(peptideModifications, ", ");
+                            genMods = StringUtils.join(genomeModifications, ", ");
                         }
 
                         if (!chrom.equalsIgnoreCase("null")) {
@@ -216,7 +235,9 @@ public class MzTabBedConverter {
                             stringBuilder.append('\t');
                             stringBuilder.append(fdrScore); // fdrScore
                             stringBuilder.append('\t');
-                            stringBuilder.append(mods); // modifications
+                            stringBuilder.append(pepMods); // peptide location modifications
+                            stringBuilder.append('\t');
+                            stringBuilder.append(genMods); // genome location modifications
                             stringBuilder.append('\t');
                             stringBuilder.append(peptide.getPrecursorCharge()); // charge
                             stringBuilder.append('\t');
