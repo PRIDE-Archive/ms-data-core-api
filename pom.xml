@@ -82,7 +82,7 @@
         <slf4j-api.version>1.7.5</slf4j-api.version>
         <logback-core.version>1.0.11</logback-core.version>
         <jmzml.version>1.7.3</jmzml.version>
-        <jnetCDF.version>0.0.1-SNAPSHOT</jnetCDF.version>
+        <jnetCDF.version>0.0.1</jnetCDF.version>
         <jmzidentml.version>1.2.3</jmzidentml.version>
         <xmlschemavalidator.version>2.1</xmlschemavalidator.version>
         <jmztab.version>3.0.2</jmztab.version>
@@ -92,7 +92,7 @@
 
         <pride.jaxb.version>1.0.13</pride.jaxb.version>
         <c3p0.version>0.9.1.2</c3p0.version>
-        <pride-utilities.version>2.0.6-SNAPSHOT</pride-utilities.version>
+        <pride-utilities.version>2.0.6</pride-utilities.version>
         <json.version>20090211</json.version>
 
     </properties>
