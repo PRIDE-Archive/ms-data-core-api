@@ -1,8 +1,6 @@
 package uk.ac.ebi.pride.utilities.data.exporters;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.math3.distribution.IntegerDistribution;
-import uk.ac.ebi.pride.jmztab.model.*;
 import uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl.MzTabControllerImpl;
 import uk.ac.ebi.pride.utilities.data.core.*;
 import uk.ac.ebi.pride.utilities.data.core.Modification;
@@ -86,7 +84,7 @@ public class MzTabBedConverter {
                     if (!evidences.contains(peptide.getPeptideEvidence())) {
                         evidences.add(peptide.getPeptideEvidence());
                         String chrom = "null", chromstart = "null", chromend = "null", strand = "null", pepMods = "null",
-                                genMods = "null",psmScore = "null", fdrScore = "null",
+                                psmScore = "null", fdrScore = "null",
                                 blockStarts = "null", blockSizes = "null", blockCount="1";
                         ArrayList<Position> positions = new ArrayList<>();
                         for (UserParam userParam : peptideEvidence.getUserParams()) {
@@ -165,7 +163,6 @@ public class MzTabBedConverter {
                             blockSizes = StringUtils.join(blockSizesStrings, ",");
                             blockCount =  "" + startIntegers.size();
 
-
                             for (CvParam cvParam : peptideEvidence.getCvParams()) {
                                 if (cvParam.getAccession().equalsIgnoreCase("MS:1002356")) {
                                     fdrScore = "[" + cvParam.getCvLookupID() + ", " + cvParam.getAccession() + ", " + cvParam.getName()
@@ -176,35 +173,14 @@ public class MzTabBedConverter {
                         }
                         if (blockStartsStrings!=null && blockStartsStrings.size()>0) {
                             ArrayList<String> peptideModifications = new ArrayList<>();
-                            ArrayList<String> genomeModifications = new ArrayList<>();
                             for (Modification modification : peptideEvidence.getPeptideSequence().getModifications()) {
-                                final int RELATIVE_PEP_LOCATION = modification.getLocation();
-                                int relativeGenomeLocation = RELATIVE_PEP_LOCATION * 3;
-                                int absoluteGenomeLocation =  Integer.valueOf(chromstart) + Integer.valueOf(blockStartsStrings.get(0)) + relativeGenomeLocation;
-                                int blockIndex = 0;
-                                int currentBlockTotal = 0;
-                                if (blockStartsStrings.size()>1) {
-                                    for (String blockSizeStr : blockSizesStrings) {
-                                        int blockSize = Integer.valueOf(blockSizeStr);
-                                        currentBlockTotal += blockSize;
-                                        if (relativeGenomeLocation <= currentBlockTotal) {
-                                            absoluteGenomeLocation = Integer.valueOf(chromstart) + Integer.valueOf(blockStartsStrings.get(blockIndex)) + relativeGenomeLocation;
-                                            break;
-                                        }
-                                        relativeGenomeLocation -= blockSize;
-                                        blockIndex++;
-                                    }
-                                }
                                 for (CvParam cvParam : modification.getCvParams()) {
-                                    peptideModifications.add(RELATIVE_PEP_LOCATION + "-" + cvParam.getAccession());
-                                    genomeModifications.add(absoluteGenomeLocation + "-" + cvParam.getAccession());
+                                    peptideModifications.add( modification.getLocation() + "-" + cvParam.getAccession());
                                 }
                             }
                             if (peptideModifications.size() > 0) {
                                 pepMods = StringUtils.join(peptideModifications, ", ");
-                                genMods = StringUtils.join(genomeModifications, ", ");
                             }
-
                             if (!chrom.equalsIgnoreCase("null")) {
                                 stringBuilder.append(chrom); // chrom
                                 stringBuilder.append('\t');
@@ -250,7 +226,6 @@ public class MzTabBedConverter {
                                 stringBuilder.append('\t');
                                 stringBuilder.append(pepMods); // peptide location modifications
                                 stringBuilder.append('\t');
-                                stringBuilder.append(genMods); // genome location modifications
                                 stringBuilder.append('\t');
                                 stringBuilder.append(peptide.getPrecursorCharge()); // charge
                                 stringBuilder.append('\t');
