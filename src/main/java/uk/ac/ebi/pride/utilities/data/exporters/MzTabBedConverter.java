@@ -108,7 +108,7 @@ public class MzTabBedConverter {
                             }
                         }
                         List<String> blockStartsStrings = new ArrayList<>();
-                        List<String> blockSizesStrings  = new ArrayList<>();
+                        List<String> blockSizesStrings;
                         Collections.sort(positions);
                         Iterator iterator = positions.iterator();
                         String previousLocation = Position.LocationEnum.END.name();
@@ -118,23 +118,21 @@ public class MzTabBedConverter {
                         while (iterator.hasNext()) {
                             Position element = (Position) iterator.next();
                             if (previousLocation.equalsIgnoreCase(Position.LocationEnum.START.name())) {
-                                if (element.location.equalsIgnoreCase(Position.LocationEnum.START.name())) {
-                                    // - START, then now START - do nothing
-                                } else {
+                                if (!element.location.equalsIgnoreCase(Position.LocationEnum.START.name())) {
                                     // - START, then now END - add new end
-                                    endIntegers.add(new Integer(element.value));
+                                    endIntegers.add(element.value);
                                     previousLocation = element.location;
                                     previousEndValue = element.value;
-                                }
+                                } // else - START, then now START - do nothing
                             } else {
                                 if (element.location.equalsIgnoreCase(Position.LocationEnum.START.name())) {
                                     // - END, then now START -  add new start
-                                    startIntegers.add(new Integer(element.value));
+                                    startIntegers.add(element.value);
                                     previousLocation = element.location;
                                 } else {
                                     // - END, then now END - replace previous end
                                     endIntegers.remove(new Integer(previousEndValue));
-                                    endIntegers.add(new Integer(element.value));
+                                    endIntegers.add(element.value);
                                     previousEndValue = element.value;
                                 }
                             }
@@ -147,8 +145,8 @@ public class MzTabBedConverter {
                             ArrayList<Integer> blockSizesIntegers = new ArrayList<>();
                             ArrayList<Integer> blockStartsIntegers = new ArrayList<>();
                             for (int i =0; i < startIntegers.size(); i++) {
-                                blockSizesIntegers.add(new Integer(endIntegers.get(i).intValue() - startIntegers.get(i).intValue()));
-                                blockStartsIntegers.add(new Integer(startIntegers.get(i) - Integer.parseInt(chromstart)));
+                                blockSizesIntegers.add(endIntegers.get(i) - startIntegers.get(i));
+                                blockStartsIntegers.add(startIntegers.get(i) - Integer.parseInt(chromstart));
                             }
 
                             blockStartsStrings = new ArrayList<>(blockStartsIntegers.size());
@@ -171,7 +169,7 @@ public class MzTabBedConverter {
                                 }
                             }
                         }
-                        if (blockStartsStrings!=null && blockStartsStrings.size()>0) {
+                        if (blockStartsStrings.size()>0) {
                             ArrayList<String> peptideModifications = new ArrayList<>();
                             for (Modification modification : peptideEvidence.getPeptideSequence().getModifications()) {
                                 for (CvParam cvParam : modification.getCvParams()) {
@@ -225,7 +223,6 @@ public class MzTabBedConverter {
                                 stringBuilder.append(fdrScore); // fdrScore
                                 stringBuilder.append('\t');
                                 stringBuilder.append(pepMods); // peptide location modifications
-                                stringBuilder.append('\t');
                                 stringBuilder.append('\t');
                                 stringBuilder.append(peptide.getPrecursorCharge()); // charge
                                 stringBuilder.append('\t');
