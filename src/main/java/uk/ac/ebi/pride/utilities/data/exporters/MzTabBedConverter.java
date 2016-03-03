@@ -26,33 +26,38 @@ public class MzTabBedConverter {
     private MzTabControllerImpl mzTabController;
     private String projectAccession;
     private String assayAccession;
-    private boolean peptideLocation;
+    private boolean proteoAnnotatorReporcessed;
 
     /**
      * Constructor to setup conversion of an mzTabFile into a bed file.
      * @param mzTabFile to be converted to a bed file.
      */
     public MzTabBedConverter(MzTabControllerImpl mzTabFile) {
-        this.mzTabController = mzTabFile;
-        this.projectAccession = "";
-        this.assayAccession = "";
-        peptideLocation = true;
+        this(mzTabFile, "", "", false);
+    }
+
+    public MzTabBedConverter(MzTabControllerImpl mzTabFile, boolean proteoAnnotatorReporcessed) {
+        this(mzTabFile, "", "", proteoAnnotatorReporcessed);
+    }
+
+    public MzTabBedConverter(MzTabControllerImpl mzTabFile, String projectAccession) {
+        this(mzTabFile, projectAccession, "", false);
+    }
+
+    public MzTabBedConverter(MzTabControllerImpl mzTabFile, String projectAccession, boolean proteoAnnotatorReporcessed) {
+        this(mzTabFile, projectAccession, "", proteoAnnotatorReporcessed);
     }
 
     public MzTabBedConverter(MzTabControllerImpl mzTabFile, String projectAccession, String assayAccession) {
+        this(mzTabFile, projectAccession, assayAccession, false);
+    }
+
+    public MzTabBedConverter(MzTabControllerImpl mzTabFile, String projectAccession, String assayAccession, boolean proteoAnnotatorReporcessed) {
         this.mzTabController = mzTabFile;
         this.projectAccession = projectAccession;
         this.assayAccession = assayAccession;
-        peptideLocation = true;
+        this.proteoAnnotatorReporcessed = proteoAnnotatorReporcessed;
     }
-
-    public MzTabBedConverter(MzTabControllerImpl mzTabFile, String projectAccession, String assayAccession, boolean peptideLocation) {
-        this.mzTabController = mzTabFile;
-        this.projectAccession = projectAccession;
-        this.assayAccession = assayAccession;
-        this.peptideLocation = peptideLocation;
-    }
-
 
     /**
      * Performs the conversion of the mzTabFile into a bed file.
@@ -65,6 +70,14 @@ public class MzTabBedConverter {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.setLength(0);
         int lineNumber = 1;
+        // first get unique peptides for use with a proBed column
+        Set<String> uniquePeptideSequences = new HashSet<>();
+        for (Comparable proteinID : mzTabController.getProteinIds()) {
+            List<PeptideSequence> peptideSequencesList =  mzTabController.getProteinById(proteinID).getPeptidesSequence();
+            for (PeptideSequence peptideSequence : peptideSequencesList) {
+                uniquePeptideSequences.add(peptideSequence.getSequence());
+            }
+        }
         for (Comparable proteinID : mzTabController.getProteinIds()) {
             Protein protein = mzTabController.getProteinById(proteinID);
             ArrayList<PeptideEvidence> evidences = new ArrayList<>();
@@ -229,6 +242,8 @@ public class MzTabBedConverter {
                                 stringBuilder.append('\t') ;
                                 stringBuilder.append(peptideEvidence.getPeptideSequence().getSequence());  // peptideSequence
                                 stringBuilder.append('\t');
+                                stringBuilder.append(uniquePeptideSequences.contains(peptide.getSequence()) ? "unique" : "shared"); // peptide uniqueness
+                                stringBuilder.append('\t');
                                 stringBuilder.append(psmScore); // psmScore
                                 stringBuilder.append('\t');
                                 stringBuilder.append(fdrScore); // fdrScore
@@ -243,9 +258,10 @@ public class MzTabBedConverter {
                                 stringBuilder.append('\t');
                                 stringBuilder.append(peptide.getSpectrumIdentification().getCalculatedMassToCharge()); // calcMassToCharge
                                 stringBuilder.append('\t');
-                                String datasetID = "";
+                                String datasetID;
                                 if (!projectAccession.isEmpty()) {
-                                    datasetID = projectAccession;
+                                    datasetID = proteoAnnotatorReporcessed ? projectAccession + "_proteoannotator_reprocessed"
+                                                                           : projectAccession;
                                     if (!assayAccession.isEmpty()) {
                                         datasetID = datasetID + "_" + assayAccession;
                                     }
@@ -256,7 +272,9 @@ public class MzTabBedConverter {
                                 stringBuilder.append('\t');
                                 String projectUri ;
                                 if (!projectAccession.isEmpty()) {
-                                    projectUri = "http://www.ebi.ac.uk/pride/archive/projects/" + projectAccession;
+                                    projectUri = proteoAnnotatorReporcessed ?
+                                            "http://ftp.pride.ebi.ac.uk/pride/data/proteogenomics/latest/proteoannotator/reprocessed_data/" + projectAccession :
+                                            "http://www.ebi.ac.uk/pride/archive/projects/" + projectAccession;
                                 }  else {
                                     projectUri = "null";
                                 }
