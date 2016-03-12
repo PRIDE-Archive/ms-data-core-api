@@ -38,6 +38,9 @@ public class NetCDFTransformer {
 
 
             ParamGroup paramGroup = new ParamGroup();
+            CvTermReference cvTerm = CvTermReference.MS_LEVEL;
+            CvParam cvParam = new CvParam(cvTerm.getAccession(), cvTerm.getName(), cvTerm.getCvLabel(), scan.getMsLevel().toString(), null, null, null);
+            paramGroup.addCvParam(cvParam);
 
             newSpec = new Spectrum(paramGroup, specId, null, index, dataProcessing, arrLen,
                     binaryArray, spotId, sourceFile, scans, precursors, products);
@@ -207,7 +210,7 @@ public class NetCDFTransformer {
     }
 
     /**
-     * Convert a list of data processings
+     * Convert a list of data processing
      *
      * @return List<DataProcessing>    a list of data processings
      */
