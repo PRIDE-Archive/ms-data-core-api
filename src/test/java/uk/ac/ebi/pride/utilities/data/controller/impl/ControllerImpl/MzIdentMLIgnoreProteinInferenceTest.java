@@ -123,7 +123,7 @@ public class MzIdentMLIgnoreProteinInferenceTest {
     public void testGetIdentificationIDs() throws DataAccessException {
         List<Comparable> identifications = new ArrayList<Comparable>(mzIdentMlController.getProteinIds());
         assertTrue("The numer of Identification should be 2", identifications.size()==2044);
-        assertEquals("The id of the first identification should be DBSeq_1_psu|NC_LIV_102740",identifications.get(0).toString(),"DBSeq_1_psu|NC_LIV_102740");
+        assertEquals("The id of the first identification should be DBSeq_1_psu|NC_LIV_102740", "DBSeq_1_psu|NC_LIV_102740", identifications.get(0).toString());
     }
 
 }
