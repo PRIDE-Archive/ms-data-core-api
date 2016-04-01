@@ -69,7 +69,7 @@ public class MzTabControllerImplTest {
         Collection<Comparable> ids = mzTabController.getProteinIds();
         assertTrue("The number of Proteins is", ids.size() == 1249);
         Protein protein = mzTabController.getProteinById(ids.iterator().next());
-        assertTrue("The first protein has ", protein.getPeptides().size() == 3);
+        assertTrue("The first protein has ", protein.getPeptides().size() == 2);
     }
 
     @Test

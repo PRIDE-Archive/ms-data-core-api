@@ -1,6 +1,7 @@
 package uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import uk.ac.ebi.pride.utilities.data.core.Spectrum;
@@ -29,6 +30,12 @@ public class MzIdentMlMSControllerImplTest {
         }
         File inputFile = new File(url.toURI());
         mzIdentMlController = new MzIdentMLControllerImpl(inputFile, true);
+        url = MzIdentMlControllerImplTest.class.getClassLoader().getResource("small.mgf");
+        File filems = new File(url != null ? url.getFile() : null != null ? url != null ? url.getFile() : null : null);
+        List<File> fileList = new ArrayList<File>();
+        fileList.add(filems);
+        mzIdentMlController.addMSController(fileList);
+
     }
 
     @After
@@ -39,14 +46,16 @@ public class MzIdentMlMSControllerImplTest {
 
     @Test
     public void addMSController() throws Exception {
-        URL url = MzIdentMlControllerImplTest.class.getClassLoader().getResource("small.mgf");
-        File filems = new File(url != null ? url.getFile() : null != null ? url != null ? url.getFile() : null : null);
-        List<File> fileList = new ArrayList<File>();
-        fileList.add(filems);
-        mzIdentMlController.addMSController(fileList);
         Spectrum spectrum = mzIdentMlController.getSpectrumById("730!SD_1");
         assertTrue("There should be 60 peaks", spectrum.getIntensityBinaryDataArray().getDoubleArray().length == 60);
     }
+
+    @Test
+    public void checkReferencedSpectra(){
+        boolean status = mzIdentMlController.checkRandomSpectraByDeltaMassThreshold(10, 2.0);
+        Assert.assertTrue(status);
+    }
+
 
 
 }
