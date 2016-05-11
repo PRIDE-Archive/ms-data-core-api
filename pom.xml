@@ -85,8 +85,8 @@
         <commonscode.version>1.7</commonscode.version>
         <c3p0.version>0.9.1.2</c3p0.version>
 
-        <jmzidentml.version>1.2.3</jmzidentml.version>
-        <jmzml.version>1.7.3</jmzml.version>
+        <jmzidentml.version>1.2.4</jmzidentml.version>
+        <jmzml.version>1.7.5</jmzml.version>
 
         <xmlschemavalidator.version>2.1</xmlschemavalidator.version>
         <jmztab.version>3.0.2</jmztab.version>
