@@ -163,7 +163,14 @@ public abstract class CachedDataAccessController extends AbstractDataAccessContr
      * @return Spectrum spectrum object
      */
     Spectrum getSpectrumById(Comparable id, boolean useCache) {
-        return useCache ? (Spectrum) cache.get(CacheEntry.SPECTRUM, id) : null;
+        Spectrum result = null;
+        if (useCache) {
+            Object obj = cache.get(CacheEntry.SPECTRUM, id);
+            if (obj!=null) {
+                result = (Spectrum) obj;
+            }
+        }
+        return result;
     }
 
 
