@@ -418,15 +418,18 @@ public abstract class ReferencedIdentificationController extends CachedDataAcces
                 logger.debug("Get new spectrum from file: {}", id);
                 try {
                     DataAccessController spectrumController = msDataAccessControllers.get(spectrumIdArray.getValue());
-                    Collection<Comparable> spectrumIds = spectrumController.getSpectrumIds();
-                    if (spectrumController != null && spectrumIds.contains(spectrumIdArray.getKey())) {
-                        spectrum = spectrumController.getSpectrumById(spectrumIdArray.getKey());
-                        if (useCache && spectrum != null) {
-                            getCache().store(CacheEntry.SPECTRUM, id, spectrum);
-                            getCache().store(CacheEntry.SPECTRUM_LEVEL_PRECURSOR_CHARGE, id, DataAccessUtilities.getPrecursorChargeParamGroup(spectrum));
-                            getCache().store(CacheEntry.SPECTRUM_LEVEL_PRECURSOR_MZ, id, DataAccessUtilities.getPrecursorMz(spectrum));
+                    if(spectrumController != null){
+                        Collection<Comparable> spectrumIds = spectrumController.getSpectrumIds();
+                        if (spectrumController != null && spectrumIds.contains(spectrumIdArray.getKey())) {
+                            spectrum = spectrumController.getSpectrumById(spectrumIdArray.getKey());
+                            if (useCache && spectrum != null) {
+                                getCache().store(CacheEntry.SPECTRUM, id, spectrum);
+                                getCache().store(CacheEntry.SPECTRUM_LEVEL_PRECURSOR_CHARGE, id, DataAccessUtilities.getPrecursorChargeParamGroup(spectrum));
+                                getCache().store(CacheEntry.SPECTRUM_LEVEL_PRECURSOR_MZ, id, DataAccessUtilities.getPrecursorMz(spectrum));
+                            }
                         }
                     }
+
                 } catch (Exception ex) {
                     String msg = "Error while getting spectrum: " + id;
                     logger.error(msg, ex);
