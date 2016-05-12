@@ -100,7 +100,7 @@
         <ms2-parser.version>1.2.4</ms2-parser.version>
         <pkl-parser.version>1.2.3</pkl-parser.version>
         <dta-parser.version>1.2.3</dta-parser.version>
-        <jnetCDF.version>0.0.1-SNAPSHOT</jnetCDF.version>
+        <jnetCDF.version>0.0.2</jnetCDF.version>
 
 
         <pride.jaxb.version>1.0.14</pride.jaxb.version>
