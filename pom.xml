@@ -92,7 +92,7 @@
 
         <pride.jaxb.version>1.0.13</pride.jaxb.version>
         <c3p0.version>0.9.1.2</c3p0.version>
-        <pride-utilities.version>2.0.6-SNAPSHOT</pride-utilities.version>
+        <pride-utilities.version>2.0.12-SNAPSHOT</pride-utilities.version>
         <json.version>20090211</json.version>
     </properties>
 
