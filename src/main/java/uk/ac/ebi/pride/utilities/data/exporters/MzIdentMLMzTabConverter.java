@@ -138,6 +138,7 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
         // check and set additional chromosome columns
         if (hasChromInformation()) {
             proteinColumnFactory.addOptionalColumn(MzTabUtils.OPTIONAL_PROTEIN_ACC_COLUMN, String.class);
+            proteinColumnFactory.addOptionalColumn(MzTabUtils.OPTIONAL_PROTEOGROUPER, String.class);
         }
         return proteinColumnFactory;
     }
@@ -160,9 +161,13 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
         // check and set additional chromosome columns
         if (hasChromInformation()) {
             psmColumnFactory.addOptionalColumn(MzTabUtils.OPTIONAL_CHROM_COLUMN, String.class);
-            psmColumnFactory.addOptionalColumn(MzTabUtils.OPTIONAL_CHROMSTARTS_COLUMN, String.class);
-            psmColumnFactory.addOptionalColumn(MzTabUtils.OPTIONAL_CHROMENDS_COLUMN, String.class);
+            psmColumnFactory.addOptionalColumn(MzTabUtils.OPTIONAL_CHROMEND_COLUMN, String.class);
             psmColumnFactory.addOptionalColumn(MzTabUtils.OPTIONAL_STRAND_COLUMN, String.class);
+            psmColumnFactory.addOptionalColumn(MzTabUtils.OPTIONAL_CHROM_EXON_COUNT_COLUMN, String.class);
+            psmColumnFactory.addOptionalColumn(MzTabUtils.OPTIONAL_CHROM_EXON_SIZES_COLUMN, String.class);
+            psmColumnFactory.addOptionalColumn(MzTabUtils.OPTIONAL_CHROM_EXON_STARTS_COLUMN, String.class);
+            psmColumnFactory.addOptionalColumn(MzTabUtils.OPTIONAL_GENOME_REF_VERSION_COLUMN, String.class);
+            //psmColumnFactory.addOptionalColumn(MzTabUtils.OPTIONAL_PROTEIN_ACC_COLUMN, String.class);
             psmColumnFactory.addOptionalColumn(MzTabUtils.OPTIONAL_PSM_FDRSCORE_COLUMN, String.class);
         }
         return this.psmColumnFactory;
@@ -565,9 +570,7 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
      * Converts the passed Identification object into an MzTab PSM.
      */
     protected List<PSM> loadPSMs(uk.ac.ebi.pride.utilities.data.core.Protein protein, List<Peptide> peptides)  {
-
         List<PSM> psmList = new ArrayList<PSM>();
-
         for (Peptide oldPSM : peptides) {
             PSM psm = new PSM(psmColumnFactory, metadata);
             psm.setSequence(oldPSM.getPeptideSequence().getSequence());
@@ -594,7 +597,6 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
             psm.setPre((pre == null || pre.isEmpty() || pre.equalsIgnoreCase(String.valueOf('\u0000'))) ? null : pre);
             psm.setPost((post == null || post.isEmpty() || pre.equalsIgnoreCase(String.valueOf('\u0000'))) ? null : post);
 
-            //TODO: Review
             List<Modification> mods = new ArrayList<Modification>();
 
             for (uk.ac.ebi.pride.utilities.data.core.Modification oldMod : oldPSM.getPeptideSequence().getModifications()) {
@@ -608,25 +610,6 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
                         if (mzTabMod != null) {
                             mzTabMod.addPosition(oldMod.getLocation(), null);
                             mods.add(mzTabMod);
-
-                            //Fixed and Variable modification (detected in metadata)
-//                    String site;
-//                    if(oldMod.getLocation()-1 < 0)
-//                        site = "N-Term";
-//                    else if(oldPSM.getPeptideEvidence().getPeptideSequence().getSequence().length() <= oldMod.getLocation() -1)
-//                        site = "C-Term";
-//                    else
-//                        site = String.valueOf(oldPSM.getPeptideEvidence().getPeptideSequence().getSequence().charAt(oldMod.getLocation()-1));
-
-//                    Param param = MzTabUtils.convertCvParamToCVParam(oldMod.getCvParams().get(0), mass);
-
-//                    if(!variableModifications.containsKey(param) || !variableModifications.get(param).contains(site)){
-//                        Set<String> sites = new HashSet<String>();
-//                        sites = (variableModifications.containsKey(param.getAccession()))?variableModifications.get(param.getAccession()):sites;
-//                        sites.add(site);
-//                        variableModifications.put(param, sites);
-//                    }
-
 
                         } else if (param.getAccession().equalsIgnoreCase(UNKNOWN_MOD) && mass != null) {  //Unknown mod
                             //Transform in a CHEMMOD Type modification
@@ -714,72 +697,52 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
             // check and set additional chromosome information
             if (hasChromInformation()) {
                 psm.setOptionColumnValue(MzTabUtils.OPTIONAL_CHROM_COLUMN, "null");
-                psm.setOptionColumnValue(MzTabUtils.OPTIONAL_CHROMSTARTS_COLUMN, "null");
-                psm.setOptionColumnValue(MzTabUtils.OPTIONAL_CHROMENDS_COLUMN, "null");
+                psm.setOptionColumnValue(MzTabUtils.OPTIONAL_CHROMEND_COLUMN, "null");
                 psm.setOptionColumnValue(MzTabUtils.OPTIONAL_STRAND_COLUMN, "null");
+                psm.setOptionColumnValue(MzTabUtils.OPTIONAL_CHROM_EXON_COUNT_COLUMN, "null");
+                psm.setOptionColumnValue(MzTabUtils.OPTIONAL_CHROM_EXON_SIZES_COLUMN, "null");
+                psm.setOptionColumnValue(MzTabUtils.OPTIONAL_CHROM_EXON_STARTS_COLUMN, "null");
+                psm.setOptionColumnValue(MzTabUtils.OPTIONAL_GENOME_REF_VERSION_COLUMN, "null");
                 psm.setOptionColumnValue(MzTabUtils.OPTIONAL_PSM_FDRSCORE_COLUMN, "null");
-                Set<String> starts = new HashSet<>();
-                Set<String> ends = new HashSet<>();
-                for (UserParam userParam : oldPSM.getPeptideEvidence().getUserParams()) {
-                    switch (userParam.getName()) {
-                        case ("chr"):
-                            psm.setOptionColumnValue(MzTabUtils.OPTIONAL_CHROM_COLUMN, userParam.getValue());
+                for (CvParam cvParam : oldPSM.getPeptideEvidence().getCvParams()) {
+                    switch (cvParam.getName()) {
+                        case ("chromosome name"):
+                            psm.setOptionColumnValue(MzTabUtils.OPTIONAL_CHROM_COLUMN, cvParam.getValue());
                             break;
-                        case ("start_map"):
-                            starts.add(userParam.getValue());
+                        case ("peptide end on chromosome"):
+                            psm.setOptionColumnValue(MzTabUtils.OPTIONAL_CHROMEND_COLUMN, cvParam.getValue());
                             break;
-                        case ("end_map"):
-                            ends.add(userParam.getValue());
+                        case ("chromosome strand"):
+                            psm.setOptionColumnValue(MzTabUtils.OPTIONAL_STRAND_COLUMN, cvParam.getValue());
                             break;
-                        case ("strand"):
-                            psm.setOptionColumnValue(MzTabUtils.OPTIONAL_STRAND_COLUMN, userParam.getValue());
+                        case ("peptide exon count"):
+                            psm.setOptionColumnValue(MzTabUtils.OPTIONAL_CHROM_EXON_COUNT_COLUMN, cvParam.getValue());
+                            break;
+                        case ("peptide exon nucleotide sizes"):
+                            psm.setOptionColumnValue(MzTabUtils.OPTIONAL_CHROM_EXON_SIZES_COLUMN, cvParam.getValue());
+                            break;
+                        case ("peptide start positions on chromosome"):
+                            psm.setOptionColumnValue(MzTabUtils.OPTIONAL_CHROM_EXON_STARTS_COLUMN, cvParam.getValue());
+                            break;
+                        case ("genome reference version"):
+                            psm.setOptionColumnValue(MzTabUtils.OPTIONAL_GENOME_REF_VERSION_COLUMN, cvParam.getValue());
                             break;
                         default:
                             break;
                     }
                 }
-                //remove starts and ends that are identical (0-sized exons)
-                Set<String> endsToRemove = new HashSet<>();
-                for (String end : ends) {
-                    if (starts.contains(end)) {
-                        endsToRemove.add(end);
-                    }
-                }
-                for (String endToRemove : endsToRemove) {
-                       ends.remove(endToRemove);
-                       starts.remove(endToRemove);
-                }
-
-                if (starts.size()>0) {
-                    psm.setOptionColumnValue(MzTabUtils.OPTIONAL_CHROMSTARTS_COLUMN, StringUtils.join(starts, ","));
-                }
-                if (ends.size()>0) {
-                    psm.setOptionColumnValue(MzTabUtils.OPTIONAL_CHROMENDS_COLUMN, StringUtils.join(ends, ","));
-                }
                 for (CvParam cvParam : oldPSM.getSpectrumIdentification().getCvParams()) {
-                    if (cvParam.getAccession().equalsIgnoreCase("MS:1002356")) {
-                        psm.setOptionColumnValue(MzTabUtils.OPTIONAL_PSM_FDRSCORE_COLUMN, cvParam.getValue());
-                        break;
+                    switch (cvParam.getName()) {
+                        case ("PSM-level combined FDRScore"):
+                            psm.setOptionColumnValue(MzTabUtils.OPTIONAL_PSM_FDRSCORE_COLUMN, cvParam.getValue());
+                            break;
+                        default:
+                            break;
                     }
                 }
             }
-
             psmList.add(psm);
         }
-
-        //Load the modifications in case some of modifications are not reported in the SpectrumIdentificationProtocol
-//        int varId = 1;
-//        for(Param param: variableModifications.keySet()){
-//            String siteString = "";
-//            for(String site: variableModifications.get(param)){
-//                siteString=siteString+" "+ site;
-//            }
-//            siteString = siteString.trim();
-//            metadata.addVariableModParam(varId, param);
-//            metadata.addVariableModSite(varId, siteString);
-//
-//            varId++;
-//        }
         return psmList;
     }
 
@@ -862,6 +825,12 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
                 proteinName = "null";
             }
             protein.setOptionColumnValue(MzTabUtils.OPTIONAL_PROTEIN_ACC_COLUMN, proteinName);
+            for (CvParam cvp :  msProtein.getCvParams()) {
+                if (cvp.getAccession().equalsIgnoreCase("MS:1002235")) {
+                    protein.setOptionColumnValue(MzTabUtils.OPTIONAL_PROTEOGROUPER, cvp.getValue());
+                    break;
+                }
+            }
         }
 
         return protein;
@@ -1028,9 +997,9 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
                 for (Comparable peptideID : peptideIDs) {
                     Collection<PeptideEvidence> peptideEvidences = source.getPeptideEvidences(proteinId, peptideID);
                     for (PeptideEvidence peptideEvidence : peptideEvidences) {
-                        List<UserParam> userParams = peptideEvidence.getUserParams();
-                        for (UserParam userParam : userParams) {
-                            if (userParam.getName().equalsIgnoreCase("chr")) {
+                        List<CvParam> userParams = peptideEvidence.getCvParams();
+                        for (CvParam cvParam : userParams) {
+                            if (cvParam.getName().equalsIgnoreCase("chromosome name")) {
                                 result.addCustom(new uk.ac.ebi.pride.jmztab.model.UserParam(MzTabUtils.CUSTOM_CHROM_INF_PARAM, "true"));
                                 break chromSearch;
                             }
