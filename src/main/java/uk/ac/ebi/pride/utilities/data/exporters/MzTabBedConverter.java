@@ -1,5 +1,6 @@
 package uk.ac.ebi.pride.utilities.data.exporters;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl.MzTabControllerImpl;
 import uk.ac.ebi.pride.utilities.data.core.*;
@@ -7,9 +8,12 @@ import uk.ac.ebi.pride.utilities.data.core.Modification;
 import uk.ac.ebi.pride.utilities.data.core.Peptide;
 import uk.ac.ebi.pride.utilities.data.core.Protein;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
+import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 
@@ -24,6 +28,7 @@ public class MzTabBedConverter {
     private String projectAccession;
     private String assayAccession;
     private boolean proteoAnnotatorReporcessed;
+    private String PROBED_VERSION = "0.4";
 
     /**
      * Constructor to setup conversion of an mzTabFile into a bed file.
@@ -107,18 +112,19 @@ public class MzTabBedConverter {
                         evidences.add(peptideEvidence);
                         String chrom = "null", chromstart = "null", chromend = "null", strand = "null", pepMods = "null",
                                 psmScore = "null", fdrScore = "null",
-                                blockStarts = "null", blockSizes = "null", blockCount="1";
+                                blockStarts = "null", blockSizes = "null", blockCount="1", buildVersion="null";
                         for (CvParam cvParam : peptideEvidence.getCvParams()) {
                             switch (cvParam.getAccession()) {
                                 case ("MS:1002637"):
                                     chrom = cvParam.getValue();
                                     break;
                                 case ("MS:1002643"):
-                                    blockStarts = checkFixEndComma(cvParam.getValue());
-                                    chromstart = blockStarts.split(",")[0];
-                                    break;
-                                case ("MS:1002640"):
-                                    chromend = cvParam.getValue();
+                                    String[] starts = checkFixEndComma(cvParam.getValue()).split(",");
+                                    chromstart = starts[0];
+                                    for (int i=0; i<starts.length; i++) {
+                                        starts[i] = "" + (Integer.parseInt(starts[i]) - Integer.parseInt(chromstart));
+                                    }
+                                    blockStarts = StringUtils.join(starts, ",");
                                     break;
                                 case ("MS:1002641"):
                                     blockCount = cvParam.getValue();
@@ -135,6 +141,9 @@ public class MzTabBedConverter {
                                 case ("MS:1002345"):
                                     psmScore = cvParam.getValue();
                                     break;
+                                case ("MS:1002644"):
+                                    buildVersion = cvParam.getValue();
+                                    break;
                                 default:
                                     break;
                                 // todo
@@ -143,7 +152,7 @@ public class MzTabBedConverter {
                                 // grouping PSMs?
                             }
                         }
-                        ArrayList<String> peptideModifications = new ArrayList<>();
+                       ArrayList<String> peptideModifications = new ArrayList<>();
                         for (Modification modification : peptideEvidence.getPeptideSequence().getModifications()) {
                             for (CvParam cvParam : modification.getCvParams()) {
                                 peptideModifications.add(modification.getLocation() + "-" + cvParam.getAccession());
@@ -153,6 +162,10 @@ public class MzTabBedConverter {
                             pepMods = StringUtils.join(peptideModifications, ", ");
                         }
                         if (!chrom.equalsIgnoreCase("null")) {
+                            String[] starts = blockStarts.split(",");
+                            String[] sizes = blockSizes.split(",");
+                            chromend = "" + (Integer.parseInt(chromstart) + Integer.parseInt(starts[starts.length-1]) + Integer.parseInt(sizes[sizes.length-1]));
+
                             stringBuilder.append(chrom); // chrom
                             stringBuilder.append('\t');
                             stringBuilder.append(chromstart); // chromstart
@@ -303,6 +316,8 @@ public class MzTabBedConverter {
                                 }
                             } // peptide uniqueness
                             stringBuilder.append('\t');
+                            stringBuilder.append(buildVersion); // buildVersion
+                            stringBuilder.append('\t');
                             if (psmScore==null || psmScore.isEmpty() || psmScore.equalsIgnoreCase("null")) {
                                 for (CvParam cvp :  protein.getCvParams()) {
                                     if (cvp.getAccession().equalsIgnoreCase("MS:1002235")) {
@@ -384,4 +399,116 @@ public class MzTabBedConverter {
         }
         return cvps.containsKey("MS:1002637") && cvps.containsKey("MS:1002643") && cvps.containsKey("MS:1002640");
     }
+    
+    public File sortProBed(File inputProBed, File inputChromSizes) throws IOException, InterruptedException {
+        File result = null;
+        if (!System.getProperty("os.name").startsWith("Windows")) {
+            Path chromPath = inputChromSizes.toPath();
+            List<String> lines = Files.readAllLines(chromPath, Charset.defaultCharset());
+            Set chromNames = new TreeSet();
+            for (String line : lines) {
+                String[] chromLine = line.split("\t");
+                chromNames.add(chromLine[0]);
+            }
+
+            File temp = new File(inputProBed.getPath() + ".tmp");
+            temp.createNewFile();
+            BufferedWriter writer = new BufferedWriter(new FileWriter(temp));
+            BufferedReader reader = new BufferedReader(new FileReader(inputProBed));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] bedLine = line.split("\t");
+                if (chromNames.contains(bedLine[0])) {
+                    writer.write(line, 0, line.length());
+                    writer.newLine();
+                } // else: don't write
+            }
+            writer.close();
+            System.out.println("Sorting temp bed file to new bed file. PB command: " +
+                    "sort -k1,1 -k2,2n " + temp.getAbsoluteFile().getPath() + " > " + inputProBed.getAbsoluteFile().getParentFile().getCanonicalPath() + File.separator + FilenameUtils.getBaseName(inputProBed.getName()) + "_sorted.pro.bed");
+            Runtime rt = Runtime.getRuntime();
+            Process p = rt.exec("sort -k1,1 -k2,2n " + temp.getAbsoluteFile().getPath() + " > " + inputProBed.getAbsoluteFile().getParentFile().getCanonicalPath() + File.separator + FilenameUtils.getBaseName(inputProBed.getName()) + "_sorted.pro.bed");
+            //Process p = new ProcessBuilder(sortScript.getAbsoluteFile().getPath(), temp.getAbsoluteFile().getPath(), inputProBed.getAbsoluteFile().getParentFile().getCanonicalPath() + File.separator + FilenameUtils.getBaseName(inputProBed.getName()) + "_sorted.pro.bed").start();
+            BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
+            BufferedReader errorStream = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+            String scriptOutput;
+            while ((scriptOutput = in.readLine()) != null) {
+                System.out.println(scriptOutput);
+            }
+            System.out.println("Error stream text:");
+            while ((scriptOutput = errorStream.readLine()) != null) {
+                System.out.println(scriptOutput);
+            }
+            p.waitFor();
+            in.close();
+            errorStream.close();
+            temp.delete();
+            result =  new File(inputProBed.getAbsoluteFile().getParentFile().getCanonicalPath() + File.separator + FilenameUtils.getBaseName(inputProBed.getName()) + "_sorted.pro.bed");
+        }
+        return result;
+    }
+
+    public File convertProBedToBigBed(File aSQL, File bedToBigBed, File inputProBed, File inputChromSizes) throws IOException, InterruptedException{
+        File result = null;
+        if (!System.getProperty("os.name").startsWith("Windows")) {
+            //System.out.println(convertBigBed.getAbsoluteFile().getPath() + " " +
+            System.out.println(
+                    bedToBigBed.getAbsoluteFile().getPath() + " " +
+                    aSQL.getAbsoluteFile().getPath() + " " +
+                    "bed12+13" + " " +
+                            inputProBed + " " +
+                    inputChromSizes.getAbsoluteFile().getPath() + " " +
+                    inputProBed.getAbsoluteFile().getParentFile().getCanonicalPath() + File.separator + FilenameUtils.getBaseName(inputProBed.getName()) + ".bb");
+            Runtime rt = Runtime.getRuntime();
+            Process bigbed_proc = rt.exec(
+                            bedToBigBed.getAbsoluteFile().getPath() +
+                            " -as=\"" + aSQL.getAbsoluteFile().getPath() + "\" " +
+                            "-type=\"bed12+13\" "  +
+                            "-tab " +
+                            inputProBed + " " +
+                            inputChromSizes.getAbsoluteFile().getPath() + " " +
+                            inputProBed.getAbsoluteFile().getParentFile().getCanonicalPath() + File.separator + FilenameUtils.getBaseName(inputProBed.getName()) + ".bb");
+            /* Process bigbed_proc = new ProcessBuilder(convertBigBedScript.getAbsoluteFile().getPath(),
+                    aSQL.getAbsoluteFile().getPath(),
+                    bedToBigBed.getAbsoluteFile().getPath(),
+                    "bed12+13",
+                    inputProBed.getAbsoluteFile().getParentFile().getCanonicalPath() + File.separator + FilenameUtils.getBaseName(inputProBed.getName()) + "_sorted.pro.bed",
+                    inputChromSizes.getAbsoluteFile().getPath(),
+                    inputProBed.getAbsoluteFile().getParentFile().getCanonicalPath() + File.separator + FilenameUtils.getBaseName(inputProBed.getName()) + ".bb")
+                    .start();*/
+            BufferedReader in = new BufferedReader(new InputStreamReader(bigbed_proc.getInputStream()));
+            BufferedReader errorStream = new BufferedReader(new InputStreamReader(bigbed_proc.getErrorStream()));
+            String scriptOutput;
+            while ((scriptOutput = in.readLine()) != null) {
+                System.out.println(scriptOutput);
+            }
+            System.out.println("Error stream text:");
+            while ((scriptOutput = errorStream.readLine()) != null) {
+                System.out.println(scriptOutput);
+            }
+            bigbed_proc.waitFor();
+            in.close();
+            errorStream.close();
+            inputProBed.delete();
+
+            BufferedReader reader = Files.newBufferedReader(Paths.get(inputProBed.getAbsoluteFile().getParentFile().getCanonicalPath() + File.separator + FilenameUtils.getBaseName(inputProBed.getName()) + "_sorted.pro.bed"), Charset.defaultCharset() );
+            BufferedWriter writer = Files.newBufferedWriter(Paths.get(inputProBed.getAbsoluteFile().getParentFile().getCanonicalPath() + File.separator + FilenameUtils.getBaseName(inputProBed.getName()) + "_sorted.pro.bed_temp"), Charset.defaultCharset());
+            writer.write("# proBed-version\t" + PROBED_VERSION);
+            writer.newLine();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                writer.write(line, 0, line.length());
+                writer.newLine();
+            }
+            reader.close();
+            writer.close();
+            Files.delete(Paths.get(inputProBed.getAbsoluteFile().getParentFile().getCanonicalPath() + File.separator + FilenameUtils.getBaseName(inputProBed.getName()) + "_sorted.pro.bed"));
+            Files.move(Paths.get(inputProBed.getAbsoluteFile().getParentFile().getCanonicalPath() + File.separator + FilenameUtils.getBaseName(inputProBed.getName()) + "_sorted.pro.bed_temp")
+                    , Paths.get(inputProBed.getAbsoluteFile().getParentFile().getCanonicalPath() + File.separator + FilenameUtils.getBaseName(inputProBed.getName()) + "_sorted.pro.bed"));
+            System.out.println("Added proBed version number to the sorted proBed File.");
+            result =  Paths.get(inputProBed.getAbsoluteFile().getParentFile().getCanonicalPath() + File.separator + FilenameUtils.getBaseName(inputProBed.getName()) + "_sorted.pro.bed").toFile();
+        }
+        return result;
+    }
+
 }
