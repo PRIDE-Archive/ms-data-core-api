@@ -14,6 +14,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 
@@ -28,7 +29,7 @@ public class MzTabBedConverter {
     private String projectAccession;
     private String assayAccession;
     private boolean proteoAnnotatorReporcessed;
-    private String PROBED_VERSION = "0.4";
+    private final static String PROBED_VERSION = "1.0";
 
     /**
      * Constructor to setup conversion of an mzTabFile into a bed file.
@@ -110,9 +111,9 @@ public class MzTabBedConverter {
                 for (PeptideEvidence peptideEvidence : peptide.getPeptideEvidenceList()) {
                     if (!evidences.contains(peptideEvidence)) {
                         evidences.add(peptideEvidence);
-                        String chrom = "null", chromstart = "null", chromend = "null", strand = "null", pepMods = "null",
-                                psmScore = "null", fdrScore = "null",
-                                blockStarts = "null", blockSizes = "null", blockCount="1", buildVersion="null";
+                        String chrom = ".", chromstart = ".", chromend = ".", strand = ".", pepMods = ".",
+                                psmScore = ".", fdrScore = ".",
+                                blockStarts = ".", blockSizes = ".", blockCount="1", buildVersion=".";
                         for (CvParam cvParam : peptideEvidence.getCvParams()) {
                             switch (cvParam.getAccession()) {
                                 case ("MS:1002637"):
@@ -142,7 +143,7 @@ public class MzTabBedConverter {
                                     psmScore = cvParam.getValue();
                                     break;
                                 case ("MS:1002644"):
-                                    buildVersion = cvParam.getValue();
+                                    buildVersion = FilenameUtils.removeExtension(cvParam.getValue());
                                     break;
                                 default:
                                     break;
@@ -161,7 +162,7 @@ public class MzTabBedConverter {
                         if (peptideModifications.size() > 0) {
                             pepMods = StringUtils.join(peptideModifications, ", ");
                         }
-                        if (!chrom.equalsIgnoreCase("null")) {
+                        if (!chrom.equalsIgnoreCase(".")) {
                             String[] starts = blockStarts.split(",");
                             String[] sizes = blockSizes.split(",");
                             chromend = "" + (Integer.parseInt(chromstart) + Integer.parseInt(starts[starts.length-1]) + Integer.parseInt(sizes[sizes.length-1]));
@@ -318,12 +319,12 @@ public class MzTabBedConverter {
                             stringBuilder.append('\t');
                             stringBuilder.append(buildVersion); // buildVersion
                             stringBuilder.append('\t');
-                            if (psmScore==null || psmScore.isEmpty() || psmScore.equalsIgnoreCase("null")) {
+                            if (psmScore==null || psmScore.isEmpty() || psmScore.equalsIgnoreCase(".")) {
                                 for (CvParam cvp :  protein.getCvParams()) {
                                     if (cvp.getAccession().equalsIgnoreCase("MS:1002235")) {
                                         psmScore = cvp.getValue();
                                         if (psmScore==null || psmScore.isEmpty()) {
-                                            psmScore = "null";
+                                            psmScore = ".";
                                         }
                                         break;
                                     }
@@ -335,13 +336,13 @@ public class MzTabBedConverter {
                             stringBuilder.append('\t');
                             stringBuilder.append(pepMods); // peptide location modifications
                             stringBuilder.append('\t');
-                            stringBuilder.append(mzTabController.hasProteinAmbiguityGroup() ? "null" : peptide.getPrecursorCharge()); // charge (null if row = group of PSMs)
+                            stringBuilder.append(mzTabController.hasProteinAmbiguityGroup() ? "." : peptide.getPrecursorCharge()); // charge (null if row = group of PSMs)
                             stringBuilder.append('\t');
-                            stringBuilder.append(mzTabController.hasProteinAmbiguityGroup() ? "null" : peptide.getSpectrumIdentification().getExperimentalMassToCharge()); // expMassToCharge (null if row = group of PSMs)
+                            stringBuilder.append(mzTabController.hasProteinAmbiguityGroup() ? "." : peptide.getSpectrumIdentification().getExperimentalMassToCharge()); // expMassToCharge (null if row = group of PSMs)
                             stringBuilder.append('\t');
-                            stringBuilder.append(mzTabController.hasProteinAmbiguityGroup() ? "null" : peptide.getSpectrumIdentification().getCalculatedMassToCharge()); // calcMassToCharge (null if row = group of PSMs)
+                            stringBuilder.append(mzTabController.hasProteinAmbiguityGroup() ? "." : peptide.getSpectrumIdentification().getCalculatedMassToCharge()); // calcMassToCharge (null if row = group of PSMs)
                             stringBuilder.append('\t');
-                            stringBuilder.append(mzTabController.hasProteinAmbiguityGroup() ? "null" : peptide.getSpectrumIdentification().getRank()); // PSM rank (null if row = group of PSMs)
+                            stringBuilder.append(mzTabController.hasProteinAmbiguityGroup() ? "." : peptide.getSpectrumIdentification().getRank()); // PSM rank (null if row = group of PSMs)
                             stringBuilder.append('\t');
                             String datasetID;
                             if (!projectAccession.isEmpty()) {
@@ -361,7 +362,7 @@ public class MzTabBedConverter {
                                         "http://ftp.pride.ebi.ac.uk/pride/data/proteogenomics/latest/proteoannotator/reprocessed_data/" + projectAccession :
                                         "http://www.ebi.ac.uk/pride/archive/projects/" + projectAccession;
                             }  else {
-                                projectUri = "null";
+                                projectUri = ".";
                             }
                             stringBuilder.append(projectUri); // projectURI
                             stringBuilder.append('\n');
@@ -399,8 +400,8 @@ public class MzTabBedConverter {
         }
         return cvps.containsKey("MS:1002637") && cvps.containsKey("MS:1002643") && cvps.containsKey("MS:1002640");
     }
-    
-    public File sortProBed(File inputProBed, File inputChromSizes) throws IOException, InterruptedException {
+
+    public static File sortProBed(File inputProBed, File inputChromSizes) throws IOException, InterruptedException {
         File result = null;
         if (!System.getProperty("os.name").startsWith("Windows")) {
             Path chromPath = inputChromSizes.toPath();
@@ -448,7 +449,7 @@ public class MzTabBedConverter {
         return result;
     }
 
-    public File convertProBedToBigBed(File aSQL, File bedToBigBed, File inputProBed, File inputChromSizes) throws IOException, InterruptedException{
+    public static File convertProBedToBigBed(File aSQL, File bedToBigBed, File inputProBed, File inputChromSizes) throws IOException, InterruptedException{
         File result = null;
         if (!System.getProperty("os.name").startsWith("Windows")) {
             //System.out.println(convertBigBed.getAbsoluteFile().getPath() + " " +
@@ -509,6 +510,41 @@ public class MzTabBedConverter {
             result =  Paths.get(inputProBed.getAbsoluteFile().getParentFile().getCanonicalPath() + File.separator + FilenameUtils.getBaseName(inputProBed.getName()) + "_sorted.pro.bed").toFile();
         }
         return result;
+    }
+
+    public static void createAsql(String name, String path) throws IOException{
+        SimpleDateFormat df = new SimpleDateFormat("yyyymmdd");
+        final String DATE = df.format(new Date());
+        String text = "table ProteoAnnotator_reanalysis_" + name + "_" + DATE + "\n" +
+                "\"" + "ProteoAnnotator reanalysis of " + name + " " + DATE + "\"\n" +
+                "(\n" +
+                "string  chrom;          \"The reference sequence chromosome.\"\n" +
+                "uint    chromStart;     \"The position of the first DNA base.\"\n" +
+                "uint    chromEnd;       \"The position of the last DNA base.\"\n" +
+                "string  name;           \"Unique name for the BED line.\"\n" +
+                "uint    score; \"A score used for shading by visualisation software.\"\n" +
+                "char[1]  strand;                \"The strand.\"\n" +
+                "uint    thickStart ;     \"Start position of feature on chromosome.\"\n" +
+                "uint    thickEnd ;       \"End position of feature on chromosome.\"\n" +
+                "uint    reserved  ; \"Reserved.\" \n" +
+                "int  blockCount ; \"The number of blocks (exons) in the BED line.\"\n" +
+                "int[blockCount] blockSizes ; \"A comma-separated list of the block sizes.\"\n" +
+                "int[blockCount] chromStarts ; \"A comma-separated list of block starts.\"\n" +
+                "string  proteinAccession ; \"The accession number of the protein.\"\n" +
+                "string  peptideSequence; \"The peptide sequence.\"\n" +
+                "string  uniqueness; \"The uniqueness of the peptide in the context of the genome sequence.\"\n" +
+                "string  genomeReferenceVersion ; \"The genome reference version number\"\n" +
+                "string  psmScore; \"One representative PSM score.\"\n" +
+                "string  fdr; \"A cross-platform measure of the likelihood of the identification being incorrect.\"\n" +
+                "string  modifications; \"Semicolon-separated list of modifications identified on the peptide.”\n" +
+                "string  charge; \"The value of the charge.\"\n" +
+                "string  expMassToCharge; \"The value of the experimental mass to charge.\"\n" +
+                "string  calcMassToCharge; \"The value of the calculated mass to charge.\"\n" +
+                "string  datasetID; \"A unique identifier or name for the data set.\"\n" +
+                "string  project_uri; \"A URI pointing to the file's source data.\"\n" +
+                ")";
+        Files.write(Paths.get(path), text.getBytes());
+        System.out.println("Finished creating new aSQL file: " + path);
     }
 
 }
