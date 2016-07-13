@@ -88,8 +88,8 @@ public class MzTabBedConverter {
                 }
             }
         }
-        Set<String> duplicatePeptideSequences = new HashSet();
-        Set<String> tempePeptideSequences = new HashSet();
+        Set<String> duplicatePeptideSequences = new HashSet<>();
+        Set<String> tempePeptideSequences = new HashSet<>();
         for (String peptideSequence : allPeptideSequences) {
             if (!tempePeptideSequences.add(peptideSequence)) {
                 duplicatePeptideSequences.add(peptideSequence);
