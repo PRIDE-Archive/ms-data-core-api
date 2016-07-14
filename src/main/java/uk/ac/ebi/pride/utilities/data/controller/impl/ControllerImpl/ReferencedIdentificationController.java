@@ -598,7 +598,7 @@ public abstract class ReferencedIdentificationController extends CachedDataAcces
                     ptmMasses.add(monoMasses.get(0));
             }
             Double delta = MoleculeUtilities.calculateDeltaMz(peptide.getSequence(), mz, charge, ptmMasses);
-            if(delta > deltaThreshold)
+            if(Math.abs(delta) > deltaThreshold)
                 return false;
             i++;
         }
