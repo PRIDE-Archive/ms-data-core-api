@@ -10,10 +10,7 @@ import uk.ac.ebi.pride.utilities.data.core.Protein;
 
 import java.io.*;
 import java.nio.charset.Charset;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -401,7 +398,7 @@ public class MzTabBedConverter {
         return cvps.containsKey("MS:1002637") && cvps.containsKey("MS:1002643") && cvps.containsKey("MS:1002640");
     }
 
-    public static File sortProBed(File inputProBed, File inputChromSizes) throws IOException, InterruptedException {
+    public static File sortProBed(File inputProBed, File inputChromSizes, File sortScript) throws IOException, InterruptedException {
         File result = null;
         if (!System.getProperty("os.name").startsWith("Windows")) {
             Path chromPath = inputChromSizes.toPath();
@@ -411,8 +408,8 @@ public class MzTabBedConverter {
                 String[] chromLine = line.split("\t");
                 chromNames.add(chromLine[0]);
             }
-
             File temp = new File(inputProBed.getPath() + ".tmp");
+            System.out.println("Writing to temp pro bed file, filtered by chrom names: " + temp.getPath());
             temp.createNewFile();
             BufferedWriter writer = new BufferedWriter(new FileWriter(temp));
             BufferedReader reader = new BufferedReader(new FileReader(inputProBed));
@@ -425,75 +422,56 @@ public class MzTabBedConverter {
                 } // else: don't write
             }
             writer.close();
-            System.out.println("Sorting temp bed file to new bed file. PB command: " +
-                    "sort -k1,1 -k2,2n " + temp.getAbsoluteFile().getPath() + " > " + inputProBed.getAbsoluteFile().getParentFile().getCanonicalPath() + File.separator + FilenameUtils.getBaseName(inputProBed.getName()) + "_sorted.pro.bed");
-            Runtime rt = Runtime.getRuntime();
-            Process p = rt.exec("sort -k1,1 -k2,2n " + temp.getAbsoluteFile().getPath() + " > " + inputProBed.getAbsoluteFile().getParentFile().getCanonicalPath() + File.separator + FilenameUtils.getBaseName(inputProBed.getName()) + "_sorted.pro.bed");
-            //Process p = new ProcessBuilder(sortScript.getAbsoluteFile().getPath(), temp.getAbsoluteFile().getPath(), inputProBed.getAbsoluteFile().getParentFile().getCanonicalPath() + File.separator + FilenameUtils.getBaseName(inputProBed.getName()) + "_sorted.pro.bed").start();
+            File sortedProBed = new File(inputProBed.getParentFile().getPath() + File.separator + FilenameUtils.getBaseName(inputProBed.getName()) + "_sorted.pro.bed");
+            sortedProBed.createNewFile();
+            System.out.println("Sorting temp bed file to new bed file. PB command: " + sortScript.getPath() + " "  + temp.getPath() + " "  + sortedProBed);
+            Process p = new ProcessBuilder(sortScript.getPath(), temp.getPath(), sortedProBed.getPath()).redirectErrorStream(true).start();
             BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
-            BufferedReader errorStream = new BufferedReader(new InputStreamReader(p.getErrorStream()));
             String scriptOutput;
             while ((scriptOutput = in.readLine()) != null) {
-                System.out.println(scriptOutput);
-            }
-            System.out.println("Error stream text:");
-            while ((scriptOutput = errorStream.readLine()) != null) {
                 System.out.println(scriptOutput);
             }
             p.waitFor();
             in.close();
-            errorStream.close();
             temp.delete();
-            result =  new File(inputProBed.getAbsoluteFile().getParentFile().getCanonicalPath() + File.separator + FilenameUtils.getBaseName(inputProBed.getName()) + "_sorted.pro.bed");
+            result =  sortedProBed;
         }
         return result;
     }
 
-    public static File convertProBedToBigBed(File aSQL, File bedToBigBed, File inputProBed, File inputChromSizes) throws IOException, InterruptedException{
+    public static File convertProBedToBigBed(File aSQL, File bedToBigBed, File bigBedConverter, File sortedProBed, File inputChromSizes) throws IOException, InterruptedException{
         File result = null;
         if (!System.getProperty("os.name").startsWith("Windows")) {
-            //System.out.println(convertBigBed.getAbsoluteFile().getPath() + " " +
-            System.out.println(
-                    bedToBigBed.getAbsoluteFile().getPath() + " " +
-                    aSQL.getAbsoluteFile().getPath() + " " +
-                    "bed12+13" + " " +
-                            inputProBed + " " +
-                    inputChromSizes.getAbsoluteFile().getPath() + " " +
-                    inputProBed.getAbsoluteFile().getParentFile().getCanonicalPath() + File.separator + FilenameUtils.getBaseName(inputProBed.getName()) + ".bb");
-            Runtime rt = Runtime.getRuntime();
-            Process bigbed_proc = rt.exec(
-                            bedToBigBed.getAbsoluteFile().getPath() +
-                            " -as=\"" + aSQL.getAbsoluteFile().getPath() + "\" " +
-                            "-type=\"bed12+13\" "  +
-                            "-tab " +
-                            inputProBed + " " +
-                            inputChromSizes.getAbsoluteFile().getPath() + " " +
-                            inputProBed.getAbsoluteFile().getParentFile().getCanonicalPath() + File.separator + FilenameUtils.getBaseName(inputProBed.getName()) + ".bb");
-            /* Process bigbed_proc = new ProcessBuilder(convertBigBedScript.getAbsoluteFile().getPath(),
+            result = new File(sortedProBed.getParentFile().getPath() + File.separator + FilenameUtils.getBaseName(sortedProBed.getName()) + ".bb");
+            System.out.println("command to run: \n" +
+                            bedToBigBed.getPath() + ", " +
+                            "-as=\"" + aSQL.getPath() + "\"" + ", " +
+                            "-type=\"bed12+13\"" + ", " +
+                            "-tab"+ ", " +
+                    sortedProBed.getPath()+ ", " +
+                    inputChromSizes.getPath()+ ", " +
+                    result.getPath());
+            Process bigbed_proc = new ProcessBuilder(
+                    bedToBigBed.getPath(),
+                    bigBedConverter.getPath(),
                     aSQL.getAbsoluteFile().getPath(),
-                    bedToBigBed.getAbsoluteFile().getPath(),
                     "bed12+13",
-                    inputProBed.getAbsoluteFile().getParentFile().getCanonicalPath() + File.separator + FilenameUtils.getBaseName(inputProBed.getName()) + "_sorted.pro.bed",
+                    sortedProBed.getPath(),
                     inputChromSizes.getAbsoluteFile().getPath(),
-                    inputProBed.getAbsoluteFile().getParentFile().getCanonicalPath() + File.separator + FilenameUtils.getBaseName(inputProBed.getName()) + ".bb")
-                    .start();*/
+                    result.getPath())
+                    .redirectErrorStream(true)
+                    .start();
             BufferedReader in = new BufferedReader(new InputStreamReader(bigbed_proc.getInputStream()));
-            BufferedReader errorStream = new BufferedReader(new InputStreamReader(bigbed_proc.getErrorStream()));
             String scriptOutput;
             while ((scriptOutput = in.readLine()) != null) {
                 System.out.println(scriptOutput);
             }
-            System.out.println("Error stream text:");
-            while ((scriptOutput = errorStream.readLine()) != null) {
-                System.out.println(scriptOutput);
-            }
             bigbed_proc.waitFor();
             in.close();
-            errorStream.close();
-            inputProBed.delete();
-
-            BufferedReader reader = Files.newBufferedReader(Paths.get(inputProBed.getAbsoluteFile().getParentFile().getCanonicalPath() + File.separator + FilenameUtils.getBaseName(inputProBed.getName()) + "_sorted.pro.bed"), Charset.defaultCharset() );
-            BufferedWriter writer = Files.newBufferedWriter(Paths.get(inputProBed.getAbsoluteFile().getParentFile().getCanonicalPath() + File.separator + FilenameUtils.getBaseName(inputProBed.getName()) + "_sorted.pro.bed_temp"), Charset.defaultCharset());
+            System.out.println("Finished generating bigBed file: " + result.getPath());
+            File sortedTempFile = new File(sortedProBed.getParentFile().getPath() + File.separator + FilenameUtils.getBaseName(sortedProBed.getName()) + "_temp");
+            BufferedReader reader = Files.newBufferedReader(sortedProBed.toPath(), Charset.defaultCharset());
+            BufferedWriter writer = Files.newBufferedWriter(sortedTempFile.toPath(), Charset.defaultCharset());
             writer.write("# proBed-version\t" + PROBED_VERSION);
             writer.newLine();
             String line;
@@ -503,11 +481,9 @@ public class MzTabBedConverter {
             }
             reader.close();
             writer.close();
-            Files.delete(Paths.get(inputProBed.getAbsoluteFile().getParentFile().getCanonicalPath() + File.separator + FilenameUtils.getBaseName(inputProBed.getName()) + "_sorted.pro.bed"));
-            Files.move(Paths.get(inputProBed.getAbsoluteFile().getParentFile().getCanonicalPath() + File.separator + FilenameUtils.getBaseName(inputProBed.getName()) + "_sorted.pro.bed_temp")
-                    , Paths.get(inputProBed.getAbsoluteFile().getParentFile().getCanonicalPath() + File.separator + FilenameUtils.getBaseName(inputProBed.getName()) + "_sorted.pro.bed"));
+            sortedProBed.delete();
+            Files.move(sortedTempFile.toPath(), sortedProBed.toPath());
             System.out.println("Added proBed version number to the sorted proBed File.");
-            result =  Paths.get(inputProBed.getAbsoluteFile().getParentFile().getCanonicalPath() + File.separator + FilenameUtils.getBaseName(inputProBed.getName()) + "_sorted.pro.bed").toFile();
         }
         return result;
     }
@@ -540,8 +516,9 @@ public class MzTabBedConverter {
                 "string  charge; \"The value of the charge.\"\n" +
                 "string  expMassToCharge; \"The value of the experimental mass to charge.\"\n" +
                 "string  calcMassToCharge; \"The value of the calculated mass to charge.\"\n" +
-                "string  datasetID; \"A unique identifier or name for the data set.\"\n" +
-                "string  project_uri; \"A URI pointing to the file's source data.\"\n" +
+                "string  datasetID;  \"A unique identifier or name for the data set.\"\n" +
+                "string  psmRank;  \"The rank of the PSM.\"\n" +
+                "string  uri; \"A URI pointing to the file's source data.\"\n" +
                 ")";
         Files.write(Paths.get(path), text.getBytes());
         System.out.println("Finished creating new aSQL file: " + path);
