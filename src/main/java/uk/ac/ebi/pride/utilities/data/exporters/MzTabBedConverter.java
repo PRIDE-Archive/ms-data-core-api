@@ -13,6 +13,10 @@ import java.nio.charset.Charset;
 import java.nio.file.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 
 /**
@@ -21,6 +25,8 @@ import java.util.*;
  * @author Tobias Ternent tobias@ebi.ac.uk
  */
 public class MzTabBedConverter {
+
+    protected static org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(MzTabBedConverter.class);
 
     private MzTabControllerImpl mzTabController;
     private String projectAccession;
@@ -398,52 +404,67 @@ public class MzTabBedConverter {
         return cvps.containsKey("MS:1002637") && cvps.containsKey("MS:1002643") && cvps.containsKey("MS:1002640");
     }
 
-    public static File sortProBed(File inputProBed, File inputChromSizes, File sortScript) throws IOException, InterruptedException {
-        File result = null;
-        if (!System.getProperty("os.name").startsWith("Windows")) {
-            Path chromPath = inputChromSizes.toPath();
-            List<String> lines = Files.readAllLines(chromPath, Charset.defaultCharset());
-            Set chromNames = new TreeSet();
-            for (String line : lines) {
-                String[] chromLine = line.split("\t");
-                chromNames.add(chromLine[0]);
-            }
-            File temp = new File(inputProBed.getPath() + ".tmp");
-            System.out.println("Writing to temp pro bed file, filtered by chrom names: " + temp.getPath());
-            temp.createNewFile();
-            BufferedWriter writer = new BufferedWriter(new FileWriter(temp));
-            BufferedReader reader = new BufferedReader(new FileReader(inputProBed));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] bedLine = line.split("\t");
-                if (chromNames.contains(bedLine[0])) {
-                    writer.write(line, 0, line.length());
-                    writer.newLine();
-                } // else: don't write
-            }
-            writer.close();
-            File sortedProBed = new File(inputProBed.getParentFile().getPath() + File.separator + FilenameUtils.getBaseName(inputProBed.getName()) + "_sorted.pro.bed");
-            sortedProBed.createNewFile();
-            System.out.println("Sorting temp bed file to new bed file. PB command: " + sortScript.getPath() + " "  + temp.getPath() + " "  + sortedProBed);
-            Process p = new ProcessBuilder(sortScript.getPath(), temp.getPath(), sortedProBed.getPath()).redirectErrorStream(true).start();
-            BufferedReader in = new BufferedReader(new InputStreamReader(p.getInputStream()));
-            String scriptOutput;
-            while ((scriptOutput = in.readLine()) != null) {
-                System.out.println(scriptOutput);
-            }
-            p.waitFor();
-            in.close();
-            temp.delete();
-            result =  sortedProBed;
+    public static File sortProBed(File inputProBed, File inputChromSizes) throws IOException, InterruptedException {
+        logger.info("Input unsorted BED file: " + inputProBed.getPath());
+        logger.info("Input chrom  file: " + inputChromSizes.getPath());
+        File tempSortedBedFile =  new File(inputProBed.getPath() + ".sorted_tmp");
+        File sortedProBed = new File(inputProBed.getParentFile().getPath() + File.separator + FilenameUtils.getBaseName(inputProBed.getName()) + "_sorted.pro.bed");
+        tempSortedBedFile.createNewFile();
+        sortedProBed.createNewFile();
+        logger.info("Sorting BED file: " + inputProBed.getPath());
+        logger.info("Writing to sorted pro bed file, filtered by chrom names: " + sortedProBed.getPath());
+        List<String> lines = Files.readAllLines(inputChromSizes.toPath(), Charset.defaultCharset());
+        Set chromNames = new TreeSet();
+        for (String line : lines) {
+            String[] chromLine = line.split("\t");
+            chromNames.add(chromLine[0]);
         }
-        return result;
+        List<String> sortedLines;
+
+        try (Stream<String> stream = Files.lines(inputProBed.toPath())) {
+            sortedLines = stream.sorted((o1, o2) -> {
+                String firstKey1 = o1.substring(0, o1.indexOf('\t'));
+                String firstKey2 = o2.substring(0, o2.indexOf('\t'));
+                int aComp = firstKey1.compareTo(firstKey2);
+                if (aComp != 0) {
+                    return aComp; //1st key by 1st column (chrom name) as String
+                } else {
+                    String secondKey1 = o1.substring(StringUtils.ordinalIndexOf(o1, "\t", 1)+1, StringUtils.ordinalIndexOf(o1, "\t", 2));
+                    String secondKey2 = o2.substring(StringUtils.ordinalIndexOf(o2, "\t", 1)+1, StringUtils.ordinalIndexOf(o2, "\t", 2));
+                    return Integer.parseInt(secondKey1) - Integer.parseInt(secondKey2); //2nd key by 2nd column (chrom start) as int
+                }
+            }).collect(Collectors.toList());
+            BufferedWriter writerTemp = Files.newBufferedWriter(tempSortedBedFile.toPath());
+            BufferedWriter writerProBed = Files.newBufferedWriter(sortedProBed.toPath());
+            sortedLines.stream().forEachOrdered(s -> {
+                try {
+                    writerTemp.write(s);
+                    writerTemp.newLine();
+                    if (chromNames.contains(s.substring(0, s.indexOf('\t')))) {
+                        writerProBed.write(s);
+                        writerProBed.newLine();
+                    } else {
+                        logger.info("Chromosome not present in chrom txt file:" + s);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            });
+            writerTemp.close();
+            writerProBed.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Files.move(tempSortedBedFile.toPath(), inputProBed.toPath(), REPLACE_EXISTING);
+        logger.info("Sorted new proBed fle: " + sortedProBed.getAbsolutePath());
+        return sortedProBed;
     }
 
     public static File convertProBedToBigBed(File aSQL, File bedToBigBed, File bigBedConverter, File sortedProBed, File inputChromSizes) throws IOException, InterruptedException{
         File result = null;
         if (!System.getProperty("os.name").startsWith("Windows")) {
             result = new File(sortedProBed.getParentFile().getPath() + File.separator + FilenameUtils.getBaseName(sortedProBed.getName()) + ".bb");
-            System.out.println("command to run: \n" +
+            logger.info("command to run: \n" +
                             bedToBigBed.getPath() + ", " +
                             "-as=\"" + aSQL.getPath() + "\"" + ", " +
                             "-type=\"bed12+13\"" + ", " +
@@ -464,11 +485,11 @@ public class MzTabBedConverter {
             BufferedReader in = new BufferedReader(new InputStreamReader(bigbed_proc.getInputStream()));
             String scriptOutput;
             while ((scriptOutput = in.readLine()) != null) {
-                System.out.println(scriptOutput);
+                logger.info(scriptOutput);
             }
             bigbed_proc.waitFor();
             in.close();
-            System.out.println("Finished generating bigBed file: " + result.getPath());
+            logger.info("Finished generating bigBed file: " + result.getPath());
             File sortedTempFile = new File(sortedProBed.getParentFile().getPath() + File.separator + FilenameUtils.getBaseName(sortedProBed.getName()) + "_temp");
             BufferedReader reader = Files.newBufferedReader(sortedProBed.toPath(), Charset.defaultCharset());
             BufferedWriter writer = Files.newBufferedWriter(sortedTempFile.toPath(), Charset.defaultCharset());
@@ -483,7 +504,7 @@ public class MzTabBedConverter {
             writer.close();
             sortedProBed.delete();
             Files.move(sortedTempFile.toPath(), sortedProBed.toPath());
-            System.out.println("Added proBed version number to the sorted proBed File.");
+            logger.info("Added proBed version number to the sorted proBed File.");
         }
         return result;
     }
@@ -521,7 +542,7 @@ public class MzTabBedConverter {
                 "string  uri; \"A URI pointing to the file's source data.\"\n" +
                 ")";
         Files.write(Paths.get(path), text.getBytes());
-        System.out.println("Finished creating new aSQL file: " + path);
+        logger.info("Finished creating new aSQL file: " + path);
     }
 
 }
