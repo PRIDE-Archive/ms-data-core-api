@@ -167,7 +167,6 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
             psmColumnFactory.addOptionalColumn(MzTabUtils.OPTIONAL_CHROM_EXON_SIZES_COLUMN, String.class);
             psmColumnFactory.addOptionalColumn(MzTabUtils.OPTIONAL_CHROM_EXON_STARTS_COLUMN, String.class);
             psmColumnFactory.addOptionalColumn(MzTabUtils.OPTIONAL_GENOME_REF_VERSION_COLUMN, String.class);
-            //psmColumnFactory.addOptionalColumn(MzTabUtils.OPTIONAL_PROTEIN_ACC_COLUMN, String.class);
             psmColumnFactory.addOptionalColumn(MzTabUtils.OPTIONAL_PSM_FDRSCORE_COLUMN, String.class);
         }
         return this.psmColumnFactory;
