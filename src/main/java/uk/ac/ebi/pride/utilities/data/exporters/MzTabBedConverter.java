@@ -1,7 +1,9 @@
 package uk.ac.ebi.pride.utilities.data.exporters;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
 import uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl.MzTabControllerImpl;
 import uk.ac.ebi.pride.utilities.data.core.*;
 import uk.ac.ebi.pride.utilities.data.core.Modification;
@@ -9,6 +11,8 @@ import uk.ac.ebi.pride.utilities.data.core.Peptide;
 import uk.ac.ebi.pride.utilities.data.core.Protein;
 
 import java.io.*;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.*;
 import java.text.SimpleDateFormat;
@@ -460,25 +464,37 @@ public class MzTabBedConverter {
         return sortedProBed;
     }
 
-    public static File convertProBedToBigBed(File aSQL, File bedToBigBed, File bigBedConverter, File sortedProBed, File inputChromSizes) throws IOException, InterruptedException{
-        File result = null;
-        if (!System.getProperty("os.name").startsWith("Windows")) {
+    public static File convertProBedToBigBed(File aSQL, String bedColumnsType, File sortedProBed, File inputChromSizes, File bigBedConverter) throws IOException, InterruptedException, URISyntaxException{
+       logger.info("convertProBedToBigBed: " + aSQL.getAbsolutePath() +" , " + sortedProBed.getAbsolutePath() + ", " + inputChromSizes.getAbsolutePath());
+        File result;
+        final String OS = System.getProperty("os.name").toLowerCase();
+        logger.info("OS version: " + OS);
+        if (!OS.contains("win")) {
+            InputStream inputStream = MzTabBedConverter.class.getClassLoader().getResourceAsStream("bedBigBed.sh");
+            if (inputStream == null) {
+                logger.error("no file for bedBigBed.sh found!");
+                throw new IOException("no file for bedBigBed.sh found!");
+            }
+            File bedToBigBed = File.createTempFile("bigBedHelper", ".sh");
+            FileUtils.copyInputStreamToFile(inputStream, bedToBigBed);
+            logger.info("Created temp bedToBigBed script: " + bedToBigBed.toPath());
+            bedToBigBed.setExecutable(true);
             result = new File(sortedProBed.getParentFile().getPath() + File.separator + FilenameUtils.getBaseName(sortedProBed.getName()) + ".bb");
             logger.info("command to run: \n" +
-                            bedToBigBed.getPath() + ", " +
+                    bigBedConverter.getPath() + ", " +
                             "-as=\"" + aSQL.getPath() + "\"" + ", " +
-                            "-type=\"bed12+13\"" + ", " +
+                            "-type=\"" + bedColumnsType + "\"" + ", " +
                             "-tab"+ ", " +
                     sortedProBed.getPath()+ ", " +
                     inputChromSizes.getPath()+ ", " +
                     result.getPath());
             Process bigbed_proc = new ProcessBuilder(
-                    bedToBigBed.getPath(),
-                    bigBedConverter.getPath(),
-                    aSQL.getAbsoluteFile().getPath(),
-                    "bed12+13",
-                    sortedProBed.getPath(),
-                    inputChromSizes.getAbsoluteFile().getPath(),
+                    bedToBigBed.getAbsoluteFile().getAbsolutePath(),
+                    bigBedConverter.getAbsoluteFile().getAbsolutePath(),
+                    aSQL.getAbsoluteFile().getAbsolutePath(),
+                    bedColumnsType,
+                    sortedProBed.getAbsolutePath(),
+                    inputChromSizes.getAbsoluteFile().getAbsolutePath(),
                     result.getPath())
                     .redirectErrorStream(true)
                     .start();
@@ -486,6 +502,7 @@ public class MzTabBedConverter {
             String scriptOutput;
             while ((scriptOutput = in.readLine()) != null) {
                 logger.info(scriptOutput);
+                logger.info("Output System message: " + scriptOutput);
             }
             bigbed_proc.waitFor();
             in.close();
@@ -505,7 +522,12 @@ public class MzTabBedConverter {
             sortedProBed.delete();
             Files.move(sortedTempFile.toPath(), sortedProBed.toPath());
             logger.info("Added proBed version number to the sorted proBed File.");
+        } else {
+            final String MESSAGE = "Unable to convert to bigBed on the Windows platform.";
+            logger.error(MESSAGE);
+            throw new IOException(MESSAGE);
         }
+        logger.info("returning: " + result.getAbsolutePath());
         return result;
     }
 
