@@ -964,27 +964,12 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
     protected String getDatabaseName(List<CvParam> databaseName, List<uk.ac.ebi.pride.utilities.data.core.UserParam> userParam){
         if(databaseName != null && databaseName.size() != 0)
             return (databaseName.get(0).getValue()!=null)? databaseName.get(0).getValue():databaseName.get(0).getName();
-        else if(userParam != null){
+        else if(userParam != null && userParam.size() != 0){
             return (userParam.get(0).getValue()!=null)?userParam.get(0).getValue():userParam.get(0).getName();
         }
         return null;
     }
 
-//    private List<uk.ac.ebi.pride.utilities.data.core.Peptide> getScannedSpectrumIdentificationItems(Comparable proteinId) throws JAXBException {
-//        Collection<Comparable> ids =  source.getPeptideIds(proteinId);
-//        List<uk.ac.ebi.pride.utilities.data.core.Peptide> peptides = null;
-//        if(ids != null && ids.size() > 0){
-//            peptides = new ArrayList<uk.ac.ebi.pride.utilities.data.core.Peptide>(ids.size());
-//            for(Comparable id: ids)
-//                peptides.add(source.getPeptideByIndex(proteinId, id));
-//        }
-//        return peptides;
-//    }
-
-
-//    private List<uk.ac.ebi.pride.utilities.data.core.Peptide> getScannedSpectrumIdentificationItems(uk.ac.ebi.pride.utilities.data.core.Protein protein){
-//        return protein.getPeptides();
-//    }
 
     public static boolean isSupported(DataAccessController controller){
         return ((controller.getType() == DataAccessController.Type.MZIDENTML ||

@@ -22,6 +22,7 @@ import static org.junit.Assert.assertTrue;
 public class MzTabMzIdentMLConverterTest {
 
     private MzIdentMLControllerImpl mzIdentMLController = null;
+    private MzIdentMLControllerImpl mzIdentMLMassiveController = null;
 
 
     @Before
@@ -32,15 +33,33 @@ public class MzTabMzIdentMLConverterTest {
         }
         File inputFile = new File(url.toURI());
         mzIdentMLController = new MzIdentMLControllerImpl(inputFile);
+
+       url = MzTabPRIDEConverterTest.class.getClassLoader().getResource("20140326_C04A.mzid");
+        if (url == null) {
+            throw new IllegalStateException("no file for input found!");
+        }
+        inputFile = new File(url.toURI());
+        mzIdentMLMassiveController = new MzIdentMLControllerImpl(inputFile);
     }
 
     @Test
     public void convertToMzTab() throws IOException {
-       AbstractMzTabConverter mzTabconverter = new MzIdentMLMzTabConverter(mzIdentMLController);
-       MZTabFile mzTabFile = mzTabconverter.getMZTabFile();
-       MZTabFileConverter checker = new MZTabFileConverter();
-       checker.check(mzTabFile);
-       assertTrue("No errors reported during the conversion from MzIdentML to MzTab", checker.getErrorList().size() == 0);
+        AbstractMzTabConverter mzTabconverter = new MzIdentMLMzTabConverter(mzIdentMLController);
+        MZTabFile mzTabFile = mzTabconverter.getMZTabFile();
+        MZTabFileConverter checker = new MZTabFileConverter();
+        checker.check(mzTabFile);
+        assertTrue("No errors reported during the conversion from MzIdentML to MzTab", checker.getErrorList().size() == 0);
+
+    }
+
+    @Test
+    public void convertMassiveToMzTab() throws IOException {
+        AbstractMzTabConverter mzTabconverter = new MzIdentMLMzTabConverter(mzIdentMLMassiveController);
+        MZTabFile mzTabFile = mzTabconverter.getMZTabFile();
+        MZTabFileConverter checker = new MZTabFileConverter();
+        checker.check(mzTabFile);
+        assertTrue("No errors reported during the conversion from MzIdentML to MzTab", checker.getErrorList().size() == 0);
+
     }
 
     @After
