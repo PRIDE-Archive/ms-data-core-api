@@ -8,7 +8,10 @@ import uk.ac.ebi.pride.jmztab.model.MZTabFile;
 import uk.ac.ebi.pride.jmztab.utils.MZTabFileConverter;
 import uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl.MzIdentMLControllerImpl;
 import uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl.MzTabControllerImpl;
-import uk.ac.ebi.pride.utilities.data.core.*;
+import uk.ac.ebi.pride.utilities.data.core.Peptide;
+import uk.ac.ebi.pride.utilities.data.core.PeptideEvidence;
+import uk.ac.ebi.pride.utilities.data.core.Protein;
+import uk.ac.ebi.pride.utilities.data.core.UserParam;
 
 import java.io.*;
 import java.net.URL;
@@ -35,13 +38,13 @@ public class MzTabBedConverterTest {
      */
     @Before
     public void setUp() throws Exception {
-        URL url = MzTabBedConverterTest.class.getClassLoader().getResource("test.mztab");
+        URL url = MzTabBedConverterTest.class.getClassLoader().getResource("PXD000764_34937_combined_fdr.mztab");
         if (url == null) {
             throw new IllegalStateException("no file for input found!");
         }
         mzTabFile = new File(url.toURI());
 
-        url = MzTabBedConverterTest.class.getClassLoader().getResource("PXD001524_combined_fdr_peptide_threshold_mappedGff2_proteoGrouper_fdr_Threshold.mzid");
+        url = MzTabBedConverterTest.class.getClassLoader().getResource("PXD000764_34937_combined_fdr.mzid");
         if (url == null) {
             throw new IllegalStateException("no file for input found!");
         }
@@ -53,14 +56,14 @@ public class MzTabBedConverterTest {
      *
      * @throws Exception
      */
-/*    @Test
+    @Test
     public void convertAnnotatedMzIdentMLMzTab() throws Exception {
         MzIdentMLControllerImpl mzIdentMLController = new MzIdentMLControllerImpl(mzIdentMLFile);
         MzIdentMLMzTabConverter mzTabconverter = new MzIdentMLMzTabConverter(mzIdentMLController);
         MZTabFile mzTabFile = mzTabconverter.getMZTabFile();
         MZTabFileConverter checker = new MZTabFileConverter();
         checker.check(mzTabFile);
-        File temp = new File("PXD001524_combined_fdr_peptide_threshold_mappedGff2_proteoGrouper_fdr_Threshold_test.mztab");
+        File temp = File.createTempFile("PXD000764_34937_mztab_test", ".tmp");
         TestCase.assertTrue("No errors reported during the conversion from mzIdentML to MzTab", checker.getErrorList().size() == 0);
         BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(temp));
         mzTabFile.printMZTab(bufferedOutputStream);
@@ -77,10 +80,11 @@ public class MzTabBedConverterTest {
                     for (PeptideEvidence peptideEvidence : peptide.getPeptideEvidenceList()) {
                         if (!evidences.contains(peptide.getPeptideEvidence())) {
                             evidences.add(peptide.getPeptideEvidence());
-                            for (CvParam cvParam : peptideEvidence.getCvParams()) {
-                                if (cvParam.getName().equalsIgnoreCase("chromosome name")) {
+                            for (UserParam userParam : peptideEvidence.getUserParams()) {
+                                if (userParam.getName().equalsIgnoreCase("chr")) {
                                     result = true;
                                     break chromCheck;
+                                    //Todo: Tobias we need to check this because the use of Goto is not recommended
                                 }
                             }
                         }
@@ -89,9 +93,9 @@ public class MzTabBedConverterTest {
             }
         }
         mzTabController.close();
-        //assertTrue("No errors reported during the conversion from annotated mzIdentML to MzTab", result);
-        //temp.deleteOnExit();
-    }*/
+        assertTrue("No errors reported during the conversion from annotated mzIdentML to MzTab", checker.getErrorList().size() == 0);
+        temp.deleteOnExit();
+    }
 
     /**
      * Converts the mzTab file with chromosome information into the bed format.
@@ -101,15 +105,15 @@ public class MzTabBedConverterTest {
     @Test
     public void convertMzTabBed() throws Exception{
         MzTabControllerImpl mzTabController = new MzTabControllerImpl(mzTabFile);
-        MzTabBedConverter mzTabBedConverter = new MzTabBedConverter(mzTabController, "PXD001524", "", true);
-        File temp = new File("test.bed");
+        MzTabBedConverter mzTabBedConverter = new MzTabBedConverter(mzTabController);
+        File temp = File.createTempFile("PXD000764_34937_20150326_bed_test", ".tmp");
         mzTabBedConverter.convert(temp);
         mzTabController.close();
         BufferedReader bufferedReader = new BufferedReader(new FileReader(temp));
         String firstLine = bufferedReader.readLine();
         final boolean test = firstLine != null && !firstLine.isEmpty();
-        //assertTrue("Chromosome information must be present in generated bed file", test);
-        //temp.deleteOnExit();
+        assertTrue("Chromosome information must be present in generated bed file", test);
+        temp.deleteOnExit();
     }
 
     /**
