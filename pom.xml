@@ -52,7 +52,7 @@
 
         <developer>
             <id>ntoro</id>
-                <name>Noemi del Toro Ayllón</name>
+            <name>Noemi del Toro Ayllón</name>
             <organization>Proteomics Services Team, PANDA Group, EMBL-European Bioinformatics Institute</organization>
             <organizationUrl>http://www.ebi.ac.uk/pride</organizationUrl>
             <roles>
@@ -196,7 +196,7 @@
             <artifactId>jmztab-modular-converters</artifactId>
             <version>${jmztab.version}</version>
         </dependency>
-       <!-- End  -->
+        <!-- End  -->
 
         <!-- pride mod dependency -->
         <dependency>
@@ -256,9 +256,9 @@
         <!-- End of the jmzReader Dependencies -->
 
         <!--<dependency>-->
-            <!--<groupId>psidev.psi.tools</groupId>-->
-            <!--<artifactId>xxindex</artifactId>-->
-            <!--<version>${xxindex.version}</version>-->
+        <!--<groupId>psidev.psi.tools</groupId>-->
+        <!--<artifactId>xxindex</artifactId>-->
+        <!--<version>${xxindex.version}</version>-->
         <!--</dependency>-->
 
         <dependency>
@@ -381,12 +381,12 @@
             <plugin>
                 <artifactId>maven-site-plugin</artifactId>
                 <version>3.4</version>
-                    <configuration>
-                        <skip>true</skip>
-                        <skipDeploy>true</skipDeploy>
-                    </configuration>
+                <configuration>
+                    <skip>true</skip>
+                    <skipDeploy>true</skipDeploy>
+                </configuration>
             </plugin>
-     </plugins>
+        </plugins>
     </build>
 
     <repositories>
