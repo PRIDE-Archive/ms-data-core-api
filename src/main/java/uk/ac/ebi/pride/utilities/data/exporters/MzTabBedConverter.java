@@ -448,7 +448,7 @@ public class MzTabBedConverter {
                         writerProBed.write(s);
                         writerProBed.newLine();
                     } else {
-                        logger.info("Chromosome not present in chrom txt file:" + s);
+                        logger.debug("Chromosome not present in chrom txt file:" + s);
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
