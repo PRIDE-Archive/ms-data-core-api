@@ -256,9 +256,9 @@
         <!-- End of the jmzReader Dependencies -->
 
         <!--<dependency>-->
-        <!--<groupId>psidev.psi.tools</groupId>-->
-        <!--<artifactId>xxindex</artifactId>-->
-        <!--<version>${xxindex.version}</version>-->
+            <!--<groupId>psidev.psi.tools</groupId>-->
+            <!--<artifactId>xxindex</artifactId>-->
+            <!--<version>${xxindex.version}</version>-->
         <!--</dependency>-->
 
         <dependency>
