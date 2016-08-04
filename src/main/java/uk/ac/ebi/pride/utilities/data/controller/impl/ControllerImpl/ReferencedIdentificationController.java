@@ -10,6 +10,7 @@ import uk.ac.ebi.pride.utilities.data.controller.cache.CacheEntry;
 import uk.ac.ebi.pride.utilities.data.core.*;
 import uk.ac.ebi.pride.utilities.data.utils.Constants;
 import uk.ac.ebi.pride.utilities.data.utils.MzIdentMLUtils;
+import uk.ac.ebi.pride.utilities.mol.MoleculeUtilities;
 import uk.ac.ebi.pride.utilities.util.Tuple;
 
 import java.io.File;
@@ -417,15 +418,18 @@ public abstract class ReferencedIdentificationController extends CachedDataAcces
                 logger.debug("Get new spectrum from file: {}", id);
                 try {
                     DataAccessController spectrumController = msDataAccessControllers.get(spectrumIdArray.getValue());
-                    Collection<Comparable> spectrumIds = spectrumController.getSpectrumIds();
-                    if (spectrumController != null && spectrumIds.contains(spectrumIdArray.getKey())) {
-                        spectrum = spectrumController.getSpectrumById(spectrumIdArray.getKey());
-                        if (useCache && spectrum != null) {
-                            getCache().store(CacheEntry.SPECTRUM, id, spectrum);
-                            getCache().store(CacheEntry.SPECTRUM_LEVEL_PRECURSOR_CHARGE, id, DataAccessUtilities.getPrecursorChargeParamGroup(spectrum));
-                            getCache().store(CacheEntry.SPECTRUM_LEVEL_PRECURSOR_MZ, id, DataAccessUtilities.getPrecursorMz(spectrum));
+                    if(spectrumController != null){
+                        Collection<Comparable> spectrumIds = spectrumController.getSpectrumIds();
+                        if (spectrumController != null && spectrumIds.contains(spectrumIdArray.getKey())) {
+                            spectrum = spectrumController.getSpectrumById(spectrumIdArray.getKey());
+                            if (useCache && spectrum != null) {
+                                getCache().store(CacheEntry.SPECTRUM, id, spectrum);
+                                getCache().store(CacheEntry.SPECTRUM_LEVEL_PRECURSOR_CHARGE, id, DataAccessUtilities.getPrecursorChargeParamGroup(spectrum));
+                                getCache().store(CacheEntry.SPECTRUM_LEVEL_PRECURSOR_MZ, id, DataAccessUtilities.getPrecursorMz(spectrum));
+                            }
                         }
                     }
+
                 } catch (Exception ex) {
                     String msg = "Error while getting spectrum: " + id;
                     logger.error(msg, ex);
@@ -562,6 +566,44 @@ public abstract class ReferencedIdentificationController extends CachedDataAcces
     @Override
     public boolean hasProteinAmbiguityGroup() {
         return super.getProteinAmbiguityGroupIds().size() > 0;
+    }
+
+    /**
+     * This function check randomly if the spectra is well referenced for a couple of spectra
+     * for that it is using the the number of Spectra to be check.
+     * @param numberSpectra the number of spectra to be checked
+     * @return boolean if all the reference as fine
+     */
+    public boolean checkRandomSpectraByDeltaMassThreshold(int numberSpectra, Double deltaThreshold){
+        Collection<Comparable> proteinIds = getProteinIds();
+        List<Comparable> listIds = new ArrayList<Comparable>(proteinIds);
+
+        if(!hasSpectrum())
+            return false;
+
+        int i = 0;
+        while (i < numberSpectra){
+            int randomNum = (int)(Math.random() * listIds.size());
+            Comparable proteinId = listIds.get(randomNum);
+            Protein protein = getProteinById(proteinId);
+            int randomNumPep = (int)(Math.random() * protein.getPeptides().size());
+            Peptide peptide = protein.getPeptides().get(randomNumPep);
+            Spectrum spectrum = getSpectrumById(peptide.getSpectrumIdentification().getId());
+            Double mz =  DataAccessUtilities.getPrecursorMz(spectrum);
+            Integer charge = DataAccessUtilities.getPrecursorChargeParamGroup(spectrum);
+            List<Double> ptmMasses = new ArrayList<Double>();
+            for (Modification mod : peptide.getModifications()) {
+                List<Double> monoMasses = mod.getMonoisotopicMassDelta();
+                if (monoMasses != null && !monoMasses.isEmpty())
+                    ptmMasses.add(monoMasses.get(0));
+            }
+            Double delta = MoleculeUtilities.calculateDeltaMz(peptide.getSequence(), mz, charge, ptmMasses);
+            if(Math.abs(delta) > deltaThreshold)
+                return false;
+            i++;
+        }
+        return true;
+
     }
 
 

@@ -545,6 +545,8 @@ public class MzTabControllerImpl extends ReferencedIdentificationController{
         BufferedReader reader = null;
         int quantitationCount = 0;
         int identificationCount = 0;
+        if(!file.getName().toLowerCase().endsWith(Constants.MZTAB_EXT))
+            return false;
 
         /**
          * To validate  the mzTab if is supported or not we will read the header line by line until the type appear

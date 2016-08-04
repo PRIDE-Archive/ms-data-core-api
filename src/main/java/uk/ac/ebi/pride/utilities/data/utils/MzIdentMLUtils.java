@@ -64,11 +64,12 @@ public final class MzIdentMLUtils {
             return id;
         } else if (fileIdFormat == Constants.SpecIdFormat.MULTI_PEAK_LIST_NATIVE_ID) {
             String rValueStr = spectrumID.replaceAll("index=", "");
-            String id = null;
+            String id;
             if(rValueStr.matches(Constants.INTEGER)){
                 id = Integer.toString(Integer.parseInt(rValueStr) + 1);
+                return id;
             }
-            return id;
+            return spectrumID;
         } else if (fileIdFormat == Constants.SpecIdFormat.SINGLE_PEAK_LIST_NATIVE_ID) {
             return spectrumID.replaceAll("file=", "");
         } else if (fileIdFormat == Constants.SpecIdFormat.MZML_ID) {

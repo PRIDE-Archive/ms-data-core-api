@@ -54,8 +54,8 @@ public class MzIdentMLCachingStrategy extends AbstractCachingStrategy {
          * */
         try {
             if (proteinGroupPresent) {
-                cacheSpectrumIds(unmarshaller);
                 cacheProteinGroups(unmarshaller);
+                cacheSpectrumIds(unmarshaller);
             } else {
                 cachePrescanIdMaps(unmarshaller);
             }
