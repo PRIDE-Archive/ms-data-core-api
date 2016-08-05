@@ -532,10 +532,8 @@ public class MzTabBedConverter {
     }
 
     public static void createAsql(String name, String path) throws IOException{
-        SimpleDateFormat df = new SimpleDateFormat("yyyymmdd");
-        final String DATE = df.format(new Date());
-        String text = "table ProteoAnnotator_reanalysis_" + name + "_" + DATE + "\n" +
-                "\"" + "ProteoAnnotator reanalysis of " + name + " " + DATE + "\"\n" +
+        String text = "table " + name.replace(' ', '_') + "\n" +
+                "\"" + name + "\"\n" +
                 "(\n" +
                 "string  chrom;          \"The reference sequence chromosome.\"\n" +
                 "uint    chromStart;     \"The position of the first DNA base.\"\n" +
