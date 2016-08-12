@@ -575,35 +575,29 @@ public abstract class ReferencedIdentificationController extends CachedDataAcces
      * @return boolean if all the reference as fine
      */
     public boolean checkRandomSpectraByDeltaMassThreshold(int numberSpectra, Double deltaThreshold){
-        Collection<Comparable> proteinIds = getProteinIds();
-        List<Comparable> listIds = new ArrayList<Comparable>(proteinIds);
-
-        if(!hasSpectrum())
-            return false;
-
-        int i = 0;
-        while (i < numberSpectra){
-            int randomNum = (int)(Math.random() * listIds.size());
-            Comparable proteinId = listIds.get(randomNum);
-            Protein protein = getProteinById(proteinId);
-            int randomNumPep = (int)(Math.random() * protein.getPeptides().size());
-            Peptide peptide = protein.getPeptides().get(randomNumPep);
-            Spectrum spectrum = getSpectrumById(peptide.getSpectrumIdentification().getId());
-            Double mz =  DataAccessUtilities.getPrecursorMz(spectrum);
-            Integer charge = DataAccessUtilities.getPrecursorChargeParamGroup(spectrum);
-            List<Double> ptmMasses = new ArrayList<Double>();
-            for (Modification mod : peptide.getModifications()) {
-                List<Double> monoMasses = mod.getMonoisotopicMassDelta();
-                if (monoMasses != null && !monoMasses.isEmpty())
-                    ptmMasses.add(monoMasses.get(0));
+        boolean result = true;
+        if(hasSpectrum()) {
+            for (int i=0; i < numberSpectra; i++){
+                Protein protein = getProteinById(getProteinIds().stream().findAny().get());
+                Peptide peptide = protein.getPeptides().stream().findAny().get();
+                Spectrum spectrum = getSpectrumById(peptide.getSpectrumIdentification().getId());
+                Double mz =  DataAccessUtilities.getPrecursorMz(spectrum);
+                Integer charge = DataAccessUtilities.getPrecursorChargeParamGroup(spectrum);
+                List<Double> ptmMasses = new ArrayList<Double>();
+                for (Modification mod : peptide.getModifications()) {
+                    List<Double> monoMasses = mod.getMonoisotopicMassDelta();
+                    if (monoMasses != null && !monoMasses.isEmpty())
+                        ptmMasses.add(monoMasses.get(0));
+                }
+                if(Math.abs(MoleculeUtilities.calculateDeltaMz(peptide.getSequence(), mz, charge, ptmMasses)) > deltaThreshold) {
+                    result = false;
+                    break;
+                }
             }
-            Double delta = MoleculeUtilities.calculateDeltaMz(peptide.getSequence(), mz, charge, ptmMasses);
-            if(Math.abs(delta) > deltaThreshold)
-                return false;
-            i++;
+        } else {
+            result = false;
         }
-        return true;
-
+        return result;
     }
 
 
