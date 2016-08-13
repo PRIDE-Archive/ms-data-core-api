@@ -703,33 +703,8 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
                 psm.setOptionColumnValue(MzTabUtils.OPTIONAL_CHROM_EXON_STARTS_COLUMN, "null");
                 psm.setOptionColumnValue(MzTabUtils.OPTIONAL_GENOME_REF_VERSION_COLUMN, "null");
                 psm.setOptionColumnValue(MzTabUtils.OPTIONAL_PSM_FDRSCORE_COLUMN, "null");
-                for (CvParam cvParam : oldPSM.getPeptideEvidence().getCvParams()) {
-                    switch (cvParam.getName()) {
-                        case ("chromosome name"):
-                            psm.setOptionColumnValue(MzTabUtils.OPTIONAL_CHROM_COLUMN, cvParam.getValue());
-                            break;
-                        case ("peptide end on chromosome"):
-                            psm.setOptionColumnValue(MzTabUtils.OPTIONAL_CHROMEND_COLUMN, cvParam.getValue());
-                            break;
-                        case ("chromosome strand"):
-                            psm.setOptionColumnValue(MzTabUtils.OPTIONAL_STRAND_COLUMN, cvParam.getValue());
-                            break;
-                        case ("peptide exon count"):
-                            psm.setOptionColumnValue(MzTabUtils.OPTIONAL_CHROM_EXON_COUNT_COLUMN, cvParam.getValue());
-                            break;
-                        case ("peptide exon nucleotide sizes"):
-                            psm.setOptionColumnValue(MzTabUtils.OPTIONAL_CHROM_EXON_SIZES_COLUMN, cvParam.getValue());
-                            break;
-                        case ("peptide start positions on chromosome"):
-                            psm.setOptionColumnValue(MzTabUtils.OPTIONAL_CHROM_EXON_STARTS_COLUMN, cvParam.getValue());
-                            break;
-                        case ("genome reference version"):
-                            psm.setOptionColumnValue(MzTabUtils.OPTIONAL_GENOME_REF_VERSION_COLUMN, cvParam.getValue());
-                            break;
-                        default:
-                            break;
-                    }
-                }
+                psm = parseChromCvParamDetails(oldPSM.getPeptideEvidence().getCvParams(), psm);
+                psm = parseChromCvParamDetails(oldPSM.getPeptideEvidence().getDbSequence().getCvParams(), psm);
                 for (CvParam cvParam : oldPSM.getSpectrumIdentification().getCvParams()) {
                     switch (cvParam.getName()) {
                         case ("PSM-level combined FDRScore"):
@@ -743,6 +718,38 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
             psmList.add(psm);
         }
         return psmList;
+    }
+
+    private PSM parseChromCvParamDetails(List<CvParam> cvParams, PSM psm) {
+        PSM result = psm;
+        for (CvParam cvParam : cvParams) {
+            switch (cvParam.getName()) {
+                case ("chromosome name"):
+                    result.setOptionColumnValue(MzTabUtils.OPTIONAL_CHROM_COLUMN, cvParam.getValue());
+                    break;
+                case ("peptide end on chromosome"):
+                    result.setOptionColumnValue(MzTabUtils.OPTIONAL_CHROMEND_COLUMN, cvParam.getValue());
+                    break;
+                case ("chromosome strand"):
+                    result.setOptionColumnValue(MzTabUtils.OPTIONAL_STRAND_COLUMN, cvParam.getValue());
+                    break;
+                case ("peptide exon count"):
+                    result.setOptionColumnValue(MzTabUtils.OPTIONAL_CHROM_EXON_COUNT_COLUMN, cvParam.getValue());
+                    break;
+                case ("peptide exon nucleotide sizes"):
+                    result.setOptionColumnValue(MzTabUtils.OPTIONAL_CHROM_EXON_SIZES_COLUMN, cvParam.getValue());
+                    break;
+                case ("peptide start positions on chromosome"):
+                    result.setOptionColumnValue(MzTabUtils.OPTIONAL_CHROM_EXON_STARTS_COLUMN, cvParam.getValue());
+                    break;
+                case ("genome reference version"):
+                    result.setOptionColumnValue(MzTabUtils.OPTIONAL_GENOME_REF_VERSION_COLUMN, cvParam.getValue());
+                    break;
+                default:
+                    break;
+            }
+        }
+        return result;
     }
 
 
@@ -996,8 +1003,15 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
                 for (Comparable peptideID : peptideIDs) {
                     Collection<PeptideEvidence> peptideEvidences = source.getPeptideEvidences(proteinId, peptideID);
                     for (PeptideEvidence peptideEvidence : peptideEvidences) {
-                        List<CvParam> userParams = peptideEvidence.getCvParams();
-                        for (CvParam cvParam : userParams) {
+                        List<CvParam> cvParams = peptideEvidence.getCvParams();
+                        for (CvParam cvParam : cvParams) {
+                            if (cvParam.getName().equalsIgnoreCase("chromosome name")) {
+                                result.addCustom(new uk.ac.ebi.pride.jmztab.model.UserParam(MzTabUtils.CUSTOM_CHROM_INF_PARAM, "true"));
+                                break chromSearch;
+                            }
+                        }
+                        cvParams = peptideEvidence.getDbSequence().getCvParams();
+                        for (CvParam cvParam : cvParams) {
                             if (cvParam.getName().equalsIgnoreCase("chromosome name")) {
                                 result.addCustom(new uk.ac.ebi.pride.jmztab.model.UserParam(MzTabUtils.CUSTOM_CHROM_INF_PARAM, "true"));
                                 break chromSearch;
