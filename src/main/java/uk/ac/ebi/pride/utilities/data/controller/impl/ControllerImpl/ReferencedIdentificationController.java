@@ -576,10 +576,17 @@ public abstract class ReferencedIdentificationController extends CachedDataAcces
      */
     public boolean checkRandomSpectraByDeltaMassThreshold(int numberSpectra, Double deltaThreshold){
         boolean result = true;
+        List<Comparable> listIds = new ArrayList<>(getProteinIds());
+        Random r = new Random();
+        int randomProtIdNumb;
+        int randomPepIdNumb;
         if(hasSpectrum()) {
             for (int i=0; i < numberSpectra; i++){
-                Protein protein = getProteinById(getProteinIds().stream().findAny().get());
-                Peptide peptide = protein.getPeptides().stream().findAny().get();
+                randomProtIdNumb = r.ints(0, listIds.size()).findFirst().getAsInt();
+                Comparable proteinId = listIds.get(randomProtIdNumb);
+                Protein protein = getProteinById(proteinId);
+                randomPepIdNumb = r.ints(0, protein.getPeptides().size()).findFirst().getAsInt();
+                Peptide peptide = protein.getPeptides().get(randomPepIdNumb);
                 Spectrum spectrum = getSpectrumById(peptide.getSpectrumIdentification().getId());
                 Double mz =  DataAccessUtilities.getPrecursorMz(spectrum);
                 Integer charge = DataAccessUtilities.getPrecursorChargeParamGroup(spectrum);
