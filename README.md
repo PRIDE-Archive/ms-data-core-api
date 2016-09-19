@@ -2,7 +2,7 @@ ms-data-core-api
 ===============
 [![Build Status](https://travis-ci.org/PRIDE-Utilities/ms-data-core-api.svg)](https://travis-ci.org/PRIDE-Utilities/ms-data-core-api)
 
-# About mz-data-core-api
+# About
 
 The primary purpose of ms-data-core-api library is to provide commonly used classes and Object Model for Proteomics Experiments. You may also find it useful for your own computational proteomics projects.
 
