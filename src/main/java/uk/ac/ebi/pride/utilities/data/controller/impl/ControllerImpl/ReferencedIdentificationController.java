@@ -581,31 +581,47 @@ public abstract class ReferencedIdentificationController extends CachedDataAcces
         int randomProtIdNumb;
         int randomPepIdNumb;
         if(hasSpectrum()) {
-            for (int i=0; i < numberSpectra; i++){
+            for (int i=0; i < numberSpectra && result; i++){
                 randomProtIdNumb = r.ints(0, listIds.size()).findFirst().getAsInt();
                 Comparable proteinId = listIds.get(randomProtIdNumb);
                 Protein protein = getProteinById(proteinId);
                 randomPepIdNumb = r.ints(0, protein.getPeptides().size()).findFirst().getAsInt();
                 Peptide peptide = protein.getPeptides().get(randomPepIdNumb);
-                Spectrum spectrum = getSpectrumById(peptide.getSpectrumIdentification().getId());
-                Double mz =  DataAccessUtilities.getPrecursorMz(spectrum);
-                Integer charge = DataAccessUtilities.getPrecursorChargeParamGroup(spectrum);
-                List<Double> ptmMasses = new ArrayList<Double>();
-                for (Modification mod : peptide.getModifications()) {
-                    List<Double> monoMasses = mod.getMonoisotopicMassDelta();
-                    if (monoMasses != null && !monoMasses.isEmpty())
-                        ptmMasses.add(monoMasses.get(0));
-                }
-                if(Math.abs(MoleculeUtilities.calculateDeltaMz(peptide.getSequence(), mz, charge, ptmMasses)) > deltaThreshold) {
+                if (peptide==null) {
+                  logger.error("Random peptide is null! Index:" + randomPepIdNumb);
                     result = false;
-                    break;
+                } else {
+                    Spectrum spectrum = getSpectrumById(peptide.getSpectrumIdentification().getId());
+                    Integer charge = getPeptidePrecursorCharge(proteinId, peptide.getId());
+                    double mz = getPeptidePrecursorMz(proteinId, peptide.getId());
+                    List<Double> ptmMasses = new ArrayList<>();
+                    for (Modification mod : peptide.getModifications()) {
+                        List<Double> monoMasses = mod.getMonoisotopicMassDelta();
+                        if (monoMasses != null && !monoMasses.isEmpty())
+                            ptmMasses.add(monoMasses.get(0));
+                    }
+
+                    if ((charge == null || mz == -1)) {
+                        charge = getSpectrumPrecursorCharge(spectrum.getId());
+                        mz = getSpectrumPrecursorMz(spectrum.getId());
+                        if (charge != null && charge == 0) {
+                            charge = null;
+                        }
+                    }
+                    if (charge == null) {
+                        result = false;
+                    } else {
+                        Double deltaMass = MoleculeUtilities.calculateDeltaMz(peptide.getSequence(), mz, charge, ptmMasses);
+                        if (deltaMass == null || Math.abs(deltaMass) > deltaThreshold) {
+                            result = false;
+                        }
+                    }
                 }
+
             }
         } else {
             result = false;
         }
         return result;
     }
-
-
 }
