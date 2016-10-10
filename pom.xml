@@ -98,7 +98,7 @@
         <dta-parser.version>1.2.3</dta-parser.version>
         <jnetCDF.version>0.0.2</jnetCDF.version>
         <pride.jaxb.version>1.0.14</pride.jaxb.version>
-        <pride-utilities.version>2.0.12-SNAPSHOT</pride-utilities.version>
+        <pride-utilities.version>2.0.12</pride-utilities.version>
         <pride-mod.version>2.1.0</pride-mod.version>
     </properties>
 
