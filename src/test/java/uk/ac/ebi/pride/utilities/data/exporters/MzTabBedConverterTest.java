@@ -59,7 +59,7 @@ public class MzTabBedConverterTest {
         MzIdentMLMzTabConverter mzTabconverter = new MzIdentMLMzTabConverter(mzIdentMLController);
         MZTabFile mzTabFile = mzTabconverter.getMZTabFile();
         MZTabFileConverter checker = new MZTabFileConverter();
-        checker.check(mzTabFile);
+        //checker.check(mzTabFile); deprecated
         File temp = File.createTempFile("PXD000764_34937_mztab_test", ".tmp");
         TestCase.assertTrue("No errors reported during the conversion from mzIdentML to MzTab", checker.getErrorList().size() == 0);
         BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(temp));
