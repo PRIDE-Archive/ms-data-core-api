@@ -432,8 +432,8 @@
     </distributionManagement>
     <!--scm git config-->
     <scm>
-        <connection>scm:git:github.com/PRIDE-Utilities/ms-data-core-api.git</connection>
-        <developerConnection>scm:git:git@github.com:PRIDE-Utilities/ms-data-core-api.git</developerConnection>
+        <connection>scm:git:https://github.com/PRIDE-Utilities/ms-data-core-api.git</connection>
+        <developerConnection>scm:git:https://github.com/PRIDE-Utilities/ms-data-core-api.git</developerConnection>
         <url>https://github.com/PRIDE-Utilities/ms-data-core-api.git</url>
         <tag>ms-data-core-api-2.0.8-JAVA8</tag>
     </scm>
