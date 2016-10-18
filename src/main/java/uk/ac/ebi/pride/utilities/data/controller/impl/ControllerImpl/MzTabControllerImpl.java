@@ -63,7 +63,8 @@ public class MzTabControllerImpl extends ReferencedIdentificationController{
         try {
             initialize();
         } catch (IOException e) {
-            String msg = "Failed to create MzTab unmarshaller for mzTab file: " + file.getAbsolutePath();
+            String msg = "Failed to create MzTab unmarshaller for mzTab file: " + file.getAbsolutePath() + "\n" + e.getMessage();
+            logger.error(msg);
             throw new DataAccessException(msg, e);
         }
     }
