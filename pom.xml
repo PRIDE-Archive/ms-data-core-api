@@ -73,6 +73,16 @@
             </roles>
             <timezone>0</timezone>
         </developer>
+        <developer>
+            <id>mbernal</id>
+            <name>Manuel Bernal-Llinares</name>
+            <organization>Proteomics Team, EMBL-European Bioinformatics Institute</organization>
+            <organizationUrl>http://www.ebi.ac.uk/pride</organizationUrl>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>0</timezone>
+        </developer>
     </developers>
 
     <properties>
@@ -99,7 +109,8 @@
         <jnetCDF.version>0.0.2</jnetCDF.version>
         <pride.jaxb.version>1.0.14</pride.jaxb.version>
         <pride-utilities.version>2.0.14</pride-utilities.version>
-        <pride-mod.version>2.1.0</pride-mod.version>
+        <pride-mod.version>2.1.2</pride-mod.version>
+
     </properties>
 
     <dependencies>
@@ -382,16 +393,15 @@
 
     <repositories>
         <repository>
-            <id>nexus-ebi-repo-old</id>
-            <url>http://www.ebi.ac.uk/intact/maven/nexus/content/repositories/ebi-repo/</url>
+            <id>pst-release</id>
+            <name>EBI Nexus Repository</name>
+            <url>http://www.ebi.ac.uk/Tools/maven/repos/content/repositories/pst-release</url>
         </repository>
+        <!-- EBI SNAPSHOT repo -->
         <repository>
-            <id>nexus-ebi-release-repo</id>
-            <url>http://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-repo/</url>
-        </repository>
-        <repository>
-            <id>nexus-ebi-snapshot-repo</id>
-            <url>http://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-snapshots/</url>
+            <id>pst-snapshots</id>
+            <name>EBI Nexus Snapshots Repository</name>
+            <url>http://www.ebi.ac.uk/Tools/maven/repos/content/repositories/pst-snapshots</url>
         </repository>
         <repository>
             <id>springsource-repo</id>

@@ -30,6 +30,10 @@ public class MzTabUnmarshallerAdaptor extends MZTabFileParser{
 
     public MzTabUnmarshallerAdaptor(File tabFile, OutputStream out) throws IOException {
         super(tabFile, out);
+        if (getMZTabFile() == null) {
+            String errorMsgs = "";
+            throw new IOException("The following errors occurred while parsing mzTab file '" + tabFile.getName() + "'\n" + getErrorList().toString());
+        }
         proteinPSMMap = new HashMap<Comparable, List<Comparable>>();
     }
 
