@@ -166,6 +166,10 @@ public abstract class AbstractDataAccessController implements DataAccessControll
         return 0;
     }
 
+    public int getNumberOfUniqueIdentifiedSpectra() {
+        return 0;
+    }
+
     @Override
     public int getSpectrumIndex(Comparable id) {
         int index = -1;

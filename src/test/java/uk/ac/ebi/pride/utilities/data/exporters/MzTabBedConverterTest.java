@@ -8,10 +8,7 @@ import uk.ac.ebi.pride.jmztab.model.MZTabFile;
 import uk.ac.ebi.pride.jmztab.utils.MZTabFileConverter;
 import uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl.MzIdentMLControllerImpl;
 import uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl.MzTabControllerImpl;
-import uk.ac.ebi.pride.utilities.data.core.Peptide;
-import uk.ac.ebi.pride.utilities.data.core.PeptideEvidence;
-import uk.ac.ebi.pride.utilities.data.core.Protein;
-import uk.ac.ebi.pride.utilities.data.core.UserParam;
+import uk.ac.ebi.pride.utilities.data.core.*;
 
 import java.io.*;
 import java.net.URL;
@@ -38,13 +35,13 @@ public class MzTabBedConverterTest {
      */
     @Before
     public void setUp() throws Exception {
-        URL url = MzTabBedConverterTest.class.getClassLoader().getResource("PXD000764_34937_combined_fdr.mztab");
+        URL url = MzTabBedConverterTest.class.getClassLoader().getResource("PXD001524_reprocessed.mztab");
         if (url == null) {
             throw new IllegalStateException("no file for input found!");
         }
         mzTabFile = new File(url.toURI());
 
-        url = MzTabBedConverterTest.class.getClassLoader().getResource("PXD000764_34937_combined_fdr.mzid");
+        url = MzTabBedConverterTest.class.getClassLoader().getResource("PXD001524_reprocessed.mzid");
         if (url == null) {
             throw new IllegalStateException("no file for input found!");
         }
@@ -62,8 +59,8 @@ public class MzTabBedConverterTest {
         MzIdentMLMzTabConverter mzTabconverter = new MzIdentMLMzTabConverter(mzIdentMLController);
         MZTabFile mzTabFile = mzTabconverter.getMZTabFile();
         MZTabFileConverter checker = new MZTabFileConverter();
-        checker.check(mzTabFile);
-        File temp = File.createTempFile("PXD000764_34937_mztab_test", ".tmp");
+        //checker.check(mzTabFile); deprecated
+        File temp = File.createTempFile("PXD001524_mztab_test", ".tmp");
         TestCase.assertTrue("No errors reported during the conversion from mzIdentML to MzTab", checker.getErrorList().size() == 0);
         BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream(temp));
         mzTabFile.printMZTab(bufferedOutputStream);
@@ -80,11 +77,10 @@ public class MzTabBedConverterTest {
                     for (PeptideEvidence peptideEvidence : peptide.getPeptideEvidenceList()) {
                         if (!evidences.contains(peptide.getPeptideEvidence())) {
                             evidences.add(peptide.getPeptideEvidence());
-                            for (UserParam userParam : peptideEvidence.getUserParams()) {
-                                if (userParam.getName().equalsIgnoreCase("chr")) {
+                            for (CvParam cvParam : peptideEvidence.getCvParams()) {
+                                if (cvParam.getName().equalsIgnoreCase("chromosome name")) {
                                     result = true;
                                     break chromCheck;
-                                    //Todo: Tobias we need to check this because the use of Goto is not recommended
                                 }
                             }
                         }
@@ -93,7 +89,7 @@ public class MzTabBedConverterTest {
             }
         }
         mzTabController.close();
-        assertTrue("No errors reported during the conversion from annotated mzIdentML to MzTab", checker.getErrorList().size() == 0);
+        assertTrue("No errors reported during the conversion from annotated mzIdentML to MzTab", result && checker.getErrorList().size() == 0);
         temp.deleteOnExit();
     }
 
@@ -106,7 +102,7 @@ public class MzTabBedConverterTest {
     public void convertMzTabBed() throws Exception{
         MzTabControllerImpl mzTabController = new MzTabControllerImpl(mzTabFile);
         MzTabBedConverter mzTabBedConverter = new MzTabBedConverter(mzTabController);
-        File temp = File.createTempFile("PXD000764_34937_20150326_bed_test", ".tmp");
+        File temp = File.createTempFile("PXD001524_bed_test", ".tmp");
         mzTabBedConverter.convert(temp);
         mzTabController.close();
         BufferedReader bufferedReader = new BufferedReader(new FileReader(temp));

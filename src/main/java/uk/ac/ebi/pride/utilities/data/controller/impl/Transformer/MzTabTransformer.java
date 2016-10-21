@@ -17,6 +17,7 @@ import uk.ac.ebi.pride.utilities.data.utils.MzTabUtils;
 import uk.ac.ebi.pride.jmztab.model.*;
 import uk.ac.ebi.pride.jmztab.model.Contact;
 import uk.ac.ebi.pride.utilities.term.CvTermReference;
+import uk.ac.ebi.pride.utilities.term.SearchEngineScoreCvTermReference;
 import uk.ac.ebi.pride.utilities.util.NumberUtilities;
 import uk.ac.ebi.pride.utilities.util.Tuple;
 
@@ -277,8 +278,11 @@ public class MzTabTransformer {
             if(rawIdent.getOptionColumnValue(MzTabUtils.OPTIONAL_DECOY_COLUMN) != null && !rawIdent.getOptionColumnValue(MzTabUtils.OPTIONAL_DECOY_COLUMN).isEmpty())
                 paramGroup.addCvParam(CvUtilities.getCVTermFromCvReference(CvTermReference.PRIDE_DECOY_HIT, rawIdent.getOptionColumnValue(MzTabUtils.OPTIONAL_DECOY_COLUMN)));
 
-            if(rawIdent.getOptionColumnValue(MzTabUtils.OPTIONAL_PROTEIN_NAME_COLUMN) != null && !rawIdent.getOptionColumnValue(MzTabUtils.OPTIONAL_PROTEIN_NAME_COLUMN).isEmpty())
-                dbSequence.setName(rawIdent.getOptionColumnValue(MzTabUtils.OPTIONAL_PROTEIN_NAME_COLUMN));
+            if(rawIdent.getOptionColumnValue(MzTabUtils.OPTIONAL_PROTEIN_ACC_COLUMN) != null && !rawIdent.getOptionColumnValue(MzTabUtils.OPTIONAL_PROTEIN_ACC_COLUMN).isEmpty())
+                dbSequence.setName(rawIdent.getOptionColumnValue(MzTabUtils.OPTIONAL_PROTEIN_ACC_COLUMN));
+
+            if(rawIdent.getOptionColumnValue(MzTabUtils.OPTIONAL_PROTEOGROUPER) != null && !rawIdent.getOptionColumnValue(MzTabUtils.OPTIONAL_PROTEOGROUPER).isEmpty())
+                paramGroup.addCvParam(CvUtilities.getCVTermFromCvReference(CvTermReference.MS_PROTEOGROUPER_PDHSCORE, rawIdent.getOptionColumnValue(MzTabUtils.OPTIONAL_PROTEOGROUPER)));
 
             //Quantitation Scores
             QuantScore quantScore = null;
@@ -388,21 +392,29 @@ public class MzTabTransformer {
         if (stop != null) {
             stopPos = stop;
         }
-
         PeptideSequence peptideSequence = new PeptideSequence(null, null, rawPeptide.getSequence(), modifications);
         List<PeptideEvidence> peptideEvidences = new ArrayList<PeptideEvidence>();
         PeptideEvidence peptideEvidence = new PeptideEvidence(null, null, startPos, stopPos, false, peptideSequence, dbSequence);
         if(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_CHROM_COLUMN) != null && !rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_CHROM_COLUMN).isEmpty())
-            peptideEvidence.addUserParam(new UserParam("chr", null, rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_CHROM_COLUMN), null, null, null));
-
-        if(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_CHROMSTART_COLUMN) != null && !rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_CHROMSTART_COLUMN).isEmpty())
-            peptideEvidence.addUserParam(new UserParam("start_map", null, rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_CHROMSTART_COLUMN), null, null, null));
-
-        if(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_CHROMEND_COLUMN) != null && !rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_CHROMEND_COLUMN).isEmpty())
-            peptideEvidence.addUserParam(new UserParam("end_map", null, rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_CHROMEND_COLUMN), null, null, null));
+            peptideEvidence.addCvParam(new CvParam("MS:1002637", "chromosome name", "PSI-MS", rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_CHROM_COLUMN), null, null, null));
 
         if(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_STRAND_COLUMN) != null && !rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_STRAND_COLUMN).isEmpty())
-            peptideEvidence.addUserParam(new UserParam("strand", null, rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_STRAND_COLUMN), null, null, null));
+            peptideEvidence.addCvParam(new CvParam("MS:1002638", "chromosome strand", "PSI-MS", rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_STRAND_COLUMN), null, null, null));
+
+        if(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_CHROMEND_COLUMN) != null && !rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_CHROMEND_COLUMN).isEmpty())
+            peptideEvidence.addCvParam(new CvParam("MS:1002640", "peptide end on chromosome", "PSI-MS", rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_CHROMEND_COLUMN), null, null, null));
+
+        if(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_CHROM_EXON_COUNT_COLUMN) != null && !rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_CHROM_EXON_COUNT_COLUMN).isEmpty())
+            peptideEvidence.addCvParam(new CvParam("MS:1002641", "peptide exon count", "PSI-MS", rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_CHROM_EXON_COUNT_COLUMN), null, null, null));
+
+        if(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_CHROM_EXON_SIZES_COLUMN) != null && !rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_CHROM_EXON_SIZES_COLUMN).isEmpty())
+            peptideEvidence.addCvParam(new CvParam("MS:1002642", "peptide exon nucleotide sizes", "PSI-MS", rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_CHROM_EXON_SIZES_COLUMN), null, null, null));
+
+        if(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_CHROM_EXON_STARTS_COLUMN) != null && !rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_CHROM_EXON_STARTS_COLUMN).isEmpty())
+            peptideEvidence.addCvParam(new CvParam("MS:1002643", "peptide start positions on chromosome", "PSI-MS", rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_CHROM_EXON_STARTS_COLUMN), null, null, null));
+
+        if(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_GENOME_REF_VERSION_COLUMN) != null && !rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_GENOME_REF_VERSION_COLUMN).isEmpty())
+            peptideEvidence.addCvParam(new CvParam("MS:1002644", "genome reference version", "PSI-MS", rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_GENOME_REF_VERSION_COLUMN), null, null, null));
 
         if(rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_PSM_FDRSCORE_COLUMN) != null && !rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_PSM_FDRSCORE_COLUMN).isEmpty())
             peptideEvidence.addCvParam(new CvParam("MS:1002356", "PSM-level combined FDRScore", "PSI-MS", rawPeptide.getOptionColumnValue(MzTabUtils.OPTIONAL_PSM_FDRSCORE_COLUMN), null, null, null));

@@ -18,8 +18,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,7 +29,7 @@ import java.util.regex.Pattern;
  * @author Yasset Perez-Riverol
  */
 
-public class PrideXmlControllerImpl extends CachedDataAccessController {
+public class PrideXmlControllerImpl extends AssayFileController {
     private static final Logger logger = LoggerFactory.getLogger(PrideXmlControllerImpl.class);
 
     /**
@@ -594,4 +593,5 @@ public class PrideXmlControllerImpl extends CachedDataAccessController {
 
         return valid;
     }
+
 }

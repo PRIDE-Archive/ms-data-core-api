@@ -12,10 +12,7 @@ import uk.ac.ebi.pride.tools.GenericSchemaValidator;
 import uk.ac.ebi.pride.tools.ValidationErrorHandler;
 import uk.ac.ebi.pride.utilities.term.CvTermReference;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;

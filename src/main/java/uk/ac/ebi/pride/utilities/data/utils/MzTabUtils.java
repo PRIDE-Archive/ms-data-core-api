@@ -22,11 +22,15 @@ public class MzTabUtils {
     public static final String OPTIONAL_SEQUENCE_COLUMN      = "protein_sequence";
     public static final String OPTIONAL_DECOY_COLUMN         = "cv_MS:1002217_decoy_peptide";
     public static final String OPTIONAL_RANK_COLUMN          = "cv_PRIDE:0000091_rank";
-    public static final String OPTIONAL_CHROM_COLUMN         = "chrom";
-    public static final String OPTIONAL_CHROMSTART_COLUMN    = "chromstart";
-    public static final String OPTIONAL_CHROMEND_COLUMN      = "chromend";
-    public static final String OPTIONAL_STRAND_COLUMN        = "strand";
-    public static final String OPTIONAL_PROTEIN_NAME_COLUMN  = "protein_name";
+    public static final String OPTIONAL_CHROM_COLUMN         = "cv_MS:1002637_chromosome_name";
+    public static final String OPTIONAL_STRAND_COLUMN        = "cv_MS:1002638_chromosome_strand";
+    public static final String OPTIONAL_CHROMEND_COLUMN      = "cv_MS:1002640_peptide_end_on_chromosome";
+    public static final String OPTIONAL_CHROM_EXON_COUNT_COLUMN        = "cv_MS:1002641_peptide_exon_count";
+    public static final String OPTIONAL_CHROM_EXON_SIZES_COLUMN        = "cv_MS:1002642_peptide_exon_nucleotide_sizes";
+    public static final String OPTIONAL_CHROM_EXON_STARTS_COLUMN        = "cv_MS:1002643_peptide_start_positions_on_chromosome";
+    public static final String OPTIONAL_GENOME_REF_VERSION_COLUMN        = "cv_MS:1002644_genome_reference_version";
+    public static final String OPTIONAL_PROTEIN_ACC_COLUMN = "proteinAccession";
+    public static final String OPTIONAL_PROTEOGROUPER = "cv_MS:1002235_ProteoGrouper_PDH_score";
     public static final String OPTIONAL_PSM_FDRSCORE_COLUMN  = "cv_MS:1002356_PSM-level_combined_FDRScore";
     public static final String CUSTOM_CHROM_INF_PARAM = "Chromosome information present";
 
@@ -76,7 +80,7 @@ public class MzTabUtils {
 
     public static UserParam convertStringToUserParam(String value) {
         if(value != null && !value.isEmpty()){
-            return new UserParam(null,null,removeNewLineAndTab(value),null,null,null);
+            return new UserParam(null,null,value,null,null,null);
         }
         return null;
     }
@@ -87,7 +91,7 @@ public class MzTabUtils {
      * @return Return a CVParam
      */
     public static CVParam convertUserParamToCVParam(UserParam param) {
-        return new CVParam(null, null, removeNewLineAndTab(param.getName()), removeNewLineAndTab(param.getValue()));
+        return new CVParam(null, null, param.getName(), param.getValue());
     }
 
     /**

@@ -1,0 +1,12 @@
+#!/bin/sh
+
+# bedbigbed script paramters
+BEDBIGBEDSCRIPT=$1
+ASQLFILE=$2
+TYPE=$3
+SORTEDBEDFILE=$4
+CHROMSIZESFILE=$5
+BIGBEDFILE=$6
+
+# Convert to bigbed
+"${BEDBIGBEDSCRIPT}" -as="${ASQLFILE}" -type="${TYPE}" -tab "${SORTEDBEDFILE}" "${CHROMSIZESFILE}" "${BIGBEDFILE}"

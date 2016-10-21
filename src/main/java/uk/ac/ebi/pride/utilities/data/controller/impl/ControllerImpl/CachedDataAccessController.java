@@ -243,7 +243,7 @@ public abstract class CachedDataAccessController extends AbstractDataAccessContr
      * @param useCache  true means to use cache
      * @return Identification identification object
      */
-    Protein getProteinById(Comparable proteinId, boolean useCache) {
+    public Protein getProteinById(Comparable proteinId, boolean useCache) {
         return useCache ? (Protein) cache.get(CacheEntry.PROTEIN, proteinId) : null;
     }
 
