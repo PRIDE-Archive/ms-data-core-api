@@ -521,6 +521,8 @@ public class MzTabControllerImpl extends ReferencedIdentificationController{
             logger.debug("Get instrument configurations");
             List<InstrumentConfiguration> configs = new ArrayList<InstrumentConfiguration>();
             try {
+                // NOTE: When there is no instrument, 'transformInstrument' returns 'null', and that is not legal for
+                // a List, that's why the originating method has been changed to return an empty list
                 configs.addAll(MzTabTransformer.transformInstrument(reader.getInstrument()));
                 return configs;
             } catch (Exception ex) {
