@@ -1,5 +1,6 @@
 ms-data-core-api
 ===============
+(** This branch is for Java 7 compatibility **)
 [![Build Status](https://travis-ci.org/PRIDE-Utilities/ms-data-core-api.svg)](https://travis-ci.org/PRIDE-Utilities/ms-data-core-api)
 
 # About
