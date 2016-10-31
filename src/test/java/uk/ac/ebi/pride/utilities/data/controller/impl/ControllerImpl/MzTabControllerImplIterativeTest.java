@@ -60,11 +60,11 @@ public class MzTabControllerImplIterativeTest {
         scanForSoftware(mzTabController);
         scanForSearchDetails(mzTabController);
         scanEntryByEntry(mzTabController);
-        scanMzIdentMLSpecificDetails(mzTabController);
+        scanSpectraAndPeakData(mzTabController);
         System.out.println("Final time in miliseconds: " + (System.currentTimeMillis() - start));
     }
 
-    private void scanMzIdentMLSpecificDetails(MzTabControllerImpl dataAccessController) throws IOException {
+    private void scanSpectraAndPeakData(MzTabControllerImpl dataAccessController) throws IOException {
         // spectra and peak list file
         List<uk.ac.ebi.pride.utilities.data.core.SpectraData> spectraDataFiles = dataAccessController.getSpectraDataFiles();
         for (SpectraData spectraDataFile : spectraDataFiles) {
@@ -84,13 +84,13 @@ public class MzTabControllerImplIterativeTest {
         ExperimentMetaData experimentMetaData = dataAccessController.getExperimentMetaData();
 
         // file id
-        System.out.println("Experiment Id: " + experimentMetaData.getId());
+        System.out.println("File Id: " + experimentMetaData.getId());
 
         // set assay title
         System.out.println("Experiment Name: " + experimentMetaData.getName());
 
         // set short label
-        System.out.println("Experiment Title: " + experimentMetaData.getShortLabel());
+        System.out.println("Short Label: " + experimentMetaData.getShortLabel());
 
         // protein count
         System.out.println("Protein Counts: " + dataAccessController.getNumberOfProteins());
@@ -105,11 +105,11 @@ public class MzTabControllerImplIterativeTest {
         System.out.println("Contact Person: " + experimentMetaData.getPersons().toString());
 
         // sample
-        System.out.println("Experiment Id: " + experimentMetaData.getSamples().toString());
+        System.out.println("Samples: " + experimentMetaData.getSamples().toString());
 
         //additional params
         ParamGroup additional = dataAccessController.getExperimentMetaData().getAdditional();
-        System.out.println("Experiment Id: " + additional.getCvParams().toString());
+        System.out.println("Additional Params: " + additional.getCvParams().toString());
 
     }
 
@@ -184,6 +184,8 @@ public class MzTabControllerImplIterativeTest {
         double totalPSMCount = 0.0;
         long count = 0;
 
+        // TODO - Address this random spectra test with better quality data
+        //assertTrue("Check Random Spectra", ((AssayFileController) dataAccessController).checkRandomSpectraByDeltaMassThreshold(1, 4.0));
         Collection<Comparable> proteinIds = dataAccessController.getProteinIds();
         for (Comparable proteinId : proteinIds) {
             count ++;

@@ -3,11 +3,10 @@ package uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessController;
-
 import uk.ac.ebi.pride.utilities.data.core.*;
 import uk.ac.ebi.pride.utilities.mol.MoleculeUtilities;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -63,7 +62,7 @@ public class MzIdentMLControllerIterativeTest {
         scanForInstrument(mzMLController);
         scanForSoftware(mzIdentMLController);
         scanForSearchDetails(mzIdentMLController);
-        //scanEntryByEntry(mzIdentMLController);
+        scanEntryByEntry(mzIdentMLController);
         scanMzIdentMLSpecificDetails(mzIdentMLController);
         System.out.println("Final time in miliseconds: " + (System.currentTimeMillis() - start));
     }
@@ -187,6 +186,8 @@ public class MzIdentMLControllerIterativeTest {
         double totalPSMCount = 0.0;
         long count = 0;
 
+        // TODO - Address this random spectra test with better quality data
+        //assertTrue("Check Random Spectra", ((AssayFileController) dataAccessController).checkRandomSpectraByDeltaMassThreshold(1, 4.0));
         Collection<Comparable> proteinIds = dataAccessController.getProteinIds();
         for (Comparable proteinId : proteinIds) {
             count ++;

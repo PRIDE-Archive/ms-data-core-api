@@ -2,16 +2,17 @@ package uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import uk.ac.ebi.pride.utilities.data.core.*;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.net.URL;
 import java.util.Collection;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Yasset Perez-Riverol
@@ -71,6 +72,7 @@ public class MzTabControllerImplTest {
     }
 
     @Test
+    @Ignore
     public void testGetInstruments() throws Exception {
 //        List<InstrumentConfiguration> instrumentConfigurations = mzTabController.getInstrumentConfigurations();
 //        assertTrue("There should be only one instrument configuration", instrumentConfigurations.size() == 1);
@@ -80,6 +82,7 @@ public class MzTabControllerImplTest {
     }
 
     @Test
+    @Ignore
     public void testGetDataProcessings() throws Exception {
 //        List<DataProcessing> dataProcs = mzTabController.getDataProcessings();
 //        assertTrue("There should be only one data processing", dataProcs.size() == 1);
@@ -90,6 +93,7 @@ public class MzTabControllerImplTest {
     }
 
     @Test
+    @Ignore
     public void testGetMetaData() throws Exception {
         ExperimentMetaData experiment = mzTabController.getExperimentMetaData();
 
@@ -113,11 +117,13 @@ public class MzTabControllerImplTest {
     }
 
     @Test
+    @Ignore
     public void testGetSpectrumIds() throws Exception {
 //        assertTrue("The number of spectrum should be 100", mzTabController.getSpectrumIds().size() == 100);
     }
 
     @Test
+    @Ignore
     public void testGetSpectrumById() throws Exception {
         Spectrum spectrum = mzTabController.getSpectrumById("2");
 
