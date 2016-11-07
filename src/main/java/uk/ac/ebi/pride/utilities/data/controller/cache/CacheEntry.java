@@ -21,9 +21,9 @@ public enum CacheEntry {
     PROTEIN_TO_PROTEIN_GROUP_ID(HashMap.class, null),          // Map<Comparable, Comparable>
     PROTEIN_GROUP_ID(ArrayList.class, null),                   // List of Protein Groups
     CHROMATOGRAM(CachedMap.class, 10),                         // Map<Chromatogram id, Chromatogram>
-    PROTEIN(CachedMap.class, 100),                              // Map<Identification id, Identification>
+    PROTEIN(CachedMap.class, 20),                              // Map<Identification id, Identification>
     PROTEIN_GROUP(CachedMap.class, 5),                         // Map<Protein group id, Protein group>
-    PEPTIDE(CachedMap.class, 100),                              // Map<Tuple<Comparable, Comparable>, Peptide>
+    PEPTIDE(CachedMap.class, 40),                              // Map<Tuple<Comparable, Comparable>, Peptide>
     EXPERIMENT_ACC(ArrayList.class, null),                     // List<Experiement Accession>
     EXPERIMENT_METADATA(ArrayList.class, null),                // List<Experiment Metadata>
     PROTEIN_METADATA(ArrayList.class, null),                   // List of Identification Metadata for Protein Identification
@@ -35,14 +35,14 @@ public enum CacheEntry {
     CHROMATOGRAM_ID(ArrayList.class, null),                    // List<Chromatogram id>
     PROTEIN_ID(ArrayList.class, null),                         // List<Identification id>
     MS_LEVEL(HashMap.class, null),                             // Map<Spectrum id, Ms level>
-    SPECTRUM_LEVEL_PRECURSOR_CHARGE(HashMap.class, null),      // Map<Spectrum id, Precursor charge>
-    PEPTIDE_PRECURSOR_CHARGE(HashMap.class, null),             // Map<ProteinID, PeptideID, charge>
-    PEPTIDE_PRECURSOR_MZ(HashMap.class, null),                 // Map<ProteinID, PeptideID, mz>
-    SPECTRUM_LEVEL_PRECURSOR_MZ(HashMap.class, null),          // Map<Spectrum id, Precursor m/z>
+    SPECTRUM_LEVEL_PRECURSOR_CHARGE(CachedMap.class, 10),      // Map<Spectrum id, Precursor charge>
+    PEPTIDE_PRECURSOR_CHARGE(CachedMap.class, 40),             // Map<ProteinID, PeptideID, charge>
+    PEPTIDE_PRECURSOR_MZ(CachedMap.class, 40),                 // Map<ProteinID, PeptideID, mz>
+    SPECTRUM_LEVEL_PRECURSOR_MZ(CachedMap.class, 10),          // Map<Spectrum id, Precursor m/z>
     PRECURSOR_INTENSITY(HashMap.class, null),                  // Map<Spectrum id, Precursor intensity>
     PROTEIN_ACCESSION(HashMap.class, null),                    // Map<Identification id, Protein accession>
     PROTEIN_ACCESSION_VERSION(HashMap.class, null),            // Map<Identification id, Protein accession version>
-    DB_SEQUENCE(HashMap.class, null),                          // Map<DBSequence Id, DBSequence>
+    DB_SEQUENCE(CachedMap.class, 40),                          // Map<DBSequence Id, DBSequence>
     SPECTRUM_ID_ITEM(HashMap.class, null),                     // Map<Spectrum Identification Id, Spectrum IdentificationItem>
     PEPTIDE_EVIDENCE(HashMap.class, null),                   // Map<PEPTIDE EVIDENCE ID , PEPTIDE EVIDENCE>
     PROTEIN_SEARCH_DATABASE(HashMap.class, null),              // Map<Identification id, Protein search database>
@@ -51,17 +51,17 @@ public enum CacheEntry {
     THRESHOLD(HashMap.class, null),                            // Map<Identification id, Threshold>
     PROTEIN_TO_PARAM(HashMap.class, null),                     // Map<Identification id, ParamGroup>
     PROTEIN_TO_PEPTIDE(HashMap.class, null),                   // Map<Identification id, List<Peptide id>>
-    PEPTIDE_SEQUENCE(HashMap.class, null),                     // Map<Peptide Id, peptide sequence>
-    PEPTIDE_RANK(HashMap.class, null),                         // Map<Tuple<ProteinID, PetideID>, rank>
-    PEPTIDE_START(HashMap.class, null),                        // Map<Peptide Id, peptide start location>
-    PEPTIDE_END(HashMap.class, null),                          // Map<Peptide Id, peptide end location>
+    PEPTIDE_SEQUENCE(CachedMap.class, 40),                     // Map<Peptide Id, peptide sequence>
+    PEPTIDE_RANK(CachedMap.class, 40),                         // Map<Tuple<ProteinID, PetideID>, rank>
+    PEPTIDE_START(CachedMap.class, 40),                        // Map<Peptide Id, peptide start location>
+    PEPTIDE_END(CachedMap.class, 40),                          // Map<Peptide Id, peptide end location>
     PEPTIDE_TO_SPECTRUM(HashMap.class, null),                  // Map<Peptide Id, spectrum id>  in mzidentml the spectrum have two
     QUANTPEPTIDE_TO_SPECTREUM(HashMap.class, null),            // Map<Peptide Id, spectreum ID> in mztab we will have a Map for quanttative peptides
     PROTEIN_TO_QUANTPEPTIDES(HashMap.class, null),             // Map<db squence id,List<Spectrum identification item id>>>
     // components the spectrum id and the file id, then is Ma<Peptide Id, String[]>
-    PEPTIDE_TO_PARAM(HashMap.class, null),                     // Map<Peptide Id, ParamGroup>
+    PEPTIDE_TO_PARAM(CachedMap.class, 40),                     // Map<Peptide Id, ParamGroup>
     NUMBER_OF_FRAGMENT_IONS(HashMap.class, null),              // Map<Peptide Id, number of fragment ions>
-    PEPTIDE_TO_MODIFICATION(HashMap.class, null),              // Map<Peptide Id, List<Tuple<Accession, location>>>
+    PEPTIDE_TO_MODIFICATION(CachedMap.class, 40),              // Map<Peptide Id, List<Tuple<Accession, location>>>
     MODIFICATION(HashMap.class, null),                         // Map<Accession, Modification>, a light weight implementation
     SUM_OF_INTENSITY(HashMap.class, null),                     // Map<Spectrum id, sum of all intensity>
     NUMBER_OF_PEAKS(HashMap.class, null),                      // Map<Spectrum id, number of peaks>
