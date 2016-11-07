@@ -81,7 +81,7 @@ public enum CacheEntry {
     private final Class dataStructType;
     private final Integer size;
 
-    private CacheEntry(Class dataStructType, Integer size) {
+    CacheEntry(Class dataStructType, Integer size) {
         this.dataStructType = dataStructType;
         this.size = size;
     }
