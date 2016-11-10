@@ -81,7 +81,7 @@ public class MzTabBedConverter {
         stringBuilder.setLength(0);
         int lineNumber = 1;
 
-        List<String> allPeptideSequences = new ArrayList<>();
+        HashMap<String, ArrayList<Locus>> peptidesLoci = new HashMap<>();
         for (Comparable proteinID : mzTabController.getProteinIds()) {
             ArrayList<PeptideEvidence> evidences = new ArrayList<>();
             for (Peptide peptide : mzTabController.getProteinById(proteinID).getPeptides()) {
@@ -89,17 +89,45 @@ public class MzTabBedConverter {
                     if (!evidences.contains(peptideEvidence)) {
                         evidences.add(peptideEvidence);
                         if (hasChromCvps(peptideEvidence.getCvParams())) {
-                            allPeptideSequences.add(peptideEvidence.getPeptideSequence().getSequence());
+                            Locus locus = new Locus();
+                            for (CvParam cvParam : peptideEvidence.getCvParams()) {
+                                String blockStarts = "", blockSizes = "";
+                                switch (cvParam.getAccession()) {
+                                    case ("MS:1002644"):
+                                        locus.setGeneBuild(FilenameUtils.removeExtension(cvParam.getValue()));
+                                        break;
+                                    case ("MS:1002637"):
+                                        locus.setChromosome(cvParam.getValue());
+                                        break;
+                                    case ("MS:1002643"):
+                                        String[] starts = checkFixEndComma(cvParam.getValue()).split(",");
+                                        String chromstart = starts[0];
+                                        for (int i=0; i<starts.length; i++) {
+                                            starts[i] = "" + (Integer.parseInt(starts[i]) - Integer.parseInt(chromstart));
+                                        }
+                                        blockStarts = StringUtils.join(starts, ",");
+                                        locus.setStartLocation(starts[0]);
+                                        break;
+                                    case ("MS:1002642"):
+                                        blockSizes = checkFixEndComma(cvParam.getValue());
+                                        break;
+                                    default:
+                                        break;
+                                }
+                                String[] starts = blockStarts.split(",");
+                                String[] sizes = blockSizes.split(",");
+                                locus.setEndLocation("" + (Integer.parseInt(locus.getStartLocation()) + Integer.parseInt(starts[starts.length-1]) + Integer.parseInt(sizes[sizes.length-1])));
+                            }
+                            if (peptidesLoci.containsKey(peptideEvidence.getPeptideSequence().getSequence())) {
+                                peptidesLoci.get(peptideEvidence.getPeptideSequence().getSequence()).add(locus);
+                            } else {
+                                ArrayList<Locus> lociList = new ArrayList<>();
+                                lociList.add(locus);
+                                peptidesLoci.put(peptideEvidence.getPeptideSequence().getSequence(), lociList);
+                            }
                         }
                     }
                 }
-            }
-        }
-        Set<String> duplicatePeptideSequences = new HashSet<>();
-        Set<String> tempePeptideSequences = new HashSet<>();
-        for (String peptideSequence : allPeptideSequences) {
-            if (!tempePeptideSequences.add(peptideSequence)) {
-                duplicatePeptideSequences.add(peptideSequence);
             }
         }
 
@@ -252,7 +280,7 @@ public class MzTabBedConverter {
                                 // score, according to evidence
                             } else {
                                 stringBuilder.append(1000);
-                            } // score, no PSM group : 1000 TODO test
+                            } // score, no PSM group : 1000
                             stringBuilder.append('\t');
                             stringBuilder.append(strand); // strand
                             stringBuilder.append('\t');
@@ -272,57 +300,42 @@ public class MzTabBedConverter {
                             stringBuilder.append('\t') ;
                             stringBuilder.append(peptideEvidence.getPeptideSequence().getSequence());  // peptideSequence
                             stringBuilder.append('\t');
-                            if (!duplicatePeptideSequences.contains(peptide.getSequence())) {
+
+                            ArrayList<Locus> lociOfPeptide = peptidesLoci.get(peptideEvidence.getPeptideSequence().getSequence());
+                            final int LOCI_THRESHOLD= 2;
+                            if (lociOfPeptide.size()==1) {
                                 stringBuilder.append("unique");
                             } else {
-                                HashSet<ProteinGroup> groups = getProtgeinGroups(proteinID, proteinGroupHashMap);
-                                int evidenceOnThisLoci = 0, evidenceOnOtherLoci = 0;
-                                Collection<Comparable> proteinIDs = new HashSet<>();
-                                if (groups.size()>0) {
-                                    for (ProteinGroup group : groups) {
-                                            proteinIDs.addAll(group.getProteinIds());
-                                    }
-                                } else {
-                                    proteinIDs = mzTabController.getProteinIds();
-                                }
-                                for (Comparable proteinIdToCheck : proteinIDs) {
-                                    List<Peptide> peptidesList = mzTabController.getProteinById(proteinIdToCheck).getPeptides();
-                                    for (Peptide peptideToCheck : peptidesList) {
-                                        if (!peptideToCheck.equals(peptide) && peptideToCheck.getSequence().equals(peptide.getSequence())) {
-                                            List<CvParam> cvParams = peptideToCheck.getPeptideEvidence().getCvParams();
-                                            Map<String, CvParam> cvps = new HashMap<>();
-                                            for (CvParam cvp : cvParams) {
-                                                cvps.put(cvp.getAccession(), cvp);
-                                            }
-                                            if (hasChromCvps(peptideToCheck.getPeptideEvidence().getCvParams())) {
-                                                String cvpChrom = cvps.get("MS:1002637").getValue();
-                                                String cvpStart = checkFixEndComma(cvps.get("MS:1002643").getValue()).split(",")[0];
-                                                String cvpEnd = cvps.get("MS:1002640").getValue();
-                                                if (cvpChrom.equalsIgnoreCase(chrom) && (
-                                                        ((Integer.parseInt(cvpStart)-18)<=Integer.parseInt(chromstart) && (Integer.parseInt(cvpStart)+18>=Integer.parseInt(chromstart)))
-                                                      && (Integer.parseInt(cvpEnd)-18)<=Integer.parseInt(chromend) &&  (Integer.parseInt(cvpEnd)+18>=(Integer.parseInt(chromend))))) {
-                                                    evidenceOnThisLoci++;
-                                                } else {
-                                                    evidenceOnOtherLoci++;
-                                                }
-                                            }
-
-                                        }
-                                    }
-                                 }
-                                final int RANGE = 4;
-                                if (evidenceOnOtherLoci==0 && evidenceOnThisLoci==0) {
-                                    stringBuilder.append("not-unique[conflict]");
-                                } else {
-                                    if ((evidenceOnOtherLoci - evidenceOnThisLoci) > RANGE) {
-                                        stringBuilder.append("not-unique[subset]");
-                                    } else if ((evidenceOnOtherLoci - evidenceOnThisLoci) < RANGE){
-                                        stringBuilder.append("not-unique[same-set]");
+                                HashSet<String> geneBuilds = new HashSet<>();
+                                lociOfPeptide.parallelStream().forEach(locus -> geneBuilds.add(locus.getGeneBuild()));
+                                int currentLoci = 0;
+                                int otherLoci = 0;
+                                for (Locus locus : lociOfPeptide) {
+                                    Locus currentLocus = new Locus(buildVersion, chrom, blockStarts, blockSizes);
+                                    if (currentLocus.equals(locus)) {
+                                        currentLoci++;
                                     } else {
+                                        otherLoci++;
+                                    }
+                                }
+                                if (otherLoci == 0) {
+                                    stringBuilder.append("unique");
+                                } else {
+                                    if (geneBuilds.size() == 1) {
+                                        if ((currentLoci - otherLoci) > LOCI_THRESHOLD) {
+                                            stringBuilder.append("not-unique[super-set]");
+                                        } else if (currentLoci == otherLoci) {
+                                            stringBuilder.append("not-unique[same-set]");
+                                        } else if ((currentLoci - otherLoci) < LOCI_THRESHOLD) {
+                                            stringBuilder.append("not-unique[sub-set]");
+                                        } else {
+                                            stringBuilder.append("not-unique[conflict]");
+                                        }
+                                    } else if (geneBuilds.size() > 1) {
                                         stringBuilder.append("not-unique[unknown]");
                                     }
                                 }
-                            } // peptide uniqueness
+                            }// peptide uniqueness
                             stringBuilder.append('\t');
                             stringBuilder.append(buildVersion); // buildVersion
                             stringBuilder.append('\t');
@@ -565,4 +578,126 @@ public class MzTabBedConverter {
         logger.info("Finished creating new aSQL file: " + path);
     }
 
+}
+
+class Locus {
+    String geneBuild;
+    String chromosome;
+    String startLocation;
+    String endLocation;
+
+    /**
+     * Default constructor for a Loci object.
+     */
+    Locus() {
+    }
+
+    /**
+     * Constructor for a Loci object, with all the required information.
+     *
+     * @param geneBuild the gene build version
+     * @param chromosome the chromsome of the Lccus
+     * @param startLocation the start position of the Locus
+     * @param endLocation the end position of the Locus
+     */
+    Locus(String geneBuild, String chromosome, String startLocation, String endLocation) {
+        this.geneBuild = geneBuild;
+        this.chromosome = chromosome;
+        this.startLocation = startLocation;
+        this.endLocation = endLocation;
+    }
+
+    /**
+     * Sets new endLocations.
+     *
+     * @param blockSizes New value of endLocations.
+     */
+    public void setEndLocation(String endLocation) {
+        this.endLocation = endLocation;
+    }
+
+    /**
+     * Sets new geneBuild.
+     *
+     * @param geneBuild New value of geneBuild.
+     */
+    public void setGeneBuild(String geneBuild) {
+        this.geneBuild = geneBuild;
+    }
+
+    /**
+     * Sets new startLocations.
+     *
+     * @param startLocations New value of startLocations.
+     */
+    public void setStartLocation(String startLocations) {
+        this.startLocation = startLocation;
+    }
+
+    /**
+     * Gets startLocations.
+     *
+     * @return Value of startLocations.
+     */
+    public String getStartLocation() {
+        return startLocation;
+    }
+
+    /**
+     * Gets chromosome.
+     *
+     * @return Value of chromosome.
+     */
+    public String getChromosome() {
+        return chromosome;
+    }
+
+    /**
+     * Gets endLocations.
+     *
+     * @return Value of endLocations.
+     */
+    public String getEndlocation() {
+        return endLocation;
+    }
+
+    /**
+     * Sets new chromosome.
+     *
+     * @param chromosome New value of chromosome.
+     */
+    public void setChromosome(String chromosome) {
+        this.chromosome = chromosome;
+    }
+
+    /**
+     * Gets geneBuild.
+     *
+     * @return Value of geneBuild.
+     */
+    public String getGeneBuild() {
+        return geneBuild;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 17;
+        result = 31 * result + geneBuild.hashCode();
+        result = 31 * result + chromosome.hashCode();
+        result = 31 * result + startLocation.hashCode();
+        result = 31 * result + endLocation.hashCode();
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) return true;
+        if (!(o instanceof Locus)) {
+            return false;
+        }
+        Locus locus = (Locus) o;
+        return locus.chromosome.equals(chromosome) &&
+            locus.startLocation.equals(startLocation) &&
+            locus.endLocation.equals(endLocation);
+    }
 }
