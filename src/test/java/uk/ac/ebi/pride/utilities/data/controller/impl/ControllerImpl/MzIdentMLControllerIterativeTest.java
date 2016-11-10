@@ -3,7 +3,10 @@ package uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessController;
+import uk.ac.ebi.pride.utilities.data.controller.cache.CacheEntry;
 import uk.ac.ebi.pride.utilities.data.core.*;
 import uk.ac.ebi.pride.utilities.mol.MoleculeUtilities;
 
@@ -12,7 +15,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 
-
 /**
  * Created with IntelliJ IDEA.
  * @author Yasset Perez-Riverol
@@ -20,32 +22,25 @@ import java.util.*;
  */
 
 public class MzIdentMLControllerIterativeTest {
-
+    public static final Logger logger = LoggerFactory.getLogger(MzIdentMLControllerIterativeTest.class);
+    
     private MzIdentMLControllerImpl mzIdentMLController = null;
-    private PeakControllerImpl      mzMLController      = null;
-
-
     public static final double MZ_OUTLIER = 4;
-
-
     public static final String PSI_MOD = "MOD";
     public static final String MS = "MS";
     public static final String UNIMOD = "UNIMOD";
+
 
     @Before
     public void setUp() throws Exception {
         URL url = MzIdentMLControllerIterativeTest.class.getClassLoader().getResource("small.mzid");
         URL urlMgf = MzIdentMLControllerIterativeTest.class.getClassLoader().getResource("small.mgf");
-
-        if (url == null) {
+        if (url == null || urlMgf == null) {
             throw new IllegalStateException("no file for input found!");
         }
         File inputFile = new File(url.toURI());
-
         mzIdentMLController = new MzIdentMLControllerImpl(inputFile,true);
-        mzMLController      = new PeakControllerImpl(new File(urlMgf != null ? urlMgf.toURI() : null != null ? urlMgf != null ? urlMgf.toURI() : null : null));
-
-        List<File> files = new ArrayList<File>();
+        List<File> files = new ArrayList<>();
         files.add(new File(urlMgf.toURI()));
         mzIdentMLController.addMSController(files);
     }
@@ -59,129 +54,84 @@ public class MzIdentMLControllerIterativeTest {
     public void scanMetadata() throws IOException {
         long start = System.currentTimeMillis();
         scanForGeneralMetadata(mzIdentMLController);
-        scanForInstrument(mzMLController);
+        scanForInstrument(mzIdentMLController);
         scanForSoftware(mzIdentMLController);
         scanForSearchDetails(mzIdentMLController);
         scanEntryByEntry(mzIdentMLController);
         scanMzIdentMLSpecificDetails(mzIdentMLController);
-        System.out.println("Final time in miliseconds: " + (System.currentTimeMillis() - start));
+        logger.info("Final time in miliseconds: " + (System.currentTimeMillis() - start));
     }
 
     private void scanMzIdentMLSpecificDetails(MzIdentMLControllerImpl dataAccessController) throws IOException {
-        // spectra and peak list file
         List<SpectraData> spectraDataFiles = dataAccessController.getSpectraDataFiles();
         for (SpectraData spectraDataFile : spectraDataFiles) {
             String location = spectraDataFile.getLocation();
-
-
-            System.out.println("Searching for peak list file: " + location);
-
+            logger.info("Searching for peak list file: " + location);
             Integer numberOfSpectrabySpectraData = dataAccessController.getNumberOfSpectrabySpectraData(spectraDataFile);
-
-            System.out.println("Number of Spectra presents in the file: " + numberOfSpectrabySpectraData);
+            logger.info("Number of Spectra presents in the file: " + numberOfSpectrabySpectraData);
         }
     }
 
     private void scanForGeneralMetadata( DataAccessController dataAccessController) {
-
         ExperimentMetaData experimentMetaData = dataAccessController.getExperimentMetaData();
-
-        // file id
-        System.out.println("Experiment Id: " + experimentMetaData.getId());
-
-        // set assay title
-        System.out.println("Experiment Name: " + experimentMetaData.getName());
-
-        // set short label
-        System.out.println("Experiment Title: " + experimentMetaData.getShortLabel());
-
-        // protein count
-        System.out.println("Protein Counts: " + dataAccessController.getNumberOfProteins());
-
-        // peptide count
-        System.out.println("Peptide Counts: " + dataAccessController.getNumberOfPeptides());
-
-        // total spectrum count
-        System.out.println("Spectrum Count: " + dataAccessController.getNumberOfSpectra());
-
-        //contact
-        System.out.println("Contact Person: " + experimentMetaData.getPersons().toString());
-
-        // sample
-        System.out.println("Experiment Id: " + experimentMetaData.getSamples().toString());
-
-        //additional params
+        logger.info("Experiment Id: " + experimentMetaData.getId());
+        logger.info("Experiment Name: " + experimentMetaData.getName());
+        logger.info("Experiment Title: " + experimentMetaData.getShortLabel());
+        logger.info("Protein Counts: " + dataAccessController.getNumberOfProteins());
+        logger.info("Peptide Counts: " + dataAccessController.getNumberOfPeptides());
+        logger.info("Spectrum Count: " + dataAccessController.getNumberOfSpectra());
+        logger.info("Contact Person: " + experimentMetaData.getPersons().toString());
+        logger.info("Experiment Id: " + experimentMetaData.getSamples().toString());
         ParamGroup additional = dataAccessController.getExperimentMetaData().getAdditional();
-        System.out.println("Experiment Id: " + additional.getCvParams().toString());
-
+        logger.info("Experiment Id: " + additional.getCvParams().toString());
     }
 
     private void scanForSoftware(DataAccessController dataAccessController) {
         ExperimentMetaData experimentMetaData = dataAccessController.getExperimentMetaData();
-
         Set<Software> softwares = new HashSet<Software>();
         //todo - dataProcessing params are not captured as software params
         //todo - there is a 1-1 mapping for pride XML, but how to deal with mzidentml?
         //todo - will need to call getspectrumprotocol and getproteinprotocol on dataaccesscontroller to get params
         softwares.addAll(experimentMetaData.getSoftwares());
-
-        System.out.println("Softwares: " + softwares);
+        logger.info("Softwares: " + softwares);
     }
 
     private void scanForInstrument(DataAccessController dataAccessController) {
-
-        //check to see if we have instrument configurations in the result file to scan
-        //this isn't always present
+        //check to see if we have instrument configurations in the result file to scan, this isn't always present
         if (dataAccessController.getMzGraphMetaData() != null) {
-
             Collection<InstrumentConfiguration> instrumentConfigurations = dataAccessController.getMzGraphMetaData().getInstrumentConfigurations();
             for (InstrumentConfiguration instrumentConfiguration : instrumentConfigurations) {
-
-                //set instrument cv param
-                System.out.println("Instrument Configuration CvPrams: " + instrumentConfiguration.getCvParams().toString());
-
-                //source
+                logger.info("Instrument Configuration CvPrams: " + instrumentConfiguration.getCvParams().toString());
                 for (InstrumentComponent source : instrumentConfiguration.getSource()) {
-                    System.out.println("Source Instrument: " + source.getCvParams().toString());
+                    logger.info("Source Instrument: " + source.getCvParams().toString());
                 }
-                //analyzer
                 for (InstrumentComponent analyzer : instrumentConfiguration.getAnalyzer()) {
-                    System.out.println("Analyzer Instrument: " + analyzer.getCvParams().toString());
+                    logger.info("Analyzer Instrument: " + analyzer.getCvParams().toString());
                 }
-
-                //detector
                 for (InstrumentComponent detector : instrumentConfiguration.getDetector()) {
-                    System.out.println("Detector Instrument: " + detector.getCvParams().toString());
+                    logger.info("Detector Instrument: " + detector.getCvParams().toString());
                 }
             }
         }
     }
 
     private void scanForSearchDetails(DataAccessController dataAccessController) {
-        // protein group
-
         Collection<Comparable> proteinIds = dataAccessController.getProteinIds();
         if (proteinIds != null && !proteinIds.isEmpty()) {
             Comparable firstProteinId = proteinIds.iterator().next();
-
-            // protein accession
             String accession = dataAccessController.getProteinAccession(firstProteinId);
-            System.out.println("First Protein: " + accession);
-
-            // search database
+            logger.info("First Protein: " + accession);
             SearchDataBase searchDatabase = dataAccessController.getSearchDatabase(firstProteinId);
             if (searchDatabase != null) {
-                System.out.println("Search Database: " + searchDatabase.getName());
+                logger.info("Search Database: " + searchDatabase.getName());
             }
         }
-
     }
 
     private void scanEntryByEntry(DataAccessController dataAccessController) {
-
-        Set<CvParam> ptms = new HashSet<CvParam>();
-        Set<String> peptideSequences = new HashSet<String>();
-        Set<Comparable> spectrumIds = new HashSet<Comparable>();
+        Set<CvParam> ptms = new HashSet<>();
+        Set<String> peptideSequences = new HashSet<>();
+        Set<Comparable> spectrumIds = new HashSet<>();
         double errorPSMCount = 0.0;
         double totalPSMCount = 0.0;
         long count = 0;
@@ -191,26 +141,23 @@ public class MzIdentMLControllerIterativeTest {
         Collection<Comparable> proteinIds = dataAccessController.getProteinIds();
         for (Comparable proteinId : proteinIds) {
             count ++;
+            if (logger.isDebugEnabled() && ((int)((count * 100.0f) /  dataAccessController.getProteinIds().size())%10==0)) {
+                logger.debug("\nPercent through total proteins, " + count + " / " +   dataAccessController.getProteinIds().size() + " : " + ((int)((count * 100.0f) /  dataAccessController.getProteinIds().size())) );
+                calcCacheSizses((MzIdentMLControllerImpl) dataAccessController);
+            }
             Collection<Comparable> peptideIds = dataAccessController.getPeptideIds(proteinId);
             for (Comparable peptideId : peptideIds) {
                 totalPSMCount++;
-
-                // peptide
                 Peptide peptide = dataAccessController.getPeptideByIndex(proteinId, peptideId);
                 PeptideSequence peptideSequence = peptide.getPeptideSequence();
                 peptideSequences.add(peptideSequence.getSequence());
-
-                // ptm
                 List<Modification> modifications = new ArrayList<Modification>(dataAccessController.getPTMs(proteinId, peptideId));
                 List<Double> ptmMasses = new ArrayList<Double>();
                 for (Modification modification : modifications) {
-                    // ptm mass
                     List<Double> monoMasses = modification.getMonoisotopicMassDelta();
                     if (monoMasses != null && !monoMasses.isEmpty()) {
                         ptmMasses.add(monoMasses.get(0));
                     }
-
-                    // record ptm
                     List<CvParam> cvParams = modification.getCvParams();
                     for (CvParam cvParam : cvParams) {
                         if (cvParam.getCvLookupID().equalsIgnoreCase(PSI_MOD) || cvParam.getCvLookupID().equalsIgnoreCase(UNIMOD)) {
@@ -218,8 +165,6 @@ public class MzIdentMLControllerIterativeTest {
                         }
                     }
                 }
-
-                // precursor charge
                 Integer charge = dataAccessController.getPeptidePrecursorCharge(proteinId, peptideId);
                 double mz = dataAccessController.getPeptidePrecursorMz(proteinId, peptideId);
                 if ((charge == null || mz == -1)) {
@@ -232,8 +177,6 @@ public class MzIdentMLControllerIterativeTest {
                         }
                     }
                 }
-
-                // delta mass
                 if (charge == null) {
                     errorPSMCount++;
                 } else {
@@ -242,28 +185,33 @@ public class MzIdentMLControllerIterativeTest {
                         errorPSMCount++;
                     }
                 }
-
-                // spectrum
                 if (peptide.getSpectrumIdentification() != null && peptide.getSpectrumIdentification().getSpectrum() != null) {
                     Spectrum spectrum = peptide.getSpectrumIdentification().getSpectrum();
                     spectrumIds.add(spectrum.getId());
                 }
             }
-
             if (count % 500 == 0) {
-                System.out.println("Scanned " + count+ " entries of proteins from file : " + dataAccessController.getName());
+                logger.info("Scanned " + count+ " entries of proteins from file : " + dataAccessController.getName());
             }
         }
+        logger.info("Peptide Sequences: " + peptideSequences.size());
+        logger.info("Number of Spectrums: " + spectrumIds.size());
+        logger.info("PTMs: " + ptms.toString());
+        logger.info("Delta Error Rate: " + (errorPSMCount / totalPSMCount));
+    }
 
-        System.out.println("Peptide Sequences: " + peptideSequences.size());
-        System.out.println("Number of Spectrums: " + spectrumIds.size());
-        System.out.println("PTMs: " + ptms.toString());
-        System.out.println("Delta Error Rate: " + (errorPSMCount / totalPSMCount));
+    private void calcCacheSizses(MzIdentMLControllerImpl mzIdentMLController) {
+        Arrays.stream(CacheEntry.values()).forEach(cacheEntry -> logger.debug("Cache entry: " + cacheEntry.name() + " Size: " + (
+            (mzIdentMLController.getCache().get(cacheEntry)==null?
+                "null" :
+            mzIdentMLController.getCache().get(cacheEntry) instanceof Map ?
+                ((Map)mzIdentMLController.getCache().get(cacheEntry)).size() :
+             mzIdentMLController.getCache().get(cacheEntry) instanceof Collection ?
+                ((Collection)mzIdentMLController.getCache().get(cacheEntry)).size() :
+             "null"))));
     }
 
     protected boolean isDeltaMzInRange(Double deltaMz) {
         return deltaMz != null && (deltaMz >= -MZ_OUTLIER) && (deltaMz <= MZ_OUTLIER);
     }
-
-
 }
