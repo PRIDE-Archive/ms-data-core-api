@@ -3,7 +3,6 @@ package uk.ac.ebi.pride.utilities.data.exporters;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
 import uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl.MzTabControllerImpl;
 import uk.ac.ebi.pride.utilities.data.core.*;
 import uk.ac.ebi.pride.utilities.data.core.Modification;
@@ -12,10 +11,8 @@ import uk.ac.ebi.pride.utilities.data.core.Protein;
 
 import java.io.*;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.*;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -90,8 +87,8 @@ public class MzTabBedConverter {
                         evidences.add(peptideEvidence);
                         if (hasChromCvps(peptideEvidence.getCvParams())) {
                             Locus locus = new Locus();
+                            String blockStarts = "", blockSizes = "";
                             for (CvParam cvParam : peptideEvidence.getCvParams()) {
-                                String blockStarts = "", blockSizes = "";
                                 switch (cvParam.getAccession()) {
                                     case ("MS:1002644"):
                                         locus.setGeneBuild(FilenameUtils.removeExtension(cvParam.getValue()));
@@ -106,7 +103,7 @@ public class MzTabBedConverter {
                                             starts[i] = "" + (Integer.parseInt(starts[i]) - Integer.parseInt(chromstart));
                                         }
                                         blockStarts = StringUtils.join(starts, ",");
-                                        locus.setStartLocation(starts[0]);
+                                        locus.setStartLocation(chromstart);
                                         break;
                                     case ("MS:1002642"):
                                         blockSizes = checkFixEndComma(cvParam.getValue());
@@ -114,10 +111,10 @@ public class MzTabBedConverter {
                                     default:
                                         break;
                                 }
-                                String[] starts = blockStarts.split(",");
-                                String[] sizes = blockSizes.split(",");
-                                locus.setEndLocation("" + (Integer.parseInt(locus.getStartLocation()) + Integer.parseInt(starts[starts.length-1]) + Integer.parseInt(sizes[sizes.length-1])));
                             }
+                            String[] starts = blockStarts.split(",");
+                            String[] sizes = blockSizes.split(",");
+                            locus.setEndLocation("" + (Integer.parseInt(locus.getStartLocation()) + Integer.parseInt(starts[starts.length-1]) + Integer.parseInt(sizes[sizes.length-1])));
                             if (peptidesLoci.containsKey(peptideEvidence.getPeptideSequence().getSequence())) {
                                 peptidesLoci.get(peptideEvidence.getPeptideSequence().getSequence()).add(locus);
                             } else {
@@ -128,15 +125,6 @@ public class MzTabBedConverter {
                         }
                     }
                 }
-            }
-        }
-
-        HashMap<Comparable, ProteinGroup> proteinGroupHashMap = new HashMap<>();
-        if (mzTabController.hasProteinAmbiguityGroup()) {
-            Collection<Comparable>  groupIDs = mzTabController.getProteinAmbiguityGroupIds();
-            proteinGroupHashMap = new HashMap<>();
-            for (Comparable groupID : groupIDs) {
-                proteinGroupHashMap.put(groupID, mzTabController.getProteinAmbiguityGroupById(groupID));
             }
         }
         for (Comparable proteinID : mzTabController.getProteinIds()) {
@@ -190,9 +178,7 @@ public class MzTabBedConverter {
                         }
                        ArrayList<String> peptideModifications = new ArrayList<>();
                         for (Modification modification : peptideEvidence.getPeptideSequence().getModifications()) {
-                            for (CvParam cvParam : modification.getCvParams()) {
-                                peptideModifications.add(modification.getLocation() + "-" + cvParam.getAccession());
-                            }
+                            peptideModifications.addAll(modification.getCvParams().stream().map(cvParam -> modification.getLocation() + "-" + cvParam.getAccession()).collect(Collectors.toList()));
                         }
                         if (peptideModifications.size() > 0) {
                             pepMods = StringUtils.join(peptideModifications, ", ");
@@ -302,7 +288,7 @@ public class MzTabBedConverter {
                             stringBuilder.append('\t');
 
                             ArrayList<Locus> lociOfPeptide = peptidesLoci.get(peptideEvidence.getPeptideSequence().getSequence());
-                            final int LOCI_THRESHOLD= 2;
+                            final int LOCI_THRESHOLD = 1;
                             if (lociOfPeptide.size()==1) {
                                 stringBuilder.append("unique");
                             } else {
@@ -311,7 +297,7 @@ public class MzTabBedConverter {
                                 int currentLoci = 0;
                                 int otherLoci = 0;
                                 for (Locus locus : lociOfPeptide) {
-                                    Locus currentLocus = new Locus(buildVersion, chrom, blockStarts, blockSizes);
+                                    Locus currentLocus = new Locus(buildVersion, chrom, chromstart, chromend);
                                     if (currentLocus.equals(locus)) {
                                         currentLoci++;
                                     } else {
@@ -581,10 +567,10 @@ public class MzTabBedConverter {
 }
 
 class Locus {
-    String geneBuild;
-    String chromosome;
-    String startLocation;
-    String endLocation;
+    private String geneBuild;
+    private String chromosome;
+    private String startLocation;
+    private String endLocation;
 
     /**
      * Default constructor for a Loci object.
@@ -608,11 +594,11 @@ class Locus {
     }
 
     /**
-     * Sets new endLocations.
+     * Sets new endLocation.
      *
-     * @param blockSizes New value of endLocations.
+     * @param endLocation New value of endLocation.
      */
-    public void setEndLocation(String endLocation) {
+    void setEndLocation(String endLocation) {
         this.endLocation = endLocation;
     }
 
@@ -621,16 +607,16 @@ class Locus {
      *
      * @param geneBuild New value of geneBuild.
      */
-    public void setGeneBuild(String geneBuild) {
+    void setGeneBuild(String geneBuild) {
         this.geneBuild = geneBuild;
     }
 
     /**
-     * Sets new startLocations.
+     * Sets new startLocation.
      *
-     * @param startLocations New value of startLocations.
+     * @param startLocation New value of startLocations.
      */
-    public void setStartLocation(String startLocations) {
+    void setStartLocation(String startLocation) {
         this.startLocation = startLocation;
     }
 
@@ -639,7 +625,7 @@ class Locus {
      *
      * @return Value of startLocations.
      */
-    public String getStartLocation() {
+    String getStartLocation() {
         return startLocation;
     }
 
@@ -648,7 +634,7 @@ class Locus {
      *
      * @return Value of chromosome.
      */
-    public String getChromosome() {
+    String getChromosome() {
         return chromosome;
     }
 
@@ -657,7 +643,7 @@ class Locus {
      *
      * @return Value of endLocations.
      */
-    public String getEndlocation() {
+    String getEndlocation() {
         return endLocation;
     }
 
@@ -666,7 +652,7 @@ class Locus {
      *
      * @param chromosome New value of chromosome.
      */
-    public void setChromosome(String chromosome) {
+    void setChromosome(String chromosome) {
         this.chromosome = chromosome;
     }
 
@@ -675,7 +661,7 @@ class Locus {
      *
      * @return Value of geneBuild.
      */
-    public String getGeneBuild() {
+    String getGeneBuild() {
         return geneBuild;
     }
 
