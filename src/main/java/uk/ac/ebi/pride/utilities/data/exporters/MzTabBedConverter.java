@@ -79,6 +79,7 @@ public class MzTabBedConverter {
         int lineNumber = 1;
 
         HashMap<String, ArrayList<Locus>> peptidesLoci = new HashMap<>();
+        HashMap<PeptidePtmKey, Integer> psmCount = new HashMap<>();
         for (Comparable proteinID : mzTabController.getProteinIds()) {
             ArrayList<PeptideEvidence> evidences = new ArrayList<>();
             for (Peptide peptide : mzTabController.getProteinById(proteinID).getPeptides()) {
@@ -121,6 +122,20 @@ public class MzTabBedConverter {
                                 ArrayList<Locus> lociList = new ArrayList<>();
                                 lociList.add(locus);
                                 peptidesLoci.put(peptideEvidence.getPeptideSequence().getSequence(), lociList);
+                            }
+                            ArrayList<String> peptideModifications = new ArrayList<>();
+                            String pepMods = ".";
+                            for (Modification modification : peptideEvidence.getPeptideSequence().getModifications()) {
+                                peptideModifications.addAll(modification.getCvParams().stream().map(cvParam -> modification.getLocation() + "-" + cvParam.getAccession()).collect(Collectors.toList()));
+                            }
+                            if (peptideModifications.size() > 0) {
+                                pepMods = StringUtils.join(peptideModifications, ", ");
+                            }
+                           PeptidePtmKey key = new PeptidePtmKey(peptideEvidence.getPeptideSequence().getSequence(), pepMods);
+                            if (psmCount.containsKey(key)) {
+                                psmCount.put(key, psmCount.get(key)+1);
+                            } else {
+                                psmCount.put(key, 1);
                             }
                         }
                     }
@@ -204,69 +219,66 @@ public class MzTabBedConverter {
                             name = name + "_" + ++lineNumber;
                             stringBuilder.append(name); // name
                             stringBuilder.append('\t');
-                            final int TOTAL_EVIDENCES = peptide.getPeptideEvidenceList().size();
-                            if (mzTabController.hasProteinAmbiguityGroup()) {
-                                final int RANGE = 110;
-                                int difference = 0;
-                                double zeroRange = 1.00;
-                                double oneRange = 0.5;
-                                double twoRange = 0.25;
-                                int constant = 0; /*
-                                <167	1
-                                167-277	2-4
-                                278-388	5-7
-                                389-499	8-10
-                                500-610	11-13
-                                611-722	14-16
-                                723-833	17-19
-                                834-944	20-22
-                                >944	>22     */
-                                if (TOTAL_EVIDENCES==1) {
-                                    constant = 166;
-                                } else if (TOTAL_EVIDENCES>1 && TOTAL_EVIDENCES<5) {
-                                    difference = 4-TOTAL_EVIDENCES;
-                                    constant = 167;
-                                } else if (TOTAL_EVIDENCES>4 && TOTAL_EVIDENCES<8) {
-                                    difference = 7-TOTAL_EVIDENCES;
-                                    constant = 278;
-                                } else if (TOTAL_EVIDENCES>7 && TOTAL_EVIDENCES<11) {
-                                    difference = 10-TOTAL_EVIDENCES;
-                                    constant = 389;
-                                } else if (TOTAL_EVIDENCES>10 && TOTAL_EVIDENCES<14) {
-                                    difference = 13-TOTAL_EVIDENCES;
-                                    constant = 500;
-                                } else if (TOTAL_EVIDENCES>13 && TOTAL_EVIDENCES<17) {
-                                    difference = 16-TOTAL_EVIDENCES;
-                                    constant = 611;
-                                } else if (TOTAL_EVIDENCES>16 && TOTAL_EVIDENCES<20) {
-                                    difference = 19-TOTAL_EVIDENCES;
-                                    constant = 723;
-                                } else if (TOTAL_EVIDENCES>19 && TOTAL_EVIDENCES<23) {
-                                    difference = 22-TOTAL_EVIDENCES;
-                                    constant = 834;
-                                } else if (TOTAL_EVIDENCES>22) {
-                                    constant = 1000;
-                                }
-                                double chosenComponent;
-                                switch (difference) {
-                                    case 0:
-                                        chosenComponent = zeroRange;
-                                        break;
-                                    case 1:
-                                        chosenComponent = oneRange;
-                                        break;
-                                    case 2:
-                                        chosenComponent = twoRange;
-                                        break;
-                                    default:
-                                        chosenComponent = 0.0;
-                                        break;
-                                }
-                                stringBuilder.append(new Double(Math.floor((chosenComponent * RANGE) + constant)).intValue());
-                                // score, according to evidence
-                            } else {
-                                stringBuilder.append(1000);
-                            } // score, no PSM group : 1000
+                            PeptidePtmKey key = new PeptidePtmKey(peptideEvidence.getPeptideSequence().getSequence(), pepMods);
+                            final int TOTAL_EVIDENCES = psmCount.get(key);
+                            final int RANGE = 110;
+                            int difference = 0;
+                            double zeroRange = 1.00;
+                            double oneRange = 0.5;
+                            double twoRange = 0.25;
+                            int constant = 0; /*
+                            <167	1
+                            167-277	2-4
+                            278-388	5-7
+                            389-499	8-10
+                            500-610	11-13
+                            611-722	14-16
+                            723-833	17-19
+                            834-944	20-22
+                            >944	>22     */
+                            if (TOTAL_EVIDENCES==1) {
+                                constant = 166;
+                            } else if (TOTAL_EVIDENCES>1 && TOTAL_EVIDENCES<5) {
+                                difference = 4-TOTAL_EVIDENCES;
+                                constant = 167;
+                            } else if (TOTAL_EVIDENCES>4 && TOTAL_EVIDENCES<8) {
+                                difference = 7-TOTAL_EVIDENCES;
+                                constant = 278;
+                            } else if (TOTAL_EVIDENCES>7 && TOTAL_EVIDENCES<11) {
+                                difference = 10-TOTAL_EVIDENCES;
+                                constant = 389;
+                            } else if (TOTAL_EVIDENCES>10 && TOTAL_EVIDENCES<14) {
+                                difference = 13-TOTAL_EVIDENCES;
+                                constant = 500;
+                            } else if (TOTAL_EVIDENCES>13 && TOTAL_EVIDENCES<17) {
+                                difference = 16-TOTAL_EVIDENCES;
+                                constant = 611;
+                            } else if (TOTAL_EVIDENCES>16 && TOTAL_EVIDENCES<20) {
+                                difference = 19-TOTAL_EVIDENCES;
+                                constant = 723;
+                            } else if (TOTAL_EVIDENCES>19 && TOTAL_EVIDENCES<23) {
+                                difference = 22-TOTAL_EVIDENCES;
+                                constant = 834;
+                            } else if (TOTAL_EVIDENCES>22) {
+                                constant = 1000;
+                            }
+                            double chosenComponent;
+                            switch (difference) {
+                                case 0:
+                                    chosenComponent = zeroRange;
+                                    break;
+                                case 1:
+                                    chosenComponent = oneRange;
+                                    break;
+                                case 2:
+                                    chosenComponent = twoRange;
+                                    break;
+                                default:
+                                    chosenComponent = 0.0;
+                                    break;
+                            }
+                            stringBuilder.append(new Double(Math.floor((chosenComponent * RANGE) + constant)).intValue());
+                            // score, according to evidence
                             stringBuilder.append('\t');
                             stringBuilder.append(strand); // strand
                             stringBuilder.append('\t');
@@ -296,9 +308,9 @@ public class MzTabBedConverter {
                                 lociOfPeptide.parallelStream().forEach(locus -> geneBuilds.add(locus.getGeneBuild()));
                                 int currentLoci = 0;
                                 int otherLoci = 0;
+                                final Locus CURRENT_LOCUS = new Locus(buildVersion, chrom, chromstart, chromend);
                                 for (Locus locus : lociOfPeptide) {
-                                    Locus currentLocus = new Locus(buildVersion, chrom, chromstart, chromend);
-                                    if (currentLocus.equals(locus)) {
+                                    if (CURRENT_LOCUS.equals(locus)) {
                                         currentLoci++;
                                     } else {
                                         otherLoci++;
@@ -685,5 +697,73 @@ class Locus {
         return locus.chromosome.equals(chromosome) &&
             locus.startLocation.equals(startLocation) &&
             locus.endLocation.equals(endLocation);
+    }
+}
+
+class PeptidePtmKey {
+    private String sequence;
+    private String mods;
+
+    PeptidePtmKey() {
+    }
+
+    PeptidePtmKey(String sequence, String mods) {
+        this.sequence = sequence;
+        this.mods = mods;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 17;
+        result = 31 * result + sequence.hashCode();
+        result = 31 * result + mods.hashCode();
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) return true;
+        if (!(o instanceof PeptidePtmKey)) {
+            return false;
+        }
+        PeptidePtmKey peptidePtmKey = (PeptidePtmKey) o;
+        return peptidePtmKey.sequence.equals(sequence) &&
+            peptidePtmKey.mods.equals(mods);
+    }
+
+    /**
+     * Sets new sequence.
+     *
+     * @param sequence New value of sequence.
+     */
+    void setSequence(String sequence) {
+        this.sequence = sequence;
+    }
+
+    /**
+     * Gets mods.
+     *
+     * @return Value of mods.
+     */
+    String getMods() {
+        return mods;
+    }
+
+    /**
+     * Gets sequence.
+     *
+     * @return Value of sequence.
+     */
+    String getSequence() {
+        return sequence;
+    }
+
+    /**
+     * Sets new mods.
+     *
+     * @param mods New value of mods.
+     */
+    void setMods(String mods) {
+        this.mods = mods;
     }
 }
