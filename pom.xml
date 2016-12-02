@@ -4,7 +4,7 @@
 
     <groupId>uk.ac.ebi.pride.utilities</groupId>
     <artifactId>ms-data-core-api</artifactId>
-    <version>2.0.10-SNAPSHOT</version>
+    <version>2.0.10</version>
 
     <name>Open-source Data Model for computational proteomics</name>
     <url>http://github.com/PRIDE-Utilities/ms-data-core-api</url>
@@ -445,6 +445,6 @@
         <connection>scm:git:https://github.com/PRIDE-Utilities/ms-data-core-api.git</connection>
         <developerConnection>scm:git:https://github.com/PRIDE-Utilities/ms-data-core-api.git</developerConnection>
         <url>https://github.com/PRIDE-Utilities/ms-data-core-api.git</url>
-        <tag>HEAD</tag>
+        <tag>ms-data-core-api-2.0.10</tag>
     </scm>
 </project>
