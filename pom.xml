@@ -94,20 +94,20 @@
         <json.version>20090211</json.version>
         <commonscode.version>1.7</commonscode.version>
         <c3p0.version>0.9.1.2</c3p0.version>
-        <jmzidentml.version>1.2.4</jmzidentml.version>
-        <jmzml.version>1.7.5</jmzml.version>
+        <jmzidentml.version>1.2.5</jmzidentml.version>
+        <jmzml.version>1.7.7</jmzml.version>
         <xmlschemavalidator.version>2.1</xmlschemavalidator.version>
         <jmztab.version>3.0.3</jmztab.version>
-        <jmzreader.version>1.2.2</jmzreader.version>
-        <mzxml-parser.version>1.3.6</mzxml-parser.version>
-        <mzdata-parser.version>1.2.3</mzdata-parser.version>
-        <apl-parser.version>1.2.1</apl-parser.version>
-        <mgf-parser.version>1.3.6</mgf-parser.version>
-        <ms2-parser.version>1.2.4</ms2-parser.version>
-        <pkl-parser.version>1.2.3</pkl-parser.version>
-        <dta-parser.version>1.2.3</dta-parser.version>
+        <jmzreader.version>1.2.5</jmzreader.version>
+        <mzxml-parser.version>1.3.9</mzxml-parser.version>
+        <mzdata-parser.version>1.2.6</mzdata-parser.version>
+        <apl-parser.version>1.2.4</apl-parser.version>
+        <mgf-parser.version>1.3.10</mgf-parser.version>
+        <ms2-parser.version>1.2.7</ms2-parser.version>
+        <pkl-parser.version>1.2.6</pkl-parser.version>
+        <dta-parser.version>1.2.6</dta-parser.version>
         <jnetCDF.version>0.0.2</jnetCDF.version>
-        <pride.jaxb.version>1.0.14</pride.jaxb.version>
+        <pride.jaxb.version>1.0.16</pride.jaxb.version>
         <pride-utilities.version>2.0.14</pride-utilities.version>
         <pride-mod.version>2.1.2</pride-mod.version>
 
