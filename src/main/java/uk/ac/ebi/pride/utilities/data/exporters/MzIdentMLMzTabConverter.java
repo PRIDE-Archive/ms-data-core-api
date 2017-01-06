@@ -821,15 +821,7 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
 
         // check and set additional chromosome information
         if (hasChromInformation()) {
-            String proteinName;
-            if (sequence.getAccession().startsWith("generic|")) {
-                proteinName = StringUtils.substringBetween(sequence.getAccession(), "|");
-                if (proteinName.startsWith("A_") || proteinName.startsWith("B_")) {
-                    proteinName = proteinName.substring(2);
-                }
-            } else {
-                proteinName = "null";
-            }
+            String proteinName = istolateProteinName(sequence);
             protein.setOptionColumnValue(MzTabUtils.OPTIONAL_PROTEIN_ACC_COLUMN, proteinName);
             for (CvParam cvp :  msProtein.getCvParams()) {
                 if (cvp.getAccession().equalsIgnoreCase("MS:1002235")) {
@@ -838,9 +830,32 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
                 }
             }
         }
-
         return protein;
+    }
 
+    private String istolateProteinName(DBSequence sequence) {
+        String proteinName;
+        if (sequence.getAccession().startsWith("generic|")) {
+            proteinName = StringUtils.substringBetween(sequence.getAccession(), "|");
+            if (proteinName==null || proteinName.equalsIgnoreCase(sequence.getAccession())) {
+                proteinName = sequence.getAccession().replace("generic|", "");
+            }
+            proteinName = trimProteinName(proteinName);
+        } else {
+            proteinName = sequence.getAccession();
+            logger.error("Unknown protein name from DBSequence's accession: " + sequence.getAccession());
+        }
+        return proteinName;
+    }
+
+    private String trimProteinName(String proteinName) {
+        String result = proteinName;
+        if (!StringUtils.isEmpty(proteinName) && proteinName.length()>2) {
+            if (proteinName.charAt(1)=='_') {
+                result = proteinName.substring(2);
+            }
+        }
+        return result;
     }
 
     private void loadModifications(PSM psm, PeptideEvidence peptideEvidence) {
