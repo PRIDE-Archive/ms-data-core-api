@@ -29,19 +29,6 @@
             </roles>
             <timezone>0</timezone>
         </developer>
-
-        <developer>
-            <id>Rui Wang</id>
-            <name>Rui Wang</name>
-            <organization>Proteomics Services Team, PANDA Group, EMBL-European Bioinformatics Institute</organization>
-            <organizationUrl>http://www.ebi.ac.uk/pride</organizationUrl>
-            <roles>
-                <role>developer</role>
-                <role>architect</role>
-            </roles>
-            <timezone>0</timezone>
-        </developer>
-
         <developer>
             <id>ntoro</id>
             <name>Noemi del Toro Ayllón</name>
@@ -76,6 +63,14 @@
             <timezone>Europe/London</timezone>
         </developer>
     </developers>
+
+    <contributors>
+        <contributor>
+            <name>Rui Wang</name>
+            <organization>Proteomics Services Team, PANDA Group, EMBL-European Bioinformatics Institute</organization>
+            <organizationUrl>http://www.ebi.ac.uk/pride</organizationUrl>
+        </contributor>
+    </contributors>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
