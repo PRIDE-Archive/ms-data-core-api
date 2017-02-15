@@ -81,7 +81,7 @@
             <roles>
                 <role>developer</role>
             </roles>
-            <timezone>0</timezone>
+            <timezone>Europe/London</timezone>
         </developer>
     </developers>
 
