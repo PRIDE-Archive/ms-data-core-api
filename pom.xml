@@ -10,20 +10,12 @@
     <url>http://github.com/PRIDE-Utilities/ms-data-core-api</url>
     <description>Open-source java library to handle different file format standards for proteomics. Specially ms-data-core-api is good for MetaData representation.</description>
 
-    <licenses>
-        <license>
-            <name>Apache 2</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-            <distribution>repo</distribution>
-            <comments>A business-friendly OSS license</comments>
-        </license>
-    </licenses>
-
-    <organization>
-        <name>European Bioinformatics Institute</name>
-        <url>http://www.ebi.ac.uk</url>
-    </organization>
-
+    <parent>
+        <groupId>uk.ac.ebi.pride.architectural</groupId>
+        <artifactId>pride-core</artifactId>
+        <version>1.0.1</version>
+    </parent>
+    
     <developers>
         <developer>
             <id>Yasset Perez-Riverol</id>
