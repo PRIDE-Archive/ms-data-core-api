@@ -15,7 +15,7 @@
         <artifactId>pride-core</artifactId>
         <version>1.0.1</version>
     </parent>
-    
+
     <developers>
         <developer>
             <id>Yasset Perez-Riverol</id>
