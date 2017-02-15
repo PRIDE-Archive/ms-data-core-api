@@ -3,7 +3,6 @@ package uk.ac.ebi.pride.utilities.data.exporters;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
 import uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl.MzTabControllerImpl;
 import uk.ac.ebi.pride.utilities.data.core.*;
 import uk.ac.ebi.pride.utilities.data.core.Modification;
@@ -12,10 +11,8 @@ import uk.ac.ebi.pride.utilities.data.core.Protein;
 
 import java.io.*;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.*;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -81,7 +78,8 @@ public class MzTabBedConverter {
         stringBuilder.setLength(0);
         int lineNumber = 1;
 
-        List<String> allPeptideSequences = new ArrayList<>();
+        HashMap<String, ArrayList<Locus>> peptidesLoci = new HashMap<>();
+        HashMap<PeptidePtmKey, Integer> psmCount = new HashMap<>();
         for (Comparable proteinID : mzTabController.getProteinIds()) {
             ArrayList<PeptideEvidence> evidences = new ArrayList<>();
             for (Peptide peptide : mzTabController.getProteinById(proteinID).getPeptides()) {
@@ -89,26 +87,59 @@ public class MzTabBedConverter {
                     if (!evidences.contains(peptideEvidence)) {
                         evidences.add(peptideEvidence);
                         if (hasChromCvps(peptideEvidence.getCvParams())) {
-                            allPeptideSequences.add(peptideEvidence.getPeptideSequence().getSequence());
+                            Locus locus = new Locus();
+                            String blockStarts = "", blockSizes = "";
+                            for (CvParam cvParam : peptideEvidence.getCvParams()) {
+                                switch (cvParam.getAccession()) {
+                                    case ("MS:1002644"):
+                                        locus.setGeneBuild(FilenameUtils.removeExtension(cvParam.getValue()));
+                                        break;
+                                    case ("MS:1002637"):
+                                        locus.setChromosome(cvParam.getValue());
+                                        break;
+                                    case ("MS:1002643"):
+                                        String[] starts = checkFixEndComma(cvParam.getValue()).split(",");
+                                        String chromstart = starts[0];
+                                        for (int i=0; i<starts.length; i++) {
+                                            starts[i] = "" + (Integer.parseInt(starts[i]) - Integer.parseInt(chromstart));
+                                        }
+                                        blockStarts = StringUtils.join(starts, ",");
+                                        locus.setStartLocation(chromstart);
+                                        break;
+                                    case ("MS:1002642"):
+                                        blockSizes = checkFixEndComma(cvParam.getValue());
+                                        break;
+                                    default:
+                                        break;
+                                }
+                            }
+                            String[] starts = blockStarts.split(",");
+                            String[] sizes = blockSizes.split(",");
+                            locus.setEndLocation("" + (Integer.parseInt(locus.getStartLocation()) + Integer.parseInt(starts[starts.length-1]) + Integer.parseInt(sizes[sizes.length-1])));
+                            if (peptidesLoci.containsKey(peptideEvidence.getPeptideSequence().getSequence())) {
+                                peptidesLoci.get(peptideEvidence.getPeptideSequence().getSequence()).add(locus);
+                            } else {
+                                ArrayList<Locus> lociList = new ArrayList<>();
+                                lociList.add(locus);
+                                peptidesLoci.put(peptideEvidence.getPeptideSequence().getSequence(), lociList);
+                            }
+                            ArrayList<String> peptideModifications = new ArrayList<>();
+                            String pepMods = ".";
+                            for (Modification modification : peptideEvidence.getPeptideSequence().getModifications()) {
+                                peptideModifications.addAll(modification.getCvParams().stream().map(cvParam -> modification.getLocation() + "-" + cvParam.getAccession()).collect(Collectors.toList()));
+                            }
+                            if (peptideModifications.size() > 0) {
+                                pepMods = StringUtils.join(peptideModifications, ", ");
+                            }
+                           PeptidePtmKey key = new PeptidePtmKey(peptideEvidence.getPeptideSequence().getSequence(), pepMods);
+                            if (psmCount.containsKey(key)) {
+                                psmCount.put(key, psmCount.get(key)+1);
+                            } else {
+                                psmCount.put(key, 1);
+                            }
                         }
                     }
                 }
-            }
-        }
-        Set<String> duplicatePeptideSequences = new HashSet<>();
-        Set<String> tempePeptideSequences = new HashSet<>();
-        for (String peptideSequence : allPeptideSequences) {
-            if (!tempePeptideSequences.add(peptideSequence)) {
-                duplicatePeptideSequences.add(peptideSequence);
-            }
-        }
-
-        HashMap<Comparable, ProteinGroup> proteinGroupHashMap = new HashMap<>();
-        if (mzTabController.hasProteinAmbiguityGroup()) {
-            Collection<Comparable>  groupIDs = mzTabController.getProteinAmbiguityGroupIds();
-            proteinGroupHashMap = new HashMap<>();
-            for (Comparable groupID : groupIDs) {
-                proteinGroupHashMap.put(groupID, mzTabController.getProteinAmbiguityGroupById(groupID));
             }
         }
         for (Comparable proteinID : mzTabController.getProteinIds()) {
@@ -162,9 +193,7 @@ public class MzTabBedConverter {
                         }
                        ArrayList<String> peptideModifications = new ArrayList<>();
                         for (Modification modification : peptideEvidence.getPeptideSequence().getModifications()) {
-                            for (CvParam cvParam : modification.getCvParams()) {
-                                peptideModifications.add(modification.getLocation() + "-" + cvParam.getAccession());
-                            }
+                            peptideModifications.addAll(modification.getCvParams().stream().map(cvParam -> modification.getLocation() + "-" + cvParam.getAccession()).collect(Collectors.toList()));
                         }
                         if (peptideModifications.size() > 0) {
                             pepMods = StringUtils.join(peptideModifications, ", ");
@@ -190,69 +219,66 @@ public class MzTabBedConverter {
                             name = name + "_" + ++lineNumber;
                             stringBuilder.append(name); // name
                             stringBuilder.append('\t');
-                            final int TOTAL_EVIDENCES = peptide.getPeptideEvidenceList().size();
-                            if (mzTabController.hasProteinAmbiguityGroup()) {
-                                final int RANGE = 110;
-                                int difference = 0;
-                                double zeroRange = 1.00;
-                                double oneRange = 0.5;
-                                double twoRange = 0.25;
-                                int constant = 0; /*
-                                <167	1
-                                167-277	2-4
-                                278-388	5-7
-                                389-499	8-10
-                                500-610	11-13
-                                611-722	14-16
-                                723-833	17-19
-                                834-944	20-22
-                                >944	>22     */
-                                if (TOTAL_EVIDENCES==1) {
-                                    constant = 166;
-                                } else if (TOTAL_EVIDENCES>1 && TOTAL_EVIDENCES<5) {
-                                    difference = 4-TOTAL_EVIDENCES;
-                                    constant = 167;
-                                } else if (TOTAL_EVIDENCES>4 && TOTAL_EVIDENCES<8) {
-                                    difference = 7-TOTAL_EVIDENCES;
-                                    constant = 278;
-                                } else if (TOTAL_EVIDENCES>7 && TOTAL_EVIDENCES<11) {
-                                    difference = 10-TOTAL_EVIDENCES;
-                                    constant = 389;
-                                } else if (TOTAL_EVIDENCES>10 && TOTAL_EVIDENCES<14) {
-                                    difference = 13-TOTAL_EVIDENCES;
-                                    constant = 500;
-                                } else if (TOTAL_EVIDENCES>13 && TOTAL_EVIDENCES<17) {
-                                    difference = 16-TOTAL_EVIDENCES;
-                                    constant = 611;
-                                } else if (TOTAL_EVIDENCES>16 && TOTAL_EVIDENCES<20) {
-                                    difference = 19-TOTAL_EVIDENCES;
-                                    constant = 723;
-                                } else if (TOTAL_EVIDENCES>19 && TOTAL_EVIDENCES<23) {
-                                    difference = 22-TOTAL_EVIDENCES;
-                                    constant = 834;
-                                } else if (TOTAL_EVIDENCES>22) {
-                                    constant = 1000;
-                                }
-                                double chosenComponent;
-                                switch (difference) {
-                                    case 0:
-                                        chosenComponent = zeroRange;
-                                        break;
-                                    case 1:
-                                        chosenComponent = oneRange;
-                                        break;
-                                    case 2:
-                                        chosenComponent = twoRange;
-                                        break;
-                                    default:
-                                        chosenComponent = 0.0;
-                                        break;
-                                }
-                                stringBuilder.append(new Double(Math.floor((chosenComponent * RANGE) + constant)).intValue());
-                                // score, according to evidence
-                            } else {
-                                stringBuilder.append(1000);
-                            } // score, no PSM group : 1000 TODO test
+                            PeptidePtmKey key = new PeptidePtmKey(peptideEvidence.getPeptideSequence().getSequence(), pepMods);
+                            final int TOTAL_EVIDENCES = psmCount.get(key);
+                            final int RANGE = 110;
+                            int difference = 0;
+                            double zeroRange = 1.00;
+                            double oneRange = 0.5;
+                            double twoRange = 0.25;
+                            int constant = 0; /*
+                            <167	1
+                            167-277	2-4
+                            278-388	5-7
+                            389-499	8-10
+                            500-610	11-13
+                            611-722	14-16
+                            723-833	17-19
+                            834-944	20-22
+                            >944	>22     */
+                            if (TOTAL_EVIDENCES==1) {
+                                constant = 166;
+                            } else if (TOTAL_EVIDENCES>1 && TOTAL_EVIDENCES<5) {
+                                difference = 4-TOTAL_EVIDENCES;
+                                constant = 167;
+                            } else if (TOTAL_EVIDENCES>4 && TOTAL_EVIDENCES<8) {
+                                difference = 7-TOTAL_EVIDENCES;
+                                constant = 278;
+                            } else if (TOTAL_EVIDENCES>7 && TOTAL_EVIDENCES<11) {
+                                difference = 10-TOTAL_EVIDENCES;
+                                constant = 389;
+                            } else if (TOTAL_EVIDENCES>10 && TOTAL_EVIDENCES<14) {
+                                difference = 13-TOTAL_EVIDENCES;
+                                constant = 500;
+                            } else if (TOTAL_EVIDENCES>13 && TOTAL_EVIDENCES<17) {
+                                difference = 16-TOTAL_EVIDENCES;
+                                constant = 611;
+                            } else if (TOTAL_EVIDENCES>16 && TOTAL_EVIDENCES<20) {
+                                difference = 19-TOTAL_EVIDENCES;
+                                constant = 723;
+                            } else if (TOTAL_EVIDENCES>19 && TOTAL_EVIDENCES<23) {
+                                difference = 22-TOTAL_EVIDENCES;
+                                constant = 834;
+                            } else if (TOTAL_EVIDENCES>22) {
+                                constant = 1000;
+                            }
+                            double chosenComponent;
+                            switch (difference) {
+                                case 0:
+                                    chosenComponent = zeroRange;
+                                    break;
+                                case 1:
+                                    chosenComponent = oneRange;
+                                    break;
+                                case 2:
+                                    chosenComponent = twoRange;
+                                    break;
+                                default:
+                                    chosenComponent = 0.0;
+                                    break;
+                            }
+                            stringBuilder.append(new Double(Math.floor((chosenComponent * RANGE) + constant)).intValue());
+                            // score, according to evidence
                             stringBuilder.append('\t');
                             stringBuilder.append(strand); // strand
                             stringBuilder.append('\t');
@@ -272,57 +298,42 @@ public class MzTabBedConverter {
                             stringBuilder.append('\t') ;
                             stringBuilder.append(peptideEvidence.getPeptideSequence().getSequence());  // peptideSequence
                             stringBuilder.append('\t');
-                            if (!duplicatePeptideSequences.contains(peptide.getSequence())) {
+
+                            ArrayList<Locus> lociOfPeptide = peptidesLoci.get(peptideEvidence.getPeptideSequence().getSequence());
+                            final int LOCI_THRESHOLD = 1;
+                            if (lociOfPeptide.size()==1) {
                                 stringBuilder.append("unique");
                             } else {
-                                HashSet<ProteinGroup> groups = getProtgeinGroups(proteinID, proteinGroupHashMap);
-                                int evidenceOnThisLoci = 0, evidenceOnOtherLoci = 0;
-                                Collection<Comparable> proteinIDs = new HashSet<>();
-                                if (groups.size()>0) {
-                                    for (ProteinGroup group : groups) {
-                                            proteinIDs.addAll(group.getProteinIds());
-                                    }
-                                } else {
-                                    proteinIDs = mzTabController.getProteinIds();
-                                }
-                                for (Comparable proteinIdToCheck : proteinIDs) {
-                                    List<Peptide> peptidesList = mzTabController.getProteinById(proteinIdToCheck).getPeptides();
-                                    for (Peptide peptideToCheck : peptidesList) {
-                                        if (!peptideToCheck.equals(peptide) && peptideToCheck.getSequence().equals(peptide.getSequence())) {
-                                            List<CvParam> cvParams = peptideToCheck.getPeptideEvidence().getCvParams();
-                                            Map<String, CvParam> cvps = new HashMap<>();
-                                            for (CvParam cvp : cvParams) {
-                                                cvps.put(cvp.getAccession(), cvp);
-                                            }
-                                            if (hasChromCvps(peptideToCheck.getPeptideEvidence().getCvParams())) {
-                                                String cvpChrom = cvps.get("MS:1002637").getValue();
-                                                String cvpStart = checkFixEndComma(cvps.get("MS:1002643").getValue()).split(",")[0];
-                                                String cvpEnd = cvps.get("MS:1002640").getValue();
-                                                if (cvpChrom.equalsIgnoreCase(chrom) && (
-                                                        ((Integer.parseInt(cvpStart)-18)<=Integer.parseInt(chromstart) && (Integer.parseInt(cvpStart)+18>=Integer.parseInt(chromstart)))
-                                                      && (Integer.parseInt(cvpEnd)-18)<=Integer.parseInt(chromend) &&  (Integer.parseInt(cvpEnd)+18>=(Integer.parseInt(chromend))))) {
-                                                    evidenceOnThisLoci++;
-                                                } else {
-                                                    evidenceOnOtherLoci++;
-                                                }
-                                            }
-
-                                        }
-                                    }
-                                 }
-                                final int RANGE = 4;
-                                if (evidenceOnOtherLoci==0 && evidenceOnThisLoci==0) {
-                                    stringBuilder.append("not-unique[conflict]");
-                                } else {
-                                    if ((evidenceOnOtherLoci - evidenceOnThisLoci) > RANGE) {
-                                        stringBuilder.append("not-unique[subset]");
-                                    } else if ((evidenceOnOtherLoci - evidenceOnThisLoci) < RANGE){
-                                        stringBuilder.append("not-unique[same-set]");
+                                HashSet<String> geneBuilds = new HashSet<>();
+                                lociOfPeptide.parallelStream().forEach(locus -> geneBuilds.add(locus.getGeneBuild()));
+                                int currentLoci = 0;
+                                int otherLoci = 0;
+                                final Locus CURRENT_LOCUS = new Locus(buildVersion, chrom, chromstart, chromend);
+                                for (Locus locus : lociOfPeptide) {
+                                    if (CURRENT_LOCUS.equals(locus)) {
+                                        currentLoci++;
                                     } else {
+                                        otherLoci++;
+                                    }
+                                }
+                                if (otherLoci == 0) {
+                                    stringBuilder.append("unique");
+                                } else {
+                                    if (geneBuilds.size() == 1) {
+                                        if ((currentLoci - otherLoci) > LOCI_THRESHOLD) {
+                                            stringBuilder.append("not-unique[super-set]");
+                                        } else if (currentLoci == otherLoci) {
+                                            stringBuilder.append("not-unique[same-set]");
+                                        } else if ((currentLoci - otherLoci) < LOCI_THRESHOLD) {
+                                            stringBuilder.append("not-unique[sub-set]");
+                                        } else {
+                                            stringBuilder.append("not-unique[conflict]");
+                                        }
+                                    } else if (geneBuilds.size() > 1) {
                                         stringBuilder.append("not-unique[unknown]");
                                     }
                                 }
-                            } // peptide uniqueness
+                            }// peptide uniqueness
                             stringBuilder.append('\t');
                             stringBuilder.append(buildVersion); // buildVersion
                             stringBuilder.append('\t');
@@ -565,4 +576,194 @@ public class MzTabBedConverter {
         logger.info("Finished creating new aSQL file: " + path);
     }
 
+}
+
+class Locus {
+    private String geneBuild;
+    private String chromosome;
+    private String startLocation;
+    private String endLocation;
+
+    /**
+     * Default constructor for a Loci object.
+     */
+    Locus() {
+    }
+
+    /**
+     * Constructor for a Loci object, with all the required information.
+     *
+     * @param geneBuild the gene build version
+     * @param chromosome the chromsome of the Lccus
+     * @param startLocation the start position of the Locus
+     * @param endLocation the end position of the Locus
+     */
+    Locus(String geneBuild, String chromosome, String startLocation, String endLocation) {
+        this.geneBuild = geneBuild;
+        this.chromosome = chromosome;
+        this.startLocation = startLocation;
+        this.endLocation = endLocation;
+    }
+
+    /**
+     * Sets new endLocation.
+     *
+     * @param endLocation New value of endLocation.
+     */
+    void setEndLocation(String endLocation) {
+        this.endLocation = endLocation;
+    }
+
+    /**
+     * Sets new geneBuild.
+     *
+     * @param geneBuild New value of geneBuild.
+     */
+    void setGeneBuild(String geneBuild) {
+        this.geneBuild = geneBuild;
+    }
+
+    /**
+     * Sets new startLocation.
+     *
+     * @param startLocation New value of startLocations.
+     */
+    void setStartLocation(String startLocation) {
+        this.startLocation = startLocation;
+    }
+
+    /**
+     * Gets startLocations.
+     *
+     * @return Value of startLocations.
+     */
+    String getStartLocation() {
+        return startLocation;
+    }
+
+    /**
+     * Gets chromosome.
+     *
+     * @return Value of chromosome.
+     */
+    String getChromosome() {
+        return chromosome;
+    }
+
+    /**
+     * Gets endLocations.
+     *
+     * @return Value of endLocations.
+     */
+    String getEndlocation() {
+        return endLocation;
+    }
+
+    /**
+     * Sets new chromosome.
+     *
+     * @param chromosome New value of chromosome.
+     */
+    void setChromosome(String chromosome) {
+        this.chromosome = chromosome;
+    }
+
+    /**
+     * Gets geneBuild.
+     *
+     * @return Value of geneBuild.
+     */
+    String getGeneBuild() {
+        return geneBuild;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 17;
+        result = 31 * result + geneBuild.hashCode();
+        result = 31 * result + chromosome.hashCode();
+        result = 31 * result + startLocation.hashCode();
+        result = 31 * result + endLocation.hashCode();
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) return true;
+        if (!(o instanceof Locus)) {
+            return false;
+        }
+        Locus locus = (Locus) o;
+        return locus.chromosome.equals(chromosome) &&
+            locus.startLocation.equals(startLocation) &&
+            locus.endLocation.equals(endLocation);
+    }
+}
+
+class PeptidePtmKey {
+    private String sequence;
+    private String mods;
+
+    PeptidePtmKey() {
+    }
+
+    PeptidePtmKey(String sequence, String mods) {
+        this.sequence = sequence;
+        this.mods = mods;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 17;
+        result = 31 * result + sequence.hashCode();
+        result = 31 * result + mods.hashCode();
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == this) return true;
+        if (!(o instanceof PeptidePtmKey)) {
+            return false;
+        }
+        PeptidePtmKey peptidePtmKey = (PeptidePtmKey) o;
+        return peptidePtmKey.sequence.equals(sequence) &&
+            peptidePtmKey.mods.equals(mods);
+    }
+
+    /**
+     * Sets new sequence.
+     *
+     * @param sequence New value of sequence.
+     */
+    void setSequence(String sequence) {
+        this.sequence = sequence;
+    }
+
+    /**
+     * Gets mods.
+     *
+     * @return Value of mods.
+     */
+    String getMods() {
+        return mods;
+    }
+
+    /**
+     * Gets sequence.
+     *
+     * @return Value of sequence.
+     */
+    String getSequence() {
+        return sequence;
+    }
+
+    /**
+     * Sets new mods.
+     *
+     * @param mods New value of mods.
+     */
+    void setMods(String mods) {
+        this.mods = mods;
+    }
 }
