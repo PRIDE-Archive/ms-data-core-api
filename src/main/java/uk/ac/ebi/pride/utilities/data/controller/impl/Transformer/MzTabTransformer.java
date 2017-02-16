@@ -20,6 +20,7 @@ import uk.ac.ebi.pride.utilities.util.NumberUtilities;
 import uk.ac.ebi.pride.utilities.util.Tuple;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * MzTab Transformer to ms-data-core-api Objects. We are only converting proteins and psm without the peptide information in the first release. In the near future we will
@@ -378,7 +379,14 @@ public class MzTabTransformer {
 
         // retrieve the scores
         ParamGroup params = new ParamGroup();
-        params.addCvParams(transformPSMSearchEngineScoreCvTerm(rawPeptide, metadata));
+        List<CvParam> cvparams = transformPSMSearchEngineScoreCvTerm(rawPeptide, metadata);
+        // Separate CVParams
+        params.addCvParams(cvparams.stream().filter(cvParam -> cvParam.getAccession() != null).collect(Collectors.toList()));
+        // From UserParams
+        params.addUserParams(cvparams.stream()
+                .filter(cvParam -> cvParam.getAccession() != null).collect(Collectors.toList())
+                .stream()
+                .map(cvParam -> new UserParam(cvParam.getName(), null, cvParam.getValue(), cvParam.getUnitAcc(), cvParam.getUnitName(), cvParam.getUnitCVLookupID())).collect(Collectors.toList()));
         params.addCvParam(transformPSMPrecursorMZ(rawPeptide, metadata));
 
         // start and stop position
