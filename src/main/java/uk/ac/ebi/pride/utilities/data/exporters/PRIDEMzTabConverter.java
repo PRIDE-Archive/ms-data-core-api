@@ -42,10 +42,10 @@ import static uk.ac.ebi.pride.utilities.data.utils.MzTabUtils.removeNewLineAndTa
 public class PRIDEMzTabConverter extends AbstractMzTabConverter {
 
 
-    public static final String GEL_IDENTIFIER = "gel_identifier";
+    public static final String GEL_IDENTIFIER     = "gel_identifier";
     public static final String GEL_SPOTIDENTIFIER = "gel_spotidentifier";
-    public static final String EMPAI = "empai";
-    public static final String GEL_COORDINATES = "gel_coordinates";
+    public static final String EMPAI              = "empai";
+    public static final String GEL_COORDINATES    = "gel_coordinates";
     private boolean gelExperiment;
 
     private int alternativeId = 0;

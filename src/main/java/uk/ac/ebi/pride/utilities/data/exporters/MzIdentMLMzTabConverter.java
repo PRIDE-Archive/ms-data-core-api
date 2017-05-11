@@ -19,12 +19,15 @@ import uk.ac.ebi.pride.utilities.data.core.Software;
 import uk.ac.ebi.pride.utilities.data.core.UserParam;
 import uk.ac.ebi.pride.utilities.data.utils.MzIdentMLUtils;
 import uk.ac.ebi.pride.utilities.data.utils.MzTabUtils;
+import uk.ac.ebi.pride.utilities.data.utils.Utils;
 import uk.ac.ebi.pride.utilities.term.CvTermReference;
 
 import javax.xml.bind.JAXBException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static uk.ac.ebi.pride.utilities.data.utils.MzTabUtils.removeNewLineAndTab;
 
@@ -42,6 +45,8 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
     private static final String UNKNOWN_MOD = "MS:1001460";
     public static final String CHEMMOD = "CHEMMOD";
     public static final String UNKNOWN_MODIFICATION = "unknown modification";
+
+    public static final Pattern SCORE_PSM_POSITION_PATTERN  = Pattern.compile("\\((.*?)\\)");
 
     protected static Logger logger = Logger.getLogger(MzIdentMLMzTabConverter.class);
 
@@ -598,6 +603,35 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
 
             List<Modification> mods = new ArrayList<Modification>();
 
+            /**
+             * We have only one case of PTM scoring encoded into the an mzIdentML in PXD (PXD001428).
+             * The PTMs localization score is encoded into CVPArams at the PSM level in the way:
+             * <cvParam accession="MS:1001971" cvRef="PSI-MS" value="S(8): 100.0; T(12): 100.0" name="ProteomeDiscoverer:phosphoRS site probabilities"></cvParam>
+             */
+
+            Map<Integer, CvParam> scores = new HashMap<>();
+
+             if(oldPSM.getSpectrumIdentification() != null && oldPSM.getSpectrumIdentification().getCvParams() != null){
+                for( CvParam cvParam: oldPSM.getSpectrumIdentification().getCvParams()){
+                    if(cvParam != null && cvParam.getAccession().equalsIgnoreCase(CvTermReference.MS_phosphoRS_SITE_SCORE.getAccession())){
+                        String[] values  = (cvParam.getValue() != null)? cvParam.getValue().split(";"): null;
+                        if(values != null){
+                            for(String value:values){
+                                value = value.replaceAll("\\s+","");
+                                String[] atributes = value.split(":");
+                                Double score = (atributes.length > 1 && Utils.isParsableAsDouble((atributes[1])))? Double.parseDouble(atributes[1]):null;
+                                Matcher m = SCORE_PSM_POSITION_PATTERN.matcher(atributes[0]);
+                                Integer position = null;
+                                if (m.find()) position = Integer.parseInt(m.group(1));
+                                if(position != null && score != null){
+                                    scores.put(position, MzIdentMLUtils.newCvParam(cvParam, score.toString()));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
             for (uk.ac.ebi.pride.utilities.data.core.Modification oldMod : oldPSM.getPeptideSequence().getModifications()) {
                 if (oldMod.getCvParams() != null) {
                     Double mass = (oldMod.getMonoisotopicMassDelta() != null && !oldMod.getMonoisotopicMassDelta().isEmpty()) ? oldMod.getMonoisotopicMassDelta().get(0) : null;
@@ -605,15 +639,19 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
                     for (CvParam param : oldMod.getCvParams()) {
                         //Try to map it directly (if it fails we know that is an unknown mod)
                         Modification mzTabMod = MZTabUtils.parseModification(Section.PSM, param.getAccession());
+                        CvParam cv = null;
+                        if(scores.containsKey(oldMod.getLocation())){
+                          cv = scores.get(oldMod.getLocation());
+                        }
 
                         if (mzTabMod != null) {
-                            mzTabMod.addPosition(oldMod.getLocation(), null);
+                            mzTabMod.addPosition(oldMod.getLocation(), MzTabUtils.convertCvParamToCVParam(cv));
                             mods.add(mzTabMod);
 
                         } else if (param.getAccession().equalsIgnoreCase(UNKNOWN_MOD) && mass != null) {  //Unknown mod
                             //Transform in a CHEMMOD Type modification
                             mzTabMod = new Modification(Section.PSM, Modification.Type.CHEMMOD, mass.toString());
-                            mzTabMod.addPosition(oldMod.getLocation(), null);
+                            mzTabMod.addPosition(oldMod.getLocation(), MzTabUtils.convertCvParamToCVParam(cv));
                             mods.add(mzTabMod);
                         } else if (param.getAccession().equalsIgnoreCase(CvTermReference.MS_NEUTRAL_LOSS.getAccession())) { //Neutral losses
                             Double value = 0.0;

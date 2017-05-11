@@ -20,7 +20,7 @@ public class MzTabUtils {
 
     public static final String OPTIONAL_ID_COLUMN            = "mzidentml_original_ID";
     public static final String OPTIONAL_SEQUENCE_COLUMN      = "protein_sequence";
-    public static final String OPTIONAL_DECOY_COLUMN         = "cv_MS:1002217_decoy_peptide";
+    public static final String OPTIONAL_DECOY_COLUMN         = "cv_MS:1002217_decoy _peptide";
     public static final String OPTIONAL_RANK_COLUMN          = "cv_PRIDE:0000091_rank";
     public static final String OPTIONAL_CHROM_COLUMN         = "cv_MS:1002637_chromosome_name";
     public static final String OPTIONAL_STRAND_COLUMN        = "cv_MS:1002638_chromosome_strand";

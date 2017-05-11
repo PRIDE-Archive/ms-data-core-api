@@ -24,6 +24,8 @@ public class MzTabMzIdentMLConverterTest {
     private MzIdentMLControllerImpl mzIdentMLController = null;
     private MzIdentMLControllerImpl mzIdentMLMassiveController = null;
 
+    private MzIdentMLControllerImpl mzIdentMLPTMsController = null;
+
 
     @Before
     public void setUp() throws Exception {
@@ -40,6 +42,13 @@ public class MzTabMzIdentMLConverterTest {
         }
         inputFile = new File(url.toURI());
         mzIdentMLMassiveController = new MzIdentMLControllerImpl(inputFile);
+
+        url = MzTabPRIDEConverterTest.class.getClassLoader().getResource("MzID_PTMS.scored.mzid");
+        if (url == null) {
+            throw new IllegalStateException("no file for input found!");
+        }
+        inputFile = new File(url.toURI());
+        mzIdentMLPTMsController = new MzIdentMLControllerImpl(inputFile);
     }
 
     @Test
@@ -55,6 +64,16 @@ public class MzTabMzIdentMLConverterTest {
     @Test
     public void convertMassiveToMzTab() throws IOException {
         AbstractMzTabConverter mzTabconverter = new MzIdentMLMzTabConverter(mzIdentMLMassiveController);
+        MZTabFile mzTabFile = mzTabconverter.getMZTabFile();
+        MZTabFileConverter checker = new MZTabFileConverter();
+        checker.check(mzTabFile);
+        assertTrue("No errors reported during the conversion from MzIdentML to MzTab", checker.getErrorList().size() == 0);
+
+    }
+
+    @Test
+    public void convertPTMsToMzTab() throws IOException {
+        AbstractMzTabConverter mzTabconverter = new MzIdentMLMzTabConverter(mzIdentMLPTMsController);
         MZTabFile mzTabFile = mzTabconverter.getMZTabFile();
         MZTabFileConverter checker = new MZTabFileConverter();
         checker.check(mzTabFile);

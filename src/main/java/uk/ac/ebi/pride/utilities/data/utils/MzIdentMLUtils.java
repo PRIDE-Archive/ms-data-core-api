@@ -159,4 +159,8 @@ public final class MzIdentMLUtils {
     public static CvParam getSpectrumIdFormatMGFTitle() {
         return CvUtilities.getCVTermFromCvReference(CvTermReference.MS_MGF_IDFORMAT_TITLE, null);
     }
+
+    public static CvParam newCvParam(CvParam cv, String value){
+        return new CvParam(cv.getAccession(), cv.getName(), cv.getCvLookupID(), value, cv.getUnitAcc(), cv.getUnitName(), cv.getUnitCVLookupID());
+    }
 }
