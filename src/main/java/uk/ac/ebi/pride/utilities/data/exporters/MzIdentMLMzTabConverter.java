@@ -859,7 +859,7 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
 
         // check and set additional chromosome information
         if (hasChromInformation()) {
-            String proteinName = istolateProteinName(sequence);
+            String proteinName = isolateProteinName(sequence);
             protein.setOptionColumnValue(MzTabUtils.OPTIONAL_PROTEIN_ACC_COLUMN, proteinName);
             for (CvParam cvp :  msProtein.getCvParams()) {
                 if (cvp.getAccession().equalsIgnoreCase("MS:1002235")) {
@@ -871,7 +871,7 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
         return protein;
     }
 
-    private String istolateProteinName(DBSequence sequence) {
+    private String isolateProteinName(DBSequence sequence) {
         String proteinName;
         if (sequence.getAccession().startsWith("generic|")) {
             proteinName = StringUtils.substringBetween(sequence.getAccession(), "|");
