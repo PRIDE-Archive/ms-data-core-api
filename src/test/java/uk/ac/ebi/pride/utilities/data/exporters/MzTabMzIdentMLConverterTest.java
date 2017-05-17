@@ -78,7 +78,9 @@ public class MzTabMzIdentMLConverterTest {
         MZTabFileConverter checker = new MZTabFileConverter();
         checker.check(mzTabFile);
         assertTrue("No errors reported during the conversion from MzIdentML to MzTab", checker.getErrorList().size() == 0);
-
+        File tmpFile = File.createTempFile("temp", "mztab");
+        mzTabFile.printMZTab(new BufferedOutputStream(new FileOutputStream(tmpFile)) );
+        tmpFile.deleteOnExit();
     }
 
     @After

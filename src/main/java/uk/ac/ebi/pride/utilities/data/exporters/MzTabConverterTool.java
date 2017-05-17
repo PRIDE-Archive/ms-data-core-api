@@ -5,6 +5,8 @@ import uk.ac.ebi.pride.data.util.MassSpecFileFormat;
 import uk.ac.ebi.pride.jmztab.model.*;
 import uk.ac.ebi.pride.jmztab.utils.MZTabFileConverter;
 import uk.ac.ebi.pride.jmztab.utils.MZTabFileParser;
+import uk.ac.ebi.pride.jmztab.utils.convert.ConvertMZidentMLFile;
+import uk.ac.ebi.pride.jmztab.utils.convert.ConvertPrideXMLFile;
 import uk.ac.ebi.pride.jmztab.utils.convert.ConvertProvider;
 import uk.ac.ebi.pride.jmztab.utils.errors.*;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessController;
@@ -409,16 +411,15 @@ public class MzTabConverterTool {
                 }
 
                 System.out.println("Begin converting " + inFile.getAbsolutePath() + " which format is " + format.name() + " to mztab file.");
-                MZTabFileConverter converter = new MZTabFileConverter(inFile, format);
-                MZTabFile tabFile = converter.getMZTabFile();
-                MZTabErrorList errorList = converter.getErrorList();
-
-                if (errorList.isEmpty()) {
+                MZTabFile tabFile = convert(inFile, format);
+                MZTabFileConverter checker = new MZTabFileConverter();
+                checker.check(tabFile);
+                if (checker.getErrorList().isEmpty()) {
                     System.out.println("Begin writing mztab file.");
                     tabFile.printMZTab(out);
                 } else {
                     System.out.println("There are errors in mztab file.");
-                    errorList.print(out);
+                    checker.getErrorList().print(out);
                 }
             }
 
@@ -426,6 +427,25 @@ public class MzTabConverterTool {
             System.out.println();
             out.close();
         }
+    }
+
+    private static MZTabFile convert(File inFile, MassSpecFileFormat format) {
+        MZTabFile resultFile;
+            if(format == null) {
+                throw new NullPointerException("Source file format is null");
+            } else {
+                switch (format) {
+                    case PRIDE:
+                        resultFile = (new PRIDEMzTabConverter(new PrideXmlControllerImpl(inFile))).getMZTabFile();
+                        break;
+                    case MZIDENTML:
+                        resultFile =  (new MzIdentMLMzTabConverter(new MzIdentMLControllerImpl(inFile, true))).getMZTabFile();
+                        break;
+                    default:
+                        throw new IllegalArgumentException("Can not convert " + format + " to mztab.");
+                }
+            }
+        return resultFile;
     }
 
     /**
