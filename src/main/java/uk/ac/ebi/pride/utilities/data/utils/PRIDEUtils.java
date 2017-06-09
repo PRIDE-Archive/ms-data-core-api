@@ -4,6 +4,10 @@ import uk.ac.ebi.pride.utilities.data.core.CvParam;
 import uk.ac.ebi.pride.utilities.term.CvTermReference;
 import uk.ac.ebi.pride.utilities.util.StringUtils;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * @author Yasset Perez-Riverol
  * @author Rui Wang
@@ -15,6 +19,11 @@ public class PRIDEUtils {
     public static final String DUP_PROTEINS_BEST_SEARCH_ENGINES_SCORE = "duplicated_proteins_best_search_engines_score";
     public static final String DUP_PROTEINS_HAD_QUANT = "duplicated_proteins_had_quantification";
     public static final String NUM_MERGE_PROTEINS = "num_merge_proteins";
+
+    public static final List<String> PREFIX_PRIDE_DECOY_ENTRIES  = Arrays.asList("DECOY_", "#C#", "#DECOY#",
+            "###REV###", "REV_", "REVERSE_", "##REV", "DECOY_REV", "RANDOM_", "###RND###", "##RND");
+    public static final List<String> POSTFIX_PRIDE_DECOY_ENTRIES = Arrays.asList("_REVERSED", "-DECOY", "RANDOM_","|RND");
+    public static final List<String> MIDDLE_PRIDE_DECOY_ENTRIES  = Arrays.asList("RANDOM_", "REV_", "_REVERSED");
 
     /**
      * Conversion from PRIDE Software to CVParam using a general CVTerm like Analysis Software

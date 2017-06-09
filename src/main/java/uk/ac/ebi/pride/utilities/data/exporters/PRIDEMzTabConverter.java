@@ -451,7 +451,7 @@ public class PRIDEMzTabConverter extends AbstractMzTabConverter {
 
         // We mark the decoy hits
         // The optional column was added previously
-        if (CvUtilities.isDecoyHit(identification)) {
+        if (CvUtilities.isDecoyHit(identification) || CvUtilities.isAccessionDecoy(identification)) {
             String header = CVParamOptionColumn.getHeader(null, decoy);
             MZTabColumn column = proteinColumnFactory.findColumnByHeader(header);
             if (column != null) {
@@ -742,7 +742,7 @@ public class PRIDEMzTabConverter extends AbstractMzTabConverter {
             psm.setDatabaseVersion(version);
 
 
-            if (CvUtilities.isDecoyHit(identification)) {
+            if (CvUtilities.isDecoyHit(identification) || CvUtilities.isAccessionDecoy(identification)) {
                 MZTabColumn column = psmColumnFactory.findColumnByHeader(header);
                 if (column != null) {
                     psm.setOptionColumnValue(decoy, MZBoolean.True);

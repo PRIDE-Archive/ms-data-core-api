@@ -2,6 +2,7 @@ package uk.ac.ebi.pride.utilities.data.utils;
 
 import uk.ac.ebi.pride.utilities.data.core.CvParam;
 import uk.ac.ebi.pride.utilities.data.core.ParamGroup;
+import uk.ac.ebi.pride.utilities.data.core.Protein;
 import uk.ac.ebi.pride.utilities.term.CvTermReference;
 import uk.ac.ebi.pride.utilities.term.QuantCvTermReference;
 
@@ -81,5 +82,19 @@ public class CvUtilities {
                    return param.getValue();
         }
         return null;
+    }
+
+    public static boolean isAccessionDecoy(Protein identification) {
+        String accession = identification.getDbSequence().getAccession();
+        for(String prefix: PRIDEUtils.PREFIX_PRIDE_DECOY_ENTRIES)
+            if(accession.toUpperCase().startsWith(prefix.toUpperCase()))
+                return true;
+        for(String postfix: PRIDEUtils.POSTFIX_PRIDE_DECOY_ENTRIES)
+            if(accession.toUpperCase().endsWith(postfix.toUpperCase()))
+                return true;
+        for(String middle: PRIDEUtils.MIDDLE_PRIDE_DECOY_ENTRIES)
+            if(accession.toUpperCase().contains(middle.toUpperCase()))
+                return true;
+        return false;
     }
 }

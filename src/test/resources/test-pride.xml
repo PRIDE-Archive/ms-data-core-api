@@ -5299,7 +5299,7 @@
 			<SequenceCoverage>1.0E0</SequenceCoverage>
 		</TwoDimensionalIdentification>
         <TwoDimensionalIdentification>
-			<Accession>IPI00295313</Accession>
+			<Accession>RANDOM_IPI00295313</Accession>
             <AccessionVersion>2</AccessionVersion>
             <Database>IPI mouse</Database>
 			<DatabaseVersion>2.31</DatabaseVersion>
