@@ -43,14 +43,14 @@ PRIDE Utilities library can be used in Maven projects, you can include the follo
  ```maven
  <!-- EBI repo -->
  <repository>
-     <id>nexus-ebi-repo</id>
-     <url>http://www.ebi.ac.uk/intact/maven/nexus/content/repositories/ebi-repo</url>
+     <id>nexus-ebi-release-repo</id>
+     <url>http://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-repo/</url>
  </repository>
  
  <!-- EBI SNAPSHOT repo -->
  <snapshotRepository>
-    <id>nexus-ebi-repo-snapshots</id>
-    <url>http://www.ebi.ac.uk/intact/maven/nexus/content/repositories/ebi-repo-snapshots</url>
+    <id>nexus-ebi-snapshots-repo</id>
+    <url>http://www.ebi.ac.uk/Tools/maven/repos/content/groups/ebi-snapshots/</url>
  </snapshotRepository>
 ```
 Note: you need to change the version number to the latest version.
