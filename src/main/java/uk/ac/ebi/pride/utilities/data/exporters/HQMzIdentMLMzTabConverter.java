@@ -1,12 +1,13 @@
 package uk.ac.ebi.pride.utilities.data.exporters;
 
 import org.apache.log4j.Logger;
-import uk.ac.ebi.pride.jmztab.model.CVParam;
-import uk.ac.ebi.pride.jmztab.model.MZTabColumnFactory;
-import uk.ac.ebi.pride.jmztab.model.MsRun;
+import uk.ac.ebi.pride.jmztab.model.*;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessException;
 import uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl.MzIdentMLControllerImpl;
 import uk.ac.ebi.pride.utilities.data.core.*;
+import uk.ac.ebi.pride.utilities.data.core.Peptide;
+import uk.ac.ebi.pride.utilities.data.core.Protein;
+import uk.ac.ebi.pride.utilities.data.core.UserParam;
 import uk.ac.ebi.pride.utilities.data.filter.*;
 import uk.ac.ebi.pride.utilities.data.utils.MzTabUtils;
 
@@ -126,10 +127,10 @@ public class HQMzIdentMLMzTabConverter extends MzIdentMLMzTabConverter {
                          //We don't have proteins without peptides
                          uk.ac.ebi.pride.jmztab.model.Protein protein;
 
-                         if (proteinIds.contains(identification.anchorProtein.getDbSequence().getAccession()))
-                             throw new DataAccessException("mzTab do not support the same protein as anchor of more than one ambiguity groups.");
-                         else
-                             proteinIds.add(identification.anchorProtein.getDbSequence().getAccession());
+//                         if (proteinIds.contains(identification.anchorProtein.getDbSequence().getAccession()))
+//                             throw new DataAccessException("mzTab do not support the same protein as anchor of more than one ambiguity groups.");
+//                         else
+//                             proteinIds.add(identification.anchorProtein.getDbSequence().getAccession());
 
                          protein = loadProtein(identification.anchorProtein, identification.anchorPeptides);
 
@@ -167,7 +168,18 @@ public class HQMzIdentMLMzTabConverter extends MzIdentMLMzTabConverter {
                              }
                          }
 
-                         proteins.add(protein);
+                         if(!proteinIds.contains(protein.getAccession())){
+                             proteinIds.add(protein.getAccession());
+                             proteins.add(protein);
+                         }else {
+                             for(uk.ac.ebi.pride.jmztab.model.Protein oldProtein: proteins){
+                                 if(oldProtein.getAccession().equalsIgnoreCase(protein.getAccession())){
+                                     if(protein.getAmbiguityMembers() != null)
+                                         for(String member: protein.getAmbiguityMembers())
+                                             oldProtein.addAmbiguityMembers(member);
+                                 }
+                             }
+                         }
                          psms.addAll(loadPSMs(identification.anchorProtein, identification.anchorPeptides));
                      }
                  } else {
@@ -278,7 +290,6 @@ public class HQMzIdentMLMzTabConverter extends MzIdentMLMzTabConverter {
     }
 
     private final class AmbiguityGroup {
-
         uk.ac.ebi.pride.utilities.data.core.Protein anchorProtein;
         List<uk.ac.ebi.pride.utilities.data.core.Protein> restOfMembers;
         List<Peptide> anchorPeptides;

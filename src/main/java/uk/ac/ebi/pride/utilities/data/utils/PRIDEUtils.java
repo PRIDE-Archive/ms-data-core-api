@@ -21,7 +21,7 @@ public class PRIDEUtils {
     public static final String NUM_MERGE_PROTEINS = "num_merge_proteins";
 
     public static final List<String> PREFIX_PRIDE_DECOY_ENTRIES  = Arrays.asList("DECOY_", "#C#", "#DECOY#",
-            "###REV###", "REV_", "REVERSE_", "##REV", "DECOY_REV", "RANDOM_", "###RND###", "##RND");
+            "###REV###", "REV_", "REVERSE_", "##REV", "DECOY_REV", "RANDOM_", "###RND###", "##RND","REV");
     public static final List<String> POSTFIX_PRIDE_DECOY_ENTRIES = Arrays.asList("_REVERSED", "-DECOY", "RANDOM_","|RND");
     public static final List<String> MIDDLE_PRIDE_DECOY_ENTRIES  = Arrays.asList("RANDOM_", "REV_", "_REVERSED");
 

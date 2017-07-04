@@ -200,7 +200,17 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
                 Collection<Comparable> proteinGroupIds = source.getProteinAmbiguityGroupIds();
                 for (Comparable proteinGroupId : proteinGroupIds) {
                     Protein identification = getProteinGroupById(proteinGroupId);
-                    proteins.add(identification);
+                    if(!proteinIds.contains(identification.getAccession())){
+                        proteinIds.add(identification.getAccession());
+                        proteins.add(identification);
+                    }else {
+                        for(Protein oldProtein: proteins){
+                            if(oldProtein.getAccession().equalsIgnoreCase(identification.getAccession())){
+                                for(String member: identification.getAmbiguityMembers())
+                                    oldProtein.addAmbiguityMembers(member);
+                            }
+                        }
+                    }
                     psms.addAll(loadPSMs(source.getProteinAmbiguityGroupById(proteinGroupId).getProteinIds()));
                 }
             }
@@ -218,10 +228,10 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
         ProteinGroup proteinAmbiguityGroup = source.getProteinAmbiguityGroupById(proteinGroupId);
         //Todo: We will annotated only the first protein, the core protein.
         uk.ac.ebi.pride.utilities.data.core.Protein firstProteinDetectionHypothesis = proteinAmbiguityGroup.getProteinDetectionHypothesis().get(0);
-        if (proteinIds.contains(firstProteinDetectionHypothesis.getDbSequence().getAccession()))
-            throw new DataAccessException("mzTab do not support one protein in more than one ambiguity groups.");
-        else
-            proteinIds.add(firstProteinDetectionHypothesis.getDbSequence().getAccession());
+//        if (proteinIds.contains(firstProteinDetectionHypothesis.getDbSequence().getAccession()))
+//            throw new DataAccessException("mzTab do not support one protein in more than one ambiguity groups.");
+//        else
+//            proteinIds.add(firstProteinDetectionHypothesis.getDbSequence().getAccession());
 
         List<uk.ac.ebi.pride.utilities.data.core.Peptide> peptides = firstProteinDetectionHypothesis.getPeptides();
         Protein protein = loadProtein(firstProteinDetectionHypothesis, peptides);
