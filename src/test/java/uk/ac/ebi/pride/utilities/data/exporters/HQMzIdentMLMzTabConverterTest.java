@@ -41,7 +41,7 @@ public class HQMzIdentMLMzTabConverterTest {
 
     @Before
     public void setUp() throws Exception {
-        URL url = HQMzIdentMLMzTabConverterTest.class.getClassLoader().getResource("Peptideshaker-B.mzid");
+        URL url = HQMzIdentMLMzTabConverterTest.class.getClassLoader().getResource("55merge_mascot_full.mzid");
         if (url == null) {
             throw new IllegalStateException("no file for input found!");
         }
@@ -52,7 +52,7 @@ public class HQMzIdentMLMzTabConverterTest {
 
     @Test
     public void convertToMzTab() throws IOException {
-        AbstractMzTabConverter mzTabconverter = new MzIdentMLMzTabConverter(mzIdentMLController);
+        AbstractMzTabConverter mzTabconverter = new HQMzIdentMLMzTabConverter(mzIdentMLController);
         MZTabFile mzTabFile = mzTabconverter.getMZTabFile();
         MZTabFileConverter checker = new MZTabFileConverter();
         checker.check(mzTabFile);
