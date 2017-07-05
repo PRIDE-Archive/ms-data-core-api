@@ -1,0 +1,89 @@
+MTD	mzTab-version	1.0
+MTD	mzTab-mode	Complete
+MTD	mzTab-type	Identification
+MTD	mzTab-ID	PXD005889-74562
+MTD	title	Short-chain dehydrogenase reductase 3a (26884-6.530.mzid
+MTD	description	The rolB plant oncogene exerts its oncogenic properties by modulating the abundance of chaperones
+MTD	instrument[1]-name	[MS, MS:1000031, instrument model, ]
+MTD	software[1]	[PSI-MS, MS:1001207, Mascot, 2.6.0]
+MTD	software[1]-setting[1]	Mascot:SigThreshold = 0.05
+MTD	software[1]-setting[2]	Mascot:SigThresholdType = identity
+MTD	software[1]-setting[3]	parent mass type mono
+MTD	software[1]-setting[4]	param: immonium ion
+MTD	software[1]-setting[5]	param: a ion
+MTD	software[1]-setting[6]	param: a ion-NH3
+MTD	software[1]-setting[7]	param: a ion-H2O
+MTD	software[1]-setting[8]	param: b ion
+MTD	software[1]-setting[9]	param: b ion-NH3
+MTD	software[1]-setting[10]	param: b ion-H2O
+MTD	software[1]-setting[11]	param: y ion
+MTD	software[1]-setting[12]	param: y ion-NH3
+MTD	software[1]-setting[13]	param: y ion-H2O
+MTD	software[1]-setting[14]	param: internal yb ion
+MTD	software[1]-setting[15]	param: internal ya ion
+MTD	software[1]-setting[16]	param: d ion
+MTD	software[1]-setting[17]	param: v ion
+MTD	software[1]-setting[18]	param: w ion
+MTD	software[1]-setting[19]	Mascot Instrument Name = MALDI-TOF-TOF
+MTD	software[1]-setting[20]	search tolerance plus value = 0.5
+MTD	software[1]-setting[21]	search tolerance minus value = 0.5
+MTD	software[1]-setting[22]	search tolerance plus value = 0.5
+MTD	software[1]-setting[23]	search tolerance minus value = 0.5
+MTD	software[2]	[PSI-MS, MS:1001478, Mascot Parser, 2.6.0.0]
+MTD	software[2]-setting[1]	no threshold
+MTD	software[2]-setting[2]	Mascot:SigThreshold = 0.05
+MTD	software[2]-setting[3]	Mascot:MaxProteinHits = Auto
+MTD	software[2]-setting[4]	Mascot:ProteinScoringMethod = Standard
+MTD	software[2]-setting[5]	Mascot:MinMSMSThreshold = -1
+MTD	software[2]-setting[6]	Mascot:SigThresholdType = identity
+MTD	software[2]-setting[7]	Mascot:ProteinGrouping = Occam's razor
+MTD	software[2]-setting[8]	Mascot:ShowHomologousProteinsWithSamePeptides = 0
+MTD	software[2]-setting[9]	Mascot:ShowHomologousProteinsWithSubsetOfPeptides = 0
+MTD	software[2]-setting[10]	Mascot:RequireBoldRed = 0
+MTD	software[2]-setting[11]	Mascot:UseUnigeneClustering = 1
+MTD	software[2]-setting[12]	Mascot:IncludeErrorTolerantMatches = 1
+MTD	software[2]-setting[13]	Mascot:ShowDecoyMatches = 0
+MTD	protein_search_engine_score[1]	[MS, MS:1001171, Mascot:score, ]
+MTD	psm_search_engine_score[1]	[MS, MS:1001171, Mascot:score, ]
+MTD	psm_search_engine_score[2]	[MS, MS:1001172, Mascot:expectation value, ]
+MTD	psm_search_engine_score[3]	[MS, MS:1002012, Mascot:PTM site assignment confidence, ]
+MTD	contact[1]-name	PERSON_MSL
+MTD	contact[1]-affiliation	Matrix Science Limited
+MTD	contact[2]-name	D. Bulgakov
+MTD	contact[2]-affiliation	ORG_DOC_OWNER
+MTD	uri[1]	http://www.ebi.ac.uk/pride/archive/assays/74562
+MTD	fixed_mod[1]	[MS, MS:1002453, No fixed modifications searched, ]
+MTD	variable_mod[1]	[MS, MS:1002454, No variable modifications searched, ]
+MTD	ms_run[1]-format	[PSI-MS, MS:1001062, Mascot MGF format, ]
+MTD	ms_run[1]-location	file:/Short-chain dehydrogenase reductase 3a-26884-6.53-biotools.mgf
+MTD	ms_run[1]-id_format	[PSI-MS, MS:1000774, multiple peak list nativeID format, ]
+MTD	sample[1]-species[1]	[NEWT, 3702, Arabidopsis thaliana (Mouse-ear cress), ]
+MTD	sample[1]-tissue[1]	[BTO, BTO:0000214, cell culture, ]
+MTD	custom[1]	[, , Date of export, Tue Jul 04 02:04:30 BST 2017]
+MTD	custom[2]	[, , Original converted file, /nfs/pride/prod/archive/PXD005889/internal/Short-chain dehydrogenase reductase 3a (26884-6.530.mzid]
+MTD	custom[3]	[, , Project title, Function of plant oncogenes(1)]
+
+COM	Only variable modifications can be reported when the original source is a MZIdentML XML file
+
+PRH	accession	description	taxid	species	database	database_version	search_engine	best_search_engine_score[1]	search_engine_score[1]_ms_run[1]	num_psms_ms_run[1]	num_peptides_distinct_ms_run[1]	num_peptides_unique_ms_run[1]	ambiguity_members	modifications	protein_coverage
+PRT	SDR3A_ARATH	Short-chain dehydrogenase reductase 3a OS=Arabidopsis thaliana GN=SDR3a PE=2 SV=1	null	null	SwissProt_2017_01.fasta	SwissProt_2017_01.fasta	[MS, MS:1001207, Mascot, ]	null	193.63	17	null	null	null	186-UNIMOD:994,193-UNIMOD:994,84-UNIMOD:1128,88-UNIMOD:35,88-UNIMOD:569,89-UNIMOD:654,90-UNIMOD:35,91-UNIMOD:540,93-UNIMOD:670,94-UNIMOD:1146,94-UNIMOD:35	null
+
+PSH	sequence	PSM_ID	accession	unique	database	database_version	search_engine	search_engine_score[1]	search_engine_score[2]	search_engine_score[3]	modifications	retention_time	charge	exp_mass_to_charge	calc_mass_to_charge	spectra_ref	pre	post	start	end	opt_global_mzidentml_original_ID	opt_global_cv_MS:1002217_decoy_peptide	opt_global_cv_PRIDE:0000091_rank
+PSM	IAIITGGASGIGAEAVR	1	SDR3A_ARATH	null	SwissProt_2017_01.fasta	SwissProt_2017_01.fasta	[MS, MS:1001207, Mascot, ]	37.19	0.0256015829310804	null	null	null	1	1555.935257	1555.880216	ms_run[1]:index=38	null	null	10	26	SII_7_1	0	1
+PSM	VNGVAPYAVATAINSR	2	SDR3A_ARATH	null	SwissProt_2017_01.fasta	SwissProt_2017_01.fasta	[MS, MS:1001207, Mascot, ]	44.88	0.0045642256552915	null	null	null	1	1602.904236	1602.859815	ms_run[1]:index=36	null	null	182	197	SII_16_1	0	1
+PSM	VNGVAPYAVATAINSR	3	SDR3A_ARATH	null	SwissProt_2017_01.fasta	SwissProt_2017_01.fasta	[MS, MS:1001207, Mascot, ]	63.69	6.00298292156827E-5	null	null	null	1	1602.966675	1602.859815	ms_run[1]:index=33	null	null	182	197	SII_17_1	0	1
+PSM	VNGVAPYAVATAINSR	4	SDR3A_ARATH	null	SwissProt_2017_01.fasta	SwissProt_2017_01.fasta	[MS, MS:1001207, Mascot, ]	45.5	null	99.98	5-UNIMOD:994,12-UNIMOD:994	null	1	1604.826449	1604.853895	ms_run[1]:index=8	null	null	182	197	SII_19_1	0	1
+PSM	VVIVDFQEELGQNVAVSVGK	5	SDR3A_ARATH	null	SwissProt_2017_01.fasta	SwissProt_2017_01.fasta	[MS, MS:1001207, Mascot, ]	92.75	4.51782662040571E-8	null	null	null	1	2130.162181	2130.144132	ms_run[1]:index=25	null	null	35	54	SII_27_1	0	1
+PSM	VVIVDFQEELGQNVAVSVGK	6	SDR3A_ARATH	null	SwissProt_2017_01.fasta	SwissProt_2017_01.fasta	[MS, MS:1001207, Mascot, ]	39.99	0.00853462910223331	null	null	null	1	2130.23225	2130.144132	ms_run[1]:index=23	null	null	35	54	SII_28_1	0	1
+PSM	VVIVDFQEELGQNVAVSVGK	7	SDR3A_ARATH	null	SwissProt_2017_01.fasta	SwissProt_2017_01.fasta	[MS, MS:1001207, Mascot, ]	53.7	3.6429890905656E-4	null	null	null	1	2130.304977	2130.144132	ms_run[1]:index=9	null	null	35	54	SII_29_1	0	1
+PSM	LDVLFSNAGVMEQPGSFLDLNLEQFDR	8	SDR3A_ARATH	null	SwissProt_2017_01.fasta	SwissProt_2017_01.fasta	[MS, MS:1001207, Mascot, ]	34.84	null	18.58	7-UNIMOD:35	null	1	3070.704923	3070.482633	ms_run[1]:index=3	null	null	84	110	SII_38_1	0	1
+PSM	LDVLFSNAGVMEQPGSFLDLNLEQFDR	9	SDR3A_ARATH	null	SwissProt_2017_01.fasta	SwissProt_2017_01.fasta	[MS, MS:1001207, Mascot, ]	34.84	null	18.58	11-UNIMOD:35,11-[PSI-MS, MS:1001524, fragment neutral loss, 63.998285]	null	1	3070.704923	3070.482633	ms_run[1]:index=3	null	null	84	110	SII_38_2	0	2
+PSM	LDVLFSNAGVMEQPGSFLDLNLEQFDR	10	SDR3A_ARATH	null	SwissProt_2017_01.fasta	SwissProt_2017_01.fasta	[MS, MS:1001207, Mascot, ]	34.84	null	18.58	5-UNIMOD:35	null	1	3070.704923	3070.482633	ms_run[1]:index=3	null	null	84	110	SII_38_3	0	3
+PSM	LDVLFSNAGVMEQPGSFLDLNLEQFDR	11	SDR3A_ARATH	null	SwissProt_2017_01.fasta	SwissProt_2017_01.fasta	[MS, MS:1001207, Mascot, ]	34.84	null	null	0-UNIMOD:284	null	1	3070.704923	3070.515912	ms_run[1]:index=3	null	null	84	110	SII_38_4	0	4
+PSM	LDVLFSNAGVMEQPGSFLDLNLEQFDR	12	SDR3A_ARATH	null	SwissProt_2017_01.fasta	SwissProt_2017_01.fasta	[MS, MS:1001207, Mascot, ]	34.84	null	null	1-UNIMOD:1128	null	1	3070.704923	3070.446241	ms_run[1]:index=3	null	null	84	110	SII_38_5	0	5
+PSM	LDVLFSNAGVMEQPGSFLDLNLEQFDR	13	SDR3A_ARATH	null	SwissProt_2017_01.fasta	SwissProt_2017_01.fasta	[MS, MS:1001207, Mascot, ]	34.84	null	null	10-UNIMOD:670	null	1	3070.704923	3070.446241	ms_run[1]:index=3	null	null	84	110	SII_38_6	0	6
+PSM	LDVLFSNAGVMEQPGSFLDLNLEQFDR	14	SDR3A_ARATH	null	SwissProt_2017_01.fasta	SwissProt_2017_01.fasta	[MS, MS:1001207, Mascot, ]	34.84	null	null	6-UNIMOD:654	null	1	3070.704923	3070.464872	ms_run[1]:index=3	null	null	84	110	SII_38_7	0	7
+PSM	LDVLFSNAGVMEQPGSFLDLNLEQFDR	15	SDR3A_ARATH	null	SwissProt_2017_01.fasta	SwissProt_2017_01.fasta	[MS, MS:1001207, Mascot, ]	34.84	null	null	5-UNIMOD:569	null	1	3070.704923	3070.482633	ms_run[1]:index=3	null	null	84	110	SII_38_8	0	8
+PSM	LDVLFSNAGVMEQPGSFLDLNLEQFDR	16	SDR3A_ARATH	null	SwissProt_2017_01.fasta	SwissProt_2017_01.fasta	[MS, MS:1001207, Mascot, ]	34.84	null	null	11-UNIMOD:1146	null	1	3070.704923	3070.515638	ms_run[1]:index=3	null	null	84	110	SII_38_9	0	9
+PSM	LDVLFSNAGVMEQPGSFLDLNLEQFDR	17	SDR3A_ARATH	null	SwissProt_2017_01.fasta	SwissProt_2017_01.fasta	[MS, MS:1001207, Mascot, ]	34.84	null	null	8-UNIMOD:540	null	1	3070.704923	3070.482633	ms_run[1]:index=3	null	null	84	110	SII_38_10	0	10
+

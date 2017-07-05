@@ -397,7 +397,7 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
 
                     if (!softwareList.get(i).getCvParams().isEmpty()) {
                         CvParam nameCVparam = softwareList.get(i).getCvParams().get(0);
-                        if (nameCVparam != null) {
+                        if (nameCVparam != null && nameCVparam.getName() != null && !nameCVparam.getName().isEmpty()) {
                             nameCV = new CVParam(nameCVparam.getCvLookupID(), nameCVparam.getAccession(), nameCVparam.getName(), version);
                         }
                     } else if (!softwareList.get(i).getUserParams().isEmpty()) {

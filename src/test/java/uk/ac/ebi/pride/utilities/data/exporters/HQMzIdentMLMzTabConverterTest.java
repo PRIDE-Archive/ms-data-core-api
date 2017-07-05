@@ -41,7 +41,7 @@ public class HQMzIdentMLMzTabConverterTest {
 
     @Before
     public void setUp() throws Exception {
-        URL url = HQMzIdentMLMzTabConverterTest.class.getClassLoader().getResource("55merge_mascot_full.mzid");
+        URL url = HQMzIdentMLMzTabConverterTest.class.getClassLoader().getResource("JD_06232014_sample1_A.mzid");
         if (url == null) {
             throw new IllegalStateException("no file for input found!");
         }
@@ -56,7 +56,10 @@ public class HQMzIdentMLMzTabConverterTest {
         MZTabFile mzTabFile = mzTabconverter.getMZTabFile();
         MZTabFileConverter checker = new MZTabFileConverter();
         checker.check(mzTabFile);
+        File tmpFile = File.createTempFile("tmeFile", "mztab");
+        mzTabFile.printMZTab(new BufferedOutputStream(new FileOutputStream(tmpFile)));
         assertTrue("No errors reported during the conversion from MzIdentML to MzTab", checker.getErrorList().size() == 0);
+        tmpFile.deleteOnExit();
     }
 
     @After
