@@ -41,7 +41,7 @@ public class HQMzIdentMLMzTabConverterTest {
 
     @Before
     public void setUp() throws Exception {
-        URL url = HQMzIdentMLMzTabConverterTest.class.getClassLoader().getResource("JD_06232014_sample1_A.mzid");
+        URL url = HQMzIdentMLMzTabConverterTest.class.getClassLoader().getResource("205858_160120_609_015_p73_HDAC6_Fr_9.mzid");
         if (url == null) {
             throw new IllegalStateException("no file for input found!");
         }

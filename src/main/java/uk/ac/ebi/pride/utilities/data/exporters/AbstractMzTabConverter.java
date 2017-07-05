@@ -12,6 +12,7 @@ import uk.ac.ebi.pride.utilities.data.core.Reference;
 import uk.ac.ebi.pride.utilities.data.core.SpectrumIdentification;
 import uk.ac.ebi.pride.utilities.data.utils.CvUtilities;
 import uk.ac.ebi.pride.utilities.data.utils.MzTabUtils;
+import uk.ac.ebi.pride.utilities.pridemod.ModReader;
 import uk.ac.ebi.pride.utilities.term.CvTermReference;
 
 import java.io.File;
@@ -46,8 +47,11 @@ public abstract class AbstractMzTabConverter extends ConvertProvider<DataAccessC
 
     protected Map<String, Integer> psmScoreToScoreIndex;
 
+    public static ModReader modReader;
+
     public AbstractMzTabConverter(DataAccessController controller) {
         super(controller, null);
+        modReader = ModReader.getInstance();
     }
 
     @Override
@@ -132,7 +136,6 @@ public abstract class AbstractMzTabConverter extends ConvertProvider<DataAccessC
 
         //TODO for PRIDEXML
         loadGelData();
-
 
         metadata.addCustom(new uk.ac.ebi.pride.jmztab.model.UserParam("Date of export", new Date().toString()));
         metadata.addCustom(new uk.ac.ebi.pride.jmztab.model.UserParam("Original converted file", ((File)(source.getSource())).toURI().getPath()));

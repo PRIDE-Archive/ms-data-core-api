@@ -20,6 +20,7 @@ import uk.ac.ebi.pride.utilities.data.core.UserParam;
 import uk.ac.ebi.pride.utilities.data.utils.MzIdentMLUtils;
 import uk.ac.ebi.pride.utilities.data.utils.MzTabUtils;
 import uk.ac.ebi.pride.utilities.data.utils.Utils;
+import uk.ac.ebi.pride.utilities.pridemod.model.PTM;
 import uk.ac.ebi.pride.utilities.term.CvTermReference;
 
 import javax.xml.bind.JAXBException;
@@ -228,10 +229,6 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
         ProteinGroup proteinAmbiguityGroup = source.getProteinAmbiguityGroupById(proteinGroupId);
         //Todo: We will annotated only the first protein, the core protein.
         uk.ac.ebi.pride.utilities.data.core.Protein firstProteinDetectionHypothesis = proteinAmbiguityGroup.getProteinDetectionHypothesis().get(0);
-//        if (proteinIds.contains(firstProteinDetectionHypothesis.getDbSequence().getAccession()))
-//            throw new DataAccessException("mzTab do not support one protein in more than one ambiguity groups.");
-//        else
-//            proteinIds.add(firstProteinDetectionHypothesis.getDbSequence().getAccession());
 
         List<uk.ac.ebi.pride.utilities.data.core.Peptide> peptides = firstProteinDetectionHypothesis.getPeptides();
         Protein protein = loadProtein(firstProteinDetectionHypothesis, peptides);
@@ -285,7 +282,19 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
                     final List<SearchModification> searchModifications = spectrumIdDetectionProtocol.getSearchModifications();
                     if(searchModifications != null){
                         for (SearchModification searchModification : searchModifications) {
-                            Param param = MzTabUtils.convertCvParamToCVParam(searchModification.getCvParams().get(0), searchModification.getMassDelta());
+                            Param param = null;
+                            if(searchModification.getCvParams() != null && searchModification.getCvParams().get(0) != null
+                                    && searchModification.getCvParams().get(0).getName() != null && !searchModification.getCvParams().get(0).getName().isEmpty()){
+                                param = MzTabUtils.convertCvParamToCVParam(searchModification.getCvParams().get(0), searchModification.getMassDelta());
+                            }else if(searchModification.getCvParams() != null && searchModification.getCvParams().get(0) != null && searchModification.getCvParams().get(0).getAccession() != null){
+                                PTM ptm = modReader.getPTMbyAccession(searchModification.getCvParams().get(0).getAccession());
+                                if(ptm != null){
+                                    CvParam term = searchModification.getCvParams().get(0);
+                                    term.setName(ptm.getName());
+                                    param = MzTabUtils.convertCvParamToCVParam(term, searchModification.getMassDelta());
+                                }
+                            }
+
 
                             if (param != null) {
 

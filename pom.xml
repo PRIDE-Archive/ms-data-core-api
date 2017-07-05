@@ -100,7 +100,7 @@
         <jnetCDF.version>0.0.2</jnetCDF.version>
         <pride.jaxb.version>1.0.16</pride.jaxb.version>
         <pride-utilities.version>2.0.16</pride-utilities.version>
-        <pride-mod.version>2.1.2</pride-mod.version>
+        <pride-mod.version>2.1.5</pride-mod.version>
         <commons-cli.version>1.2</commons-cli.version>
     </properties>
 
