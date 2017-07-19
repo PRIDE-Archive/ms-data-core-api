@@ -1,6 +1,7 @@
 package uk.ac.ebi.pride.utilities.data.exporters;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.ac.ebi.pride.jmztab.model.*;
 import uk.ac.ebi.pride.jmztab.utils.convert.ConvertProvider;
 import uk.ac.ebi.pride.jmztab.utils.convert.SearchEngineScoreParam;
@@ -35,7 +36,7 @@ import static uk.ac.ebi.pride.utilities.data.utils.MzTabUtils.removeNewLineAndTa
  */
 public abstract class AbstractMzTabConverter extends ConvertProvider<DataAccessController, Void> {
 
-    protected static final Logger logger = Logger.getLogger(AbstractMzTabConverter.class);
+    protected static final Logger logger = LoggerFactory.getLogger(AbstractMzTabConverter.class);
 
     protected Metadata metadata;
 

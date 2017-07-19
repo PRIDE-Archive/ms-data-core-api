@@ -79,28 +79,19 @@
         <uk.ac.ebi.pride.architectural-pride-tdd.version>1.0.3</uk.ac.ebi.pride.architectural-pride-tdd.version>
 
         <assembly.dir>${project.name}-${project.version}</assembly.dir>
-        <junit.version>4.11</junit.version>
-        <slf4j-api.version>1.7.5</slf4j-api.version>
         <logback-core.version>1.0.11</logback-core.version>
         <json.version>20090211</json.version>
         <commonscode.version>1.7</commonscode.version>
         <c3p0.version>0.9.1.2</c3p0.version>
-        <jmzidentml.version>1.2.5</jmzidentml.version>
-        <jmzml.version>1.7.7</jmzml.version>
+        <jmzidentml.version>1.2.7</jmzidentml.version>
+        <jmzml.version>1.7.9</jmzml.version>
         <xmlschemavalidator.version>2.1</xmlschemavalidator.version>
         <jmztab.version>3.0.5</jmztab.version>
-        <jmzreader.version>1.2.5</jmzreader.version>
-        <mzxml-parser.version>1.3.9</mzxml-parser.version>
-        <mzdata-parser.version>1.2.6</mzdata-parser.version>
-        <apl-parser.version>1.2.4</apl-parser.version>
-        <mgf-parser.version>1.3.12</mgf-parser.version>
-        <ms2-parser.version>1.2.7</ms2-parser.version>
-        <pkl-parser.version>1.2.6</pkl-parser.version>
-        <dta-parser.version>1.2.6</dta-parser.version>
+        <jmzreader.version>2.0.1</jmzreader.version>
         <jnetCDF.version>0.0.2</jnetCDF.version>
-        <pride.jaxb.version>1.0.16</pride.jaxb.version>
+        <pride.jaxb.version>1.0.19</pride.jaxb.version>
         <pride-utilities.version>2.0.16</pride-utilities.version>
-        <pride-mod.version>2.1.5</pride-mod.version>
+        <pride-mod.version>2.1.6</pride-mod.version>
         <commons-cli.version>1.2</commons-cli.version>
     </properties>
 
@@ -123,12 +114,6 @@
             <groupId>uk.ac.ebi.jmzml</groupId>
             <artifactId>jmzml</artifactId>
             <version>${jmzml.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>lennart</groupId>
-                    <artifactId>lmjunit</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <!-- End -->
 
@@ -195,54 +180,7 @@
             <groupId>uk.ac.ebi.pride.tools</groupId>
             <artifactId>jmzreader</artifactId>
             <version>${jmzreader.version}</version>
-            <type>jar</type>
-            <scope>compile</scope>
         </dependency>
-        <!-- mzXML file dependencies -->
-        <dependency>
-            <groupId>uk.ac.ebi.pride.tools</groupId>
-            <artifactId>mzxml-parser</artifactId>
-            <version>${mzxml-parser.version}</version>
-        </dependency>
-        <!-- pkl file dependencies -->
-        <dependency>
-            <groupId>uk.ac.ebi.pride.tools</groupId>
-            <artifactId>pkl-parser</artifactId>
-            <version>${pkl-parser.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>uk.ac.ebi.pride.tools</groupId>
-            <artifactId>apl-parser</artifactId>
-            <version>${apl-parser.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>uk.ac.ebi.pride.tools</groupId>
-            <artifactId>dta-parser</artifactId>
-            <version>${dta-parser.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>uk.ac.ebi.pride.tools</groupId>
-            <artifactId>ms2-parser</artifactId>
-            <version>${ms2-parser.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>uk.ac.ebi.pride.tools</groupId>
-            <artifactId>mgf-parser</artifactId>
-            <version>${mgf-parser.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>uk.ac.ebi.pride.tools</groupId>
-            <artifactId>mzdata-parser</artifactId>
-            <version>${mzdata-parser.version}</version>
-        </dependency>
-        <!-- End of the jmzReader Dependencies -->
-
-        <!--<dependency>-->
-            <!--<groupId>psidev.psi.tools</groupId>-->
-            <!--<artifactId>xxindex</artifactId>-->
-            <!--<version>${xxindex.version}</version>-->
-        <!--</dependency>-->
 
         <dependency>
             <groupId>commons-codec</groupId>

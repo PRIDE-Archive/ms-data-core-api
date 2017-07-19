@@ -4,12 +4,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import uk.ac.ebi.pride.utilities.data.core.Spectrum;
-import uk.ac.ebi.pride.utilities.netCDF.NetCDFFile;
 
 import java.io.File;
 import java.net.URL;
 import java.util.Collection;
-import java.util.List;
 
 import static org.junit.Assert.*;
 

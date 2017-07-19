@@ -1,7 +1,8 @@
 package uk.ac.ebi.pride.utilities.data.exporters;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.ac.ebi.pride.jmztab.model.Assay;
 import uk.ac.ebi.pride.jmztab.model.*;
 import uk.ac.ebi.pride.jmztab.model.Modification;
@@ -49,7 +50,7 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
 
     public static final Pattern SCORE_PSM_POSITION_PATTERN  = Pattern.compile("\\((.*?)\\)");
 
-    protected static Logger logger = Logger.getLogger(MzIdentMLMzTabConverter.class);
+    protected static Logger logger = LoggerFactory.getLogger(MzIdentMLMzTabConverter.class);
 
     protected Map<Comparable, Integer> spectraToRun;
 

@@ -31,7 +31,7 @@ public class ValidationMZTabFilesTest {
 
     @Before
     public void setUp() throws Exception {
-        URL url = ValidationMZTabFilesTest.class.getClassLoader().getResource("Short-chain dehydrogenase reductase 3a (26884-6.530.pride.mztab");
+        URL url = ValidationMZTabFilesTest.class.getClassLoader().getResource("example-wrong.mztab");
         if (url == null) {
             throw new IllegalStateException("no file for input found!");
         }

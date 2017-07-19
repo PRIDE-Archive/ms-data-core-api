@@ -1,6 +1,8 @@
 package uk.ac.ebi.pride.utilities.data.exporters;
 
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessController;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessException;
 import uk.ac.ebi.pride.utilities.data.core.ExperimentMetaData;
@@ -18,7 +20,7 @@ import java.io.PrintWriter;
  */
 public class MGFConverter {
 
-    protected static org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(MGFConverter.class);
+    protected static Logger logger = LoggerFactory.getLogger(MGFConverter.class);
 
     private String outputFilePath;
 

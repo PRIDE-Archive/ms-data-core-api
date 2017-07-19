@@ -1,6 +1,7 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
-<indexedmzML xmlns="http://psi.hupo.org/ms/mzml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://psi.hupo.org/ms/mzml http://psidev.info/files/ms/mzML/xsd/mzML1.1.0_idx.xsd">
-  <mzML xmlns="http://psi.hupo.org/ms/mzml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://psi.hupo.org/ms/mzml http://psidev.info/files/ms/mzML/xsd/mzML1.1.0.xsd" id="urn:lsid:psidev.info:mzML.instanceDocuments.tiny.pwiz" version="1.1.0">
+<?xml version="1.0" encoding="UTF-8"?>
+  <mzML xmlns="http://psi.hupo.org/ms/mzml" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://psi.hupo.org/ms/mzml http://psidev.info/files/ms/mzML/xsd/mzML1.1.0.xsd"
+        id="urn:lsid:psidev.info:mzML.instanceDocuments.tiny.pwiz" version="1.1.0">
     <cvList count="2">
       <cv id="MS" fullName="Proteomics Standards Initiative Mass Spectrometry Ontology" version="2.26.0" URI="http://psidev.cvs.sourceforge.net/*checkout*/psidev/psi/psi-ms/mzML/controlledVocabulary/psi-ms.obo"/>
       <cv id="UO" fullName="Unit Ontology" version="14:07:2009" URI="http://obo.cvs.sourceforge.net/*checkout*/obo/obo/ontology/phenotype/unit.obo"/>
@@ -320,18 +321,3 @@
       </chromatogramList>
     </run>
   </mzML>
-  <indexList count="2">
-    <index name="spectrum">
-      <offset idRef="scan=19">6883</offset>
-      <offset idRef="scan=20">10424</offset>
-      <offset idRef="scan=21">15411</offset>
-      <offset idRef="sample=1 period=1 cycle=22 experiment=1" spotID="A1,42x42,4242x4242">16940</offset>
-    </index>
-    <index name="chromatogram">
-      <offset idRef="tic">20654</offset>
-      <offset idRef="sic">22253</offset>
-    </index>
-  </indexList>
-  <indexListOffset>24498</indexListOffset>
-  <fileChecksum>8a908dc1c5c31c43adca79dbe1a5b72e76686cb4</fileChecksum>
-</indexedmzML>

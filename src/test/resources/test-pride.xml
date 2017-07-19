@@ -5277,7 +5277,6 @@
 					<ModAccession>0123</ModAccession>
 					<ModDatabase>UniMod</ModDatabase>
 					<ModDatabaseVersion>1.0</ModDatabaseVersion>
-					<ModArtifact>true</ModArtifact>
 					<ModMonoDelta>34</ModMonoDelta>
 					<ModMonoDelta>44</ModMonoDelta>
 					<ModAvgDelta>34.1</ModAvgDelta>
@@ -5313,7 +5312,6 @@
 					<ModAccession>0123</ModAccession>
 					<ModDatabase>UniMod</ModDatabase>
 					<ModDatabaseVersion>1.0</ModDatabaseVersion>
-					<ModArtifact>true</ModArtifact>
 					<ModMonoDelta>34</ModMonoDelta>
 					<ModMonoDelta>44</ModMonoDelta>
 					<ModAvgDelta>34.1</ModAvgDelta>

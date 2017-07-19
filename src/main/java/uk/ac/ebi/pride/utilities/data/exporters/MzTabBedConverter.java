@@ -3,6 +3,8 @@ package uk.ac.ebi.pride.utilities.data.exporters;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl.MzTabControllerImpl;
 import uk.ac.ebi.pride.utilities.data.core.*;
 import uk.ac.ebi.pride.utilities.data.core.Modification;
@@ -27,7 +29,7 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
  */
 public class MzTabBedConverter {
 
-    protected static org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(MzTabBedConverter.class);
+    protected static Logger logger = LoggerFactory.getLogger(MzTabBedConverter.class);
 
     private MzTabControllerImpl mzTabController;
     private String projectAccession;

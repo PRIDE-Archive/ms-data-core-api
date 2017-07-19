@@ -1,12 +1,12 @@
 package uk.ac.ebi.pride.utilities.data.exporters;
 
-import org.apache.log4j.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.ac.ebi.pride.jmztab.model.*;
-import uk.ac.ebi.pride.utilities.data.controller.DataAccessException;
 import uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl.MzIdentMLControllerImpl;
 import uk.ac.ebi.pride.utilities.data.core.*;
 import uk.ac.ebi.pride.utilities.data.core.Peptide;
-import uk.ac.ebi.pride.utilities.data.core.Protein;
 import uk.ac.ebi.pride.utilities.data.core.UserParam;
 import uk.ac.ebi.pride.utilities.data.filter.*;
 import uk.ac.ebi.pride.utilities.data.utils.MzTabUtils;
@@ -36,7 +36,7 @@ import java.util.*;
  */
 public class HQMzIdentMLMzTabConverter extends MzIdentMLMzTabConverter {
 
-    protected static Logger logger = Logger.getLogger(HQMzIdentMLMzTabConverter.class);
+    protected static Logger logger = LoggerFactory.getLogger(HQMzIdentMLMzTabConverter.class);
 
     public static final String NO_THRESHOLD_MS_AC = "MS:1001494";
     public static final String NO_THRESHOLD = "no threshold";
