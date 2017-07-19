@@ -79,19 +79,20 @@
         <uk.ac.ebi.pride.architectural-pride-tdd.version>1.0.3</uk.ac.ebi.pride.architectural-pride-tdd.version>
 
         <assembly.dir>${project.name}-${project.version}</assembly.dir>
-        <logback-core.version>1.0.11</logback-core.version>
         <json.version>20090211</json.version>
         <commonscode.version>1.7</commonscode.version>
         <c3p0.version>0.9.1.2</c3p0.version>
-        <jmzidentml.version>1.2.7</jmzidentml.version>
-        <jmzml.version>1.7.9</jmzml.version>
+        <uk.ac.ebi.jmzidml-jmzidentml.version>1.2.7</uk.ac.ebi.jmzidml-jmzidentml.version>
+        <uk.ac.ebi.jmzml-jmzml.version>1.7.9</uk.ac.ebi.jmzml-jmzml.version>
         <xmlschemavalidator.version>2.1</xmlschemavalidator.version>
-        <jmztab.version>3.0.5</jmztab.version>
-        <jmzreader.version>2.0.1</jmzreader.version>
+        <uk.ac.ebi.pride-jmztab-modular-model.version>3.0.5</uk.ac.ebi.pride-jmztab-modular-model.version>
+        <uk.ac.ebi.pride-jmztab-modular-util.version>3.0.5</uk.ac.ebi.pride-jmztab-modular-util.version>
+        <uk.ac.ebi.pride-jmztab-modular-converters.version>3.0.5</uk.ac.ebi.pride-jmztab-modular-converters.version>
+        <uk.ac.ebi.pride.tools-jmzreader.version>2.0.1</uk.ac.ebi.pride.tools-jmzreader.version>
         <jnetCDF.version>0.0.2</jnetCDF.version>
-        <pride.jaxb.version>1.0.19</pride.jaxb.version>
-        <pride-utilities.version>2.0.16</pride-utilities.version>
-        <pride-mod.version>2.1.6</pride-mod.version>
+        <uk.ac.ebi.pride.jaxb-pride-jaxb.version>1.0.19</uk.ac.ebi.pride.jaxb-pride-jaxb.version>
+        <uk.ac.ebi.pride.utilities-pride-utilities.version>2.0.16</uk.ac.ebi.pride.utilities-pride-utilities.version>
+        <uk.ac.ebi.pride.utilities-pride-mod.version>2.1.6</uk.ac.ebi.pride.utilities-pride-mod.version>
         <commons-cli.version>1.2</commons-cli.version>
     </properties>
 
@@ -113,7 +114,7 @@
         <dependency>
             <groupId>uk.ac.ebi.jmzml</groupId>
             <artifactId>jmzml</artifactId>
-            <version>${jmzml.version}</version>
+            <version>${uk.ac.ebi.jmzml-jmzml.version}</version>
         </dependency>
         <!-- End -->
 
@@ -135,7 +136,7 @@
         <dependency>
             <groupId>uk.ac.ebi.jmzidml</groupId>
             <artifactId>jmzidentml</artifactId>
-            <version>${jmzidentml.version}</version>
+            <version>${uk.ac.ebi.jmzidml-jmzidentml.version}</version>
         </dependency>
 
         <!-- End -->
@@ -152,17 +153,17 @@
         <dependency>
             <groupId>uk.ac.ebi.pride</groupId>
             <artifactId>jmztab-modular-model</artifactId>
-            <version>${jmztab.version}</version>
+            <version>${uk.ac.ebi.pride-jmztab-modular-model.version}</version>
         </dependency>
         <dependency>
             <groupId>uk.ac.ebi.pride</groupId>
             <artifactId>jmztab-modular-util</artifactId>
-            <version>${jmztab.version}</version>
+            <version>${uk.ac.ebi.pride-jmztab-modular-util.version}</version>
         </dependency>
         <dependency>
             <groupId>uk.ac.ebi.pride</groupId>
             <artifactId>jmztab-modular-converters</artifactId>
-            <version>${jmztab.version}</version>
+            <version>${uk.ac.ebi.pride-jmztab-modular-converters.version}</version>
         </dependency>
         <!-- End  -->
 
@@ -170,7 +171,7 @@
         <dependency>
             <groupId>uk.ac.ebi.pride.utilities</groupId>
             <artifactId>pride-mod</artifactId>
-            <version>${pride-mod.version}</version>
+            <version>${uk.ac.ebi.pride.utilities-pride-mod.version}</version>
         </dependency>
         <!-- End  -->
 
@@ -179,7 +180,7 @@
         <dependency>
             <groupId>uk.ac.ebi.pride.tools</groupId>
             <artifactId>jmzreader</artifactId>
-            <version>${jmzreader.version}</version>
+            <version>${uk.ac.ebi.pride.tools-jmzreader.version}</version>
         </dependency>
 
         <dependency>
@@ -192,13 +193,13 @@
         <dependency>
             <groupId>uk.ac.ebi.pride.jaxb</groupId>
             <artifactId>pride-jaxb</artifactId>
-            <version>${pride.jaxb.version}</version>
+            <version>${uk.ac.ebi.pride.jaxb-pride-jaxb.version}</version>
         </dependency>
 
         <dependency>
             <groupId>uk.ac.ebi.pride.utilities</groupId>
             <artifactId>pride-utilities</artifactId>
-            <version>${pride-utilities.version}</version>
+            <version>${uk.ac.ebi.pride.utilities-pride-utilities.version}</version>
         </dependency>
 
         <!-- Dependencies related with CommandLine-->
