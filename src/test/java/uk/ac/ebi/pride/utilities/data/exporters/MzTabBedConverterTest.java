@@ -3,6 +3,7 @@ package uk.ac.ebi.pride.utilities.data.exporters;
 import junit.framework.TestCase;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import uk.ac.ebi.pride.jmztab.model.MZTabFile;
 import uk.ac.ebi.pride.jmztab.utils.MZTabFileConverter;
@@ -54,6 +55,7 @@ public class MzTabBedConverterTest {
      * @throws Exception
      */
     @Test
+    @Ignore
     public void convertAnnotatedMzIdentMLMzTab() throws Exception {
         MzIdentMLControllerImpl mzIdentMLController = new MzIdentMLControllerImpl(mzIdentMLFile);
         MzIdentMLMzTabConverter mzTabconverter = new MzIdentMLMzTabConverter(mzIdentMLController);
@@ -99,6 +101,7 @@ public class MzTabBedConverterTest {
      * @throws Exception
      */
     @Test
+    @Ignore
     public void convertMzTabBed() throws Exception{
         MzTabControllerImpl mzTabController = new MzTabControllerImpl(mzTabFile);
         MzTabBedConverter mzTabBedConverter = new MzTabBedConverter(mzTabController);

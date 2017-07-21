@@ -2,6 +2,7 @@ package uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessController;
 import uk.ac.ebi.pride.utilities.data.core.*;
@@ -16,6 +17,8 @@ import java.util.*;
  *
  * Testing all the components of the mzTab Controller for the pipeline.
  */
+
+@Ignore
 public class MzTabControllerImplIterativeTest {
 
     private MzTabControllerImpl mzTabController = null;
@@ -53,6 +56,7 @@ public class MzTabControllerImplIterativeTest {
     }
 
     @Test
+    @Ignore
     public void scanMetadata() throws IOException {
         long start = System.currentTimeMillis();
         scanForGeneralMetadata(mzTabController);

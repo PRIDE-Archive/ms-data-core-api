@@ -2,6 +2,7 @@ package uk.ac.ebi.pride.utilities.data.exporters;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import uk.ac.ebi.pride.jmztab.model.MZTabFile;
 import uk.ac.ebi.pride.jmztab.utils.MZTabFileConverter;
@@ -19,6 +20,7 @@ import static org.junit.Assert.assertTrue;
  * @author Yasset Perez-Riverol
  * @author Rui Wang
  */
+@Ignore
 public class MzTabMzIdentMLConverterTest {
 
     private MzIdentMLControllerImpl mzIdentMLController = null;
@@ -28,6 +30,7 @@ public class MzTabMzIdentMLConverterTest {
 
 
     @Before
+    @Ignore
     public void setUp() throws Exception {
         URL url = MzTabPRIDEConverterTest.class.getClassLoader().getResource("55merge_mascot_full.mzid");
         if (url == null) {
@@ -52,6 +55,7 @@ public class MzTabMzIdentMLConverterTest {
     }
 
     @Test
+    @Ignore
     public void convertToMzTab() throws IOException {
         AbstractMzTabConverter mzTabconverter = new MzIdentMLMzTabConverter(mzIdentMLController);
         MZTabFile mzTabFile = mzTabconverter.getMZTabFile();
@@ -62,6 +66,7 @@ public class MzTabMzIdentMLConverterTest {
     }
 
     @Test
+    @Ignore
     public void convertMassiveToMzTab() throws IOException {
         AbstractMzTabConverter mzTabconverter = new MzIdentMLMzTabConverter(mzIdentMLMassiveController);
         MZTabFile mzTabFile = mzTabconverter.getMZTabFile();
@@ -72,6 +77,7 @@ public class MzTabMzIdentMLConverterTest {
     }
 
     @Test
+    @Ignore
     public void convertPTMsToMzTab() throws IOException {
         AbstractMzTabConverter mzTabconverter = new MzIdentMLMzTabConverter(mzIdentMLPTMsController);
         MZTabFile mzTabFile = mzTabconverter.getMZTabFile();
