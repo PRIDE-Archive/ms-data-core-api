@@ -88,9 +88,9 @@
         <uk.ac.ebi.pride-jmztab-modular-model.version>3.0.5</uk.ac.ebi.pride-jmztab-modular-model.version>
         <uk.ac.ebi.pride-jmztab-modular-util.version>3.0.5</uk.ac.ebi.pride-jmztab-modular-util.version>
         <uk.ac.ebi.pride-jmztab-modular-converters.version>3.0.5</uk.ac.ebi.pride-jmztab-modular-converters.version>
-        <uk.ac.ebi.pride.tools-jmzreader.version>2.0.1</uk.ac.ebi.pride.tools-jmzreader.version>
+        <uk.ac.ebi.pride.tools-jmzreader.version>2.0.2-SNAPSHOT</uk.ac.ebi.pride.tools-jmzreader.version>
         <jnetCDF.version>0.0.2</jnetCDF.version>
-        <uk.ac.ebi.pride.jaxb-pride-jaxb.version>1.0.19</uk.ac.ebi.pride.jaxb-pride-jaxb.version>
+        <uk.ac.ebi.pride.jaxb-pride-jaxb.version>1.0.20-SNAPSHOT</uk.ac.ebi.pride.jaxb-pride-jaxb.version>
         <uk.ac.ebi.pride.utilities-pride-utilities.version>2.0.16</uk.ac.ebi.pride.utilities-pride-utilities.version>
         <uk.ac.ebi.pride.utilities-pride-mod.version>2.1.6</uk.ac.ebi.pride.utilities-pride-mod.version>
         <commons-cli.version>1.3.1</commons-cli.version>
@@ -164,6 +164,12 @@
             <groupId>uk.ac.ebi.pride</groupId>
             <artifactId>jmztab-modular-converters</artifactId>
             <version>${uk.ac.ebi.pride-jmztab-modular-converters.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>uk.ac.ebi.pride.jaxb</groupId>
+                    <artifactId>pride-jaxb</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- End  -->
 
