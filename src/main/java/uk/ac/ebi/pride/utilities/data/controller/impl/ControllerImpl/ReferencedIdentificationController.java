@@ -63,23 +63,22 @@ public abstract class ReferencedIdentificationController extends AssayFileContro
     }
 
     /**
-     * This function return the number of spectra without reference in the file
-     * @return
+     * This method returns the number of spectra that are missing reference in the related peak file.
+     * @return the total number of missing spectra.
      */
     @Override
     public int getNumberOfMissingSpectra(){
         Map<Comparable, List<Comparable>> spectraDataIdMap = (Map<Comparable, List<Comparable>>) getCache().get(CacheEntry.SPECTRADATA_TO_SPECTRUMIDS);
-        int spectraTotalCount = 0;
-        int spectraFoundCount = 0;
-        int currentSize;
-        for(Comparable spectraData : spectraDataIdMap.keySet()){
-            currentSize = spectraDataIdMap.get(spectraData).size();
-            spectraTotalCount += currentSize;
-            if (msDataAccessControllers != null && msDataAccessControllers.containsKey(spectraData)) {
-                spectraFoundCount += msDataAccessControllers.get(spectraData).getNumberOfSpectra();
-            }
+        int totalSpecta = 0;
+        int foundSpectra = 0;
+        int currentsize;
+        for(Comparable spectData: spectraDataIdMap.keySet()){
+            currentsize = spectraDataIdMap.get(spectData).size();
+            totalSpecta += currentsize;
+            if (msDataAccessControllers != null && msDataAccessControllers.containsKey(spectData))
+                foundSpectra += currentsize;
         }
-        return (spectraFoundCount<spectraTotalCount) ? spectraTotalCount-spectraFoundCount : 0;
+        return totalSpecta-foundSpectra;
     }
 
     protected void cacheProtein(Protein ident) {
