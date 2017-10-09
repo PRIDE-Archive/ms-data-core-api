@@ -55,8 +55,12 @@ public class AssayFileController extends CachedDataAccessController {
               ptmMasses.add(monoMasses.get(0));
           }
           if ((charge == null || mz == -1)) {
-            charge = getSpectrumPrecursorCharge(spectrum.getId());
-            mz = getSpectrumPrecursorMz(spectrum.getId());
+            if (spectrum!=null) {
+              charge = getSpectrumPrecursorCharge(spectrum.getId());
+              mz = getSpectrumPrecursorMz(spectrum.getId());
+            } else {
+              charge = null;
+            }
             if (charge != null && charge == 0) {
               charge = null;
             }
