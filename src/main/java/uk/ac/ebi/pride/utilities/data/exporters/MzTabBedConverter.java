@@ -203,8 +203,14 @@ public class MzTabBedConverter {
                         if (!chrom.equalsIgnoreCase(".")) {
                             String[] starts = blockStarts.split(",");
                             String[] sizes = blockSizes.split(",");
+                            if (".".equalsIgnoreCase(chromstart) ||
+                                starts.length<1 || ".".equalsIgnoreCase(starts[0]) ||
+                                sizes.length<1 || ".".equalsIgnoreCase(sizes[0])) {
+                                logger.info("Skipping peptide with bad chromosome information: " + peptideEvidence.getPeptideSequence());
+                                stringBuilder.setLength(0);
+                                continue; // peptide with no chrom information
+                            }
                             chromend = "" + (Integer.parseInt(chromstart) + Integer.parseInt(starts[starts.length-1]) + Integer.parseInt(sizes[sizes.length-1]));
-
                             stringBuilder.append(chrom); // chrom
                             stringBuilder.append('\t');
                             stringBuilder.append(chromstart); // chromstart
