@@ -78,6 +78,8 @@ How to use ms-data-core-api
 This example shows how to read an mzIdentML file and retrieve the information from them:
 
 ```java
+import uk.ac.ebi.pride.utilities.data.core.*;
+
 //Open an inputFile mzIdentml File using memory 
 MzIdentMLControllerImpl mzIdentMlController = new MzIdentMLControllerImpl(inputFile, true);
 
@@ -87,6 +89,9 @@ System.out.println(samples.size());
 
 //Print the Id of the first sample
 System.out.println(samples.get(0).getId());
+
+// Get the list of softwares from the mzIdentMlController
+List<Software> software = mzIdentMlController.getSoftwares();
 
 //Print size of the Software List
 System.out.println(software.size());
