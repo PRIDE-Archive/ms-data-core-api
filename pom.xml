@@ -88,7 +88,7 @@
         <uk.ac.ebi.pride-jmztab-modular-model.version>3.0.5</uk.ac.ebi.pride-jmztab-modular-model.version>
         <uk.ac.ebi.pride-jmztab-modular-util.version>3.0.5</uk.ac.ebi.pride-jmztab-modular-util.version>
         <uk.ac.ebi.pride-jmztab-modular-converters.version>3.0.5</uk.ac.ebi.pride-jmztab-modular-converters.version>
-        <uk.ac.ebi.pride.tools-jmzreader.version>2.0.2</uk.ac.ebi.pride.tools-jmzreader.version>
+        <uk.ac.ebi.pride.tools-jmzreader.version>2.0.3</uk.ac.ebi.pride.tools-jmzreader.version>
         <jnetCDF.version>0.0.2</jnetCDF.version>
         <uk.ac.ebi.pride.jaxb-pride-jaxb.version>1.0.20</uk.ac.ebi.pride.jaxb-pride-jaxb.version>
         <uk.ac.ebi.pride.utilities-pride-utilities.version>2.0.18</uk.ac.ebi.pride.utilities-pride-utilities.version>
