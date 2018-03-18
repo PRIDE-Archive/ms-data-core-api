@@ -42,6 +42,8 @@ public final class Constants {
     public static final String WIFF_EXT  = ".wiff";
     public static final String NETCDF_EXT = ".cdf";
 
+    public static final String MZIDENTML_NAMESPACE = "http://psidev.info/psi/pi/mzIdentML/1.1";
+
 
 
     /**

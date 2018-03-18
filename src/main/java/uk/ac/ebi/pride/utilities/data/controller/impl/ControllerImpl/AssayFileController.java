@@ -29,7 +29,7 @@ public class AssayFileController extends CachedDataAccessController {
    * @return boolean if all the reference as fine
    */
   public boolean checkRandomSpectraByDeltaMassThreshold(int numberSpectra, Double deltaThreshold){
-    boolean result = true;
+      boolean result = true;
     List<Comparable> listIds = new ArrayList<>(getProteinIds());
     Random r = new Random();
     int randomProtIdNumb;
@@ -83,7 +83,6 @@ public class AssayFileController extends CachedDataAccessController {
 
   public void addMSController(List<File> dataAccessControllerFiles) {}
 
-
   public int getNumberOfIdentifiedSpectra() {
     return getIdentifiedSpectraNumber(false);
   }
@@ -128,5 +127,4 @@ public class AssayFileController extends CachedDataAccessController {
     }
     return allIdentifiedSpectrumIds.size() - existingIdentifiedSpectrumIds.size();
   }
-
 }
