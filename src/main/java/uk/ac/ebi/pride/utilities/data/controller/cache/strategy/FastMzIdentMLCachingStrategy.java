@@ -118,7 +118,7 @@ public class FastMzIdentMLCachingStrategy extends AbstractCachingStrategy {
 //                    Tuple<String, String> spectrumFeatures = null;
 //
 //                    if (mgfTitleReference) {
-//                        // TODO: need to cpmplete this
+//                        // TODO: need to complete this
 ////                    if (mgfTitleReference && possibleMGMTitleReferenced.contains(spectrumDataReference)) {
 ////                        Comparable title = unmarshaller.getMGFTitleReference(spectrumIdentResultId);
 ////                        if(title != null){
@@ -152,7 +152,7 @@ public class FastMzIdentMLCachingStrategy extends AbstractCachingStrategy {
 //
 //        cache.storeInBatch(CacheEntry.SPECTRUM_IDENTIFIED, spectrumIdentified);
 //
-//        // TODO: need to cpmplete this
+//        // TODO: need to complete this
 ////        if(mgfTitleReference && mgfTitleReferenceMap.size() > 0){
 ////            cache.clear(CacheEntry.MGF_INDEX_TITLE);
 ////            cache.storeInBatch(CacheEntry.MGF_INDEX_TITLE, mgfTitleReferenceMap);
