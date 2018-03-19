@@ -30,10 +30,8 @@ public class MzIdentML
     /**
      * Gets the value of the sequenceCollection property.
      *
-     * @return
-     *     possible object is
-     *     {@link SequenceCollection }
-     *
+     * @return possible object is
+     * {@link SequenceCollection }
      */
     public SequenceCollection getSequenceCollection() {
         return sequenceCollection;
@@ -42,10 +40,8 @@ public class MzIdentML
     /**
      * Sets the value of the sequenceCollection property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link SequenceCollection }
-     *
+     * @param value allowed object is
+     *              {@link SequenceCollection }
      */
     public void setSequenceCollection(SequenceCollection value) {
         this.sequenceCollection = value;
@@ -54,10 +50,8 @@ public class MzIdentML
     /**
      * Gets the value of the dataCollection property.
      *
-     * @return
-     *     possible object is
-     *     {@link DataCollection }
-     *
+     * @return possible object is
+     * {@link DataCollection }
      */
     public DataCollection getDataCollection() {
         return dataCollection;
@@ -66,10 +60,8 @@ public class MzIdentML
     /**
      * Sets the value of the dataCollection property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link DataCollection }
-     *
+     * @param value allowed object is
+     *              {@link DataCollection }
      */
     public void setDataCollection(DataCollection value) {
         this.dataCollection = value;
@@ -79,10 +71,8 @@ public class MzIdentML
     /**
      * Gets the value of the version property.
      *
-     * @return
-     *     possible object is
-     *     {@link String }
-     *
+     * @return possible object is
+     * {@link String }
      */
     public String getVersion() {
         return version;
@@ -91,10 +81,8 @@ public class MzIdentML
     /**
      * Sets the value of the version property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *
+     * @param value allowed object is
+     *              {@link String }
      */
     public void setVersion(String value) {
         this.version = value;

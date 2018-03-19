@@ -10,40 +10,47 @@ import java.util.List;
 /**
  * Constants contain a set of functions for SpectraData validation and also the constants used by mzTab and mzIdentML
  * to reference the Ids and type file formats.
- *    
+ *
  * @author Yasset Perez-Riverol
  * @author Rui Wang
  */
 public final class Constants {
 
-    /** algebraic sign */
+    /**
+     * algebraic sign
+     */
     private static final String SIGN = "[+-]";
 
-    public static  final String TAB  = "\t";
+    public static final String TAB = "\t";
 
-    public static  final String LINE_SEPARATOR = "\n";
+    public static final String LINE_SEPARATOR = "\n";
 
-    /** integer expression */
+    /**
+     * integer expression
+     */
     public static final String INTEGER = SIGN + "?\\d+";
 
     private Constants() {
     }
 
     public static final String NOT_AVAILABLE = "N/A";
-    public static final String MGF_EXT   = ".mgf";
-    public static final String DTA_EXT   = ".dta";
-    public static final String MS2_EXT   = ".ms2";
-    public static final String PKL_EXT   = ".pkl";
+    public static final String MGF_EXT = ".mgf";
+    public static final String DTA_EXT = ".dta";
+    public static final String MS2_EXT = ".ms2";
+    public static final String PKL_EXT = ".pkl";
     public static final String MZXML_EXT = ".mzxml";
-    public static final String APL_EXT   = ".apl";
-    public static final String XML_EXT   = ".xml";
-    public static final String MZML_EXT  = ".mzML";
+    public static final String APL_EXT = ".apl";
+    public static final String XML_EXT = ".xml";
+    public static final String MZML_EXT = ".mzML";
     public static final String MZTAB_EXT = ".mztab";
-    public static final String WIFF_EXT  = ".wiff";
+    public static final String WIFF_EXT = ".wiff";
     public static final String NETCDF_EXT = ".cdf";
 
     public static final String MZIDENTML_NAMESPACE = "http://psidev.info/psi/pi/mzIdentML/1.1";
-
+    public static final Double DELTATHESHOLD = 4.0;
+    public static final String PSI_MOD = "MOD";
+    public static final String MS = "MS";
+    public static final String UNIMOD = "UNIMOD";
 
 
     /**
@@ -78,6 +85,7 @@ public final class Constants {
 
     /**
      * Retrieve the Spectrum File format for an specific fileformat.
+     *
      * @param fileFormat file format such mgf ms2, mzid or other file formats
      * @return the SpectrumFile format such as MZXML or PKL
      */
@@ -103,10 +111,11 @@ public final class Constants {
 
     /**
      * Return the SpectrumFile format for an specific path such as: /myppath/spectrum_file.mgf
+     *
      * @param path the specific path
      * @return the SpectrumFile format such as MZXML or PKL
      */
-    public static SpecFileFormat getSpecFileFormatFromLocation(String path){
+    public static SpecFileFormat getSpecFileFormatFromLocation(String path) {
         if (path != null && path.length() > 0) {
 
             if (path.toUpperCase().contains(MZXML_EXT.toUpperCase()))
@@ -131,12 +140,13 @@ public final class Constants {
 
     /**
      * This function returns the Spectrum File format for an specific SpectraData ob object
+     *
      * @param spectraData The SpectraData object
      * @return the Spectrum File format
      */
     public static Constants.SpecFileFormat getSpectraDataFormat(SpectraData spectraData) {
         uk.ac.ebi.pride.utilities.data.core.CvParam specFileFormat = spectraData.getFileFormat();
-        if (specFileFormat != null ) {
+        if (specFileFormat != null) {
             if (specFileFormat.getAccession().equals("MS:1000613"))
                 return Constants.SpecFileFormat.DTA;
             if (specFileFormat.getAccession().equals("MS:1001062"))
@@ -147,16 +157,16 @@ public final class Constants {
                 return Constants.SpecFileFormat.MZML;
             if (specFileFormat.getAccession().equals("MS:1000566"))
                 return Constants.SpecFileFormat.MZXML;
-            if(specFileFormat.getAccession().equals("MS:1001466"))
+            if (specFileFormat.getAccession().equals("MS:1001466"))
                 return Constants.SpecFileFormat.MS2;
         }
         return getDataFormatFromFileExtension(spectraData);
     }
 
 
-
     /**
      * Spectrum Id format for an specific CVterm accession
+     *
      * @param accession CvTerm Accession
      * @return Specific Spectrum Id Format
      */
@@ -175,15 +185,16 @@ public final class Constants {
             return Constants.SpecIdFormat.WIFF_NATIVE_ID;
         if (accession.equals("MS:1000777"))
             return Constants.SpecIdFormat.MZDATA_ID;
-        if(accession.equals(("MS:1000768")))
+        if (accession.equals(("MS:1000768")))
             return Constants.SpecIdFormat.SPECTRUM_NATIVE_ID;
-        if(accession.equals("MS:1000796"))
+        if (accession.equals("MS:1000796"))
             return SpecIdFormat.WIFF_MGF_TITLE;
         return Constants.SpecIdFormat.NONE;
     }
 
     /**
      * Return the set of file format supported for an ambiguous SpectraData Object
+     *
      * @param spectraData SpectraData Object
      * @return Set of file formats supported
      */
@@ -199,18 +210,18 @@ public final class Constants {
             } else if (spectIdFormat == Constants.SpecIdFormat.MULTI_PEAK_LIST_NATIVE_ID || spectIdFormat == Constants.SpecIdFormat.SINGLE_PEAK_LIST_NATIVE_ID) {
                 spectraDataFormat = getDataFormatFromFileExtension(spectraData);
                 fileFormats.add(spectraDataFormat);
-                if(spectraDataFormat != Constants.SpecFileFormat.DTA)  fileFormats.add(Constants.SpecFileFormat.DTA);
-                if(spectraDataFormat != Constants.SpecFileFormat.MGF)  fileFormats.add(Constants.SpecFileFormat.MGF);
-                if(spectraDataFormat != Constants.SpecFileFormat.PKL)  fileFormats.add(Constants.SpecFileFormat.PKL);
-                if(spectraDataFormat != Constants.SpecFileFormat.NONE) fileFormats.add(Constants.SpecFileFormat.NONE);
-                if(spectraDataFormat != SpecFileFormat.MS2) fileFormats.add(SpecFileFormat.MS2);
-            }else if (spectIdFormat == Constants.SpecIdFormat.MZML_ID) {
+                if (spectraDataFormat != Constants.SpecFileFormat.DTA) fileFormats.add(Constants.SpecFileFormat.DTA);
+                if (spectraDataFormat != Constants.SpecFileFormat.MGF) fileFormats.add(Constants.SpecFileFormat.MGF);
+                if (spectraDataFormat != Constants.SpecFileFormat.PKL) fileFormats.add(Constants.SpecFileFormat.PKL);
+                if (spectraDataFormat != Constants.SpecFileFormat.NONE) fileFormats.add(Constants.SpecFileFormat.NONE);
+                if (spectraDataFormat != SpecFileFormat.MS2) fileFormats.add(SpecFileFormat.MS2);
+            } else if (spectIdFormat == Constants.SpecIdFormat.MZML_ID) {
                 fileFormats.add(Constants.SpecFileFormat.MZML);
             } else if (spectIdFormat == Constants.SpecIdFormat.SCAN_NUMBER_NATIVE_ID) {
                 fileFormats.add(Constants.SpecFileFormat.MZXML);
             } else if (spectIdFormat == Constants.SpecIdFormat.MZDATA_ID) {
                 fileFormats.add(Constants.SpecFileFormat.MZDATA);
-            } else if(spectIdFormat == SpecIdFormat.WIFF_MGF_TITLE){
+            } else if (spectIdFormat == SpecIdFormat.WIFF_MGF_TITLE) {
                 fileFormats.add(Constants.SpecFileFormat.MGF);
             }
         } else {
@@ -221,14 +232,15 @@ public final class Constants {
 
     /**
      * Return the Spectrum File format beased onf the SpectraData object name
+     *
      * @param spectradata SpectraData Object
      * @return Spectrum File Format
      */
-    public static Constants.SpecFileFormat getDataFormatFromFileExtension(SpectraData spectradata){
+    public static Constants.SpecFileFormat getDataFormatFromFileExtension(SpectraData spectradata) {
         Constants.SpecFileFormat fileFormat = Constants.SpecFileFormat.NONE;
-        if(spectradata.getLocation() !=null){
+        if (spectradata.getLocation() != null) {
             fileFormat = Constants.getSpecFileFormatFromLocation(spectradata.getLocation());
-        }else if(spectradata.getName() != null){
+        } else if (spectradata.getName() != null) {
             fileFormat = Constants.getSpecFileFormatFromLocation(spectradata.getName());
         }
         return fileFormat;

@@ -34,7 +34,6 @@ import java.util.List;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "AnalysisDataType", propOrder = {
         "spectrumIdentificationList"
-//        ,"proteinDetectionList"
 })
 public class AnalysisData
         extends MzIdentMLObject
@@ -44,8 +43,6 @@ public class AnalysisData
     private final static long serialVersionUID = 100L;
     @XmlElement(name = "SpectrumIdentificationList", required = true)
     protected List<SpectrumIdentificationList> spectrumIdentificationList;
-//    @XmlElement(name = "ProteinDetectionList")
-//    protected ProteinDetectionList proteinDetectionList;
 
     /**
      * Gets the value of the spectrumIdentificationList property.
@@ -75,28 +72,4 @@ public class AnalysisData
         }
         return this.spectrumIdentificationList;
     }
-
-//    /**
-//     * Gets the value of the proteinDetectionList property.
-//     *
-//     * @return
-//     *     possible object is
-//     *     {@link ProteinDetectionList }
-//     *
-//     */
-//    public ProteinDetectionList getProteinDetectionList() {
-//        return proteinDetectionList;
-//    }
-//
-//    /**
-//     * Sets the value of the proteinDetectionList property.
-//     *
-//     * @param value
-//     *     allowed object is
-//     *     {@link ProteinDetectionList }
-//     *
-//     */
-//    public void setProteinDetectionList(ProteinDetectionList value) {
-//        this.proteinDetectionList = value;
-//    }
 }

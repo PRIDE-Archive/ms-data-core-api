@@ -35,46 +35,21 @@ import java.util.List;
     @XmlAccessorType(XmlAccessType.FIELD)
     @XmlType(name = "SpectrumIdentificationResultType", propOrder = {
             "spectrumIdentificationItem"
-//            ,"paramGroup"
     })
     public class SpectrumIdentificationResult
             extends Identifiable
             implements Serializable
-//            ,ParamGroupCapable
     {
 
         private final static long serialVersionUID = 100L;
 
         @XmlElement(name = "SpectrumIdentificationItem", required = true)
         protected List<SpectrumIdentificationItem> spectrumIdentificationItem;
-//        @XmlElements({
-//                @XmlElement(name = "cvParam", type = CvParam.class),
-//                @XmlElement(name = "userParam", type = UserParam.class)
-//        })
-//        protected List<AbstractParam> paramGroup;
         @XmlAttribute(required = true)
         protected String spectrumID;
-
         @XmlAttribute(name = "spectraData_ref", required = true)
         protected String spectraDataRef;
 
-//        @XmlTransient
-//        protected SpectraData spectraData;
-//
-//        public SpectraData getSpectraDataMap() {
-//            return spectraData;
-//        }
-//
-//        public void setSpectraData(SpectraData spectraData) {
-//            if (spectraData == null) {
-//                this.spectraDataRef = null;
-//            } else {
-//                String refId = spectraData.getId();
-//                if (refId == null) throw new IllegalArgumentException("Referenced object does not have an identifier.");
-//                this.spectraDataRef = refId;
-//            }
-//            this.spectraData = spectraData;
-//        }
         /**
          * Gets the value of the spectrumIdentificationItem property.
          *
@@ -103,36 +78,6 @@ import java.util.List;
             }
             return this.spectrumIdentificationItem;
         }
-
-//        /**
-//         *  Scores or parameters associated with the SpectrumIdentificationResult (i.e the set of SpectrumIdentificationItems derived from one spectrum) e.g. the number of peptide sequences within the parent tolerance for this spectrum. Gets the value of the paramGroup property.
-//         *
-//         * <p>
-//         * This accessor method returns a reference to the live list,
-//         * not a snapshot. Therefore any modification you make to the
-//         * returned list will be present inside the JAXB object.
-//         * This is why there is not a <CODE>set</CODE> method for the paramGroup property.
-//         *
-//         * <p>
-//         * For example, to add a new item, do as follows:
-//         * <pre>
-//         *    getParamGroup().add(newItem);
-//         * </pre>
-//         *
-//         *
-//         * <p>
-//         * Objects of the following type(s) are allowed in the list
-//         * {@link CvParam }
-//         * {@link UserParam }
-//         *
-//         *
-//         */
-//        public List<AbstractParam> getParamGroup() {
-//            if (paramGroup == null) {
-//                paramGroup = new ArrayList<AbstractParam>();
-//            }
-//            return this.paramGroup;
-//        }
 
         /**
          * Gets the value of the spectrumID property.
@@ -169,22 +114,5 @@ import java.util.List;
         public String getSpectraDataRef() {
             return spectraDataRef;
         }
-//
-//        /**
-//         * Get the cvparams for spectrumidentificationresult
-//         * @return
-//         */
-//        public List<CvParam> getCvParam() {
-//            return new FacadeList<CvParam>(this.getParamGroup(), CvParam.class);
-//        }
-//
-//        /**
-//         * Get the userparams for spectrumidentificationresult
-//         * @return
-//         */
-//
-//        public List<UserParam> getUserParam() {
-//            return new FacadeList<UserParam>(this.getParamGroup(), UserParam.class);
-//        }
     }
 

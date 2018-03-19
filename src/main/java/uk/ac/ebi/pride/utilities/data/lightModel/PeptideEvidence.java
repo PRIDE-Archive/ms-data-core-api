@@ -9,11 +9,11 @@ import java.io.Serializable;
 
 /**
  * PeptideEvidence links a specific Peptide element to a specific position in a DBSequence. There must only be one PeptideEvidence item per Peptide-to-DBSequence-position.
- *
+ * <p>
  * <p>Java class for PeptideEvidenceType complex type.
- *
+ * <p>
  * <p>The following schema fragment specifies the expected content contained within this class.
- *
+ * <p>
  * <pre>
  * &lt;complexType name="PeptideEvidenceType"&gt;
  *   &lt;complexContent&gt;
@@ -46,55 +46,23 @@ import java.io.Serializable;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "PeptideEvidenceType"
-//        , propOrder = {
-//        "paramGroup"
-//}
-)
+@XmlType(name = "PeptideEvidenceType")
 public class PeptideEvidence
         extends Identifiable
-        implements Serializable
-//        , ParamGroupCapable
-{
+        implements Serializable {
 
     private final static long serialVersionUID = 100L;
-//    @XmlElements({
-//            @XmlElement(name = "userParam", type = UserParam.class),
-//            @XmlElement(name = "cvParam", type = CvParam.class)
-//    })
-//    protected List<AbstractParam> paramGroup;
+
     @XmlAttribute(name = "dBSequence_ref", required = true)
     protected String dbSequenceRef;
     @XmlAttribute(name = "peptide_ref", required = true)
     protected String peptideRef;
-//    @XmlAttribute
-//    protected Integer start;
-//    @XmlAttribute
-//    protected Integer end;
-//    @XmlAttribute
-//    protected String pre;
-//    @XmlAttribute
-//    protected String post;
-//    @XmlAttribute(name = "translationTable_ref")
-//    protected String translationTableRef;
-//    @XmlAttribute
-//    protected Integer frame;
-//    @XmlAttribute
-//    protected Boolean isDecoy;
-
-
-
     @XmlTransient
     protected DBSequence dbSequence;
     @XmlTransient
     protected Peptide peptide;
-//    @XmlTransient
-//    protected TranslationTable translationTable;
-
 
     public Peptide getPeptide() {
         return peptide;
@@ -125,243 +93,4 @@ public class PeptideEvidence
         }
         this.dbSequence = dbSequence;
     }
-
-//    public TranslationTable getTranslationTable() {
-//        return translationTable;
-//    }
-//
-//    public void setTranslationTable(TranslationTable translationTable) {
-//        if (translationTable == null) {
-//            this.translationTableRef = null;
-//        } else {
-//            String refId = translationTable.getId();
-//            if (refId == null) throw new IllegalArgumentException("Referenced object does not have an identifier.");
-//            this.translationTableRef = refId;
-//        }
-//        this.translationTable = translationTable;
-//    }
-
-    /**
-     * Additional parameters or descriptors for the PeptideEvidence.Gets the value of the paramGroup property.
-     *
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the paramGroup property.
-     *
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getParamGroup().add(newItem);
-     * </pre>
-     *
-     *
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link UserParam }
-     * {@link CvParam }
-     *
-     *
-     */
-//    public List<AbstractParam> getParamGroup() {
-//    if (paramGroup == null) {
-//        paramGroup = new ArrayList<AbstractParam>();
-//    }
-//    return this.paramGroup;
-//}
-//
-//    /**
-//     * Gets the value of the dbSequenceRef property.
-//     *
-//     * @return
-//     *     possible object is
-//     *     {@link String }
-//     *
-//     */
-//    public String getDBSequenceRef() {
-//        return dbSequenceRef;
-//    }
-
-    /**
-     * Gets the value of the peptideRef property.
-     *
-     * @return
-     *     possible object is
-     *     {@link String }
-     *
-     */
-    public String getPeptideRef() {
-        return peptideRef;
-    }
-
-    /**
-     * Gets the value of the start property.
-     *
-     * @return
-     *     possible object is
-     *     {@link Integer }
-     *
-     */
-//    public Integer getStart() {
-//        return start;
-//    }
-//
-//    /**
-//     * Sets the value of the start property.
-//     *
-//     * @param value
-//     *     allowed object is
-//     *     {@link Integer }
-//     *
-//     */
-//    public void setStart(Integer value) {
-//        this.start = value;
-//    }
-//
-//    /**
-//     * Gets the value of the end property.
-//     *
-//     * @return
-//     *     possible object is
-//     *     {@link Integer }
-//     *
-//     */
-//    public Integer getEnd() {
-//        return end;
-//    }
-//
-//    /**
-//     * Sets the value of the end property.
-//     *
-//     * @param value
-//     *     allowed object is
-//     *     {@link Integer }
-//     *
-//     */
-//    public void setEnd(Integer value) {
-//        this.end = value;
-//    }
-//
-//    /**
-//     * Gets the value of the pre property.
-//     *
-//     * @return
-//     *     possible object is
-//     *     {@link String }
-//     *
-//     */
-//    public String getPre() {
-//        return pre;
-//    }
-//
-//    /**
-//     * Sets the value of the pre property.
-//     *
-//     * @param value
-//     *     allowed object is
-//     *     {@link String }
-//     *
-//     */
-//    public void setPre(String value) {
-//        this.pre = value;
-//    }
-//
-//    /**
-//     * Gets the value of the post property.
-//     *
-//     * @return
-//     *     possible object is
-//     *     {@link String }
-//     *
-//     */
-//    public String getPost() {
-//        return post;
-//    }
-//
-//    /**
-//     * Sets the value of the post property.
-//     *
-//     * @param value
-//     *     allowed object is
-//     *     {@link String }
-//     *
-//     */
-//    public void setPost(String value) {
-//        this.post = value;
-//    }
-//
-//    /**
-//     * Gets the value of the translationTableRef property.
-//     *
-//     * @return
-//     *     possible object is
-//     *     {@link String }
-//     *
-//     */
-//    public String getTranslationTableRef() {
-//        return translationTableRef;
-//    }
-//
-//
-//    /**
-//     * Gets the value of the frame property.
-//     *
-//     * @return
-//     *     possible object is
-//     *     {@link Integer }
-//     *
-//     */
-//    public Integer getFrame() {
-//        return frame;
-//    }
-//
-//    /**
-//     * Sets the value of the frame property.
-//     *
-//     * @param value
-//     *     allowed object is
-//     *     {@link Integer }
-//     *
-//     */
-//    public void setFrame(Integer value) {
-//        this.frame = value;
-//    }
-//
-//    /**
-//     * Gets the value of the isDecoy property.
-//     *
-//     * @return
-//     *     possible object is
-//     *     {@link Boolean }
-//     *
-//     */
-//    public boolean isIsDecoy() {
-//        if (isDecoy == null) {
-//            return false;
-//        } else {
-//            return isDecoy;
-//        }
-//    }
-//
-//    /**
-//     * Sets the value of the isDecoy property.
-//     *
-//     * @param value
-//     *     allowed object is
-//     *     {@link Boolean }
-//     *
-//     */
-//    public void setIsDecoy(Boolean value) {
-//        this.isDecoy = value;
-//    }
-//
-//    public List<CvParam> getCvParam() {
-//        return new FacadeList<CvParam>(this.getParamGroup(), CvParam.class);
-//    }
-//
-//    public List<UserParam> getUserParam() {
-//        return new FacadeList<UserParam>(this.getParamGroup(), UserParam.class);
-//    }
-
 }

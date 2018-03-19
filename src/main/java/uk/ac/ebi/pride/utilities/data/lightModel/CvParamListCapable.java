@@ -9,10 +9,6 @@ import java.util.List;
  * Note: this interface is use together with the CvParamCapable interface,
  * to distinguish if a object has a CvParam or a List&lt;CvParam&gt;.
  *
- * @see uk.ac.ebi.jmzidml.model.CvParamCapable
- * @author Florian Reisinger
- *         Date: 18-Nov-2010
- * @since 1.0
  */
 public interface CvParamListCapable {
 

@@ -5,7 +5,6 @@ import com.jamonapi.MonitorFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.openjdk.jmh.annotations.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,18 +20,20 @@ import static org.junit.Assert.assertEquals;
  */
 public class FastMzIdentMLControllerTest {
 
-    public static final Logger logger = LoggerFactory.getLogger(FastMzIdentMLControllerTest.class);
+    private static final Logger logger = LoggerFactory.getLogger(FastMzIdentMLControllerTest.class);
 
     private FastMzIdentMLController fastMzIdentMLController;
+    Monitor monitor;
 
     @Before
     public void setUp() throws Exception {
+         monitor = MonitorFactory.start("uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl.validateMzIdentML");
 //        URL url = FastMzIdentMLControllerTest.class.getClassLoader().getResource("F238646.mzid");
 //        URL urlMgf = MzIdentMLControllerIterativeTest.class.getClassLoader().getResource("mascot_daemon_merge.mgf");
-//        URL url = FastMzIdentMLControllerTest.class.getClassLoader().getResource("small.mzid");
-//        URL urlMgf = MzIdentMLControllerIterativeTest.class.getClassLoader().getResource("small.mgf");
-        URL url = FastMzIdentMLControllerTest.class.getClassLoader().getResource("test.mzid");
-        URL urlMgf = MzIdentMLControllerIterativeTest.class.getClassLoader().getResource("test.mgf");
+        URL url = FastMzIdentMLControllerTest.class.getClassLoader().getResource("small.mzid");
+        URL urlMgf = MzIdentMLControllerIterativeTest.class.getClassLoader().getResource("small.mgf");
+//        URL url = FastMzIdentMLControllerTest.class.getClassLoader().getResource("test.mzid");
+//        URL urlMgf = MzIdentMLControllerIterativeTest.class.getClassLoader().getResource("test.mgf");
         if (url == null || urlMgf == null) {
             throw new IllegalStateException("no file for input found!");
         }
@@ -46,37 +47,14 @@ public class FastMzIdentMLControllerTest {
     }
 
     @Test
-    public void Validate() {
-        fastMzIdentMLController.spectraValidation(10);
-    }
-
-    @Test
-    public void getNumberOfProteins() {
-        assertEquals(327, fastMzIdentMLController.getNumberOfProteins());
-    }
-
-    @Test
-    public void getNumberOfSpectra() {
-        assertEquals(1001, fastMzIdentMLController.getNumberOfSpectra());
-    }
-
-    @Test
-    public void getNumberOfMissingSpectra() {
-        assertEquals(1001, fastMzIdentMLController.getNumberOfMissingSpectra());
-    }
-
-    @Benchmark
-    @BenchmarkMode(Mode.AverageTime)
-    @Test
     public void validateMzIdentML() {
-        Monitor monitor= MonitorFactory.start("uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl.validateMzIdentML");
         fastMzIdentMLController.validateMzIdentML();
-        monitor.stop();
-        System.out.println("Performance INFO: --------------  " + monitor);
     }
 
     @After
     public void tearDown() {
         fastMzIdentMLController.close();
+        monitor.stop();
+        logger.info(monitor.toString());
     }
 }

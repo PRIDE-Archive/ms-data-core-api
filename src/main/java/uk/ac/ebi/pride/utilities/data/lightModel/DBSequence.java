@@ -6,7 +6,9 @@ import javax.xml.bind.annotation.XmlType;
 import java.io.Serializable;
 
 /**
- * @author Suresh Hewapathirana
+ * The class that holds Protein sequences
+ *
+ * Java class for DBSequenceType complex type.
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "DBSequenceType")

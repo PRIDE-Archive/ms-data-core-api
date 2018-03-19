@@ -1,10 +1,5 @@
 package uk.ac.ebi.pride.utilities.data.lightModel;
 
-/**
- * @author Suresh Hewapathirana
- */
-
-
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 

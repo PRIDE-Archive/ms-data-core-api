@@ -1,10 +1,5 @@
 package uk.ac.ebi.pride.utilities.data.lightModel;
 
-/**
- * @author Suresh Hewapathirana
- */
-
-
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -36,52 +31,16 @@ import java.util.List;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "SpectrumIdentificationListType", propOrder = {
-//        "fragmentationTable",
         "spectrumIdentificationResult"
-//        ,"paramGroup"
 })
 public class SpectrumIdentificationList
         extends Identifiable
         implements Serializable
-//        ,ParamGroupCapable
 {
 
     private final static long serialVersionUID = 100L;
-//    @XmlElement(name = "FragmentationTable")
-//    protected FragmentationTable fragmentationTable;
     @XmlElement(name = "SpectrumIdentificationResult", required = true)
     protected List<SpectrumIdentificationResult> spectrumIdentificationResult;
-//    @XmlElements({
-//            @XmlElement(name = "userParam", type = UserParam.class),
-//            @XmlElement(name = "cvParam", type = CvParam.class)
-//    })
-//    protected List<AbstractParam> paramGroup;
-//    @XmlAttribute
-//    protected Long numSequencesSearched;
-
-//    /**
-//     * Gets the value of the fragmentationTable property.
-//     *
-//     * @return
-//     *     possible object is
-//     *     {@link FragmentationTable }
-//     *
-//     */
-//    public FragmentationTable getFragmentationTable() {
-//        return fragmentationTable;
-//    }
-//
-//    /**
-//     * Sets the value of the fragmentationTable property.
-//     *
-//     * @param value
-//     *     allowed object is
-//     *     {@link FragmentationTable }
-//     *
-//     */
-//    public void setFragmentationTable(FragmentationTable value) {
-//        this.fragmentationTable = value;
-//    }
 
     /**
      * Gets the value of the spectrumIdentificationResult property.
@@ -111,66 +70,4 @@ public class SpectrumIdentificationList
         }
         return this.spectrumIdentificationResult;
     }
-
-//    /**
-//     * Scores or output parameters associated with the SpectrumIdentificationList.Gets the value of the paramGroup property.
-//     *
-//     * <p>
-//     * This accessor method returns a reference to the live list,
-//     * not a snapshot. Therefore any modification you make to the
-//     * returned list will be present inside the JAXB object.
-//     * This is why there is not a <CODE>set</CODE> method for the paramGroup property.
-//     *
-//     * <p>
-//     * For example, to add a new item, do as follows:
-//     * <pre>
-//     *    getParamGroup().add(newItem);
-//     * </pre>
-//     *
-//     *
-//     * <p>
-//     * Objects of the following type(s) are allowed in the list
-//     * {@link UserParam }
-//     * {@link CvParam }
-//     *
-//     *
-//     */
-//    public List<AbstractParam> getParamGroup() {
-//        if (paramGroup == null) {
-//            paramGroup = new ArrayList<AbstractParam>();
-//        }
-//        return this.paramGroup;
-//    }
-//
-//    /**
-//     * Gets the value of the numSequencesSearched property.
-//     *
-//     * @return
-//     *     possible object is
-//     *     {@link Long }
-//     *
-//     */
-//    public Long getNumSequencesSearched() {
-//        return numSequencesSearched;
-//    }
-//
-//    /**
-//     * Sets the value of the numSequencesSearched property.
-//     *
-//     * @param value
-//     *     allowed object is
-//     *     {@link Long }
-//     *
-//     */
-//    public void setNumSequencesSearched(Long value) {
-//        this.numSequencesSearched = value;
-//    }
-//
-//    public List<CvParam> getCvParam() {
-//        return new FacadeList(this.getParamGroup(), CvParam.class);
-//    }
-//
-//    public List<UserParam> getUserParam() {
-//        return new FacadeList(this.getParamGroup(), UserParam.class);
-//    }
 }

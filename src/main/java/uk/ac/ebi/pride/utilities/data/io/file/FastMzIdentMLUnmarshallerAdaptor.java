@@ -19,6 +19,10 @@ public class FastMzIdentMLUnmarshallerAdaptor {
 
     }
 
+    public MzIdentML getMzIdentML() {
+        return mzIdentML;
+    }
+
     public Collection<Comparable> getProteinIds() {
         return mzIdentML.getSequenceCollection().getDBSequence()
                 .parallelStream()
@@ -30,6 +34,7 @@ public class FastMzIdentMLUnmarshallerAdaptor {
         return mzIdentML.getSequenceCollection().getPeptide()
                 .parallelStream()
                 .map(Peptide::getId)
+                .distinct()
                 .collect(Collectors.toList());
     }
 
@@ -41,27 +46,34 @@ public class FastMzIdentMLUnmarshallerAdaptor {
                 .orElse(null);
     }
 
+    public List<SpectrumIdentificationList> getSpectrumIdentificationList() {
+        return mzIdentML.getDataCollection().getAnalysisData().getSpectrumIdentificationList();
+    }
+
+    public List<SpectrumIdentificationResult> getSpectrumIdentificationResultByIndex(int index) {
+        SpectrumIdentificationList spectrumIdentificationList = getSpectrumIdentificationList().get(index);
+        return (getSpectrumIdentificationList().isEmpty() || getSpectrumIdentificationList() == null) ? null : spectrumIdentificationList.getSpectrumIdentificationResult();
+    }
+
     /**
-     *
      * <DataCollection>
      * <Inputs>
-     *    <SpectraData location="file:///lolo//small.mgf" id="SD_1">
-     *    <FileFormat>
-     *       <cvParam accession="MS:1001062" name="Mascot MGF file" cvRef="PSI-MS" />
-     *    </FileFormat>
-     *    <SpectrumIDFormat>
-     *      <cvParam accession="MS:1000774" name="multiple peak list nativeID format" cvRef="PSI-MS" />
-     *     </SpectrumIDFormat>
-     *    </SpectraData>
+     * <SpectraData location="file:///lolo//small.mgf" id="SD_1">
+     * <FileFormat>
+     * <cvParam accession="MS:1001062" name="Mascot MGF file" cvRef="PSI-MS" />
+     * </FileFormat>
+     * <SpectrumIDFormat>
+     * <cvParam accession="MS:1000774" name="multiple peak list nativeID format" cvRef="PSI-MS" />
+     * </SpectrumIDFormat>
+     * </SpectraData>
      * </Inputs>
      * </DataCollection>
-     *
+     * <p>
      * This method extract the Inputs from the MzIdentML object and
      * for each input file, it retrieves the Spectra Data such as
      * file location, file format etc.
      *
-     * @return Map<Comparable, SpectraData> where Comparable will be the Id of the SpectraData
-     *
+     * @return Map<Comparable   ,       SpectraData> where Comparable will be the Id of the SpectraData
      */
     public Map<Comparable, SpectraData> getSpectraDataMap() {
         Inputs inputs = mzIdentML.getDataCollection().getInputs();
@@ -74,21 +86,6 @@ public class FastMzIdentMLUnmarshallerAdaptor {
             }
         }
         return spectraDataMap;
-    }
-
-    public MzIdentML getMzIdentML() {
-        return mzIdentML;
-    }
-
-
-    public SpectrumIdentificationList getSpectrumIdentificationList() {
-        try {
-            int randomNumber = (new Random()).nextInt(mzIdentML.getDataCollection().getAnalysisData().getSpectrumIdentificationList().size());
-            return mzIdentML.getDataCollection().getAnalysisData().getSpectrumIdentificationList().get(randomNumber);
-        }
-        catch (Throwable e){
-            return null;
-        }
     }
 
     /**

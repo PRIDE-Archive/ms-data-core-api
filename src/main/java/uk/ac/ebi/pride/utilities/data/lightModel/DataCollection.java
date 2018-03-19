@@ -1,9 +1,5 @@
 package uk.ac.ebi.pride.utilities.data.lightModel;
 
-/**
- * @author Suresh Hewapathirana
- */
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -30,8 +26,6 @@ import java.io.Serializable;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "DataCollectionType", propOrder = {

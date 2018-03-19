@@ -372,7 +372,7 @@ public class AssayFileValidationSummary implements Serializable {
      * @return Value of numberofMissingSpectra.
      */
     public int getNumberofMissingSpectra() {
-        return numberofMissingSpectra;
+        return this.missingIdentifiedSpectraIds.size();
     }
 
     /**
@@ -418,6 +418,20 @@ public class AssayFileValidationSummary implements Serializable {
      */
     public void setId(int id) {
         this.id = id;
+    }
+
+    /**
+     * Print important fields that are useful for validations
+     */
+    public void printResults() {
+        System.out.println("------------- Summary -------------");
+        System.out.println("Number of Proteins: " + getNumberOfProteins());
+        System.out.println("Number of Peptides: " + getNumberOfPeptides());
+        System.out.println("Number of Spectra: " + getNumberOfSpectra());
+        System.out.println("Number of Identified Spectra: " + getNumberOfIdentifiedSpectra());
+        System.out.println("Number of Missing Spectra: " + getNumberofMissingSpectra());
+        System.out.println("DeltaMzErrorRate: " + getDeltaMzErrorRate());
+        System.out.println("Missing Identified Spectra Ids: " + getMissingIdentifiedSpectraIds());
     }
 
     @Override

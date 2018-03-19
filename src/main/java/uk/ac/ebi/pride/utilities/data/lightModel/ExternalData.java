@@ -1,10 +1,5 @@
 package uk.ac.ebi.pride.utilities.data.lightModel;
 
-/**
- * @author Suresh Hewapathirana
- */
-
-
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 
@@ -34,16 +29,10 @@ import java.io.Serializable;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ExternalDataType"
 
-//        ,propOrder = {
-//        "externalFormatDocumentation",
-//        "fileFormat"
-//}
 )
-//@XmlSeeAlso({
-//        SpectraData.class,
-//        SourceFile.class,
-//        SearchDatabase.class
-//})
+@XmlSeeAlso({
+        SpectraData.class
+})
 public class ExternalData
         extends Identifiable
         implements Serializable
@@ -55,60 +44,9 @@ public class ExternalData
     @XmlSchemaType(name = "anyURI")
     protected String externalFormatDocumentation;
 
-//    @XmlElement(name = "FileFormat")
-//    protected FileFormat fileFormat;
-
     @XmlAttribute(required = true)
     @XmlSchemaType(name = "anyURI")
     protected String location;
-
-//    /**
-//     * Gets the value of the externalFormatDocumentation property.
-//     *
-//     * @return
-//     *     possible object is
-//     *     {@link String }
-//     *
-//     */
-//    public String getExternalFormatDocumentation() {
-//        return externalFormatDocumentation;
-//    }
-//
-//    /**
-//     * Sets the value of the externalFormatDocumentation property.
-//     *
-//     * @param value
-//     *     allowed object is
-//     *     {@link String }
-//     *
-//     */
-//    public void setExternalFormatDocumentation(String value) {
-//        this.externalFormatDocumentation = value;
-//    }
-
-//    /**
-//     * Gets the value of the fileFormat property.
-//     *
-//     * @return
-//     *     possible object is
-//     *     {@link FileFormat }
-//     *
-//     */
-//    public FileFormat getFileFormat() {
-//        return fileFormat;
-//    }
-//
-//    /**
-//     * Sets the value of the fileFormat property.
-//     *
-//     * @param value
-//     *     allowed object is
-//     *     {@link FileFormat }
-//     *
-//     */
-//    public void setFileFormat(FileFormat value) {
-//        this.fileFormat = value;
-//    }
 
     /**
      * Gets the value of the location property.

@@ -1,23 +1,11 @@
 package uk.ac.ebi.pride.utilities.data.lightModel;
 
-/**
- * @author Suresh Hewapathirana
- */
-
-
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 
 /**
  * A single entry from an ontology or a controlled
  * vocabulary.
- *
- * TODO marshalling/ persistor add validation to check for case where someone gets cv and changes its id without updating ref id in
- *      CvParam and other such clases.
- *
- * NOTE: There is no setter method for the cvRef. This simplifies keeping the cv object reference and
- * cvRef synchronized.
- *
  * <p>Java class for CVParamType complex type.
  *
  * <p>The following schema fragment specifies the expected content contained within this class.
@@ -38,7 +26,6 @@ import java.io.Serializable;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "CVParamType")
 public class CvParam
-//        extends AbstractParam
         implements Serializable
 {
 
@@ -47,27 +34,6 @@ public class CvParam
     protected String cvRef;
     @XmlAttribute(required = true)
     protected String accession;
-//
-//    @XmlTransient
-//    protected Cv cv;
-//
-//
-//    public Cv getCv() {
-//        return cv;
-//    }
-//
-//    public void setCv(Cv cv) {
-//        if (cv == null) {
-//            this.cvRef = null;
-//        } else {
-//            String refId = cv.getId();
-//            if (refId == null) throw new IllegalArgumentException("Referenced object does not have an identifier.");
-//            this.cvRef = refId;
-//        }
-//        this.cv = cv;
-//
-//    }
-
 
     /**
      * Gets the value of the cvRef property.
@@ -80,8 +46,6 @@ public class CvParam
     public String getCvRef() {
         return cvRef;
     }
-
-
 
     /**
      * Gets the value of the accession property.

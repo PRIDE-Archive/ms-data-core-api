@@ -1,10 +1,5 @@
 package uk.ac.ebi.pride.utilities.data.lightModel;
 
-/**
- * @author Suresh Hewapathirana
- */
-
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -38,8 +33,6 @@ import java.util.List;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "InputsType", propOrder = {
-//        "sourceFile",
-//        "searchDatabase",
         "spectraData"
 })
 public class Inputs
@@ -48,70 +41,9 @@ public class Inputs
 {
 
     private final static long serialVersionUID = 100L;
-//    @XmlElement(name = "SourceFile")
-//    protected List<SourceFile> sourceFile;
-//    @XmlElement(name = "SearchDatabase")
-//    protected List<SearchDatabase> searchDatabase;
+
     @XmlElement(name = "SpectraData", required = true)
     protected List<SpectraData> spectraData;
-//
-//    /**
-//     * Gets the value of the sourceFile property.
-//     *
-//     * <p>
-//     * This accessor method returns a reference to the live list,
-//     * not a snapshot. Therefore any modification you make to the
-//     * returned list will be present inside the JAXB object.
-//     * This is why there is not a <CODE>set</CODE> method for the sourceFile property.
-//     *
-//     * <p>
-//     * For example, to add a new item, do as follows:
-//     * <pre>
-//     *    getSourceFile().add(newItem);
-//     * </pre>
-//     *
-//     *
-//     * <p>
-//     * Objects of the following type(s) are allowed in the list
-//     * {@link SourceFile }
-//     *
-//     *
-//     */
-//    public List<SourceFile> getSourceFile() {
-//        if (sourceFile == null) {
-//            sourceFile = new ArrayList<SourceFile>();
-//        }
-//        return this.sourceFile;
-//    }
-//
-//    /**
-//     * Gets the value of the searchDatabase property.
-//     *
-//     * <p>
-//     * This accessor method returns a reference to the live list,
-//     * not a snapshot. Therefore any modification you make to the
-//     * returned list will be present inside the JAXB object.
-//     * This is why there is not a <CODE>set</CODE> method for the searchDatabase property.
-//     *
-//     * <p>
-//     * For example, to add a new item, do as follows:
-//     * <pre>
-//     *    getSearchDatabase().add(newItem);
-//     * </pre>
-//     *
-//     *
-//     * <p>
-//     * Objects of the following type(s) are allowed in the list
-//     * {@link SearchDatabase }
-//     *
-//     *
-//     */
-//    public List<SearchDatabase> getSearchDatabase() {
-//        if (searchDatabase == null) {
-//            searchDatabase = new ArrayList<SearchDatabase>();
-//        }
-//        return this.searchDatabase;
-//    }
 
     /**
      * Gets the value of the spectraData property.

@@ -1,9 +1,5 @@
 package uk.ac.ebi.pride.utilities.data.lightModel;
 
-/**
- * @author Suresh Hewapathirana
- */
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -14,11 +10,11 @@ import java.util.List;
 
 /**
  * The collection of sequences (DBSequence or Peptide) identified and their relationship between each other (PeptideEvidence) to be referenced elsewhere in the results.
- *
+ * <p>
  * <p>Java class for SequenceCollectionType complex type.
- *
+ * <p>
  * <p>The following schema fragment specifies the expected content contained within this class.
- *
+ * <p>
  * <pre>
  * &lt;complexType name="SequenceCollectionType"&gt;
  *   &lt;complexContent&gt;
@@ -32,8 +28,6 @@ import java.util.List;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "SequenceCollectionType", propOrder = {
@@ -43,8 +37,7 @@ import java.util.List;
 })
 public class SequenceCollection
         extends MzIdentMLObject
-        implements Serializable
-{
+        implements Serializable {
 
     private final static long serialVersionUID = 100L;
 
@@ -57,25 +50,23 @@ public class SequenceCollection
 
     /**
      * Gets the value of the dbSequence property.
-     *
+     * <p>
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
      * This is why there is not a <CODE>set</CODE> method for the dbSequence property.
-     *
+     * <p>
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
      *    getDBSequence().add(newItem);
      * </pre>
-     *
-     *
+     * <p>
+     * <p>
      * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link DBSequence }
-     *
-     *
      */
     public List<DBSequence> getDBSequence() {
         if (dbSequence == null) {
@@ -86,25 +77,23 @@ public class SequenceCollection
 
     /**
      * Gets the value of the peptide property.
-     *
+     * <p>
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
      * This is why there is not a <CODE>set</CODE> method for the peptide property.
-     *
+     * <p>
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
      *    getPeptide().add(newItem);
      * </pre>
-     *
-     *
+     * <p>
+     * <p>
      * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link Peptide }
-     *
-     *
      */
     public List<Peptide> getPeptide() {
         if (peptide == null) {
@@ -115,25 +104,23 @@ public class SequenceCollection
 
     /**
      * Gets the value of the peptideEvidence property.
-     *
+     * <p>
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
      * This is why there is not a <CODE>set</CODE> method for the peptideEvidence property.
-     *
+     * <p>
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
      *    getPeptideEvidence().add(newItem);
      * </pre>
-     *
-     *
+     * <p>
+     * <p>
      * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link PeptideEvidence }
-     *
-     *
      */
     public List<PeptideEvidence> getPeptideEvidence() {
         if (peptideEvidence == null) {

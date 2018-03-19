@@ -48,30 +48,14 @@ import java.io.Serializable;
      *
      */
     @XmlAccessorType(XmlAccessType.FIELD)
-    @XmlType(name = "SpectrumIdentificationItemType"
-//            , propOrder = {
-//            "peptideEvidenceRef"
-//            , "fragmentation",
-//            "paramGroup"
-//    }
-    )
+    @XmlType(name = "SpectrumIdentificationItemType")
     public class SpectrumIdentificationItem
             extends Identifiable
             implements Serializable
-//            ,ParamGroupCapable
     {
 
         private final static long serialVersionUID = 100L;
-//
-//        @XmlElement(name = "PeptideEvidenceRef", required = true)
-//        protected List<PeptideEvidenceRef> peptideEvidenceRef;
-//        @XmlElement(name = "Fragmentation")
-//        protected Fragmentation fragmentation;
-//        @XmlElements({
-//                @XmlElement(name = "cvParam", type = CvParam.class),
-//                @XmlElement(name = "userParam", type = UserParam.class)
-//        })
-//        protected List<AbstractParam> paramGroup;
+
         @XmlAttribute(required = true)
         protected int chargeState;
         @XmlAttribute(required = true)
@@ -86,147 +70,6 @@ import java.io.Serializable;
         protected int rank;
         @XmlAttribute(required = true)
         protected boolean passThreshold;
-//        @XmlAttribute(name = "massTable_ref")
-//        protected String massTableRef;
-//        @XmlAttribute(name = "sample_ref")
-//        protected String sampleRef;
-//        @XmlTransient
-//        protected Peptide peptide;
-//        @XmlTransient
-//        protected MassTable massTable;
-//        @XmlTransient
-//        protected Sample sample;
-
-//        public Peptide getPeptide() {
-//            return peptide;
-//        }
-//
-//        public void setPeptide(Peptide peptide) {
-//            if (peptide == null) {
-//                this.peptideRef = null;
-//            } else {
-//                String refId = peptide.getId();
-//                if (refId == null) throw new IllegalArgumentException("Referenced object does not have an identifier.");
-//                this.peptideRef = refId;
-//            }
-//            this.peptide = peptide;
-//        }
-//
-//        public MassTable getMassTable() {
-//            return massTable;
-//        }
-//
-//        public void setMassTable(MassTable massTable) {
-//            if (massTable == null) {
-//                this.massTableRef = null;
-//            } else {
-//                String refId = massTable.getId();
-//                if (refId == null) throw new IllegalArgumentException("Referenced object does not have an identifier.");
-//                this.massTableRef = refId;
-//            }
-//            this.massTable = massTable;
-//        }
-//
-//        public Sample getSample() {
-//            return sample;
-//        }
-//
-//        public void setSample(Sample sample) {
-//            if (sample == null) {
-//                this.sampleRef = null;
-//            } else {
-//                String refId = sample.getId();
-//                if (refId == null) throw new IllegalArgumentException("Referenced object does not have an identifier.");
-//                this.sampleRef = refId;
-//            }
-//            this.sample = sample;
-//        }
-
-        /**
-         * Gets the value of the peptideEvidenceRef property.
-         *
-         * <p>
-         * This accessor method returns a reference to the live list,
-         * not a snapshot. Therefore any modification you make to the
-         * returned list will be present inside the JAXB object.
-         * This is why there is not a <CODE>set</CODE> method for the peptideEvidenceRef property.
-         *
-         * <p>
-         * For example, to add a new item, do as follows:
-         * <pre>
-         *    getPeptideEvidenceRef().add(newItem);
-         * </pre>
-         *
-         *
-         * <p>
-         * Objects of the following type(s) are allowed in the list
-         * {@link PeptideEvidenceRef }
-         *
-         *
-         */
-//        public List<PeptideEvidenceRef> getPeptideEvidenceRef() {
-//            if (peptideEvidenceRef == null) {
-//                peptideEvidenceRef = new ArrayList<PeptideEvidenceRef>();
-//            }
-//            return this.peptideEvidenceRef;
-//        }
-//
-//        /**
-//         * Gets the value of the fragmentation property.
-//         *
-//         * @return
-//         *     possible object is
-//         *     {@link Fragmentation }
-//         *
-//         */
-//        public Fragmentation getFragmentation() {
-//            if(fragmentation == null){
-//                this.fragmentation = new Fragmentation();
-//            }
-//            return fragmentation;
-//        }
-//
-//        /**
-//         * Sets the value of the fragmentation property.
-//         *
-//         * @param value
-//         *     allowed object is
-//         *     {@link Fragmentation }
-//         *
-//         */
-//        public void setFragmentation(Fragmentation value) {
-//            this.fragmentation = value;
-//        }
-//
-//        /**
-//         * Scores or attributes associated with the SpectrumIdentificationItem e.g. e-value, p-value, score.Gets the value of the paramGroup property.
-//         *
-//         * <p>
-//         * This accessor method returns a reference to the live list,
-//         * not a snapshot. Therefore any modification you make to the
-//         * returned list will be present inside the JAXB object.
-//         * This is why there is not a <CODE>set</CODE> method for the paramGroup property.
-//         *
-//         * <p>
-//         * For example, to add a new item, do as follows:
-//         * <pre>
-//         *    getParamGroup().add(newItem);
-//         * </pre>
-//         *
-//         *
-//         * <p>
-//         * Objects of the following type(s) are allowed in the list
-//         * {@link CvParam }
-//         * {@link UserParam }
-//         *
-//         *
-//         */
-//        public List<AbstractParam> getParamGroup() {
-//            if (paramGroup == null) {
-//                paramGroup = new ArrayList<AbstractParam>();
-//            }
-//            return this.paramGroup;
-//        }
 
         /**
          * Gets the value of the chargeState property.
@@ -352,49 +195,5 @@ import java.io.Serializable;
         public void setPassThreshold(boolean value) {
             this.passThreshold = value;
         }
-
-//        /**
-//         * Gets the value of the massTableRef property.
-//         *
-//         * @return
-//         *     possible object is
-//         *     {@link String }
-//         *
-//         */
-//        public String getMassTableRef() {
-//            return massTableRef;
-//        }
-//
-//
-//        /**
-//         * Gets the value of the sampleRef property.
-//         *
-//         * @return
-//         *     possible object is
-//         *     {@link String }
-//         *
-//         */
-//        public String getSampleRef() {
-//            return sampleRef;
-//        }
-//
-//
-//        /**
-//         * Get the cv params for SpectrumIdentification
-//         * @return
-//         *    List&lt;CvParam&gt; A FacadeList providing a CvParam view of the underlying param list.
-//         */
-//        public List<CvParam> getCvParam() {
-//            return new FacadeList<CvParam>(this.getParamGroup(), CvParam.class);
-//        }
-//
-//        /**
-//         * Get the user params for SpectrumIdentification
-//         * @return
-//         *    List&lt;UserParam&gt; A FacadeList providing a UserParam view of the underlying param list.
-//         */
-//        public List<UserParam> getUserParam() {
-//            return new FacadeList<UserParam>(this.getParamGroup(), UserParam.class);
-//        }
     }
 

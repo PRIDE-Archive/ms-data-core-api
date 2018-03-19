@@ -10,10 +10,13 @@ import uk.ac.ebi.pride.utilities.data.core.AssayFileValidationSummary;
 import uk.ac.ebi.pride.utilities.data.core.Spectrum;
 import uk.ac.ebi.pride.utilities.data.io.file.FastMzIdentMLUnmarshallerAdaptor;
 import uk.ac.ebi.pride.utilities.data.lightModel.*;
+import uk.ac.ebi.pride.utilities.data.utils.Constants;
 import uk.ac.ebi.pride.utilities.data.utils.MzIdentMLUtils;
 import uk.ac.ebi.pride.utilities.mol.MoleculeUtilities;
 
 import java.io.File;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -29,12 +32,7 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
     private static final Logger logger = LoggerFactory.getLogger(FastMzIdentMLController.class);
 
     private FastMzIdentMLUnmarshallerAdaptor unmarshaller;
-
-    // spectra that are reported in the mzIdentML file, but not available in the peak list/Spectra file
-    int numberOfMissingSpectra = 0;
-    // spectra that are reported in the mzIdentML file
-    int numberOfIdentifiedSpectra = 0;
-
+    DataAccessController dataAccessController;
     private AssayFileValidationSummary assayFileValidationSummary = new AssayFileValidationSummary();
 
     public FastMzIdentMLController(File inputFile) {
@@ -42,6 +40,9 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
         initialize();
     }
 
+    /**
+     * This method mainly instantiate the cache according to the FastMzIdentMLCachingStrategy
+     */
     protected void initialize() {
 
         // create pride access utils
@@ -77,35 +78,35 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
         return unmarshaller;
     }
 
-
-    @Override
-    public List<uk.ac.ebi.pride.utilities.data.core.SpectraData> getSpectraDataFiles() {
-        return null;
-    }
-
-//    public void setNumberOfProteins() {
-//        this.assayFileValidationSummary.setNumberOfProteins(unmarshaller.getProteinIds().size());
-//    }
-//
-//    public int getNumberOfSpectra() {
-//        return super.getNumberOfSpectra();
-//    }
-
+    /**
+     * The main method which execute all the validation methods.
+     *
+     * @return AssayFileValidationSummary object which contains all the results of validation
+     */
     public AssayFileValidationSummary validateMzIdentML() {
 
-        spectraValidation(10);
-        assayFileValidationSummary.toString();
+        proteinValidation();
+        peptideValidation();
+        spectraValidation(100);
+        assayFileValidationSummary.printResults();
         return assayFileValidationSummary;
     }
 
+    /**
+     * This method scans through all the spectrumIdentificationLists and spectrumIdentificationLists,
+     * and cross check if the spectra are available in the peak file. Number of calculations such as
+     * Number of missing spectra, identified spectra done. Optionally, if the numberOfRandomChecks > 0,
+     *
+     * @param numberOfRandomChecks number of checks to perform DeltaMass Threshold checks
+     */
     public void spectraValidation(final int numberOfRandomChecks) {
 
-        Map<Integer, Integer> randomlySelectedList = new HashMap<>(numberOfRandomChecks);
-        Random random = new Random();
         int spectrumIdentificationListCount = 0;
         int spectrumIdentificationResultCount = 0;
 
-        Double deltaThreshold = 4.0;
+        // spectra that are reported in the mzIdentML file
+        int numberOfIdentifiedSpectra = 0;
+        int errorPSMCount = 0;
 
 
         // Spectra details extracted from MzIdentML -> DataCollection -> Inputs
@@ -113,18 +114,12 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
         Map<Comparable, SpectraData> spectraDataIds = unmarshaller.getSpectraDataMap();
 
         // get all the Spectrum Identification Lists from the mzIdentML object
-        List<SpectrumIdentificationList> psmList = unmarshaller.getMzIdentML().getDataCollection().getAnalysisData().getSpectrumIdentificationList();
+        List<SpectrumIdentificationList> spectrumIdentificationLists = unmarshaller.getSpectrumIdentificationList();
 
-        // select random SpectrumIdentificationList for random validate checkup
-        List<Integer> randomSpectrumIdentificationListIndexes = random.ints(0, psmList.size()).limit(numberOfRandomChecks).boxed().collect(Collectors.toList());
-        for (Integer SpectrumIdentificationListIndex : randomSpectrumIdentificationListIndexes) {
-            int spectrumIdentificationResultRange = psmList.get(SpectrumIdentificationListIndex).getSpectrumIdentificationResult().size();
-            int spectrumIdentificationResult = random.ints(0, spectrumIdentificationResultRange).limit(numberOfRandomChecks).findFirst().getAsInt();
-            randomlySelectedList.put(spectrumIdentificationResult, SpectrumIdentificationListIndex);
-        }
+        Map<Integer, Integer> randomlySelectedList = getRandomlySelectedPSMs(spectrumIdentificationLists.size(), numberOfRandomChecks);
 
         // Run through each SpectrumIdentificationList
-        for (SpectrumIdentificationList spectrumIdentificationList : psmList) {
+        for (SpectrumIdentificationList spectrumIdentificationList : spectrumIdentificationLists) {
             spectrumIdentificationResultCount = 0;
             // Run through each SpectrumIdentificationResult
             // eg: <SpectrumIdentificationResult id="SIR_12" spectrumID="index=35" spectraData_ref="SD_1">...</SpectrumIdentificationResult>
@@ -144,80 +139,154 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
                 // format Spectrum Id according to the peak file type
                 String formattedSpectrumID = MzIdentMLUtils.getSpectrumId(SimpleToJmzIdentMLTransformer.convertSpectraDataToJmzidml(spectraData), spectrumID);
 
-                DataAccessController dataAccessController = this.msDataAccessControllers.get(spectrumDataReference);
+                // get the corresponding DataAccessController
+                dataAccessController = this.msDataAccessControllers.get(spectrumDataReference);
 
-                crosscheckExternallyReferencedSpectra(dataAccessController, formattedSpectrumID);
+                isSpectraInPeakFile(dataAccessController, formattedSpectrumID);
 
-                if (numberOfRandomChecks > 0 && randomlySelectedList.containsKey(spectrumIdentificationResultCount) && randomlySelectedList.containsValue(spectrumIdentificationListCount)) {
-                    System.out.println(spectrumIdentificationResultCount + " - " + spectrumIdentificationListCount);
-                    boolean result = true;
-//                    Spectrum spectrum = dataAccessController.getSpectrumById(formattedSpectrumID);
-
-                    int randomSpectrumIdentificationItemIndex = random.ints(0, spectrumIdentificationResult.getSpectrumIdentificationItem().size()).findFirst().getAsInt();
-                    SpectrumIdentificationItem spectrumIdentificationItem = spectrumIdentificationResult.getSpectrumIdentificationItem().get(randomSpectrumIdentificationItemIndex);
-
-                    Integer charge = spectrumIdentificationItem.getChargeState();
-                    double mz = spectrumIdentificationItem.getExperimentalMassToCharge();
-
-                    // find the peptide
-                    String peptideRef = spectrumIdentificationItem.getPeptideRef();
-                    Peptide peptide = unmarshaller.getPeptideById(peptideRef);
-
-                    if (peptide == null) {
-                        logger.error("Random peptide is null! peptideRef:" + peptideRef);
-                        result = false;
-                    } else {
-
-                        List<Double> ptmMasses = new ArrayList<>();
-                        for (Modification mod : peptide.getModification()) {
-                            double monoMasses = mod.getMonoisotopicMassDelta();
-                            ptmMasses.add(monoMasses);
-                        }
-//                        if ((charge == null || mz == -1)) {
-//                            if (spectrum != null) {
-//                                charge = dataAccessController.getSpectrumPrecursorCharge(spectrum.getId());
-//                                mz = dataAccessController.getSpectrumPrecursorMz(spectrum.getId());
-//                            } else {
-//                                charge = null;
-//                            }
-//                            if (charge != null && charge == 0) {
-//                                charge = null;
-//                            }
-//                        }
-                        if (charge == null) {
-                            result = false;
-                        } else {
-                            Double deltaMass = MoleculeUtilities.calculateDeltaMz(peptide.getPeptideSequence(), mz, charge, ptmMasses);
-                            if (deltaMass == null || Math.abs(deltaMass) > deltaThreshold) {
-                                result = false;
-                            }
-                        }
-                    }
-                    System.out.println("result : " + result);
+                if (numberOfRandomChecks > 0 &&
+                        randomlySelectedList.containsKey(spectrumIdentificationResultCount) &&
+                        randomlySelectedList.containsValue(spectrumIdentificationListCount)
+                        ) {
+                    // Spectrum spectrum = dataAccessController.getSpectrumById(formattedSpectrumID);
+                    SpectrumIdentificationItem spectrumIdentificationItem = getRandomSpectrumIdentificationItem(spectrumIdentificationResult);
+                    boolean passed = checkDeltaMassThreshold(spectrumIdentificationItem, formattedSpectrumID, Constants.DELTATHESHOLD);
+                    if(!passed) errorPSMCount++;
                 }
                 spectrumIdentificationResultCount++;
             }
             spectrumIdentificationListCount++;
         }
-        System.out.println("Number of Identified Spectra: " + numberOfIdentifiedSpectra);
-        System.out.println("Number of Missing Spectra: " + numberOfMissingSpectra);
-        System.out.println("Number of Unidentified Spectra: " + (getNumberOfSpectra() - numberOfIdentifiedSpectra));
-        System.out.println("Total Number of Spectra: " + getNumberOfSpectra());
+
+        // Set values to AssayFileValidationSummary
+        assayFileValidationSummary.setNumberOfSpectra(super.getNumberOfSpectra());
+        assayFileValidationSummary.setNumberOfIdentifiedSpectra(numberOfIdentifiedSpectra);
+        if(numberOfRandomChecks > 0) {
+            assayFileValidationSummary.setDeltaMzErrorRate(new BigDecimal(((double) errorPSMCount / numberOfRandomChecks)).setScale(2, RoundingMode.HALF_UP).doubleValue());
+        }
     }
 
-    private boolean crosscheckExternallyReferencedSpectra(DataAccessController dataAccessController, String formattedSpectrumID) {
-        if (dataAccessController != null) {
-            if (dataAccessController.getSpectrumIds().contains(formattedSpectrumID)) {
+    public AssayFileValidationSummary proteinValidation() {
+        assayFileValidationSummary.setNumberOfProteins(unmarshaller.getProteinIds().size());
+        return assayFileValidationSummary;
+    }
+
+    public AssayFileValidationSummary peptideValidation() {
+        assayFileValidationSummary.setNumberOfPeptides(unmarshaller.getPeptideIds().size());
+        return assayFileValidationSummary;
+    }
+
+    /**
+     * Given a SpectrumIdentificationResult object, this method randomly select SpectrumIdentificationItem
+     * from the SpectrumIdentificationResult object
+     *
+     * @param spectrumIdentificationResult Given SpectrumIdentificationItem object
+     * @return randomly selected SpectrumIdentificationItem
+     */
+    private SpectrumIdentificationItem getRandomSpectrumIdentificationItem(SpectrumIdentificationResult spectrumIdentificationResult) {
+        Random random = new Random();
+        int randomSpectrumIdentificationItemIndex = random.ints(0, spectrumIdentificationResult.getSpectrumIdentificationItem().size()).findFirst().getAsInt();
+        SpectrumIdentificationItem spectrumIdentificationItem = spectrumIdentificationResult.getSpectrumIdentificationItem().get(randomSpectrumIdentificationItemIndex);
+        return spectrumIdentificationItem;
+    }
+
+    /**
+     * Check if the Delta Mass is within the threshold value passed as a parameter.
+     * Peptide modifications are also included for the calculations.
+     *
+     * @param spectrumIdentificationItem SpectrumIdentificationItem object from mzIdentML
+     * @param deltaThreshold             non negative Double value(eg: 4.0)
+     * @return
+     */
+    private boolean checkDeltaMassThreshold(SpectrumIdentificationItem spectrumIdentificationItem, String formattedSpectrumID, Double deltaThreshold) {
+        boolean isDeltaMassThresholdPassed = true;
+
+        Integer charge = spectrumIdentificationItem.getChargeState();
+        double mz = spectrumIdentificationItem.getExperimentalMassToCharge();
+
+        // find the peptide
+        String peptideRef = spectrumIdentificationItem.getPeptideRef();
+        Peptide peptide = unmarshaller.getPeptideById(peptideRef);
+
+        if (peptide == null) {
+            logger.error("Random peptide is null! peptideRef:" + peptideRef);
+            isDeltaMassThresholdPassed = false;
+        } else {
+            List<Double> ptmMasses = new ArrayList<>();
+            for (Modification modification : peptide.getModification()) {
+                double monoMasses = modification.getMonoisotopicMassDelta();
+                ptmMasses.add(monoMasses);
+            }
+            if ((charge == null || mz == -1)) {
                 Spectrum spectrum = dataAccessController.getSpectrumById(formattedSpectrumID);
                 if (spectrum != null) {
-                    // TODO
+                    charge = dataAccessController.getSpectrumPrecursorCharge(spectrum.getId());
+                    mz = dataAccessController.getSpectrumPrecursorMz(spectrum.getId());
+                } else {
+                    charge = null;
                 }
+                if (charge != null && charge == 0) {
+                    charge = null;
+                }
+            }
+            if (charge == null) {
+                isDeltaMassThresholdPassed = false;
             } else {
+                Double deltaMass = MoleculeUtilities.calculateDeltaMz(peptide.getPeptideSequence(), mz, charge, ptmMasses);
+                if (deltaMass == null || Math.abs(deltaMass) > deltaThreshold) {
+                    isDeltaMassThresholdPassed = false;
+                }
+            }
+        }
+        return isDeltaMassThresholdPassed;
+    }
+
+    /**
+     * This method first randomly select the indexes SpectrumIdentificationList and then for each SpectrumIdentificationList,
+     * it will select random indexes of spectrumIdentificationResult. Those selected index numbers are saved in a map where:
+     * Keys - Indexes of SpectrumIdentificationResult
+     * Values - Indexes of SpectrumIdentificationList
+     * Finally, it returns a Map<Indexes of SpectrumIdentificationResult, Indexes of SpectrumIdentificationList>
+     *
+     * @param numberOfSpectrumIdentificationLists Number of SpectrumIdentificationLists
+     * @param numberOfRandomChecks                Number of Random checks to be performed
+     * @return Map<Integer               ,                               Integer>
+     */
+    private Map<Integer, Integer> getRandomlySelectedPSMs(int numberOfSpectrumIdentificationLists, int numberOfRandomChecks) {
+
+        Random random = new Random();
+        Map<Integer, Integer> randomlySelectedList = new HashMap<>(numberOfRandomChecks);
+
+        // select random SpectrumIdentificationList for random validate checkup
+        List<Integer> randomSpectrumIdentificationListIndexes = random.ints(0, numberOfSpectrumIdentificationLists).limit(numberOfRandomChecks).boxed().collect(Collectors.toList());
+        for (Integer SpectrumIdentificationListIndex : randomSpectrumIdentificationListIndexes) {
+            int spectrumIdentificationResultMaxRange = unmarshaller.getSpectrumIdentificationResultByIndex(SpectrumIdentificationListIndex).size();
+            int spectrumIdentificationResult = random.ints(0, spectrumIdentificationResultMaxRange).limit(numberOfRandomChecks).findFirst().getAsInt();
+            randomlySelectedList.put(spectrumIdentificationResult, SpectrumIdentificationListIndex);
+        }
+        return randomlySelectedList;
+    }
+
+    /**
+     * Checks if the spectra available in the peak list. If it is not available,
+     * missing spectrumIDs will be collected to the assayFileValidationSummary.
+     *
+     * @param dataAccessController DataAccessController
+     * @param formattedSpectrumID  SpectrumID formatted based on the peak list file type
+     * @return boolean value, false - if spectra cannot be found in the peak file
+     */
+    private boolean isSpectraInPeakFile(DataAccessController dataAccessController, String formattedSpectrumID) {
+        if (dataAccessController != null) {
+            if (!dataAccessController.getSpectrumIds().contains(formattedSpectrumID)) {
                 assayFileValidationSummary.addMissingIdentifiedSpectraId(formattedSpectrumID);
-                logger.error("Missing spectra found: " + formattedSpectrumID);
                 return false;
             }
         }
         return true;
+    }
+
+    @Override
+    public List<uk.ac.ebi.pride.utilities.data.core.SpectraData> getSpectraDataFiles() {
+        return null;
     }
 }
