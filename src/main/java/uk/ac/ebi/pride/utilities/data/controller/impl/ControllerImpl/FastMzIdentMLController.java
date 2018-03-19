@@ -51,7 +51,7 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
         unmarshaller = new FastMzIdentMLUnmarshallerAdaptor(file);
 
         // init ms data accession controller map
-        this.msDataAccessControllers = new HashMap<Comparable, DataAccessController>();
+        this.msDataAccessControllers = new HashMap<>();
 
         // set data source description
         this.setName(file.getName());
@@ -60,9 +60,7 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
         this.setType(Type.MZIDENTML);
 
         // set the content categories
-        this.setContentCategories(
-                ContentCategory.SPECTRUM
-        );
+        this.setContentCategories(ContentCategory.SPECTRUM);
 
         setCachingStrategy(new FastMzIdentMLCachingStrategy());
         populateCache();
@@ -102,9 +100,7 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
     public void spectraValidation(final int numberOfRandomChecks) {
 
         int spectrumIdentificationListCount = 0;
-        int spectrumIdentificationResultCount = 0;
-
-        // spectra that are reported in the mzIdentML file
+        int spectrumIdentificationResultCount;
         int numberOfIdentifiedSpectra = 0;
         int errorPSMCount = 0;
 
@@ -195,8 +191,8 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
      * Peptide modifications are also included for the calculations.
      *
      * @param spectrumIdentificationItem SpectrumIdentificationItem object from mzIdentML
-     * @param deltaThreshold             non negative Double value(eg: 4.0)
-     * @return
+     * @param deltaThreshold Non-negative Double value(eg: 4.0)
+     * @return boolean
      */
     private boolean checkDeltaMassThreshold(SpectrumIdentificationItem spectrumIdentificationItem, String formattedSpectrumID, Double deltaThreshold) {
         boolean isDeltaMassThresholdPassed = true;
@@ -217,7 +213,7 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
                 double monoMasses = modification.getMonoisotopicMassDelta();
                 ptmMasses.add(monoMasses);
             }
-            if ((charge == null || mz == -1)) {
+            if (charge == null || mz == -1) {
                 Spectrum spectrum = dataAccessController.getSpectrumById(formattedSpectrumID);
                 if (spectrum != null) {
                     charge = dataAccessController.getSpectrumPrecursorCharge(spectrum.getId());
@@ -249,8 +245,8 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
      * Finally, it returns a Map<Indexes of SpectrumIdentificationResult, Indexes of SpectrumIdentificationList>
      *
      * @param numberOfSpectrumIdentificationLists Number of SpectrumIdentificationLists
-     * @param numberOfRandomChecks                Number of Random checks to be performed
-     * @return Map<Integer               ,                               Integer>
+     * @param numberOfRandomChecks Number of Random checks to be performed
+     * @return Map<Integer, Integer>
      */
     private Map<Integer, Integer> getRandomlySelectedPSMs(int numberOfSpectrumIdentificationLists, int numberOfRandomChecks) {
 
