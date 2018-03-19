@@ -14,6 +14,8 @@ import java.util.*;
 
 /**
  * Created by tobias on 20/10/2016.
+ * Todo: check if this can be merged with {@link ReferencedIdentificationController}
+ *
  */
 public class ResultFileController extends CachedDataAccessController {
   private static final Logger logger = LoggerFactory.getLogger(ResultFileController.class);
