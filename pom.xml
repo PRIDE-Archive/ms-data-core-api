@@ -118,20 +118,6 @@
         </dependency>
         <!-- End -->
 
-        <!-- netCDF dependencies -->
-        <dependency>
-            <groupId>uk.ac.ebi.pride.utilities</groupId>
-            <artifactId>netCDF-parser</artifactId>
-            <version>${jnetCDF.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>lennart</groupId>
-                    <artifactId>lmjunit</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <!-- End -->
-
         <!-- mzIdentML File dependencies -->
         <dependency>
             <groupId>uk.ac.ebi.jmzidml</groupId>
