@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessController;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessMode;
-import uk.ac.ebi.pride.utilities.data.controller.access.ResultFileValidation;
 import uk.ac.ebi.pride.utilities.data.controller.cache.strategy.FastMzIdentMLCachingStrategy;
 import uk.ac.ebi.pride.utilities.data.controller.impl.Transformer.SimpleToJmzIdentMLTransformer;
 import uk.ac.ebi.pride.utilities.data.core.Spectrum;
@@ -26,7 +25,7 @@ import java.util.stream.Collectors;
  *
  * @author Suresh Hewapathirana
  */
-public class FastMzIdentMLController extends ReferencedIdentificationController implements ResultFileValidation {
+public class FastMzIdentMLController extends ReferencedIdentificationController {
 
     // Logger property to trace the Errors
     private static final Logger logger = LoggerFactory.getLogger(FastMzIdentMLController.class);
@@ -128,40 +127,40 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
         }
     }
 
-    @Override
-    public Integer getTotalNumberOfProteins() {
-        return unmarshaller.getProteinIds().size();
-    }
-
-    @Override
-    public Integer getTotalNumberOfPeptides() {
-        return unmarshaller.getPeptideIds().size();
-    }
-
-    @Override
-    public Integer getTotalNumberOfSpectra() {
-        return super.getNumberOfSpectra();
-    }
-
-    @Override
-    public Integer getTotalNumberOfUniquePeptides() {
-        return null;
-    }
-
-    @Override
-    public Integer getTotalNumberOfIdentifiedSpectra() {
-        return numberOfIdentifiedSpectra;
-    }
-
-    @Override
-    public Set<Comparable> getMissingIdentifiedSpectraIds() {
-        return missingIdentifiedSpectraIds;
-    }
-
-    @Override
-    public Double getDeltaMzErrorRate() {
-        return deltaMzErrorRate;
-    }
+//    @Override
+//    public Integer getTotalNumberOfProteins() {
+//        return unmarshaller.getProteinIds().size();
+//    }
+//
+//    @Override
+//    public Integer getTotalNumberOfPeptides() {
+//        return unmarshaller.getPeptideIds().size();
+//    }
+//
+//    @Override
+//    public Integer getTotalNumberOfSpectra() {
+//        return super.getNumberOfSpectra();
+//    }
+//
+//    @Override
+//    public Integer getTotalNumberOfUniquePeptides() {
+//        return null;
+//    }
+//
+//    @Override
+//    public Integer getTotalNumberOfIdentifiedSpectra() {
+//        return numberOfIdentifiedSpectra;
+//    }
+//
+//    @Override
+//    public Set<Comparable> getMissingIdentifiedSpectraIds() {
+//        return missingIdentifiedSpectraIds;
+//    }
+//
+//    @Override
+//    public Double getDeltaMzErrorRate() {
+//        return deltaMzErrorRate;
+//    }
 
     @Override
     public List<uk.ac.ebi.pride.utilities.data.core.SpectraData> getSpectraDataFiles() {

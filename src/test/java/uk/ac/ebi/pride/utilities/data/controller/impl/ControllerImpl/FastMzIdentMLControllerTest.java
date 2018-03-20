@@ -47,36 +47,16 @@ public class FastMzIdentMLControllerTest {
         fastMzIdentMLController.addMSController(files);
     }
 
-    @Test
-    public void getTotalNumberOfProteins() {
-        assertTrue("Total number of proteins in the MzIdentML file", fastMzIdentMLController.getTotalNumberOfProteins() == 327);
-    }
-
-    @Test
-    public void getTotalNumberOfPeptides() {
-        System.out.println(fastMzIdentMLController.getTotalNumberOfPeptides());
-        assertTrue("Total number of Peptides in the MzIdentML file", fastMzIdentMLController.getTotalNumberOfPeptides() == 327);
-    }
-
-    @Test
-    public void getTotalNumberOfSpectra() {
-    }
-
-    @Test
-    public void getTotalNumberOfUniquePeptides() {
-    }
-
-    @Test
-    public void getTotalNumberOfIdentifiedSpectra() {
-    }
-
-    @Test
-    public void getMissingIdentifiedSpectraIds() {
-    }
-
-    @Test
-    public void getDeltaMzErrorRate() {
-    }
+//    @Test
+//    public void getTotalNumberOfProteins() {
+//        assertTrue("Total number of proteins in the MzIdentML file", fastMzIdentMLController.getTotalNumberOfProteins() == 327);
+//    }
+//
+//    @Test
+//    public void getTotalNumberOfPeptides() {
+//        System.out.println(fastMzIdentMLController.getTotalNumberOfPeptides());
+//        assertTrue("Total number of Peptides in the MzIdentML file", fastMzIdentMLController.getTotalNumberOfPeptides() == 327);
+//    }
 
     @After
     public void tearDown() {
