@@ -1,18 +1,16 @@
 package uk.ac.ebi.pride.utilities.data.controller.access;
 
 /**
- * This interface define a set of functions that should be implemented for any of the ResultFiles to Validate the file at
- * ms-data-core-api level for the Pipeline.
+ * This interface defines a set of functions that should be implemented for any of the ResultFiles to Validate the file at the
+ * ms-data-core-api level for the submission pipeline.
  *
  * @author ypriverol
  * @version $Id$
  */
 public interface ResultFileValidation {
 
-    /**
-     * Perform randomly spectra validation within the result file.
-     * @param numberOfSpectra
-     * @return
+     /** This is needed in the Validation file to know how many spectra the current ResultFile Referenced
+     * @return delta mass in Random spectra
      */
     double checkRandomSpectraByDeltaMassThreshold(final int numberOfSpectra);
 
@@ -23,7 +21,7 @@ public interface ResultFileValidation {
      * @param numberSpectra Number of spectra to Test
      * @param deltaThreshold threshold to be used in delta mass.
      * @return True if the difference between the theoretical and experimental mass is lower that the deltaThreshold
-     */
+   **/
     boolean checkRandomSpectraByDeltaMassThreshold(int numberSpectra, Double deltaThreshold);
 
 
