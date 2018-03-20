@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Suresh Hewapathirana
@@ -27,7 +28,7 @@ public class FastMzIdentMLControllerTest {
 
     @Before
     public void setUp() throws Exception {
-         monitor = MonitorFactory.start("uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl.validateMzIdentML");
+        monitor = MonitorFactory.start("uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl.validateMzIdentML");
 //        URL url = FastMzIdentMLControllerTest.class.getClassLoader().getResource("F238646.mzid");
 //        URL urlMgf = MzIdentMLControllerIterativeTest.class.getClassLoader().getResource("mascot_daemon_merge.mgf");
         URL url = FastMzIdentMLControllerTest.class.getClassLoader().getResource("small.mzid");
@@ -47,8 +48,34 @@ public class FastMzIdentMLControllerTest {
     }
 
     @Test
-    public void validateMzIdentML() {
-        fastMzIdentMLController.validateMzIdentML();
+    public void getTotalNumberOfProteins() {
+        assertTrue("Total number of proteins in the MzIdentML file", fastMzIdentMLController.getTotalNumberOfProteins() == 327);
+    }
+
+    @Test
+    public void getTotalNumberOfPeptides() {
+        System.out.println(fastMzIdentMLController.getTotalNumberOfPeptides());
+        assertTrue("Total number of Peptides in the MzIdentML file", fastMzIdentMLController.getTotalNumberOfPeptides() == 327);
+    }
+
+    @Test
+    public void getTotalNumberOfSpectra() {
+    }
+
+    @Test
+    public void getTotalNumberOfUniquePeptides() {
+    }
+
+    @Test
+    public void getTotalNumberOfIdentifiedSpectra() {
+    }
+
+    @Test
+    public void getMissingIdentifiedSpectraIds() {
+    }
+
+    @Test
+    public void getDeltaMzErrorRate() {
     }
 
     @After

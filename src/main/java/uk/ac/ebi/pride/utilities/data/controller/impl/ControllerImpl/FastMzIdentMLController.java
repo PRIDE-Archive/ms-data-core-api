@@ -7,7 +7,6 @@ import uk.ac.ebi.pride.utilities.data.controller.DataAccessMode;
 import uk.ac.ebi.pride.utilities.data.controller.access.ResultFileValidation;
 import uk.ac.ebi.pride.utilities.data.controller.cache.strategy.FastMzIdentMLCachingStrategy;
 import uk.ac.ebi.pride.utilities.data.controller.impl.Transformer.SimpleToJmzIdentMLTransformer;
-import uk.ac.ebi.pride.utilities.data.core.AssayFileValidationSummary;
 import uk.ac.ebi.pride.utilities.data.core.Spectrum;
 import uk.ac.ebi.pride.utilities.data.io.file.FastMzIdentMLUnmarshallerAdaptor;
 import uk.ac.ebi.pride.utilities.data.lightModel.*;
@@ -27,16 +26,24 @@ import java.util.stream.Collectors;
  *
  * @author Suresh Hewapathirana
  */
-public class FastMzIdentMLController extends ReferencedIdentificationController {
+public class FastMzIdentMLController extends ReferencedIdentificationController implements ResultFileValidation {
 
     // Logger property to trace the Errors
     private static final Logger logger = LoggerFactory.getLogger(FastMzIdentMLController.class);
 
+    // variables to hold validation results
+    private int numberOfProteins;
+    private int numberOfPeptides;
+    private int numberOfSpectra;
+    private int numberOfUniquePeptides;
+    private int numberOfExistingIdentifiedSpectra;
+    private int numberOfIdentifiedSpectra;
+    private Set<Comparable> missingIdentifiedSpectraIds;
+    private double deltaMzErrorRate;
+
     private FastMzIdentMLUnmarshallerAdaptor unmarshaller;
+    private DataAccessController dataAccessController;
 
-    DataAccessController dataAccessController;
-
-    private AssayFileValidationSummary assayFileValidationSummary = new AssayFileValidationSummary();
 
     public FastMzIdentMLController(File inputFile) {
         super(inputFile, DataAccessMode.CACHE_AND_SOURCE);
@@ -47,24 +54,12 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
      * This method mainly instantiate the cache according to the FastMzIdentMLCachingStrategy
      */
     protected void initialize() {
-
-        // create pride access utils
         File file = (File) getSource();
-
         unmarshaller = new FastMzIdentMLUnmarshallerAdaptor(file);
-
-        // init ms data accession controller map
-        this.msDataAccessControllers = new HashMap<>();
-
-        // set data source description
-        this.setName(file.getName());
-
-        // set the type
-        this.setType(Type.MZIDENTML);
-
-        // set the content categories
-        this.setContentCategories(ContentCategory.SPECTRUM);
-
+        msDataAccessControllers = new HashMap<>();
+        setName(file.getName());
+        setType(Type.MZIDENTML);
+        setContentCategories(ContentCategory.SPECTRUM);
         setCachingStrategy(new FastMzIdentMLCachingStrategy());
         populateCache();
     }
@@ -79,19 +74,6 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
         return unmarshaller;
     }
 
-    /**
-     * The main method which execute all the validation methods.
-     *
-     * @return AssayFileValidationSummary object which contains all the results of validation
-     */
-    public AssayFileValidationSummary validateMzIdentML() {
-
-        proteinValidation();
-        peptideValidation();
-        doSpectraValidation(100);
-        assayFileValidationSummary.printResults();
-        return assayFileValidationSummary;
-    }
 
     /**
      * This method scans through all the spectrumIdentificationLists and spectrumIdentificationLists,
@@ -103,48 +85,31 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
      * @param numberOfRandomChecks number of checks to perform DeltaMass Threshold checks
      */
     public void doSpectraValidation(final int numberOfRandomChecks) {
-
         int spectrumIdentificationListCount = 0;
         int spectrumIdentificationResultCount;
-        int numberOfIdentifiedSpectra = 0;
         int errorPSMCount = 0;
-
 
         // Spectra details extracted from MzIdentML -> DataCollection -> Inputs
         // eg:  <SpectraData location="file:///Carbamoyl-phosphate synthase small chain-47029-41-G2-4-biotools.mgf" id="SD_1"></SpectraData>
         Map<Comparable, SpectraData> spectraDataIds = unmarshaller.getSpectraDataMap();
-
         // get all the Spectrum Identification Lists from the mzIdentML object
         List<SpectrumIdentificationList> spectrumIdentificationLists = unmarshaller.getSpectrumIdentificationList();
-
         Map<Integer, Integer> randomlySelectedList = getRandomlySelectedPSMs(spectrumIdentificationLists.size(), numberOfRandomChecks);
 
-        // Run through each SpectrumIdentificationList
         for (SpectrumIdentificationList spectrumIdentificationList : spectrumIdentificationLists) {
             spectrumIdentificationResultCount = 0;
             // Run through each SpectrumIdentificationResult
             // eg: <SpectrumIdentificationResult id="SIR_12" spectrumID="index=35" spectraData_ref="SD_1">...</SpectrumIdentificationResult>
             for (SpectrumIdentificationResult spectrumIdentificationResult : spectrumIdentificationList.getSpectrumIdentificationResult()) {
-
                 numberOfIdentifiedSpectra++;
-
-                // eg: spectraData_ref="SD_1"
-                String spectrumDataReference = spectrumIdentificationResult.getSpectraDataRef();
-
-                // eg: spectrumID="index=35"
-                String spectrumID = spectrumIdentificationResult.getSpectrumID();
-
-                // get Spectra Data (eg: mgf file location, file format etc) for the current Spectra Identification List
-                SpectraData spectraData = spectraDataIds.get(spectrumDataReference);
-
+                String spectrumDataReference = spectrumIdentificationResult.getSpectraDataRef(); // eg: spectraData_ref="SD_1"
+                String spectrumID = spectrumIdentificationResult.getSpectrumID(); // eg: spectrumID="index=35"
+                SpectraData spectraData = spectraDataIds.get(spectrumDataReference); // get Spectra Data (eg: mgf file location, file format etc)
                 // format Spectrum Id according to the peak file type
                 String formattedSpectrumID = MzIdentMLUtils.getSpectrumId(SimpleToJmzIdentMLTransformer.convertSpectraDataToJmzidml(spectraData), spectrumID);
 
-                // get the corresponding DataAccessController
                 dataAccessController = this.msDataAccessControllers.get(spectrumDataReference);
-
                 isSpectraInPeakFile(dataAccessController, formattedSpectrumID);
-
                 if (numberOfRandomChecks > 0 &&
                         randomlySelectedList.containsKey(spectrumIdentificationResultCount) &&
                         randomlySelectedList.containsValue(spectrumIdentificationListCount)
@@ -158,23 +123,49 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
             }
             spectrumIdentificationListCount++;
         }
-
-        // Set values to AssayFileValidationSummary
-        assayFileValidationSummary.setNumberOfSpectra(super.getNumberOfSpectra());
-        assayFileValidationSummary.setNumberOfIdentifiedSpectra(numberOfIdentifiedSpectra);
         if(numberOfRandomChecks > 0) {
-            assayFileValidationSummary.setDeltaMzErrorRate(new BigDecimal(((double) errorPSMCount / numberOfRandomChecks)).setScale(2, RoundingMode.HALF_UP).doubleValue());
+            deltaMzErrorRate = new BigDecimal(((double) errorPSMCount / numberOfRandomChecks)).setScale(2, RoundingMode.HALF_UP).doubleValue();
         }
     }
 
-    public AssayFileValidationSummary proteinValidation() {
-        assayFileValidationSummary.setNumberOfProteins(unmarshaller.getProteinIds().size());
-        return assayFileValidationSummary;
+    @Override
+    public Integer getTotalNumberOfProteins() {
+        return unmarshaller.getProteinIds().size();
     }
 
-    public AssayFileValidationSummary peptideValidation() {
-        assayFileValidationSummary.setNumberOfPeptides(unmarshaller.getPeptideIds().size());
-        return assayFileValidationSummary;
+    @Override
+    public Integer getTotalNumberOfPeptides() {
+        return unmarshaller.getPeptideIds().size();
+    }
+
+    @Override
+    public Integer getTotalNumberOfSpectra() {
+        return super.getNumberOfSpectra();
+    }
+
+    @Override
+    public Integer getTotalNumberOfUniquePeptides() {
+        return null;
+    }
+
+    @Override
+    public Integer getTotalNumberOfIdentifiedSpectra() {
+        return numberOfIdentifiedSpectra;
+    }
+
+    @Override
+    public Set<Comparable> getMissingIdentifiedSpectraIds() {
+        return missingIdentifiedSpectraIds;
+    }
+
+    @Override
+    public Double getDeltaMzErrorRate() {
+        return deltaMzErrorRate;
+    }
+
+    @Override
+    public List<uk.ac.ebi.pride.utilities.data.core.SpectraData> getSpectraDataFiles() {
+        return null;
     }
 
     /**
@@ -218,7 +209,7 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
                 double monoMasses = modification.getMonoisotopicMassDelta();
                 ptmMasses.add(monoMasses);
             }
-            if (charge == null || mz == -1) {
+            if (mz == -1) {
                 Spectrum spectrum = dataAccessController.getSpectrumById(formattedSpectrumID);
                 if (spectrum != null) {
                     charge = dataAccessController.getSpectrumPrecursorCharge(spectrum.getId());
@@ -279,15 +270,10 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
     private boolean isSpectraInPeakFile(DataAccessController dataAccessController, String formattedSpectrumID) {
         if (dataAccessController != null) {
             if (!dataAccessController.getSpectrumIds().contains(formattedSpectrumID)) {
-                assayFileValidationSummary.addMissingIdentifiedSpectraId(formattedSpectrumID);
+                missingIdentifiedSpectraIds.add(formattedSpectrumID);
                 return false;
             }
         }
         return true;
-    }
-
-    @Override
-    public List<uk.ac.ebi.pride.utilities.data.core.SpectraData> getSpectraDataFiles() {
-        return null;
     }
 }
