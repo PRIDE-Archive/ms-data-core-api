@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessController;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessMode;
+import uk.ac.ebi.pride.utilities.data.controller.access.ResultFileValidation;
 import uk.ac.ebi.pride.utilities.data.controller.cache.strategy.FastMzIdentMLCachingStrategy;
 import uk.ac.ebi.pride.utilities.data.controller.impl.Transformer.SimpleToJmzIdentMLTransformer;
 import uk.ac.ebi.pride.utilities.data.core.AssayFileValidationSummary;
@@ -32,7 +33,9 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
     private static final Logger logger = LoggerFactory.getLogger(FastMzIdentMLController.class);
 
     private FastMzIdentMLUnmarshallerAdaptor unmarshaller;
+
     DataAccessController dataAccessController;
+
     private AssayFileValidationSummary assayFileValidationSummary = new AssayFileValidationSummary();
 
     public FastMzIdentMLController(File inputFile) {
@@ -85,7 +88,7 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
 
         proteinValidation();
         peptideValidation();
-        spectraValidation(100);
+        doSpectraValidation(100);
         assayFileValidationSummary.printResults();
         return assayFileValidationSummary;
     }
@@ -95,9 +98,11 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
      * and cross check if the spectra are available in the peak file. Number of calculations such as
      * Number of missing spectra, identified spectra done. Optionally, if the numberOfRandomChecks > 0,
      *
+     * Todo: We should check in more than one file because if we don;t control that we can be checking the same thing.
+     *
      * @param numberOfRandomChecks number of checks to perform DeltaMass Threshold checks
      */
-    public void spectraValidation(final int numberOfRandomChecks) {
+    public void doSpectraValidation(final int numberOfRandomChecks) {
 
         int spectrumIdentificationListCount = 0;
         int spectrumIdentificationResultCount;

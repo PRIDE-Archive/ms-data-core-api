@@ -29,7 +29,7 @@ import java.util.regex.Pattern;
  * @author Yasset Perez-Riverol
  */
 
-public class PrideXmlControllerImpl extends AssayFileController {
+public class PrideXmlControllerImpl extends ResultFileController {
     private static final Logger logger = LoggerFactory.getLogger(PrideXmlControllerImpl.class);
 
     /**

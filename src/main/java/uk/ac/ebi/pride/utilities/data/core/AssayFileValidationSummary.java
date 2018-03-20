@@ -6,6 +6,8 @@ import java.util.Set;
 
 /**
  * This class describes the summary information of an assay file.
+ *
+ * Todo: This is probably better to be an interface. rather than an object.
  */
 public class AssayFileValidationSummary implements Serializable {
     private int id;
