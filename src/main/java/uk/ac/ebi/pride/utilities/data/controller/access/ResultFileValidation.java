@@ -9,15 +9,21 @@ package uk.ac.ebi.pride.utilities.data.controller.access;
  */
 public interface ResultFileValidation {
 
-    /**
-     * This is needed in the Validation file to know how many spectra the current ResultFile Referenced
-     * @return the number of spectra
+     /** This is needed in the Validation file to know how many spectra the current ResultFile Referenced
+     * @return delta mass in Random spectra
      */
-    Integer getNumberOfSpectra();
+    double checkRandomSpectraByDeltaMassThreshold(final int numberOfSpectra);
 
     /**
-     * Perform randomly spectra validation within the result file.
-     * @param numberOfRandomChecks the number of random checks
-     */
-    void doSpectraValidation(final int numberOfRandomChecks);
+     * Check the spectra reference in the ResultFile and return a True if the reference is good and false if the
+     * Peptide mass and spectra mz value do not pass the threshold.
+     *
+     * @param numberSpectra Number of spectra to Test
+     * @param deltaThreshold threshold to be used in delta mass.
+     * @return True if the difference between the theoretical and experimental mass is lower that the deltaThreshold
+   **/
+    boolean checkRandomSpectraByDeltaMassThreshold(int numberSpectra, Double deltaThreshold);
+
+
+
 }
