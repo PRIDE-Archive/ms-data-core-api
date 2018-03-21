@@ -29,12 +29,9 @@ public class FastMzIdentMLControllerTest {
     @Before
     public void setUp() throws Exception {
         monitor = MonitorFactory.start("uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl.validateMzIdentML");
-//        URL url = FastMzIdentMLControllerTest.class.getClassLoader().getResource("F238646.mzid");
-//        URL urlMgf = MzIdentMLControllerIterativeTest.class.getClassLoader().getResource("mascot_daemon_merge.mgf");
         URL url = FastMzIdentMLControllerTest.class.getClassLoader().getResource("small.mzid");
         URL urlMgf = MzIdentMLControllerIterativeTest.class.getClassLoader().getResource("small.mgf");
-//        URL url = FastMzIdentMLControllerTest.class.getClassLoader().getResource("test.mzid");
-//        URL urlMgf = MzIdentMLControllerIterativeTest.class.getClassLoader().getResource("test.mgf");
+
         if (url == null || urlMgf == null) {
             throw new IllegalStateException("no file for input found!");
         }
@@ -45,18 +42,56 @@ public class FastMzIdentMLControllerTest {
         List<File> files = new ArrayList<>();
         files.add(new File(urlMgf.toURI()));
         fastMzIdentMLController.addMSController(files);
+
+        fastMzIdentMLController.doSpectraValidation();
     }
 
-//    @Test
-//    public void getTotalNumberOfProteins() {
-//        assertTrue("Total number of proteins in the MzIdentML file", fastMzIdentMLController.getTotalNumberOfProteins() == 327);
-//    }
-//
-//    @Test
-//    public void getTotalNumberOfPeptides() {
-//        System.out.println(fastMzIdentMLController.getTotalNumberOfPeptides());
-//        assertTrue("Total number of Peptides in the MzIdentML file", fastMzIdentMLController.getTotalNumberOfPeptides() == 327);
-//    }
+    @Test
+    public void runAllValidations(){
+        logger.info("Protein Counts: " + fastMzIdentMLController.getNumberOfProteins());
+        logger.info("Peptide Counts: " + fastMzIdentMLController.getNumberOfPeptides());
+        logger.info("Spectrum Count: " + fastMzIdentMLController.getNumberOfSpectra());
+        logger.info("Missing Spectrum Count: " + fastMzIdentMLController.getNumberOfMissingSpectra());
+        logger.info("Missing Spectra ID List: " + fastMzIdentMLController.getMissingIdentifiedSpectraIds().toString());
+        logger.info("Identified Spectrum Count: " + fastMzIdentMLController.getNumberOfIdentifiedSpectra());
+        logger.info("DeltaMz Error Rate: " + fastMzIdentMLController.getSampleDeltaMzErrorRate(12, 4.0));
+    }
+
+    @Test
+    public void getNumberOfProteins() {
+        assertTrue("Total number of proteins in the MzIdentML file should be 327", fastMzIdentMLController.getNumberOfProteins() == 327);
+    }
+
+    @Test
+    public void getNumberOfPeptides() {
+        assertTrue("Total number of Peptide in the MzIdentML file should be 1956", fastMzIdentMLController.getNumberOfPeptides() == 1956);
+    }
+
+    @Test
+    public void getNumberOfSpectra() {
+        assertTrue("Total number of Spectra in the MzIdentML file should be 1001", fastMzIdentMLController.getNumberOfSpectra() == 1001);
+    }
+
+    @Test
+    public void getNumberOfMissingSpectra() {
+        assertTrue("Total number of missing spectra in the MzIdentML file should be 0", fastMzIdentMLController.getNumberOfMissingSpectra() == 0);
+    }
+
+    @Test
+    public void getNumberOfIdentifiedSpectra() {
+        assertTrue("Total number of identified spectra in the MzIdentML file should be 851", fastMzIdentMLController.getNumberOfIdentifiedSpectra() == 851);
+    }
+
+    @Test
+    public void checkRandomSpectraByDeltaMassThreshold() {
+        final double DELTA_MZ = 4.0;
+        assertTrue("DeltaMz Error Rate should be less than " + DELTA_MZ, fastMzIdentMLController.getSampleDeltaMzErrorRate(10, DELTA_MZ) < DELTA_MZ);
+    }
+
+    @Test
+    public void getMissingIdentifiedSpectraIds() {
+        assertTrue("Total number of missing spectra in the MzIdentML file should be 0", fastMzIdentMLController.getMissingIdentifiedSpectraIds().size() == 0);
+    }
 
     @After
     public void tearDown() {

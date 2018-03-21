@@ -3,9 +3,6 @@ package uk.ac.ebi.pride.utilities.data.lightModel;
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 
-/**
- * @author Suresh Hewapathirana
- */
     /**
      * An identification of a single (poly)peptide, resulting from querying an input spectra, along with the set of confidence values for that identification.
      * PeptideEvidence elements should be given for all mappings of the corresponding Peptide sequence within protein sequences.
@@ -70,6 +67,8 @@ import java.io.Serializable;
         protected int rank;
         @XmlAttribute(required = true)
         protected boolean passThreshold;
+        @XmlTransient
+        protected String formattedSpectrumID;
 
         /**
          * Gets the value of the chargeState property.
@@ -194,6 +193,25 @@ import java.io.Serializable;
          */
         public void setPassThreshold(boolean value) {
             this.passThreshold = value;
+        }
+
+        /**
+         * get the value of the formattedSpectrumID property.
+         *
+         */
+        public String getFormattedSpectrumID() {
+            return formattedSpectrumID;
+        }
+
+        /**
+         * Sets the value of the formattedSpectrumID property.
+         *
+         * @param formattedSpectrumID
+         *     allowed object is
+         *     {@link String }
+         */
+        public void setFormattedSpectrumID(String formattedSpectrumID) {
+            this.formattedSpectrumID = formattedSpectrumID;
         }
     }
 

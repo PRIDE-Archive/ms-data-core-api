@@ -9,7 +9,6 @@ import uk.ac.ebi.pride.utilities.data.controller.impl.Transformer.SimpleToJmzIde
 import uk.ac.ebi.pride.utilities.data.core.Spectrum;
 import uk.ac.ebi.pride.utilities.data.io.file.FastMzIdentMLUnmarshallerAdaptor;
 import uk.ac.ebi.pride.utilities.data.lightModel.*;
-import uk.ac.ebi.pride.utilities.data.utils.Constants;
 import uk.ac.ebi.pride.utilities.data.utils.MzIdentMLUtils;
 import uk.ac.ebi.pride.utilities.mol.MoleculeUtilities;
 
@@ -17,7 +16,6 @@ import java.io.File;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * FastMzIdentMLController is a controller supporting for fast access of mzIdentML file
@@ -27,30 +25,27 @@ import java.util.stream.Collectors;
  */
 public class FastMzIdentMLController extends ReferencedIdentificationController {
 
-    // Logger property to trace the Errors
     private static final Logger logger = LoggerFactory.getLogger(FastMzIdentMLController.class);
 
-    // variables to hold validation results
-    private int numberOfProteins;
-    private int numberOfPeptides;
-    private int numberOfSpectra;
-    private int numberOfUniquePeptides;
-    private int numberOfExistingIdentifiedSpectra;
-    private int numberOfIdentifiedSpectra;
-    private Set<Comparable> missingIdentifiedSpectraIds;
-    private double deltaMzErrorRate;
-
-    private FastMzIdentMLUnmarshallerAdaptor unmarshaller;
+    private int numberOfIdentifiedSpectra = 0;
+    private double deltaMzErrorRate = 0.0;
     private DataAccessController dataAccessController;
+    private FastMzIdentMLUnmarshallerAdaptor unmarshaller;
+    private Set<Comparable> missingIdentifiedSpectraIds;
+    private Map<String, List<SpectrumIdentificationResult>> SpectrumIdentResultsGroupedBySpectraIDs;
 
-
+    /**
+     * This constructor forces to cache objects that are required for later use
+     *
+     * @param inputFile MzIdentML file
+     */
     public FastMzIdentMLController(File inputFile) {
         super(inputFile, DataAccessMode.CACHE_AND_SOURCE);
         initialize();
     }
 
     /**
-     * This method mainly instantiate the cache according to the FastMzIdentMLCachingStrategy
+     * This method mainly instantiate the cache according to the logic specified in FastMzIdentMLCachingStrategy
      */
     protected void initialize() {
         File file = (File) getSource();
@@ -64,7 +59,7 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
     }
 
     /**
-     * Return the mzIdentML unmarshall adaptor to be used by the CacheBuilder
+     * Get the FastMzIdentMLUnmarshallerAdaptor to be used by the CacheBuilder
      * Implementation.
      *
      * @return MzIdentMLUnmarshallerAdaptor
@@ -73,112 +68,163 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
         return unmarshaller;
     }
 
-
     /**
-     * This method scans through all the spectrumIdentificationLists and spectrumIdentificationLists,
+     * This is an initial scan through all the spectrumIdentificationLists and spectrumIdentificationLists,
      * and cross check if the spectra are available in the peak file. Number of calculations such as
-     * Number of missing spectra, identified spectra done. Optionally, if the numberOfRandomChecks > 0,
-     *
-     * Todo: We should check in more than one file because if we don;t control that we can be checking the same thing.
-     *
-     * @param numberOfRandomChecks number of checks to perform DeltaMass Threshold checks
+     * Number of missing spectra, identified spectra done.
      */
-    public void doSpectraValidation(final int numberOfRandomChecks) {
-        int spectrumIdentificationListCount = 0;
-        int spectrumIdentificationResultCount;
-        int errorPSMCount = 0;
+    public void doSpectraValidation() {
+        missingIdentifiedSpectraIds = new HashSet<>();
+        SpectrumIdentResultsGroupedBySpectraIDs = new Hashtable<>();
 
-        // Spectra details extracted from MzIdentML -> DataCollection -> Inputs
-        // eg:  <SpectraData location="file:///Carbamoyl-phosphate synthase small chain-47029-41-G2-4-biotools.mgf" id="SD_1"></SpectraData>
+        /* Spectra details extracted from MzIdentML -> DataCollection -> Inputs
+           eg:  <SpectraData location="file:///Carbamoyl-phosphate synthase small chain-47029-41-G2-4-biotools.mgf" id="SD_1"></SpectraData> */
         Map<Comparable, SpectraData> spectraDataIds = unmarshaller.getSpectraDataMap();
-        // get all the Spectrum Identification Lists from the mzIdentML object
         List<SpectrumIdentificationList> spectrumIdentificationLists = unmarshaller.getSpectrumIdentificationList();
-        Map<Integer, Integer> randomlySelectedList = getRandomlySelectedPSMs(spectrumIdentificationLists.size(), numberOfRandomChecks);
-
         for (SpectrumIdentificationList spectrumIdentificationList : spectrumIdentificationLists) {
-            spectrumIdentificationResultCount = 0;
-            // Run through each SpectrumIdentificationResult
             // eg: <SpectrumIdentificationResult id="SIR_12" spectrumID="index=35" spectraData_ref="SD_1">...</SpectrumIdentificationResult>
             for (SpectrumIdentificationResult spectrumIdentificationResult : spectrumIdentificationList.getSpectrumIdentificationResult()) {
                 numberOfIdentifiedSpectra++;
-                String spectrumDataReference = spectrumIdentificationResult.getSpectraDataRef(); // eg: spectraData_ref="SD_1"
+                String spectrumDataRef = spectrumIdentificationResult.getSpectraDataRef(); // eg: spectraData_ref="SD_1"
                 String spectrumID = spectrumIdentificationResult.getSpectrumID(); // eg: spectrumID="index=35"
-                SpectraData spectraData = spectraDataIds.get(spectrumDataReference); // get Spectra Data (eg: mgf file location, file format etc)
-                // format Spectrum Id according to the peak file type
-                String formattedSpectrumID = MzIdentMLUtils.getSpectrumId(SimpleToJmzIdentMLTransformer.convertSpectraDataToJmzidml(spectraData), spectrumID);
-
-                dataAccessController = this.msDataAccessControllers.get(spectrumDataReference);
-                isSpectraInPeakFile(dataAccessController, formattedSpectrumID);
-                if (numberOfRandomChecks > 0 &&
-                        randomlySelectedList.containsKey(spectrumIdentificationResultCount) &&
-                        randomlySelectedList.containsValue(spectrumIdentificationListCount)
-                        ) {
-                    // Spectrum spectrum = dataAccessController.getSpectrumById(formattedSpectrumID);
-                    SpectrumIdentificationItem spectrumIdentificationItem = getRandomSpectrumIdentificationItem(spectrumIdentificationResult);
-                    boolean passed = checkDeltaMassThreshold(spectrumIdentificationItem, formattedSpectrumID, Constants.DELTATHESHOLD);
-                    if(!passed) errorPSMCount++;
+                SpectraData spectraData = spectraDataIds.get(spectrumDataRef); // eg: mgf file location, file format etc
+                String formattedSpectrumID = MzIdentMLUtils.getSpectrumId(SimpleToJmzIdentMLTransformer.convertSpectraDataToJmzidml(spectraData), spectrumID); // eg: 35
+                spectrumIdentificationResult.setFormattedSpectrumID(formattedSpectrumID);
+                SpectrumIdentResultsGroupedBySpectraIDs.computeIfAbsent(spectrumDataRef, value -> new ArrayList<>()).add(spectrumIdentificationResult);
+                // check the spectra referenced in the mzIdentML also available in the peak files
+                dataAccessController = msDataAccessControllers.get(spectrumDataRef);
+                if (!isSpectraInPeakFile(dataAccessController, formattedSpectrumID)) {
+                    missingIdentifiedSpectraIds.add(formattedSpectrumID);
                 }
-                spectrumIdentificationResultCount++;
             }
-            spectrumIdentificationListCount++;
-        }
-        if(numberOfRandomChecks > 0) {
-            deltaMzErrorRate = new BigDecimal(((double) errorPSMCount / numberOfRandomChecks)).setScale(2, RoundingMode.HALF_UP).doubleValue();
         }
     }
 
-//    @Override
-//    public Integer getTotalNumberOfProteins() {
-//        return unmarshaller.getProteinIds().size();
-//    }
-//
-//    @Override
-//    public Integer getTotalNumberOfPeptides() {
-//        return unmarshaller.getPeptideIds().size();
-//    }
-//
-//    @Override
-//    public Integer getTotalNumberOfSpectra() {
-//        return super.getNumberOfSpectra();
-//    }
-//
-//    @Override
-//    public Integer getTotalNumberOfUniquePeptides() {
-//        return null;
-//    }
-//
-//    @Override
-//    public Integer getTotalNumberOfIdentifiedSpectra() {
-//        return numberOfIdentifiedSpectra;
-//    }
-//
-//    @Override
-//    public Set<Comparable> getMissingIdentifiedSpectraIds() {
-//        return missingIdentifiedSpectraIds;
-//    }
-//
-//    @Override
-//    public Double getDeltaMzErrorRate() {
-//        return deltaMzErrorRate;
-//    }
+    /**
+     * Get the number of Proteins reported in the MzIdentML file
+     *
+     * @return Number of Proteins
+     */
+    @Override
+    public int getNumberOfProteins() {
+        return unmarshaller.getProteinIds().size();
+    }
 
+    /**
+     * Get the number of Peptides reported in the MzIdentML
+     *
+     * @return Number of Peptides
+     */
+    @Override
+    public int getNumberOfPeptides() {
+        return unmarshaller.getPeptideIds().size();
+    }
+
+    /**
+     * Get the number of Spectra in the DataAccessController
+     *
+     * @return The number of Spectra for DataAccessController
+     */
+    @Override
+    public int getNumberOfSpectra() {
+        return super.getNumberOfSpectra();
+    }
+
+    /**
+     * Get number of Spectra referenced in the MzIdentML, but actually not available in the Spectra/Peak list File
+     *
+     * @return Number of missing spectra
+     */
+    @Override
+    public int getNumberOfMissingSpectra() {
+        return missingIdentifiedSpectraIds.size();
+    }
+
+    /**
+     * Get the number of spectra referenced in the MzIdentML file
+     *
+     * @return Number of Spectra reported in the MzIdentML file
+     */
+    @Override
+    public int getNumberOfIdentifiedSpectra() {
+        return numberOfIdentifiedSpectra;
+    }
+
+    /**
+     * Get list of Spectra Ids which have been referenced in the MzIdentML,
+     * but actually not available in the Spectra/Peak list File
+     *
+     * @return List of Spectra IDs
+     */
+    public Set<Comparable> getMissingIdentifiedSpectraIds() {
+        return missingIdentifiedSpectraIds;
+    }
+
+    /**
+     * Get the List of File Spectra that the MzIdentML use to identified peptides
+     *
+     * @return List of SpectraData Files associated with MzIdentML.
+     */
     @Override
     public List<uk.ac.ebi.pride.utilities.data.core.SpectraData> getSpectraDataFiles() {
         return null;
     }
 
     /**
-     * Given a SpectrumIdentificationResult object, this method randomly select SpectrumIdentificationItem
-     * from the SpectrumIdentificationResult object
+     * This method randomly selects PSM(but covers different peak files as much as possible),
+     * and calculates the delta mass error rate. For more information about PSM random selection,
+     * please refer {@link #getRandomPSMs}
      *
-     * @param spectrumIdentificationResult Given SpectrumIdentificationItem object
-     * @return randomly selected SpectrumIdentificationItem
+     * @param numberOfChecks non negative integer
+     * @param deltaThreshold double value
+     * @return boolean value. If the delta mass error rate within the threshold, it returns true, otherwise false
      */
-    private SpectrumIdentificationItem getRandomSpectrumIdentificationItem(SpectrumIdentificationResult spectrumIdentificationResult) {
+    public double getSampleDeltaMzErrorRate(final int numberOfChecks, final Double deltaThreshold) {
+        if (numberOfChecks > 0) {
+            List<SpectrumIdentificationItem> PSMList = getRandomPSMs(numberOfChecks);
+            int errorPSMCount = 0;
+
+            for (SpectrumIdentificationItem SpectrumIdentificationItem : PSMList) {
+                logger.debug("SpectrumIdentificationItem  - " + SpectrumIdentificationItem.getId() + "has been selected for random checkup");
+                Boolean result = checkDeltaMassThreshold(SpectrumIdentificationItem, deltaThreshold);
+                if (!result)
+                    errorPSMCount++;
+            }
+            deltaMzErrorRate = new BigDecimal(((double) errorPSMCount / numberOfChecks)).setScale(2, RoundingMode.HALF_UP).doubleValue();
+        }
+        return deltaMzErrorRate;
+    }
+
+    /**
+     * This method randomly collects a single PSM from each Peak/spectra which were identified,
+     * and repeatedly collecting PSM until it reaches the numberOfChecks limit.
+     * However, if number of randomly selected PSMs getting exceeded the total number of PSMs reported in the MzIdentML,
+     * then the collection process will be stopped and it returns the collected PSMs with a warning.
+     *
+     * @param numberOfChecks non negative integer
+     * @return randomly selected SpectrumIdentificationItem list
+     */
+    @SuppressWarnings("unchecked")
+    private List<SpectrumIdentificationItem> getRandomPSMs(final int numberOfChecks) {
         Random random = new Random();
-        int randomSpectrumIdentificationItemIndex = random.ints(0, spectrumIdentificationResult.getSpectrumIdentificationItem().size()).findFirst().getAsInt();
-        SpectrumIdentificationItem spectrumIdentificationItem = spectrumIdentificationResult.getSpectrumIdentificationItem().get(randomSpectrumIdentificationItemIndex);
-        return spectrumIdentificationItem;
+        List<SpectrumIdentificationItem> selectedPSMs = new ArrayList<>(numberOfChecks);
+
+        while (selectedPSMs.size() < numberOfChecks) {
+            for (Map.Entry PSMList : SpectrumIdentResultsGroupedBySpectraIDs.entrySet()) {
+                List<SpectrumIdentificationResult> psms = (List<SpectrumIdentificationResult>) PSMList.getValue();
+                if (psms != null && !psms.isEmpty()) {
+                    SpectrumIdentificationResult SpectrumIdentificationResult = psms.get(random.nextInt(psms.size()));
+                    SpectrumIdentificationItem psm = SpectrumIdentificationResult.getSpectrumIdentificationItem().get(0);
+                    psm.setFormattedSpectrumID(SpectrumIdentificationResult.getFormattedSpectrumID());
+                    selectedPSMs.add(psm);
+                }
+            }
+            if (selectedPSMs.size() >= numberOfIdentifiedSpectra) {
+                logger.warn("Number of checks specified is higher than the number of PSMs! Only " + numberOfIdentifiedSpectra + " will be performed!");
+                break;
+            }
+        }
+        return selectedPSMs;
     }
 
     /**
@@ -186,30 +232,19 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
      * Peptide modifications are also included for the calculations.
      *
      * @param spectrumIdentificationItem SpectrumIdentificationItem object from mzIdentML
-     * @param deltaThreshold Non-negative Double value(eg: 4.0)
+     * @param deltaThreshold             Non-negative Double value(eg: 4.0)
      * @return boolean
      */
-    private boolean checkDeltaMassThreshold(SpectrumIdentificationItem spectrumIdentificationItem, String formattedSpectrumID, Double deltaThreshold) {
+    private boolean checkDeltaMassThreshold(SpectrumIdentificationItem spectrumIdentificationItem, Double deltaThreshold) {
         boolean isDeltaMassThresholdPassed = true;
-
         Integer charge = spectrumIdentificationItem.getChargeState();
         double mz = spectrumIdentificationItem.getExperimentalMassToCharge();
-
-        // find the peptide
         String peptideRef = spectrumIdentificationItem.getPeptideRef();
         Peptide peptide = unmarshaller.getPeptideById(peptideRef);
-
-        if (peptide == null) {
-            logger.error("Random peptide is null! peptideRef:" + peptideRef);
-            isDeltaMassThresholdPassed = false;
-        } else {
-            List<Double> ptmMasses = new ArrayList<>();
-            for (Modification modification : peptide.getModification()) {
-                double monoMasses = modification.getMonoisotopicMassDelta();
-                ptmMasses.add(monoMasses);
-            }
+        if (peptide != null) {
+            List<Double> ptmMasses = unmarshaller.getPTMMassesFromPeptide(peptide);
             if (mz == -1) {
-                Spectrum spectrum = dataAccessController.getSpectrumById(formattedSpectrumID);
+                Spectrum spectrum = dataAccessController.getSpectrumById(spectrumIdentificationItem.getFormattedSpectrumID());
                 if (spectrum != null) {
                     charge = dataAccessController.getSpectrumPrecursorCharge(spectrum.getId());
                     mz = dataAccessController.getSpectrumPrecursorMz(spectrum.getId());
@@ -228,34 +263,11 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
                     isDeltaMassThresholdPassed = false;
                 }
             }
+        } else {
+            logger.error("Random peptide is null! peptideRef:" + peptideRef);
+            isDeltaMassThresholdPassed = false;
         }
         return isDeltaMassThresholdPassed;
-    }
-
-    /**
-     * This method first randomly select the indexes SpectrumIdentificationList and then for each SpectrumIdentificationList,
-     * it will select random indexes of spectrumIdentificationResult. Those selected index numbers are saved in a map where:
-     * Keys - Indexes of SpectrumIdentificationResult
-     * Values - Indexes of SpectrumIdentificationList
-     * Finally, it returns a Map<Indexes of SpectrumIdentificationResult, Indexes of SpectrumIdentificationList>
-     *
-     * @param numberOfSpectrumIdentificationLists Number of SpectrumIdentificationLists
-     * @param numberOfRandomChecks Number of Random checks to be performed
-     * @return Map<Integer, Integer>
-     */
-    private Map<Integer, Integer> getRandomlySelectedPSMs(int numberOfSpectrumIdentificationLists, int numberOfRandomChecks) {
-
-        Random random = new Random();
-        Map<Integer, Integer> randomlySelectedList = new HashMap<>(numberOfRandomChecks);
-
-        // select random SpectrumIdentificationList for random validate checkup
-        List<Integer> randomSpectrumIdentificationListIndexes = random.ints(0, numberOfSpectrumIdentificationLists).limit(numberOfRandomChecks).boxed().collect(Collectors.toList());
-        for (Integer SpectrumIdentificationListIndex : randomSpectrumIdentificationListIndexes) {
-            int spectrumIdentificationResultMaxRange = unmarshaller.getSpectrumIdentificationResultByIndex(SpectrumIdentificationListIndex).size();
-            int spectrumIdentificationResult = random.ints(0, spectrumIdentificationResultMaxRange).limit(numberOfRandomChecks).findFirst().getAsInt();
-            randomlySelectedList.put(spectrumIdentificationResult, SpectrumIdentificationListIndex);
-        }
-        return randomlySelectedList;
     }
 
     /**
@@ -267,12 +279,13 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
      * @return boolean value, false - if spectra cannot be found in the peak file
      */
     private boolean isSpectraInPeakFile(DataAccessController dataAccessController, String formattedSpectrumID) {
+        boolean spectraFound = true;
         if (dataAccessController != null) {
+            spectraFound = dataAccessController.getSpectrumIds().contains(formattedSpectrumID);
             if (!dataAccessController.getSpectrumIds().contains(formattedSpectrumID)) {
-                missingIdentifiedSpectraIds.add(formattedSpectrumID);
-                return false;
+                spectraFound = false;
             }
         }
-        return true;
+        return spectraFound;
     }
 }

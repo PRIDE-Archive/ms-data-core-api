@@ -11,51 +11,98 @@ import java.util.stream.Collectors;
  */
 public class FastMzIdentMLUnmarshallerAdaptor {
 
-    private MzIdentML mzIdentML = null;
+    private FastMzIdentMLUnmarshaller fastMzIdentMLUnmarshaller;
 
+    /**
+     * This method retrieves the MzIdentML object from the FastMzIdentMLUnmarshaller
+     *
+     * @param mzIdentMLFile MzIdentML file
+     * @see FastMzIdentMLUnmarshaller
+     */
     public FastMzIdentMLUnmarshallerAdaptor(File mzIdentMLFile) {
-        FastMzIdentMLUnmarshaller fastMzIdentMLUnmarshaller = FastMzIdentMLUnmarshaller.getInstance(mzIdentMLFile);
-        this.mzIdentML = fastMzIdentMLUnmarshaller.getMzIdentML();
-
+        fastMzIdentMLUnmarshaller = FastMzIdentMLUnmarshaller.getInstance(mzIdentMLFile);
     }
 
+    /**
+     * Get the complete MzIdentML object which contrains the entire unmarshalled content
+     *
+     * @return MzIdentML ojbect
+     */
     public MzIdentML getMzIdentML() {
-        return mzIdentML;
+        return fastMzIdentMLUnmarshaller.getMzIdentML();
     }
 
+    /**
+     * Get all the Protein Ids reported in the MzIdentML
+     *
+     * @return Collection of Protein Ids
+     */
     public Collection<Comparable> getProteinIds() {
-        return mzIdentML.getSequenceCollection().getDBSequence()
+        return fastMzIdentMLUnmarshaller.getMzIdentML().getSequenceCollection().getDBSequence()
                 .parallelStream()
                 .map(DBSequence::getId)
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Get all the Peptide Ids reported in the MzIdentML
+     *
+     * @return Collection of Peptide Ids
+     */
     public Collection<Comparable> getPeptideIds() {
-        return mzIdentML.getSequenceCollection().getPeptide()
+        return fastMzIdentMLUnmarshaller.getMzIdentML().getSequenceCollection().getPeptide()
                 .parallelStream()
                 .map(Peptide::getId)
-                .distinct()
                 .collect(Collectors.toList());
     }
 
-    public Peptide getPeptideById(Comparable peptideRef) {
-        return mzIdentML.getSequenceCollection().getPeptide()
+    /**
+     * Get Peptide by peptide ID
+     *
+     * @param peptideID Peptide Reference ID
+     * @return Peptide if matching peptide exists, otherwise return a null
+     */
+    public Peptide getPeptideById(Comparable peptideID) {
+        return fastMzIdentMLUnmarshaller.getMzIdentML().getSequenceCollection().getPeptide()
                 .stream()
-                .filter(p -> p.getId().equals(peptideRef))
+                .filter(p -> p.getId().equals(peptideID))
                 .findFirst()
                 .orElse(null);
     }
 
+    /**
+     * Get all the SpectrumIdentificationList from the MzIdentML
+     *
+     * @return List of SpectrumIdentificationList
+     */
     public List<SpectrumIdentificationList> getSpectrumIdentificationList() {
-        return mzIdentML.getDataCollection().getAnalysisData().getSpectrumIdentificationList();
-    }
-
-    public List<SpectrumIdentificationResult> getSpectrumIdentificationResultByIndex(int index) {
-        SpectrumIdentificationList spectrumIdentificationList = getSpectrumIdentificationList().get(index);
-        return (getSpectrumIdentificationList().isEmpty() || getSpectrumIdentificationList() == null) ? null : spectrumIdentificationList.getSpectrumIdentificationResult();
+        return fastMzIdentMLUnmarshaller.getMzIdentML().getDataCollection().getAnalysisData().getSpectrumIdentificationList();
     }
 
     /**
+     * Given a peptide, this method extract peptide modifications and their Monoisotopic MassDelta
+     *
+     * @param peptide uk.ac.ebi.pride.utilities.data.lightModel.Peptide type object
+     * @return List of PTM Masses
+     */
+    public List<Double> getPTMMassesFromPeptide(Peptide peptide) {
+        List<Double> ptmMasses = new ArrayList<>();
+        for (Modification modification : peptide.getModification()) {
+            double monoMasses = modification.getMonoisotopicMassDelta();
+            ptmMasses.add(monoMasses);
+        }
+        return ptmMasses;
+    }
+
+
+    /**
+     * This method extract the Inputs from the MzIdentML object and
+     * for each input file, it retrieves the Spectra Data such as
+     * file location, file format etc.
+     *
+     * @return Map<Comparable, SpectraData> where Comparable will be the Id of the SpectraData
+     *
+     *  Example of DataCollection section in MzIdentML:
      * <DataCollection>
      * <Inputs>
      * <SpectraData location="file:///lolo//small.mgf" id="SD_1">
@@ -68,15 +115,9 @@ public class FastMzIdentMLUnmarshallerAdaptor {
      * </SpectraData>
      * </Inputs>
      * </DataCollection>
-     * <p>
-     * This method extract the Inputs from the MzIdentML object and
-     * for each input file, it retrieves the Spectra Data such as
-     * file location, file format etc.
-     *
-     * @return Map<Comparable   ,       SpectraData> where Comparable will be the Id of the SpectraData
      */
     public Map<Comparable, SpectraData> getSpectraDataMap() {
-        Inputs inputs = mzIdentML.getDataCollection().getInputs();
+        Inputs inputs = fastMzIdentMLUnmarshaller.getMzIdentML().getDataCollection().getInputs();
         List<SpectraData> spectraDataList = inputs.getSpectraData();
         Map<Comparable, SpectraData> spectraDataMap = null;
         if (spectraDataList != null && spectraDataList.size() > 0) {
@@ -89,9 +130,13 @@ public class FastMzIdentMLUnmarshallerAdaptor {
     }
 
     /**
-     * Close data access controller by clearing the entire mzIdentML Object
+     * Close FastMzIdentMLUnmarshallerAdaptor by clearing the entire mzIdentML Object.
+     *
+     * Warning: This should be carefully used only after performing all the data access operations.
+     * If not, fastMzIdentMLUnmarshaller has to unmarshall MzIdentML file again, which is
+     * computationally expensive.
      */
     public void close() {
-        mzIdentML = null;
+        fastMzIdentMLUnmarshaller.destroy();
     }
 }

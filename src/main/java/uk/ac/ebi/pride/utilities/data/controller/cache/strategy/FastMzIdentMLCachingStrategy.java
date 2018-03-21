@@ -2,12 +2,16 @@ package uk.ac.ebi.pride.utilities.data.controller.cache.strategy;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.ebi.pride.utilities.data.controller.DataAccessController;
 import uk.ac.ebi.pride.utilities.data.controller.cache.CacheEntry;
 import uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl.FastMzIdentMLController;
 import uk.ac.ebi.pride.utilities.data.controller.impl.Transformer.MzIdentMLTransformer;
 import uk.ac.ebi.pride.utilities.data.controller.impl.Transformer.SimpleToJmzIdentMLTransformer;
 import uk.ac.ebi.pride.utilities.data.io.file.FastMzIdentMLUnmarshallerAdaptor;
 import uk.ac.ebi.pride.utilities.data.lightModel.SpectraData;
+import uk.ac.ebi.pride.utilities.data.lightModel.SpectrumIdentificationList;
+import uk.ac.ebi.pride.utilities.data.lightModel.SpectrumIdentificationResult;
+import uk.ac.ebi.pride.utilities.data.utils.MzIdentMLUtils;
 
 import java.util.*;
 
@@ -26,8 +30,6 @@ public class FastMzIdentMLCachingStrategy extends AbstractCachingStrategy {
     @Override
     public void cache() {
         FastMzIdentMLUnmarshallerAdaptor unmarshaller = ((FastMzIdentMLController) controller).getUnmarshaller();
-
-        // cache spectra data
         cacheSpectraData(unmarshaller);
     }
 

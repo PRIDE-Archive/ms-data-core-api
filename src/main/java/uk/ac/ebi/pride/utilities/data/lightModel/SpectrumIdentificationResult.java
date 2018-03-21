@@ -49,7 +49,8 @@ import java.util.List;
         protected String spectrumID;
         @XmlAttribute(name = "spectraData_ref", required = true)
         protected String spectraDataRef;
-
+        @XmlTransient
+        protected String formattedSpectrumID;
         /**
          * Gets the value of the spectrumIdentificationItem property.
          *
@@ -113,6 +114,26 @@ import java.util.List;
          */
         public String getSpectraDataRef() {
             return spectraDataRef;
+        }
+
+        /**
+         * Gets the formattedSpectrumID property.
+         *
+         * @return
+         */
+        public String getFormattedSpectrumID() {
+            return formattedSpectrumID;
+        }
+
+        /**
+         * Sets the formattedSpectrumID property.
+         *
+         * @param formattedSpectrumID
+         *     allowed object is
+         *     {@link String }
+         */
+        public void setFormattedSpectrumID(String formattedSpectrumID) {
+            this.formattedSpectrumID = formattedSpectrumID;
         }
     }
 

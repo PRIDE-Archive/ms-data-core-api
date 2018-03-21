@@ -22,7 +22,7 @@ import java.io.FileNotFoundException;
  * This class converts mzIdentML XML elements into Java objects(so-called unmarshalling) using Java Architecture for XML Binding (JAXB).
  * JAXB can be used with two approaches, which are namely DOM and SAX parsers. Unlike DOM, SAX does not construct a tree of objects
  * in the memory and SAX is faster. For this implementation, SAX parser has been used.
- *
+ * <p>
  * This class designed according to Singleton design pattern. Therefore, mzIdentML object cannot be directly created
  * from the constructor, but with the getInstance public method.
  *
@@ -36,6 +36,7 @@ public class FastMzIdentMLUnmarshaller {
     private JAXBContext jaxbContext;
     private static volatile FastMzIdentMLUnmarshaller fastMzIdentMLUnmarshaller = null;
 
+    @SuppressWarnings("unchecked")
     private FastMzIdentMLUnmarshaller(File mzIdentMLFile) {
 
         try {
@@ -120,7 +121,7 @@ public class FastMzIdentMLUnmarshaller {
     /**
      * Close data access controller by clearing the entire mzIdentML Object
      */
-    public void close() {
+    public void destroy() {
         this.mzIdentML = null;
     }
 }
