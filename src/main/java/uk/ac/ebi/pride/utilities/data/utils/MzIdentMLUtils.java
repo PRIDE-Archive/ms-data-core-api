@@ -4,6 +4,7 @@ package uk.ac.ebi.pride.utilities.data.utils;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 import uk.ac.ebi.jmzidml.model.mzidml.SpectraData;
+import uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl.MzIdentMLControllerImpl;
 import uk.ac.ebi.pride.utilities.data.core.CvParam;
 import uk.ac.ebi.pride.jmztab.utils.convert.SearchEngineParam;
 import uk.ac.ebi.pride.jmztab.utils.convert.SearchEngineScoreParam;
@@ -82,21 +83,20 @@ public final class MzIdentMLUtils {
     }
 
     public static List<String> validateMzIdentMLSchema(File resultFile) throws SAXException, FileNotFoundException, URISyntaxException, MalformedURLException {
-        GenericSchemaValidator genericValidator = new GenericSchemaValidator();
-        URI url = MzIdentMLUtils.class.getClassLoader().getResource("mzIdentML1.1.0.xsd").toURI();
-        genericValidator.setSchema(url);
-        List<String> errorMsgs;
+            String schemaFilename = getSchemaByVersion(resultFile);
+            GenericSchemaValidator genericValidator = new GenericSchemaValidator();
+            URI url = MzIdentMLUtils.class.getClassLoader().getResource(schemaFilename).toURI();
+            genericValidator.setSchema(url);
+            List<String> errorMsgs;
 
-        logger.info("XML schema validation on " + resultFile.getName());
-        ErrorHandlerIface handler = new ValidationErrorHandler();
-        genericValidator.setErrorHandler(handler);
-        BufferedReader br = new BufferedReader(new FileReader(resultFile));
-        genericValidator.validate(br);
+            logger.info("XML schema validation on " + resultFile.getName());
+            ErrorHandlerIface handler = new ValidationErrorHandler();
+            genericValidator.setErrorHandler(handler);
+            BufferedReader br = new BufferedReader(new FileReader(resultFile));
+            genericValidator.validate(br);
 
-        //noinspection unchecked
-        errorMsgs = handler.getErrorMessages(); // ToDo: make ErrorHandlerIface type safe
-
-
+            //noinspection unchecked
+            errorMsgs = handler.getErrorMessages(); // ToDo: make ErrorHandlerIface type safe
         return errorMsgs;
     }
 
@@ -162,5 +162,19 @@ public final class MzIdentMLUtils {
 
     public static CvParam newCvParam(CvParam cv, String value){
         return new CvParam(cv.getAccession(), cv.getName(), cv.getCvLookupID(), value, cv.getUnitAcc(), cv.getUnitName(), cv.getUnitCVLookupID());
+    }
+
+    /**
+     * Returns the corresponding schema file name based on the mzIdentML version
+     *
+     * @param resultFile MzIdentML file
+     * @return Schema file name which has to be validate with
+     */
+    private static String getSchemaByVersion(File resultFile){
+        MzIdentMLControllerImpl mzIdentMlController = new MzIdentMLControllerImpl(resultFile, false);
+        String version = mzIdentMlController.getExperimentMetaData().getVersion();
+        String schema = "mzIdentML" + mzIdentMlController.getExperimentMetaData().getVersion() + ".xsd";
+        logger.debug("Validating MzIdentML version " + version + " with " + schema );
+        return  schema;
     }
 }

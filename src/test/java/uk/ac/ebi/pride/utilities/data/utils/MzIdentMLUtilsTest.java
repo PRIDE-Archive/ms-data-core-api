@@ -17,12 +17,12 @@ public class MzIdentMLUtilsTest {
 
     @Before
     public void setUp() throws Exception {
-        URL mzIdentMLFileURL = MzIdentMLUtilsTest.class.getClassLoader().getResource("small.mzid");
+//        URL mzIdentMLFileURL = MzIdentMLUtilsTest.class.getClassLoader().getResource("carb.mzid"); // 1.1.0 version
+        URL mzIdentMLFileURL = MzIdentMLUtilsTest.class.getClassLoader().getResource("OpenxQuest_example_1_2.mzid"); // 1.2.0 version
         if (mzIdentMLFileURL == null) {
             throw new IllegalStateException("no file for input found!");
         }
         mzIdentMLFile = new File(mzIdentMLFileURL.toURI());
-
     }
 
     @Test
@@ -31,6 +31,5 @@ public class MzIdentMLUtilsTest {
         for(String error: errors){
             logger.error(error);
         }
-
     }
 }
