@@ -82,22 +82,29 @@ public final class MzIdentMLUtils {
         }
     }
 
-    public static List<String> validateMzIdentMLSchema(File resultFile) throws SAXException, FileNotFoundException, URISyntaxException, MalformedURLException {
-            String schemaFilename = getSchemaByVersion(resultFile);
-            GenericSchemaValidator genericValidator = new GenericSchemaValidator();
-            URI url = MzIdentMLUtils.class.getClassLoader().getResource(schemaFilename).toURI();
-            genericValidator.setSchema(url);
-            List<String> errorMsgs;
+    public static List<String> validateMzIdentMLSchema(File resultFile) {
+        List<String> errorMessages = null;
+        ErrorHandlerIface handler = new ValidationErrorHandler();
+        String schemaFilename = getSchemaByVersion(resultFile);
+        logger.info("Validating mzIdentML XML schema for: " + resultFile.getPath() + " using schema: " + schemaFilename);
 
-            logger.info("XML schema validation on " + resultFile.getName());
-            ErrorHandlerIface handler = new ValidationErrorHandler();
+        try{
+        GenericSchemaValidator genericValidator = new GenericSchemaValidator();
+        URI url = MzIdentMLUtils.class.getClassLoader().getResource(schemaFilename).toURI();
+        genericValidator.setSchema(url);
+
             genericValidator.setErrorHandler(handler);
             BufferedReader br = new BufferedReader(new FileReader(resultFile));
             genericValidator.validate(br);
-
+            logger.info("XML schema validation competed on " + resultFile.getName());
             //noinspection unchecked
-            errorMsgs = handler.getErrorMessages(); // ToDo: make ErrorHandlerIface type safe
-        return errorMsgs;
+            errorMessages = handler.getErrorMessages(); // ToDo: make ErrorHandlerIface type safe
+        } catch (IOException | SAXException e) {
+            logger.error("Problem reading or parsing the file: ", e);
+        } catch (URISyntaxException usi) {
+            logger.error("Unable to parse URI syntax: ", usi);
+        }
+        return errorMessages;
     }
 
     /**
