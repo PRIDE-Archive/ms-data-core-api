@@ -10,7 +10,8 @@ import java.io.Serializable;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "MzIdentMLType", propOrder = {
         "sequenceCollection",
-        "dataCollection"
+        "dataCollection",
+        "analysisProtocolCollection"
 })
 public class MzIdentML
         extends Identifiable
@@ -20,10 +21,10 @@ public class MzIdentML
 
     @XmlElement(name = "SequenceCollection")
     protected SequenceCollection sequenceCollection;
-
     @XmlElement(name = "DataCollection", required = true)
     protected DataCollection dataCollection;
-
+    @XmlElement(name = "AnalysisProtocolCollection", required = true)
+    protected AnalysisProtocolCollection analysisProtocolCollection;
     @XmlAttribute(required = true)
     protected String version;
 
@@ -67,6 +68,29 @@ public class MzIdentML
         this.dataCollection = value;
     }
 
+    /**
+     * Gets the value of the analysisProtocolCollection property.
+     *
+     * @return
+     *     possible object is
+     *     {@link AnalysisProtocolCollection }
+     *
+     */
+    public AnalysisProtocolCollection getAnalysisProtocolCollection() {
+        return analysisProtocolCollection;
+    }
+
+    /**
+     * Sets the value of the analysisProtocolCollection property.
+     *
+     * @param value
+     *     allowed object is
+     *     {@link AnalysisProtocolCollection }
+     *
+     */
+    public void setAnalysisProtocolCollection(AnalysisProtocolCollection value) {
+        this.analysisProtocolCollection = value;
+    }
 
     /**
      * Gets the value of the version property.

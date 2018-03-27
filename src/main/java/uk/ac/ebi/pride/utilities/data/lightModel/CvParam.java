@@ -26,25 +26,34 @@ import java.io.Serializable;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "CVParamType")
 public class CvParam
+    extends AbstractParam
         implements Serializable
 {
 
     private final static long serialVersionUID = 100L;
     @XmlAttribute(required = true)
-    protected String cvRef;
-    @XmlAttribute(required = true)
     protected String accession;
+    @XmlAttribute(required = true)
+    protected String cvRef;
 
-    /**
-     * Gets the value of the cvRef property.
-     *
-     * @return
-     *     possible object is
-     *     {@link String }
-     *
-     */
-    public String getCvRef() {
-        return cvRef;
+    @XmlTransient
+    protected Cv cv;
+
+
+    public Cv getCv() {
+        return cv;
+    }
+
+    public void setCv(Cv cv) {
+        if (cv == null) {
+            this.cvRef = null;
+        } else {
+            String refId = cv.getId();
+            if (refId == null) throw new IllegalArgumentException("Referenced object does not have an identifier.");
+            this.cvRef = refId;
+        }
+        this.cv = cv;
+
     }
 
     /**
@@ -71,4 +80,26 @@ public class CvParam
         this.accession = value;
     }
 
+    /**
+     * Gets the value of the cvRef property.
+     *
+     * @return
+     *     possible object is
+     *     {@link String }
+     *
+     */
+    public String getCvRef() {
+        return cvRef;
+    }
+
+    @Override
+    public String toString() {
+        return "CvParam{" +
+                "accession='" + accession + '\'' +
+                ", cv=" + cv +
+                ", name='" + name + '\'' +
+                ", value='" + value + '\'' +
+                ", cvRef='" + cvRef + '\'' +
+                '}';
+    }
 }

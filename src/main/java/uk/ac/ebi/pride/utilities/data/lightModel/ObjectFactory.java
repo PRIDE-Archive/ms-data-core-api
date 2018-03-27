@@ -11,7 +11,7 @@ import javax.xml.namespace.QName;
  * This object contains factory methods for each
  * Java content interface and Java element interface
  * generated in the uk.ac.ebi.pride.model package.
- * <p>An ObjectFactory allows you to programatically
+ * <p>An ObjectFactory allows you to programmatically
  * construct new instances of the Java representation
  * for XML content. The Java representation of XML
  * content can consist of schema derived interfaces
@@ -29,6 +29,13 @@ public class ObjectFactory {
      * Create a new ObjectFactory that can be used to create new instances of schema derived classes for package: uk.ac.ebi.pride.model
      */
     public ObjectFactory() {
+    }
+
+    /**
+     * Create an instance of {@link SpectrumIdentificationProtocol }
+     */
+    public SpectrumIdentificationProtocol createSpectrumIdentificationProtocol() {
+        return new SpectrumIdentificationProtocol();
     }
 
     /**
@@ -53,10 +60,24 @@ public class ObjectFactory {
     }
 
     /**
+     * Create an instance of {@link SearchModification }
+     */
+    public SearchModification createSearchModification() {
+        return new SearchModification();
+    }
+
+    /**
      * Create an instance of {@link Peptide }
      */
     public Peptide createPeptide() {
         return new Peptide();
+    }
+
+    /**
+     * Create an instance of {@link Cv }
+     */
+    public Cv createCv() {
+        return new Cv();
     }
 
     /**
@@ -65,6 +86,14 @@ public class ObjectFactory {
     public SpectraData createSpectraData() {
         return new SpectraData();
     }
+
+    /**
+     * Create an instance of {@link AnalysisProtocolCollection }
+     */
+    public AnalysisProtocolCollection createAnalysisProtocolCollection() {
+        return new AnalysisProtocolCollection();
+    }
+
 
     /**
      * Create an instance of {@link DBSequence }

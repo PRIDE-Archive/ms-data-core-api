@@ -156,6 +156,24 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
      *
      * @return List of Spectra IDs
      */
+    public Collection<CvParam> getIdentifiedUniquePTMs(){
+        return unmarshaller.getIdentifiedUniquePTMs();
+    }
+
+
+    /**
+     * Get all the Search modifications used as search parameter(s) for the identification, they may differ than the identified peptide modifications
+     *
+     * @return Set of unique Search Modifications
+     */
+    public  Collection<CvParam> getSearchMofifications() {
+        return unmarshaller.getSearchModifications();
+    }
+
+    /**
+     * Get IDs of Spectra referenced in the MzIdentML, which are actually not available in the Spectra/Peak list File
+     * @return List of Spectra Ids
+     */
     public Set<Comparable> getMissingIdentifiedSpectraIds() {
         return missingIdentifiedSpectraIds;
     }

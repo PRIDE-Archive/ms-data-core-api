@@ -7,10 +7,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.ac.ebi.pride.utilities.data.lightModel.CvParam;
 
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -29,8 +31,10 @@ public class FastMzIdentMLControllerTest {
     @Before
     public void setUp() throws Exception {
         monitor = MonitorFactory.start("uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl.validateMzIdentML");
-        URL url = FastMzIdentMLControllerTest.class.getClassLoader().getResource("small.mzid");
+        URL url = FastMzIdentMLControllerTest.class.getClassLoader().getResource("carb.mzid");
         URL urlMgf = MzIdentMLControllerIterativeTest.class.getClassLoader().getResource("small.mgf");
+//        URL url = FastMzIdentMLControllerTest.class.getClassLoader().getResource("small.mzid");
+//        URL urlMgf = MzIdentMLControllerIterativeTest.class.getClassLoader().getResource("small.mgf");
 
         if (url == null || urlMgf == null) {
             throw new IllegalStateException("no file for input found!");
@@ -55,6 +59,8 @@ public class FastMzIdentMLControllerTest {
         logger.info("Missing Spectra ID List: " + fastMzIdentMLController.getMissingIdentifiedSpectraIds().toString());
         logger.info("Identified Spectrum Count: " + fastMzIdentMLController.getNumberOfIdentifiedSpectra());
         logger.info("DeltaMz Error Rate: " + fastMzIdentMLController.getSampleDeltaMzErrorRate(12, 4.0));
+        logger.info("Identified Unique PTMs: " + fastMzIdentMLController.getIdentifiedUniquePTMs().toString());
+        logger.info("Search Modifications: " + fastMzIdentMLController.getSearchMofifications().toString());
     }
 
     @Test
@@ -98,5 +104,17 @@ public class FastMzIdentMLControllerTest {
         fastMzIdentMLController.close();
         monitor.stop();
         logger.info(monitor.toString());
+    }
+
+    @Test
+    public void getIdentifiedUniquePTMs() {
+        assertTrue("Total number of identified unique PTMs should be 2", fastMzIdentMLController.getIdentifiedUniquePTMs().size() == 2);
+        logger.info(fastMzIdentMLController.getIdentifiedUniquePTMs().toString());
+    }
+
+    @Test
+    public void getSearchMofifications() {
+        assertTrue("Total number of search modifications should be 1", fastMzIdentMLController.getSearchMofifications().size() == 1);
+        logger.info(fastMzIdentMLController.getSearchMofifications().toString());
     }
 }
