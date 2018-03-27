@@ -38,38 +38,27 @@ public class FastMzIdentMLUnmarshaller {
 
     @SuppressWarnings("unchecked")
     private FastMzIdentMLUnmarshaller(File mzIdentMLFile) {
-
         try {
             if (mzIdentMLFile.exists()) {
                 if (mzIdentML == null) {
-
-                    //Prepare the input, in this case a java.io.File (output)
                     InputSource inputSource = new InputSource(new FileInputStream(mzIdentMLFile));
-
                     //required for the addition of namespaces to top-level objects
                     MzIdentMLNamespaceFilter xmlFilter = new MzIdentMLNamespaceFilter();
-
                     // Lazy caching of the JAXB Context.
                     if (jaxbContext == null) {
                         jaxbContext = JAXBContext.newInstance(MzIdentML.class.getPackage().getName());
                     }
-
                     //create unmarshaller(convert XML to Java objects)
                     Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-
                     //Create an XMLReader to use with our filter
                     XMLReader xmlReader = XMLReaderFactory.createXMLReader();
                     xmlFilter.setParent(xmlReader);
-
                     //Create a SAXSource specifying the filter
                     SAXSource source = new SAXSource(xmlFilter, inputSource);
-
                     //Do unmarshalling
                     JAXBElement<MzIdentML> mzIdentMLJAXBElement = (JAXBElement<MzIdentML>) unmarshaller.unmarshal(source);
-
                     // get mzIdentML Java object
                     this.mzIdentML = mzIdentMLJAXBElement.getValue();
-
                     logger.debug("mzIdentML Unmarshalling completed!");
                 }
             }
