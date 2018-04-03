@@ -84,7 +84,7 @@ public class FastMzIdentMLUnmarshallerAdaptor {
         int modificationCounts = 0;
 
         List<Peptide> peptides = fastMzIdentMLUnmarshaller.getMzIdentML().getSequenceCollection().getPeptide();
-        for (Peptide peptide : peptides){
+        for (Peptide peptide : peptides) {
             peptideCounts++;
             for (Modification modification : peptide.getModification()) {
                 for (CvParam cvParam : modification.getCvParam()) {
@@ -181,6 +181,7 @@ public class FastMzIdentMLUnmarshallerAdaptor {
 
     /**
      * Check if the CvParameter is valid. CvParam should be compliant with PSI-MOD or UNIMOD.
+     *
      * @param cvParam Control vocabulary parameter
      * @return boolean value. If CvParam is valid, it returns true.
      */
@@ -227,7 +228,8 @@ public class FastMzIdentMLUnmarshallerAdaptor {
 
     /**
      * Get List of ProteinAmbiguityGroup if available in the MzIdentML
-     * @return  List of ProteinAmbiguityGroup
+     *
+     * @return List of ProteinAmbiguityGroup
      */
     public List<ProteinAmbiguityGroup> getProteinAmbiguityGroups() {
         return fastMzIdentMLUnmarshaller
@@ -236,6 +238,16 @@ public class FastMzIdentMLUnmarshallerAdaptor {
                 .getAnalysisData()
                 .getProteinDetectionList()
                 .getProteinAmbiguityGroup();
+    }
+
+    /**
+     * Get MzIdentML version. This should be compatible with HUPO-PSI MzIdentML versions
+     * @see <a href="http://www.psidev.info/mzidentml">HUPO-PSI MzidentML</a>
+     *
+     * @return String
+     */
+    public String getVersion() {
+        return fastMzIdentMLUnmarshaller.getMzIdentML().getVersion();
     }
 
     /**

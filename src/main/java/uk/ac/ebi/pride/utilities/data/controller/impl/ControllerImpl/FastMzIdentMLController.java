@@ -89,20 +89,12 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
             for (SpectrumIdentificationResult spectrumIdentificationResult :
                     spectrumIdentificationList.getSpectrumIdentificationResult()) {
                 numberOfIdentifiedSpectra++;
-                String spectrumDataRef =
-                        spectrumIdentificationResult.getSpectraDataRef(); // eg: spectraData_ref="SD_1"
-                String spectrumID =
-                        spectrumIdentificationResult.getSpectrumID(); // eg: spectrumID="index=35"
-                SpectraData spectraData =
-                        spectraDataIds.get(spectrumDataRef); // eg: mgf file location, file format etc
-                String formattedSpectrumID =
-                        MzIdentMLUtils.getSpectrumId(
-                                SimpleToJmzIdentMLTransformer.convertSpectraDataToJmzidml(spectraData),
-                                spectrumID); // eg: 35
+                String spectrumDataRef = spectrumIdentificationResult.getSpectraDataRef(); // eg: spectraData_ref="SD_1"
+                String spectrumID = spectrumIdentificationResult.getSpectrumID(); // eg: spectrumID="index=35"
+                SpectraData spectraData = spectraDataIds.get(spectrumDataRef); // eg: mgf file location, file format etc
+                String formattedSpectrumID = MzIdentMLUtils.getSpectrumId(SimpleToJmzIdentMLTransformer.convertSpectraDataToJmzidml(spectraData), spectrumID); // eg: 35
                 spectrumIdentificationResult.setFormattedSpectrumID(formattedSpectrumID);
-                SpectrumIdentResultsGroupedBySpectraIDs.computeIfAbsent(
-                        spectrumDataRef, value -> new ArrayList<>())
-                        .add(spectrumIdentificationResult);
+                SpectrumIdentResultsGroupedBySpectraIDs.computeIfAbsent(spectrumDataRef, value -> new ArrayList<>()).add(spectrumIdentificationResult);
                 // check the spectra referenced in the mzIdentML also available in the peak files
                 dataAccessController = msDataAccessControllers.get(spectrumDataRef);
                 if (!isSpectraInPeakFile(dataAccessController, formattedSpectrumID)) {
@@ -277,17 +269,12 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
             int errorPSMCount = 0;
 
             for (SpectrumIdentificationItem SpectrumIdentificationItem : PSMList) {
-                logger.debug(
-                        "SpectrumIdentificationItem  - "
-                                + SpectrumIdentificationItem.getId()
-                                + "has been selected for random checkup");
+                logger.debug("SpectrumIdentificationItem  - " + SpectrumIdentificationItem.getId() + "has been selected for random checkup");
                 Boolean result = checkDeltaMassThreshold(SpectrumIdentificationItem, deltaThreshold);
                 if (!result) errorPSMCount++;
             }
             deltaMzErrorRate =
-                    new BigDecimal(((double) errorPSMCount / numberOfChecks))
-                            .setScale(2, RoundingMode.HALF_UP)
-                            .doubleValue();
+                    new BigDecimal(((double) errorPSMCount / numberOfChecks)).setScale(2, RoundingMode.HALF_UP).doubleValue();
         }
         return deltaMzErrorRate;
     }
@@ -320,10 +307,8 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
                 }
             }
             if (selectedPSMs.size() >= numberOfIdentifiedSpectra) {
-                logger.warn(
-                        "Number of checks specified is higher than the number of PSMs! Only "
-                                + numberOfIdentifiedSpectra
-                                + " will be performed!");
+                logger.warn("Number of checks specified is higher than the number of PSMs! Only "
+                        + numberOfIdentifiedSpectra + " will be performed!");
                 break;
             }
         }
