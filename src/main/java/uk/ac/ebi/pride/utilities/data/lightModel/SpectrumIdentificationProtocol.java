@@ -1,6 +1,5 @@
 package uk.ac.ebi.pride.utilities.data.lightModel;
 
-
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -8,11 +7,11 @@ import java.util.List;
 
 /**
  * The parameters and settings of a SpectrumIdentification analysis.
- *
+ * <p>
  * <p>Java class for SpectrumIdentificationProtocolType complex type.
- *
+ * <p>
  * <p>The following schema fragment specifies the expected content contained within this class.
- *
+ * <p>
  * <pre>
  * &lt;complexType name="SpectrumIdentificationProtocolType"&gt;
  *   &lt;complexContent&gt;
@@ -34,8 +33,6 @@ import java.util.List;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "SpectrumIdentificationProtocolType", propOrder = {
@@ -43,8 +40,7 @@ import java.util.List;
 })
 public class SpectrumIdentificationProtocol
         extends Identifiable
-        implements Serializable
-{
+        implements Serializable {
 
     private final static long serialVersionUID = 100L;
     @XmlElement(name = "ModificationParams")
@@ -53,10 +49,8 @@ public class SpectrumIdentificationProtocol
     /**
      * Gets the value of the modificationParams property.
      *
-     * @return
-     *     possible object is
-     *     {@link ModificationParams }
-     *
+     * @return possible object is
+     * {@link ModificationParams }
      */
     public ModificationParams getModificationParams() {
         return modificationParams;
@@ -65,10 +59,8 @@ public class SpectrumIdentificationProtocol
     /**
      * Sets the value of the modificationParams property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link ModificationParams }
-     *
+     * @param value allowed object is
+     *              {@link ModificationParams }
      */
     public void setModificationParams(ModificationParams value) {
         this.modificationParams = value;

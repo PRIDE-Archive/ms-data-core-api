@@ -8,7 +8,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-
 /**
  * One (poly)peptide (a sequence with modifications). The combination of Peptide sequence and modifications must be unique in the file.
  * <p>

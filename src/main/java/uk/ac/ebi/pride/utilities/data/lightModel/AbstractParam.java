@@ -7,9 +7,6 @@ import java.io.Serializable;
 /**
  * Abstract entity allowing either cvParam or userParam to be referenced in other schemas.
  *
- * TODO marshalling/ persistor add validation to check for case where someone gets unitCv and changes its id without updating ref id in
- *      AbstractParam and other such clases.
- *
  * NOTE: There is no setter method for the unitCvRef. This simplifies keeping the unitCv object reference and
  * unitCvRef synchronized.
  *

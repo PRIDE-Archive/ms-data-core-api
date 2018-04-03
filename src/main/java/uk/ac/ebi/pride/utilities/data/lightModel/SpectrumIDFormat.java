@@ -1,9 +1,5 @@
 package uk.ac.ebi.pride.utilities.data.lightModel;
 
-/**
- * @author Suresh Hewapathirana
- */
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -12,11 +8,11 @@ import java.io.Serializable;
 
 /**
  * The format of the spectrum identifier within the source file
- *
+ * <p>
  * <p>Java class for SpectrumIDFormatType complex type.
- *
+ * <p>
  * <p>The following schema fragment specifies the expected content contained within this class.
- *
+ * <p>
  * <pre>
  * &lt;complexType name="SpectrumIDFormatType"&gt;
  *   &lt;complexContent&gt;
@@ -28,8 +24,6 @@ import java.io.Serializable;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "SpectrumIDFormatType", propOrder = {
@@ -37,8 +31,7 @@ import java.io.Serializable;
 })
 public class SpectrumIDFormat
         extends MzIdentMLObject
-        implements Serializable, CvParamCapable
-{
+        implements Serializable, CvParamCapable {
 
     private final static long serialVersionUID = 100L;
     @XmlElement(required = true)
@@ -47,10 +40,8 @@ public class SpectrumIDFormat
     /**
      * Gets the value of the cvParam property.
      *
-     * @return
-     *     possible object is
-     *     {@link CvParam }
-     *
+     * @return possible object is
+     * {@link CvParam }
      */
     public CvParam getCvParam() {
         return cvParam;
@@ -59,13 +50,10 @@ public class SpectrumIDFormat
     /**
      * Sets the value of the cvParam property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link CvParam }
-     *
+     * @param value allowed object is
+     *              {@link CvParam }
      */
     public void setCvParam(CvParam value) {
         this.cvParam = value;
     }
-
 }

@@ -158,6 +158,4 @@ public class ObjectFactory {
     public JAXBElement<MzIdentML> createMzIdentML(MzIdentML value) {
         return new JAXBElement<MzIdentML>(_MzIdentML_QNAME, MzIdentML.class, null, value);
     }
-
-
 }

@@ -73,5 +73,4 @@ public class Inputs
         }
         return this.spectraData;
     }
-
 }

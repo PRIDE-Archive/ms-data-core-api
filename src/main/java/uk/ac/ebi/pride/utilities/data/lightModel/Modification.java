@@ -1,6 +1,5 @@
 package uk.ac.ebi.pride.utilities.data.lightModel;
 
-
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -181,5 +180,4 @@ public class Modification
     public void setMonoisotopicMassDelta(Double value) {
         this.monoisotopicMassDelta = value;
     }
-
 }

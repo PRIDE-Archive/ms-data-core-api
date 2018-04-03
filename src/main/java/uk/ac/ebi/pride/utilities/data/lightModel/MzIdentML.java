@@ -3,7 +3,6 @@ package uk.ac.ebi.pride.utilities.data.lightModel;
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 
-
 /**
  * @author Suresh Hewapathirana
  */
@@ -71,10 +70,8 @@ public class MzIdentML
     /**
      * Gets the value of the analysisProtocolCollection property.
      *
-     * @return
-     *     possible object is
-     *     {@link AnalysisProtocolCollection }
-     *
+     * @return possible object is
+     * {@link AnalysisProtocolCollection }
      */
     public AnalysisProtocolCollection getAnalysisProtocolCollection() {
         return analysisProtocolCollection;
@@ -83,10 +80,8 @@ public class MzIdentML
     /**
      * Sets the value of the analysisProtocolCollection property.
      *
-     * @param value
-     *     allowed object is
-     *     {@link AnalysisProtocolCollection }
-     *
+     * @param value allowed object is
+     *              {@link AnalysisProtocolCollection }
      */
     public void setAnalysisProtocolCollection(AnalysisProtocolCollection value) {
         this.analysisProtocolCollection = value;
@@ -111,6 +106,5 @@ public class MzIdentML
     public void setVersion(String value) {
         this.version = value;
     }
-
 }
 

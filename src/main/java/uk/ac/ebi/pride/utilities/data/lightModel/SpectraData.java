@@ -56,5 +56,4 @@ public class SpectraData
     public void setSpectrumIDFormat(SpectrumIDFormat value) {
         this.spectrumIDFormat = value;
     }
-
 }

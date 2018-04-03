@@ -51,6 +51,7 @@ public final class Constants {
     public static final String PSI_MOD = "MOD";
     public static final String MS = "MS";
     public static final String UNIMOD = "UNIMOD";
+    public static final String ANCHOR_PROTEIN = "MS:1001591";
 
 
     /**

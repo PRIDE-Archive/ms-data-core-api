@@ -1,6 +1,5 @@
 package uk.ac.ebi.pride.utilities.data.lightModel;
 
-
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -8,11 +7,11 @@ import java.util.List;
 
 /**
  * Specification of a search modification as parameter for a spectra search. Contains the name of the modification, the mass, the specificity and whether it is a static modification.
- *
+ * <p>
  * <p>Java class for SearchModificationType complex type.
- *
+ * <p>
  * <p>The following schema fragment specifies the expected content contained within this class.
- *
+ * <p>
  * <pre>
  * &lt;complexType name="SearchModificationType"&gt;
  *   &lt;complexContent&gt;
@@ -28,8 +27,6 @@ import java.util.List;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "SearchModificationType", propOrder = {
@@ -37,8 +34,7 @@ import java.util.List;
 })
 public class SearchModification
         extends MzIdentMLObject
-        implements Serializable
-{
+        implements Serializable {
 
     private final static long serialVersionUID = 100L;
     @XmlElement(required = true)
@@ -52,25 +48,23 @@ public class SearchModification
 
     /**
      * Gets the value of the cvParam property.
-     *
+     * <p>
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
      * This is why there is not a <CODE>set</CODE> method for the cvParam property.
-     *
+     * <p>
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
      *    getCvParam().add(newItem);
      * </pre>
-     *
-     *
+     * <p>
+     * <p>
      * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link CvParam }
-     *
-     *
      */
     public List<CvParam> getCvParam() {
         if (cvParam == null) {
@@ -81,7 +75,6 @@ public class SearchModification
 
     /**
      * Gets the value of the fixedMod property.
-     *
      */
     public boolean isFixedMod() {
         return fixedMod;
@@ -89,7 +82,6 @@ public class SearchModification
 
     /**
      * Sets the value of the fixedMod property.
-     *
      */
     public void setFixedMod(boolean value) {
         this.fixedMod = value;
@@ -97,7 +89,6 @@ public class SearchModification
 
     /**
      * Gets the value of the massDelta property.
-     *
      */
     public float getMassDelta() {
         return massDelta;
@@ -105,7 +96,6 @@ public class SearchModification
 
     /**
      * Sets the value of the massDelta property.
-     *
      */
     public void setMassDelta(float value) {
         this.massDelta = value;
@@ -113,25 +103,23 @@ public class SearchModification
 
     /**
      * Gets the value of the residues property.
-     *
+     * <p>
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
      * This is why there is not a <CODE>set</CODE> method for the residues property.
-     *
+     * <p>
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
      *    getResidues().add(newItem);
      * </pre>
-     *
-     *
+     * <p>
+     * <p>
      * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link String }
-     *
-     *
      */
     public List<String> getResidues() {
         if (residues == null) {

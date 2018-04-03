@@ -1,6 +1,5 @@
 package uk.ac.ebi.pride.utilities.data.lightModel;
 
-
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 

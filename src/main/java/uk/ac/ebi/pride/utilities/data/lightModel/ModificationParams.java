@@ -1,6 +1,5 @@
 package uk.ac.ebi.pride.utilities.data.lightModel;
 
-
 import uk.ac.ebi.jmzidml.model.MzIdentMLObject;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -13,11 +12,11 @@ import java.util.List;
 
 /**
  * The specification of static/variable modifications (e.g. Oxidation of Methionine) that are to be considered in the spectra search.
- *
+ * <p>
  * <p>Java class for ModificationParamsType complex type.
- *
+ * <p>
  * <p>The following schema fragment specifies the expected content contained within this class.
- *
+ * <p>
  * <pre>
  * &lt;complexType name="ModificationParamsType"&gt;
  *   &lt;complexContent&gt;
@@ -29,8 +28,6 @@ import java.util.List;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ModificationParamsType", propOrder = {
@@ -38,8 +35,7 @@ import java.util.List;
 })
 public class ModificationParams
         extends MzIdentMLObject
-        implements Serializable
-{
+        implements Serializable {
 
     private final static long serialVersionUID = 100L;
     @XmlElement(name = "SearchModification", required = true)
@@ -47,25 +43,23 @@ public class ModificationParams
 
     /**
      * Gets the value of the searchModification property.
-     *
+     * <p>
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
      * This is why there is not a <CODE>set</CODE> method for the searchModification property.
-     *
+     * <p>
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
      *    getSearchModification().add(newItem);
      * </pre>
-     *
-     *
+     * <p>
+     * <p>
      * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link SearchModification }
-     *
-     *
      */
     public List<SearchModification> getSearchModification() {
         if (searchModification == null) {
@@ -73,5 +67,4 @@ public class ModificationParams
         }
         return this.searchModification;
     }
-
 }

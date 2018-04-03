@@ -7,11 +7,11 @@ import java.util.List;
 
 /**
  * Represents the set of all search results from SpectrumIdentification.
- *
+ * <p>
  * <p>Java class for SpectrumIdentificationListType complex type.
- *
+ * <p>
  * <p>The following schema fragment specifies the expected content contained within this class.
- *
+ * <p>
  * <pre>
  * &lt;complexType name="SpectrumIdentificationListType"&gt;
  *   &lt;complexContent&gt;
@@ -26,8 +26,6 @@ import java.util.List;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "SpectrumIdentificationListType", propOrder = {
@@ -35,8 +33,7 @@ import java.util.List;
 })
 public class SpectrumIdentificationList
         extends Identifiable
-        implements Serializable
-{
+        implements Serializable {
 
     private final static long serialVersionUID = 100L;
     @XmlElement(name = "SpectrumIdentificationResult", required = true)
@@ -44,25 +41,23 @@ public class SpectrumIdentificationList
 
     /**
      * Gets the value of the spectrumIdentificationResult property.
-     *
+     * <p>
      * <p>
      * This accessor method returns a reference to the live list,
      * not a snapshot. Therefore any modification you make to the
      * returned list will be present inside the JAXB object.
      * This is why there is not a <CODE>set</CODE> method for the spectrumIdentificationResult property.
-     *
+     * <p>
      * <p>
      * For example, to add a new item, do as follows:
      * <pre>
      *    getSpectrumIdentificationResult().add(newItem);
      * </pre>
-     *
-     *
+     * <p>
+     * <p>
      * <p>
      * Objects of the following type(s) are allowed in the list
      * {@link SpectrumIdentificationResult }
-     *
-     *
      */
     public List<SpectrumIdentificationResult> getSpectrumIdentificationResult() {
         if (spectrumIdentificationResult == null) {
