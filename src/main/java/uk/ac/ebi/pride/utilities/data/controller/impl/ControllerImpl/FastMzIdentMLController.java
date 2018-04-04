@@ -1,5 +1,8 @@
 package uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl;
 
+
+import lombok.extern.java.Log;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessController;
@@ -24,9 +27,10 @@ import java.util.*;
  *
  * @author Suresh Hewapathirana
  */
+@Slf4j
 public class FastMzIdentMLController extends ReferencedIdentificationController {
 
-    private static final Logger logger = LoggerFactory.getLogger(FastMzIdentMLController.class);
+//    private static final Logger log = LoggerFactory.getLogger(FastMzIdentMLController.class);
 
     private int numberOfIdentifiedSpectra = 0;
     private double deltaMzErrorRate = 0.0;
@@ -61,15 +65,6 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
     }
 
     /**
-     * Get the FastMzIdentMLUnmarshallerAdaptor to be used by the CacheBuilder Implementation.
-     *
-     * @return MzIdentMLUnmarshallerAdaptor
-     */
-    public FastMzIdentMLUnmarshallerAdaptor getUnmarshaller() {
-        return unmarshaller;
-    }
-
-    /**
      * This is an initial scan through all the spectrumIdentificationLists and
      * spectrumIdentificationLists, and cross check if the spectra are available in the peak file.
      * Number of calculations such as Number of missing spectra, identified spectra will be performed.
@@ -86,8 +81,7 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
         for (SpectrumIdentificationList spectrumIdentificationList : spectrumIdentificationLists) {
             // eg: <SpectrumIdentificationResult id="SIR_12" spectrumID="index=35"
             // spectraData_ref="SD_1">...</SpectrumIdentificationResult>
-            for (SpectrumIdentificationResult spectrumIdentificationResult :
-                    spectrumIdentificationList.getSpectrumIdentificationResult()) {
+            for (SpectrumIdentificationResult spectrumIdentificationResult : spectrumIdentificationList.getSpectrumIdentificationResult()) {
                 numberOfIdentifiedSpectra++;
                 String spectrumDataRef = spectrumIdentificationResult.getSpectraDataRef(); // eg: spectraData_ref="SD_1"
                 String spectrumID = spectrumIdentificationResult.getSpectrumID(); // eg: spectrumID="index=35"
@@ -102,6 +96,15 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
                 }
             }
         }
+    }
+
+    /**
+     * Get the FastMzIdentMLUnmarshallerAdaptor to be used by the CacheBuilder Implementation.
+     *
+     * @return MzIdentMLUnmarshallerAdaptor
+     */
+    public FastMzIdentMLUnmarshallerAdaptor getUnmarshaller() {
+        return unmarshaller;
     }
 
     /**
@@ -269,7 +272,7 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
             int errorPSMCount = 0;
 
             for (SpectrumIdentificationItem SpectrumIdentificationItem : PSMList) {
-                logger.debug("SpectrumIdentificationItem  - " + SpectrumIdentificationItem.getId() + "has been selected for random checkup");
+                log.debug("SpectrumIdentificationItem  - " + SpectrumIdentificationItem.getId() + "has been selected for random checkup");
                 Boolean result = checkDeltaMassThreshold(SpectrumIdentificationItem, deltaThreshold);
                 if (!result) errorPSMCount++;
             }
@@ -307,7 +310,7 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
                 }
             }
             if (selectedPSMs.size() >= numberOfIdentifiedSpectra) {
-                logger.warn("Number of checks specified is higher than the number of PSMs! Only "
+                log.warn("Number of checks specified is higher than the number of PSMs! Only "
                         + numberOfIdentifiedSpectra + " will be performed!");
                 break;
             }
@@ -333,10 +336,9 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
         if (peptide != null) {
             List<Double> ptmMasses = unmarshaller.getPTMMassesFromPeptide(peptide);
             if (mz == -1) {
-                Spectrum spectrum =
-                        dataAccessController.getSpectrumById(
-                                spectrumIdentificationItem.getFormattedSpectrumID());
+                Spectrum spectrum = dataAccessController.getSpectrumById(spectrumIdentificationItem.getFormattedSpectrumID());
                 if (spectrum != null) {
+                    // TODO: cover this part in the unit test
                     charge = dataAccessController.getSpectrumPrecursorCharge(spectrum.getId());
                     mz = dataAccessController.getSpectrumPrecursorMz(spectrum.getId());
                 } else {
@@ -356,7 +358,7 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
                 }
             }
         } else {
-            logger.error("Random peptide is null! peptideRef:" + peptideRef);
+            log.error("Random peptide is null! peptideRef:" + peptideRef);
             isDeltaMassThresholdPassed = false;
         }
         return isDeltaMassThresholdPassed;
@@ -370,8 +372,7 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
      * @param formattedSpectrumID  SpectrumID formatted based on the peak list file type
      * @return boolean value, false - if spectra cannot be found in the peak file
      */
-    private boolean isSpectraInPeakFile(
-            DataAccessController dataAccessController, String formattedSpectrumID) {
+    private boolean isSpectraInPeakFile(DataAccessController dataAccessController, String formattedSpectrumID) {
         boolean spectraFound = true;
         if (dataAccessController != null) {
             spectraFound = dataAccessController.getSpectrumIds().contains(formattedSpectrumID);

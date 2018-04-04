@@ -2,6 +2,7 @@ package uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl;
 
 import com.jamonapi.Monitor;
 import com.jamonapi.MonitorFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,11 +18,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
+ * Most of the public methods of FastMzIdentMLController required for the validation are tested by FastMzIdentMLControllerTest class.
+ *
  * @author Suresh Hewapathirana
  */
+@Slf4j
 public class FastMzIdentMLControllerTest {
 
-    private static final Logger logger = LoggerFactory.getLogger(FastMzIdentMLControllerTest.class);
+//    private static final Logger log = LoggerFactory.getLogger(FastMzIdentMLControllerTest.class);
     private FastMzIdentMLController fastMzIdentMLController;
     Monitor monitor;
 
@@ -56,17 +60,17 @@ public class FastMzIdentMLControllerTest {
      */
     @Test
     public void printValidationsResults() {
-        logger.info("Protein Counts: " + fastMzIdentMLController.getNumberOfProteins());
-        logger.info("Peptide Counts: " + fastMzIdentMLController.getNumberOfPeptides());
-        logger.info("PeptidoForms Counts: " + fastMzIdentMLController.getNumberOfPeptidoForms());
-        logger.info("Unique Peptide Counts: " + fastMzIdentMLController.getNumberOfUniquePeptides());
-        logger.info("Spectrum Count: " + fastMzIdentMLController.getNumberOfSpectra());
-        logger.info("Missing Spectrum Count: " + fastMzIdentMLController.getNumberOfMissingSpectra());
-        logger.info("Missing Spectra ID List: " + fastMzIdentMLController.getMissingIdentifiedSpectraIds().toString());
-        logger.info("Identified Spectrum Count: " + fastMzIdentMLController.getNumberOfIdentifiedSpectra());
-        logger.info("DeltaMz Error Rate: " + fastMzIdentMLController.getSampleDeltaMzErrorRate(12, 4.0));
-        logger.info("Identified Unique PTMs: " + fastMzIdentMLController.getIdentifiedUniquePTMs().toString());
-        logger.info("Search Modifications: " + fastMzIdentMLController.getSearchModifications().toString());
+        log.info("Protein Counts: " + fastMzIdentMLController.getNumberOfProteins());
+        log.info("Peptide Counts: " + fastMzIdentMLController.getNumberOfPeptides());
+        log.info("PeptidoForms Counts: " + fastMzIdentMLController.getNumberOfPeptidoForms());
+        log.info("Unique Peptide Counts: " + fastMzIdentMLController.getNumberOfUniquePeptides());
+        log.info("Spectrum Count: " + fastMzIdentMLController.getNumberOfSpectra());
+        log.info("Missing Spectrum Count: " + fastMzIdentMLController.getNumberOfMissingSpectra());
+        log.info("Missing Spectra ID List: " + fastMzIdentMLController.getMissingIdentifiedSpectraIds().toString());
+        log.info("Identified Spectrum Count: " + fastMzIdentMLController.getNumberOfIdentifiedSpectra());
+        log.info("DeltaMz Error Rate: " + fastMzIdentMLController.getSampleDeltaMzErrorRate(100, 4.0));
+        log.info("Identified Unique PTMs: " + fastMzIdentMLController.getIdentifiedUniquePTMs().toString());
+        log.info("Search Modifications: " + fastMzIdentMLController.getSearchModifications().toString());
     }
 
     @Test
@@ -119,13 +123,13 @@ public class FastMzIdentMLControllerTest {
     @Test
     public void getIdentifiedUniquePTMs() {
         assertTrue("Total number of identified unique PTMs should be 3", fastMzIdentMLController.getIdentifiedUniquePTMs().size() == 3);
-        logger.info(fastMzIdentMLController.getIdentifiedUniquePTMs().toString());
+        log.info(fastMzIdentMLController.getIdentifiedUniquePTMs().toString());
     }
 
     @Test
     public void getSearchModifications() {
         assertTrue("Total number of search modifications should be 2", fastMzIdentMLController.getSearchModifications().size() == 2);
-        logger.info(fastMzIdentMLController.getSearchModifications().toString());
+        log.info(fastMzIdentMLController.getSearchModifications().toString());
     }
 
     @Test
@@ -133,10 +137,13 @@ public class FastMzIdentMLControllerTest {
         assertTrue("Total number of protein ambiguity groups  should be 1", fastMzIdentMLController.getAnchorProteinIds().size() == 1);
     }
 
+    /**
+     * clear the MzIdentML object which holds all the data in memory
+     */
     @After
     public void tearDown() {
         fastMzIdentMLController.close();
         monitor.stop();
-        logger.info(monitor.toString());
+        log.info(monitor.toString());
     }
 }
