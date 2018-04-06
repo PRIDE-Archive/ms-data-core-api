@@ -1,5 +1,9 @@
 package uk.ac.ebi.pride.utilities.data.lightModel;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 
@@ -25,13 +29,15 @@ import java.io.Serializable;
  *
  *
  */
+@Getter
+@Setter
+@ToString
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "cvType")
-public class Cv
-        extends MzIdentMLObject
-        implements Serializable {
+public class Cv extends MzIdentMLObject implements Serializable {
 
     private final static long serialVersionUID = 100L;
+
     @XmlAttribute(required = true)
     protected String fullName;
     @XmlAttribute
@@ -41,94 +47,4 @@ public class Cv
     protected String uri;
     @XmlAttribute(required = true)
     protected String id;
-
-    /**
-     * Gets the value of the fullName property.
-     *
-     * @return possible object is
-     * {@link String }
-     */
-    public String getFullName() {
-        return fullName;
-    }
-
-    /**
-     * Sets the value of the fullName property.
-     *
-     * @param value allowed object is
-     *              {@link String }
-     */
-    public void setFullName(String value) {
-        this.fullName = value;
-    }
-
-    /**
-     * Gets the value of the version property.
-     *
-     * @return possible object is
-     * {@link String }
-     */
-    public String getVersion() {
-        return version;
-    }
-
-    /**
-     * Sets the value of the version property.
-     *
-     * @param value allowed object is
-     *              {@link String }
-     */
-    public void setVersion(String value) {
-        this.version = value;
-    }
-
-    /**
-     * Gets the value of the uri property.
-     *
-     * @return possible object is
-     * {@link String }
-     */
-    public String getUri() {
-        return uri;
-    }
-
-    /**
-     * Sets the value of the uri property.
-     *
-     * @param value allowed object is
-     *              {@link String }
-     */
-    public void setUri(String value) {
-        this.uri = value;
-    }
-
-    /**
-     * Gets the value of the id property.
-     *
-     * @return possible object is
-     * {@link String }
-     */
-    public String getId() {
-        return id;
-    }
-
-    /**
-     * Sets the value of the id property.
-     *
-     * @param value allowed object is
-     *              {@link String }
-     */
-    public void setId(String value) {
-        this.id = value;
-    }
-
-    @Override
-    public String toString() {
-        return "Cv{" +
-                "fullName='" + fullName + '\'' +
-                ", version='" + version + '\'' +
-                ", uri='" + uri + '\'' +
-                ", id='" + id + '\'' +
-                '}';
-    }
 }

@@ -1,5 +1,7 @@
 package uk.ac.ebi.pride.utilities.data.io.file;
 
+import uk.ac.ebi.pride.utilities.data.controller.impl.Transformer.LightModelsTransformer;
+import uk.ac.ebi.pride.utilities.data.core.SourceFile;
 import uk.ac.ebi.pride.utilities.data.lightModel.*;
 import uk.ac.ebi.pride.utilities.pridemod.ModReader;
 
@@ -198,20 +200,6 @@ public class FastMzIdentMLUnmarshallerAdaptor {
      * file location, file format etc.
      *
      * @return Map of SpectraData grouped by SpectraData ID
-     * <p>
-     * Example of DataCollection section in MzIdentML:
-     * <DataCollection>
-     * <Inputs>
-     * <SpectraData location="file:///lolo//small.mgf" id="SD_1">
-     * <FileFormat>
-     * <cvParam accession="MS:1001062" name="Mascot MGF file" cvRef="PSI-MS" />
-     * </FileFormat>
-     * <SpectrumIDFormat>
-     * <cvParam accession="MS:1000774" name="multiple peak list nativeID format" cvRef="PSI-MS" />
-     * </SpectrumIDFormat>
-     * </SpectraData>
-     * </Inputs>
-     * </DataCollection>
      */
     public Map<Comparable, SpectraData> getSpectraDataMap() {
         Inputs inputs = fastMzIdentMLUnmarshaller.getMzIdentML().getDataCollection().getInputs();
@@ -241,6 +229,24 @@ public class FastMzIdentMLUnmarshallerAdaptor {
     }
 
     /**
+     * Get Id of the MzIdentML tag
+     *
+     * @return MzIdentML Id
+     */
+    public String getMzIdentMLId() {
+        return fastMzIdentMLUnmarshaller.getMzIdentML().getId();
+    }
+
+    /**
+     * Name of the MzIdentML file
+     *
+     * @return
+     */
+    public String getMzIdentMLName() {
+        return fastMzIdentMLUnmarshaller.getMzIdentML().getName();
+    }
+
+    /**
      * Get MzIdentML version. This should be compatible with HUPO-PSI MzIdentML versions
      * @see <a href="http://www.psidev.info/mzidentml">HUPO-PSI MzidentML</a>
      *
@@ -248,6 +254,14 @@ public class FastMzIdentMLUnmarshallerAdaptor {
      */
     public String getVersion() {
         return fastMzIdentMLUnmarshaller.getMzIdentML().getVersion();
+    }
+
+    public List<uk.ac.ebi.pride.utilities.data.core.Software> getSoftwares() {
+        List<uk.ac.ebi.pride.utilities.data.core.Software> softwares = new ArrayList<>();
+        for (AnalysisSoftware analysisSoftware : fastMzIdentMLUnmarshaller.getMzIdentML().getAnalysisSoftwareList().getAnalysisSoftware()){
+            softwares.add(LightModelsTransformer.transformToSoftware(analysisSoftware));
+        }
+        return softwares;
     }
 
     /**
@@ -259,5 +273,14 @@ public class FastMzIdentMLUnmarshallerAdaptor {
      */
     public void close() {
         fastMzIdentMLUnmarshaller.destroy();
+    }
+
+//    public List<Sample> getSamples() {
+//
+//    }
+//
+    public List<SourceFile> getSourceFiles() {
+       return LightModelsTransformer.transformToSourceFiles(fastMzIdentMLUnmarshaller.getMzIdentML().getDataCollection().getInputs().getSourceFile());
+
     }
 }

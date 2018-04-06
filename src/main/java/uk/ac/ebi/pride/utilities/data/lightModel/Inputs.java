@@ -42,8 +42,39 @@ public class Inputs
 
     private final static long serialVersionUID = 100L;
 
+    @XmlElement(name = "SourceFile")
+    protected List<SourceFile> sourceFile;
     @XmlElement(name = "SpectraData", required = true)
     protected List<SpectraData> spectraData;
+
+    /**
+     * Gets the value of the sourceFile property.
+     *
+     * <p>
+     * This accessor method returns a reference to the live list,
+     * not a snapshot. Therefore any modification you make to the
+     * returned list will be present inside the JAXB object.
+     * This is why there is not a <CODE>set</CODE> method for the sourceFile property.
+     *
+     * <p>
+     * For example, to add a new item, do as follows:
+     * <pre>
+     *    getSourceFile().add(newItem);
+     * </pre>
+     *
+     *
+     * <p>
+     * Objects of the following type(s) are allowed in the list
+     * {@link SourceFile }
+     *
+     *
+     */
+    public List<SourceFile> getSourceFile() {
+        if (sourceFile == null) {
+            sourceFile = new ArrayList<SourceFile>();
+        }
+        return this.sourceFile;
+    }
 
     /**
      * Gets the value of the spectraData property.

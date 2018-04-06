@@ -22,10 +22,10 @@ import static org.junit.Assert.assertTrue;
  *
  * @author Suresh Hewapathirana
  */
-@Slf4j
 public class FastMzIdentMLControllerTest {
 
-//    private static final Logger log = LoggerFactory.getLogger(FastMzIdentMLControllerTest.class);
+    private static final Logger log = LoggerFactory.getLogger(FastMzIdentMLControllerTest.class);
+
     private FastMzIdentMLController fastMzIdentMLController;
     Monitor monitor;
 
@@ -135,6 +135,11 @@ public class FastMzIdentMLControllerTest {
     @Test
     public void getAnchorProteinIds() {
         assertTrue("Total number of protein ambiguity groups  should be 1", fastMzIdentMLController.getAnchorProteinIds().size() == 1);
+    }
+
+    @Test
+    public void getExperimentMetaData() {
+        fastMzIdentMLController.getExperimentMetaData();
     }
 
     /**

@@ -1,17 +1,18 @@
 package uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl;
 
-
-import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessController;
+import uk.ac.ebi.pride.utilities.data.controller.DataAccessException;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessMode;
 import uk.ac.ebi.pride.utilities.data.controller.cache.strategy.FastMzIdentMLCachingStrategy;
-import uk.ac.ebi.pride.utilities.data.controller.impl.Transformer.SimpleToJmzIdentMLTransformer;
-import uk.ac.ebi.pride.utilities.data.core.Spectrum;
+import uk.ac.ebi.pride.utilities.data.controller.impl.Transformer.LightModelsTransformer;
+import uk.ac.ebi.pride.utilities.data.core.*;
 import uk.ac.ebi.pride.utilities.data.io.file.FastMzIdentMLUnmarshallerAdaptor;
 import uk.ac.ebi.pride.utilities.data.lightModel.*;
+import uk.ac.ebi.pride.utilities.data.lightModel.CvParam;
+import uk.ac.ebi.pride.utilities.data.lightModel.Peptide;
+import uk.ac.ebi.pride.utilities.data.lightModel.SpectraData;
+import uk.ac.ebi.pride.utilities.data.lightModel.SpectrumIdentificationList;
 import uk.ac.ebi.pride.utilities.data.utils.Constants;
 import uk.ac.ebi.pride.utilities.data.utils.MzIdentMLUtils;
 import uk.ac.ebi.pride.utilities.mol.MoleculeUtilities;
@@ -29,9 +30,6 @@ import java.util.*;
  */
 @Slf4j
 public class FastMzIdentMLController extends ReferencedIdentificationController {
-
-//    private static final Logger log = LoggerFactory.getLogger(FastMzIdentMLController.class);
-
     private int numberOfIdentifiedSpectra = 0;
     private double deltaMzErrorRate = 0.0;
     private DataAccessController dataAccessController;
@@ -86,7 +84,7 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
                 String spectrumDataRef = spectrumIdentificationResult.getSpectraDataRef(); // eg: spectraData_ref="SD_1"
                 String spectrumID = spectrumIdentificationResult.getSpectrumID(); // eg: spectrumID="index=35"
                 SpectraData spectraData = spectraDataIds.get(spectrumDataRef); // eg: mgf file location, file format etc
-                String formattedSpectrumID = MzIdentMLUtils.getSpectrumId(SimpleToJmzIdentMLTransformer.convertSpectraDataToJmzidml(spectraData), spectrumID); // eg: 35
+                String formattedSpectrumID = MzIdentMLUtils.getSpectrumId(LightModelsTransformer.transformSpectraDataToJmzidml(spectraData), spectrumID); // eg: 35
                 spectrumIdentificationResult.setFormattedSpectrumID(formattedSpectrumID);
                 SpectrumIdentResultsGroupedBySpectraIDs.computeIfAbsent(spectrumDataRef, value -> new ArrayList<>()).add(spectrumIdentificationResult);
                 // check the spectra referenced in the mzIdentML also available in the peak files
@@ -298,13 +296,10 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
 
         while (selectedPSMs.size() < numberOfChecks) {
             for (Map.Entry PSMList : SpectrumIdentResultsGroupedBySpectraIDs.entrySet()) {
-                List<SpectrumIdentificationResult> psms =
-                        (List<SpectrumIdentificationResult>) PSMList.getValue();
+                List<SpectrumIdentificationResult> psms = (List<SpectrumIdentificationResult>) PSMList.getValue();
                 if (psms != null && !psms.isEmpty()) {
-                    SpectrumIdentificationResult SpectrumIdentificationResult =
-                            psms.get(random.nextInt(psms.size()));
-                    SpectrumIdentificationItem psm =
-                            SpectrumIdentificationResult.getSpectrumIdentificationItem().get(0);
+                    SpectrumIdentificationResult SpectrumIdentificationResult = psms.get(random.nextInt(psms.size()));
+                    SpectrumIdentificationItem psm = SpectrumIdentificationResult.getSpectrumIdentificationItem().get(0);
                     psm.setFormattedSpectrumID(SpectrumIdentificationResult.getFormattedSpectrumID());
                     selectedPSMs.add(psm);
                 }
@@ -326,8 +321,7 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
      * @param deltaThreshold             Non-negative Double value(eg: 4.0)
      * @return boolean
      */
-    private boolean checkDeltaMassThreshold(
-            SpectrumIdentificationItem spectrumIdentificationItem, Double deltaThreshold) {
+    private boolean checkDeltaMassThreshold(SpectrumIdentificationItem spectrumIdentificationItem, Double deltaThreshold) {
         boolean isDeltaMassThresholdPassed = true;
         Integer charge = spectrumIdentificationItem.getChargeState();
         double mz = spectrumIdentificationItem.getExperimentalMassToCharge();
@@ -381,6 +375,77 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
             }
         }
         return spectraFound;
+    }
+
+    /**
+     * Get meta data related to this experiment
+     *
+     * @return MetaData meta data object
+     */
+    @Override
+    public ExperimentMetaData getExperimentMetaData() {
+        ExperimentMetaData metaData = super.getExperimentMetaData();
+
+        if (metaData == null) {
+            try {
+                // Get Accession for MzIdentML Object
+                String accession = unmarshaller.getMzIdentMLId();
+                System.out.println("------------ Accession: " + accession);
+
+                // Get the Version of the MzIdentML File.
+                String version = unmarshaller.getVersion();
+                System.out.println("------------ Version: " + version);
+
+                // Get the Experiment Title
+                String title = unmarshaller.getMzIdentMLName();
+
+                // Get The Experiment Short Label, in case of mzidentml this date is not provided.
+                String shortLabel = null;
+
+                // Get all the softwares related with the object
+                List<Software> softwares = unmarshaller.getSoftwares();
+
+//                // Get Source File List
+//                List<SourceFile> sources = unmarshaller.getSourceFiles();
+//
+//                //Get Sample List
+//                List<Sample> samples = unmarshaller.getSamples();
+
+//                // Get Contact Persons
+//                List<Person> persons = getPersonContacts();
+
+//                // Get the Contact Organization
+//                List<Organization> organizations = getOrganizationContacts();
+
+//                // Get Additional Information Related with the Project
+//                ParamGroup additional = getAdditional();
+
+
+//                //Get Experiment Protocol in case of mzidentml Experiment Protocol is empty.
+//                ExperimentProtocol protocol = null;
+
+//                // Get References From the Experiment
+//                List<Reference> references = getReferences();
+
+//                // Get the provider object of the MzIdentMl file
+//                Provider provider = getProvider();
+//                //Get Creation Date
+//                Date creationDate = unmarshaller.getCreationDate();
+//                //Get SpectraData Files
+//                List<SpectraData> spectraData = getSpectraDataFiles();
+
+                //Create the ExperimentMetaData Object
+//                metaData = new ExperimentMetaData(additional, accession, title, version, shortLabel, samples, softwares,
+//                        persons, sources, provider, organizations, references, creationDate, null, protocol, spectraData);
+//                // store it in the cache
+//                getCache().store(CacheEntry.EXPERIMENT_METADATA, metaData);
+            } catch (Exception ex) {
+                throw new DataAccessException("Failed to retrieve meta data", ex);
+            }
+        }
+        //System.out.println("Protein Ids: " + getProteinIds().size());
+        //System.out.println("Peptide Ids: " + getNumberOfPeptides());
+        return metaData;
     }
 
     /**
