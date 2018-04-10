@@ -317,20 +317,20 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
      * Check if the Delta Mass is within the threshold value passed as a parameter. Peptide
      * modifications are also included for the calculations.
      *
-     * @param spectrumIdentificationItem SpectrumIdentificationItem object from mzIdentML
+     * @param spectrumIdentItem SpectrumIdentificationItem object from mzIdentML
      * @param deltaThreshold             Non-negative Double value(eg: 4.0)
      * @return boolean
      */
-    private boolean checkDeltaMassThreshold(SpectrumIdentificationItem spectrumIdentificationItem, Double deltaThreshold) {
+    private boolean checkDeltaMassThreshold(SpectrumIdentificationItem spectrumIdentItem, Double deltaThreshold) {
         boolean isDeltaMassThresholdPassed = true;
-        Integer charge = spectrumIdentificationItem.getChargeState();
-        double mz = spectrumIdentificationItem.getExperimentalMassToCharge();
-        String peptideRef = spectrumIdentificationItem.getPeptideRef();
+        Integer charge = spectrumIdentItem.getChargeState();
+        double mz = spectrumIdentItem.getExperimentalMassToCharge();
+        String peptideRef = spectrumIdentItem.getPeptideRef();
         Peptide peptide = unmarshaller.getPeptideById(peptideRef);
         if (peptide != null) {
             List<Double> ptmMasses = unmarshaller.getPTMMassesFromPeptide(peptide);
             if (mz == -1) {
-                Spectrum spectrum = dataAccessController.getSpectrumById(spectrumIdentificationItem.getFormattedSpectrumID());
+                Spectrum spectrum = dataAccessController.getSpectrumById(spectrumIdentItem.getFormattedSpectrumID());
                 if (spectrum != null) {
                     // TODO: cover this part in the unit test
                     charge = dataAccessController.getSpectrumPrecursorCharge(spectrum.getId());
@@ -388,21 +388,10 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
 
         if (metaData == null) {
             try {
-                // Get Accession for MzIdentML Object
                 String accession = unmarshaller.getMzIdentMLId();
-                System.out.println("------------ Accession: " + accession);
-
-                // Get the Version of the MzIdentML File.
                 String version = unmarshaller.getVersion();
-                System.out.println("------------ Version: " + version);
-
-                // Get the Experiment Title
-                String title = unmarshaller.getMzIdentMLName();
-
-                // Get The Experiment Short Label, in case of mzidentml this date is not provided.
-                String shortLabel = null;
-
-                // Get all the softwares related with the object
+                String experimentTitle = unmarshaller.getMzIdentMLName();
+                String shortLabel = null; // in case of mzidentml, this is not provided.
                 List<Software> softwares = unmarshaller.getSoftwares();
 
 //                // Get Source File List

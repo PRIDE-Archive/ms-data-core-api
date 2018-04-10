@@ -256,12 +256,17 @@ public class FastMzIdentMLUnmarshallerAdaptor {
         return fastMzIdentMLUnmarshaller.getMzIdentML().getVersion();
     }
 
+    /**
+     * Get Software in MzIdentML
+     *
+     * @return List of Software
+     */
     public List<uk.ac.ebi.pride.utilities.data.core.Software> getSoftwares() {
-        List<uk.ac.ebi.pride.utilities.data.core.Software> softwares = new ArrayList<>();
+        List<uk.ac.ebi.pride.utilities.data.core.Software> softwareList = new ArrayList<>();
         for (AnalysisSoftware analysisSoftware : fastMzIdentMLUnmarshaller.getMzIdentML().getAnalysisSoftwareList().getAnalysisSoftware()){
-            softwares.add(LightModelsTransformer.transformToSoftware(analysisSoftware));
+            softwareList.add(LightModelsTransformer.transformToSoftware(analysisSoftware));
         }
-        return softwares;
+        return softwareList;
     }
 
     /**

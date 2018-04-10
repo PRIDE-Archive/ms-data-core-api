@@ -18,6 +18,7 @@ import java.util.List;
 @Slf4j
 public class LightModelsTransformer{
 
+    // TODO: This method should be removed.
     public static uk.ac.ebi.jmzidml.model.mzidml.SpectraData transformSpectraDataToJmzidml(SpectraData spectraData) {
 
         try {
@@ -34,16 +35,18 @@ public class LightModelsTransformer{
 
             return spectraDataJmzidml;
         } catch (Exception ex) {
-            log.error("Error occurred while converting uk.ac.ebi.pride.utilities.data.lightModel.SpectraData to uk.ac.ebi.jmzidml.model.mzidml.SpectraData");
+            log.error("Error occurred while converting uk.ac.ebi.pride.utilities.data.lightModel.SpectraData " +
+                    "to uk.ac.ebi.jmzidml.model.mzidml.SpectraData");
             return null;
         }
     }
 
     /**
-     * This method converts the Software from uk.ac.ebi.pride.utilities.data.lightModel.AnalysisSoftware to uk.ac.ebi.pride.utilities.data.core.Software model
+     * This method converts the Software from uk.ac.ebi.pride.utilities.data.lightModel.AnalysisSoftware
+     * to uk.ac.ebi.pride.utilities.data.core.Software object
      *
-     * @param analysisSoftware
-     * @return
+     * @param analysisSoftware uk.ac.ebi.pride.utilities.data.lightModel.AnalysisSoftware object
+     * @return uk.ac.ebi.pride.utilities.data.core.Software object
      */
     public static Software transformToSoftware(uk.ac.ebi.pride.utilities.data.lightModel.AnalysisSoftware analysisSoftware) {
         try {
@@ -55,13 +58,15 @@ public class LightModelsTransformer{
             String version = analysisSoftware.getVersion();
             return new Software(id, name, contact, customization, uri, version);
         } catch (Exception ex) {
-            log.error("Error occurred while converting uk.ac.ebi.pride.utilities.data.lightModel.AnalysisSoftware to uk.ac.ebi.pride.utilities.data.core.Software");
+            log.error("Error occurred while converting uk.ac.ebi.pride.utilities.data.lightModel.AnalysisSoftware " +
+                    "to uk.ac.ebi.pride.utilities.data.core.Software");
             return null;
         }
     }
 
     /**
-     * This method converts list of SourceFile from uk.ac.ebi.pride.utilities.data.lightModel.SourceFile to uk.ac.ebi.pride.utilities.data.core.SourceFile model
+     * This method converts list of SourceFile from uk.ac.ebi.pride.utilities.data.lightModel.SourceFile
+     * to uk.ac.ebi.pride.utilities.data.core.SourceFile objects
      *
      * @param sourceFilesLight List of uk.ac.ebi.pride.utilities.data.lightModel.SourceFile objects
      * @return List of uk.ac.ebi.pride.utilities.data.core.SourceFile objects
@@ -98,6 +103,13 @@ public class LightModelsTransformer{
         return sourceFiles;
     }
 
+    /**
+     * This method converts list of CvParams from uk.ac.ebi.pride.utilities.data.lightModel.CvParam
+     * to uk.ac.ebi.pride.utilities.data.core.CvParam object
+     *
+     * @param cvParamsLight List of uk.ac.ebi.pride.utilities.data.lightModel.CvParam objects
+     * @return List of uk.ac.ebi.pride.utilities.data.core.CvParam objects
+     */
     public static List<CvParam> transformToCvParams(List<uk.ac.ebi.pride.utilities.data.lightModel.CvParam> cvParamsLight){
         List<CvParam> cvParams = null;
         if(cvParams != null) {
@@ -108,6 +120,13 @@ public class LightModelsTransformer{
         return cvParams;
     }
 
+    /**
+     * This method converts uk.ac.ebi.pride.utilities.data.lightModel.CvParam object
+     * to uk.ac.ebi.pride.utilities.data.core.CvParam object
+     *
+     * @param cvParamLight uk.ac.ebi.pride.utilities.data.lightModel.CvParam cvParamLight
+     * @return uk.ac.ebi.pride.utilities.data.core.CvParam object
+     */
     public static CvParam transformToCvParam(uk.ac.ebi.pride.utilities.data.lightModel.CvParam cvParamLight){
         CvParam newParam = null;
         if(cvParamLight != null) {
@@ -129,6 +148,13 @@ public class LightModelsTransformer{
         return newParam;
     }
 
+    /**
+     * This method converts list of UserParam from uk.ac.ebi.pride.utilities.data.lightModel.UserParam
+     * to uk.ac.ebi.pride.utilities.data.core.UserParam object
+     *
+     * @param userParamsLight List of uk.ac.ebi.pride.utilities.data.lightModel.UserParam objects
+     * @return List of uk.ac.ebi.pride.utilities.data.core.UserParam objects
+     */
     private static List<UserParam> transformToUserParams(List<uk.ac.ebi.pride.utilities.data.lightModel.UserParam> userParamsLight) {
         List<UserParam> userParams = null;
         if (userParamsLight != null) {
@@ -140,6 +166,13 @@ public class LightModelsTransformer{
         return userParams;
     }
 
+    /**
+     * This method converts uk.ac.ebi.pride.utilities.data.lightModel.UserParam object
+     * to uk.ac.ebi.pride.utilities.data.core.UserParam object
+     *
+     * @param userParam uk.ac.ebi.pride.utilities.data.lightModel.UserParam object
+     * @return uk.ac.ebi.pride.utilities.data.core.UserParam object
+     */
     private static UserParam transformToUserParam(uk.ac.ebi.pride.utilities.data.lightModel.UserParam userParam) {
         UserParam newParam = null;
         if (userParam != null) {
