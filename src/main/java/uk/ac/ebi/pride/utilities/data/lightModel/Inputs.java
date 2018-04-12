@@ -33,6 +33,7 @@ import java.util.List;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "InputsType", propOrder = {
+        "sourceFile",
         "spectraData"
 })
 public class Inputs
