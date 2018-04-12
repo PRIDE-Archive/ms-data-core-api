@@ -78,7 +78,7 @@ public class Validator extends FileCompression {
     AssayFileSummary assayFileSummary = new AssayFileSummary();
     Report report = new Report();
     FileType fileType = FileHandler.getFileType(filesToValidate.get(0));
-    File outputFile  = cmd.hasOption(ARG_REPORTFILE) ? new File(cmd.getOptionValue(ARG_REPORTFILE)) : null;
+    File outputFile = cmd.hasOption(ARG_REPORTFILE) ? new File(cmd.getOptionValue(ARG_REPORTFILE)) : null;
     if (fileType.equals(FileType.MZID)) {
       boolean valid = true; // assume true if not validating schema
       SchemaCheckResult schemaResult;
@@ -98,7 +98,7 @@ public class Validator extends FileCompression {
         }
       } else {
         String message = "ERROR: Supplied -mzid file failed XML schema validation: " + filesToValidate.get(0) +
-                (schemaErrors==null ? "" : String.join(",", schemaErrors));
+                (schemaErrors == null ? "" : String.join(",", schemaErrors));
         log.error(message);
         report.setStatus(message);
       }
@@ -123,21 +123,21 @@ public class Validator extends FileCompression {
     FileType fileType = FileHandler.getFileType(pridexxml);
     AssayFileSummary assayFileSummary = new AssayFileSummary();
     Report report = new Report();
-    File outputFile  = cmd.hasOption(ARG_REPORTFILE) ? new File(cmd.getOptionValue(ARG_REPORTFILE)) : null;
+    File outputFile = cmd.hasOption(ARG_REPORTFILE) ? new File(cmd.getOptionValue(ARG_REPORTFILE)) : null;
     if (fileType.equals(FileType.PRIDEXML)) {
       boolean valid = true; // assume true if not validating schema
       List<String> schemaErrors = null;
       if (cmd.hasOption(ARG_SCHEMA_VALIDATION) || cmd.hasOption(ARG_SCHEMA_ONLY_VALIDATION)) {
         SchemaCheckResult schemaCheckResult = SchemaValidator.validatePridexmlSchema(PRIDE_XML_SCHEMA, pridexxml);
-        valid = schemaCheckResult .isValidAgainstSchema();
-        schemaErrors = schemaCheckResult .getErrorMessages();
+        valid = schemaCheckResult.isValidAgainstSchema();
+        schemaErrors = schemaCheckResult.getErrorMessages();
         log.debug("Schema errors: " + String.join(",", schemaErrors));
       }
-      if (valid ) {
-        if(cmd.hasOption(ARG_SCHEMA_ONLY_VALIDATION)) {
+      if (valid) {
+        if (cmd.hasOption(ARG_SCHEMA_ONLY_VALIDATION)) {
           report.setStatusOK();
         } else {
-          ValidationResult validationResult= validateAssayFile(pridexxml, FileType.PRIDEXML, null);
+          ValidationResult validationResult = validateAssayFile(pridexxml, FileType.PRIDEXML, null);
           report = validationResult.getReport();
           assayFileSummary = validationResult.getAssayFileSummary();
         }
@@ -175,28 +175,28 @@ public class Validator extends FileCompression {
       log.error(message);
       report.setStatus(message);
     }
-    File outputFile  = cmd.hasOption(ARG_REPORTFILE) ? new File(cmd.getOptionValue(ARG_REPORTFILE)) : null;
+    File outputFile = cmd.hasOption(ARG_REPORTFILE) ? new File(cmd.getOptionValue(ARG_REPORTFILE)) : null;
     outputReport(assayFileSummary, report, outputFile, cmd.hasOption(ARG_SKIP_SERIALIZATION));
   }
 
   /**
    * This method writes the report to a specified file, and may also write this as a serialized object.
    *
-   * @param assayFileSummary the validation summary of the file.
-   * @param report the validation report.
-   * @param reportFile the report file to output to.
+   * @param assayFileSummary  the validation summary of the file.
+   * @param report            the validation report.
+   * @param reportFile        the report file to output to.
    * @param skipSerialization true to skip serialized output.
    */
   private static void outputReport(AssayFileSummary assayFileSummary, Report report, File reportFile, boolean skipSerialization) {
     log.info(report.toString(assayFileSummary));
-    if (reportFile!=null) {
+    if (reportFile != null) {
       try {
         log.info("Writing report to: " + reportFile.getAbsolutePath());
         Files.write(reportFile.toPath(), report.toString(assayFileSummary).getBytes());
         if (!skipSerialization) {
           ObjectOutputStream oos = null;
           FileOutputStream fout;
-          try{
+          try {
             String serialFileName = reportFile.getAbsolutePath() + ".ser";
             log.info("Writing serial summary object to: " + serialFileName);
             fout = new FileOutputStream(serialFileName);
@@ -205,7 +205,7 @@ public class Validator extends FileCompression {
           } catch (Exception ex) {
             log.error("Error while writing assayFileSummary object: " + reportFile.getAbsolutePath() + ".ser", ex);
           } finally {
-            if(oos  != null){
+            if (oos != null) {
               oos.close();
             }
           }
@@ -222,7 +222,7 @@ public class Validator extends FileCompression {
    * This method checks to see if the fragment ions match the spectrum.
    *
    * @param fragmentIons the fragment ions.
-   * @param spectrum the spectrum.
+   * @param spectrum     the spectrum.
    * @return true if they match, false otherwise.
    */
   private static boolean matchingFragmentIons(List<FragmentIon> fragmentIons, Spectrum spectrum) {
@@ -248,7 +248,7 @@ public class Validator extends FileCompression {
    * This method scans for general metadata.
    *
    * @param dataAccessController the input controller to read over.
-   * @param assayFileSummary the assay file summary to output results to.
+   * @param assayFileSummary     the assay file summary to output results to.
    */
   private static void scanForGeneralMetadata(DataAccessController dataAccessController, AssayFileSummary assayFileSummary) {
     log.info("Started scanning for general metadata.");
@@ -268,7 +268,7 @@ public class Validator extends FileCompression {
    * This method scans for instruments metadata.
    *
    * @param dataAccessController the input controller to read over.
-   * @param assayFileSummary the assay file summary to output results to.
+   * @param assayFileSummary     the assay file summary to output results to.
    */
   private static void scanForInstrument(DataAccessController dataAccessController, AssayFileSummary assayFileSummary) {
     log.info("Started scanning for instruments");
@@ -298,7 +298,7 @@ public class Validator extends FileCompression {
         int orderIndex = 1;
         // source
         for (InstrumentComponent source : instrumentConfiguration.getSource()) {
-          if (source!=null) {
+          if (source != null) {
             SourceInstrumentComponent sourceInstrumentComponent = new SourceInstrumentComponent();
             sourceInstrumentComponent.setInstrument(instrument);
             sourceInstrumentComponent.setOrder(orderIndex++);
@@ -308,8 +308,8 @@ public class Validator extends FileCompression {
           }
         }
         // analyzer
-        for (InstrumentComponent  analyzer: instrumentConfiguration.getAnalyzer()) {
-          if (analyzer!=null) {
+        for (InstrumentComponent analyzer : instrumentConfiguration.getAnalyzer()) {
+          if (analyzer != null) {
             AnalyzerInstrumentComponent analyzerInstrumentComponent = new AnalyzerInstrumentComponent();
             analyzerInstrumentComponent.setInstrument(instrument);
             analyzerInstrumentComponent.setOrder(orderIndex++);
@@ -320,7 +320,7 @@ public class Validator extends FileCompression {
         }
         // detector
         for (InstrumentComponent detector : instrumentConfiguration.getDetector()) {
-          if (detector!=null) {
+          if (detector != null) {
             DetectorInstrumentComponent detectorInstrumentComponent = new DetectorInstrumentComponent();
             detectorInstrumentComponent.setInstrument(instrument);
             detectorInstrumentComponent.setOrder(orderIndex++);
@@ -340,7 +340,7 @@ public class Validator extends FileCompression {
    * This method scans for software metadata.
    *
    * @param dataAccessController the input controller to read over.
-   * @param assayFileSummary the assay file summary to output results to.
+   * @param assayFileSummary     the assay file summary to output results to.
    */
   private static void scanForSoftware(DataAccessController dataAccessController, AssayFileSummary assayFileSummary) {
     log.info("Started scanning for software");
@@ -355,7 +355,7 @@ public class Validator extends FileCompression {
    * This method scans for search details metadata.
    *
    * @param dataAccessController the input controller to read over.
-   * @param assayFileSummary the assay file summary to output results to.
+   * @param assayFileSummary     the assay file summary to output results to.
    */
   private static void scanForSearchDetails(DataAccessController dataAccessController, AssayFileSummary assayFileSummary) {
     log.info("Started scanning for search details");
@@ -381,8 +381,8 @@ public class Validator extends FileCompression {
    * This method scans for ReferencedIdentificationController-specific metadata.
    *
    * @param referencedIdentificationController the input controller to read over.
-   * @param peakFiles the input related peak files.
-   * @param assayFileSummary the assay file summary to output results to.
+   * @param peakFiles                          the input related peak files.
+   * @param assayFileSummary                   the assay file summary to output results to.
    */
   private static void scanRefIdControllerpecificDetails(ReferencedIdentificationController referencedIdentificationController, List<File> peakFiles, AssayFileSummary assayFileSummary) {
     log.info("Started scanning for mzid- or mztab-specific details");
@@ -409,7 +409,8 @@ public class Validator extends FileCompression {
 
   /**
    * This method checks if a mapped mzML file has chromatograms or not.
-   * @param mappedFile the input mzML file.
+   *
+   * @param mappedFile       the input mzML file.
    * @param assayFileSummary the assay file summary to output the result to.
    * @return true if a mzML has chromatograms, false otherwise.
    */
@@ -449,18 +450,20 @@ public class Validator extends FileCompression {
     Report report = new Report();
     try {
       final ResultFileController assayFileController;
-      switch(type) {
-        case MZID :
+      switch (type) {
+        case MZID:
           assayFileController = new MzIdentMLControllerImpl(tempAssayFile);
-          ((ReferencedIdentificationController)assayFileController).addMSController(badtempDataAccessControllerFiles ? dataAccessControllerFiles : tempDataAccessControllerFiles);
+          ((ReferencedIdentificationController) assayFileController).addMSController(badtempDataAccessControllerFiles ? dataAccessControllerFiles : tempDataAccessControllerFiles);
           break;
-        case PRIDEXML :
+        case PRIDEXML:
           assayFileController = new PrideXmlControllerImpl(tempAssayFile);
           break;
-        case MZTAB : assayFileController = new MzTabControllerImpl(tempAssayFile);
-          ((ReferencedIdentificationController)assayFileController).addMSController(badtempDataAccessControllerFiles ? dataAccessControllerFiles : tempDataAccessControllerFiles);
+        case MZTAB:
+          assayFileController = new MzTabControllerImpl(tempAssayFile);
+          ((ReferencedIdentificationController) assayFileController).addMSController(badtempDataAccessControllerFiles ? dataAccessControllerFiles : tempDataAccessControllerFiles);
           break;
-        default : log.error("Unrecognized assay fle type: " + type);
+        default:
+          log.error("Unrecognized assay fle type: " + type);
           assayFileController = new MzIdentMLControllerImpl(tempAssayFile);
           break;
       }
@@ -471,7 +474,7 @@ public class Validator extends FileCompression {
       assayFileSummary.setNumberOfProteins(assayFileController.getNumberOfProteins());
       assayFileSummary.setNumberofMissingSpectra(assayFileController.getNumberOfMissingSpectra());
       assayFileSummary.setNumberOfSpectra(assayFileController.getNumberOfSpectra());
-      if (assayFileSummary.getNumberofMissingSpectra()<1) {
+      if (assayFileSummary.getNumberofMissingSpectra() < 1) {
         validateProteinsAndPeptides(assayFile, assayFileSummary, assayFileController);
       } else {
         String message = "Missing spectra are present";
@@ -493,7 +496,8 @@ public class Validator extends FileCompression {
 
   /**
    * Checks a sampling of the delta m/z error rates.
-   * @param assayFileSummary the assay file summary
+   *
+   * @param assayFileSummary    the assay file summary
    * @param assayFileController the assay file controller
    */
   private static void checkSampleDeltaMzErrorRate(AssayFileSummary assayFileSummary, ResultFileController assayFileController) {
@@ -506,35 +510,37 @@ public class Validator extends FileCompression {
         checkFalseCounts++;
       }
     }
-    assayFileSummary.setDeltaMzErrorRate(new BigDecimal(((double) checkFalseCounts / (NUMBER_OF_CHECKS*NUMBER_OF_CHECKS))).setScale(2, RoundingMode.HALF_UP).doubleValue());
+    assayFileSummary.setDeltaMzErrorRate(new BigDecimal(((double) checkFalseCounts / (NUMBER_OF_CHECKS * NUMBER_OF_CHECKS))).setScale(2, RoundingMode.HALF_UP).doubleValue());
   }
 
   /**
    * Scans for extra metadata details.
-   * @param type the filetype
+   *
+   * @param type                      the filetype
    * @param dataAccessControllerFiles the data access controller files
-   * @param assayFileSummary the assay file summary
-   * @param assayFileController the assay file controller
+   * @param assayFileSummary          the assay file summary
+   * @param assayFileController       the assay file controller
    */
   private static void scanExtraMetadataDetails(FileType type, List<File> dataAccessControllerFiles, AssayFileSummary assayFileSummary, ResultFileController assayFileController) {
     scanForGeneralMetadata(assayFileController, assayFileSummary);
     scanForInstrument(assayFileController, assayFileSummary);
     scanForSoftware(assayFileController, assayFileSummary);
     scanForSearchDetails(assayFileController, assayFileSummary);
-    switch(type) {
-      case MZID :
-      case MZTAB :
+    switch (type) {
+      case MZID:
+      case MZTAB:
         scanRefIdControllerpecificDetails((ReferencedIdentificationController) assayFileController, dataAccessControllerFiles, assayFileSummary);
         break;
-      default : // do nothing
+      default: // do nothing
         break;
     }
   }
 
   /**
    * Validates across proteins and peptides for a given assay file
-   * @param assayFile the assay file (e.g. .mzid file)
-   * @param assayFileSummary the assay file summary
+   *
+   * @param assayFile           the assay file (e.g. .mzid file)
+   * @param assayFileSummary    the assay file summary
    * @param assayFileController the assay file controller (e.g. for mzIdentML etc).
    */
   private static void validateProteinsAndPeptides(File assayFile, AssayFileSummary assayFileSummary, ResultFileController assayFileController) throws NullPointerException {
@@ -545,8 +551,8 @@ public class Validator extends FileCompression {
         uniquePeptides.add(peptide.getSequence());
         for (Modification modification : peptide.getModifications()) {
           for (CvParam cvParam : modification.getCvParams()) {
-            if (StringUtils.isEmpty(cvParam.getCvLookupID())|| StringUtils.isEmpty(cvParam.getAccession()) || StringUtils.isEmpty(cvParam.getName())) {
-              String message = "A PTM CV Param's ontology, accession, or name is not defined properly: " + cvParam.toString() + " in file: " +  assayFile.getPath();
+            if (StringUtils.isEmpty(cvParam.getCvLookupID()) || StringUtils.isEmpty(cvParam.getAccession()) || StringUtils.isEmpty(cvParam.getName())) {
+              String message = "A PTM CV Param's ontology, accession, or name is not defined properly: " + cvParam.toString() + " in file: " + assayFile.getPath();
               log.error(message);
               throw new NullPointerException(message);
             }
@@ -559,7 +565,7 @@ public class Validator extends FileCompression {
     }
     List<Boolean> matches = new ArrayList<>();
     matches.add(true);
-    IntStream.range(1, (assayFileController.getNumberOfPeptides()<100 ? assayFileController.getNumberOfPeptides() : 100)).sequential().forEach(i -> {
+    IntStream.range(1, (assayFileController.getNumberOfPeptides() < 100 ? assayFileController.getNumberOfPeptides() : 100)).sequential().forEach(i -> {
       Protein protein = assayFileController.getProteinById(assayFileController.getProteinIds().stream().findAny().orElse(null));
       Peptide peptide = null;
       if (protein != null) {
@@ -584,22 +590,23 @@ public class Validator extends FileCompression {
 
   /**
    * This method validates and input proBed file, checks its columns according to the BED column format, and potentially saves the output to a report file.
-   * @param proBed the input proBed file.
+   *
+   * @param proBed       the input proBed file.
    * @param columnFormat the BED column format, e.g the default BED12+13.
-   * @param reportFile the file to save the output to.
+   * @param reportFile   the file to save the output to.
    */
   private static void validateProBed(File proBed, String columnFormat, File reportFile, File asqlFile) {
     log.info("Validation proBed file: " + proBed.getPath() + " using column format: " + columnFormat);
     Report report = new Report();
     report.setFileName(proBed.getPath());
     Set<String> errorMessages = new HashSet<>();
-    int defaultBedColumnCount = Integer.parseInt(columnFormat.substring(columnFormat.indexOf("D")+1, columnFormat.indexOf('+')));
-    int proBedOptionalColumnsCount = Integer.parseInt(columnFormat.substring(columnFormat.indexOf("+")+1));
-    List<AsqlTriple> asqlTriples = (asqlFile!=null ? extractDatatypesAsql(asqlFile) : null);
+    int defaultBedColumnCount = Integer.parseInt(columnFormat.substring(columnFormat.indexOf("D") + 1, columnFormat.indexOf('+')));
+    int proBedOptionalColumnsCount = Integer.parseInt(columnFormat.substring(columnFormat.indexOf("+") + 1));
+    List<AsqlTriple> asqlTriples = (asqlFile != null ? extractDatatypesAsql(asqlFile) : null);
     try (Stream<String> stream = Files.lines(proBed.toPath())) {
       Set<String> uniqueNames = ConcurrentHashMap.newKeySet();
       stream.parallel().forEach(s -> validateProbeLine(errorMessages, defaultBedColumnCount, proBedOptionalColumnsCount, asqlTriples, uniqueNames, s));
-      if (errorMessages.size()>0) {
+      if (errorMessages.size() > 0) {
         StringBuffer errorsReported = new StringBuffer();
         errorMessages.parallelStream().limit(100).forEach(s -> errorsReported.append(s).append("\n"));
         report.setStatus("ERROR: " + errorMessages.size() + " problems encountered. See below for (up to) the first 100 reported errors : \n" + errorsReported);
@@ -607,13 +614,13 @@ public class Validator extends FileCompression {
         report.setStatusOK();
       }
       log.info(report.toString());
-      if (reportFile!=null) {
+      if (reportFile != null) {
         writeProbedReport(report, reportFile);
       }
     } catch (IOException e) {
       final String PROBED_IO_MESSAGE = "Error while reading proBed file.";
       log.error(PROBED_IO_MESSAGE + e);
-      if (reportFile!=null) {
+      if (reportFile != null) {
         report.setStatus(PROBED_IO_MESSAGE);
         writeProbedReport(report, reportFile);
       }
@@ -622,23 +629,24 @@ public class Validator extends FileCompression {
 
   /**
    * This method validates a line of a proBed file.
-   * @param errorMessages a set of erro messages to record.
-   * @param defaultBedColumnCount the default BED column count.
+   *
+   * @param errorMessages              a set of erro messages to record.
+   * @param defaultBedColumnCount      the default BED column count.
    * @param proBedOptionalColumnsCount the number of proBed extra columns.
-   * @param asqlTriples  the ASQL triples constructed from the .AS file.
-   * @param uniqueNames a running set of the unique names for the proBed file.
-   * @param proBedLine the proBed line to validate.
+   * @param asqlTriples                the ASQL triples constructed from the .AS file.
+   * @param uniqueNames                a running set of the unique names for the proBed file.
+   * @param proBedLine                 the proBed line to validate.
    */
   private static void validateProbeLine(Set<String> errorMessages, int defaultBedColumnCount, int proBedOptionalColumnsCount, List<AsqlTriple> asqlTriples, Set<String> uniqueNames, String proBedLine) {
     if (org.apache.commons.lang3.StringUtils.isEmpty(proBedLine)) {
       logProbedError("Empty blank line encountered", errorMessages);
     } else {
-      if (proBedLine.charAt(0)=='#') {
+      if (proBedLine.charAt(0) == '#') {
         log.info("Comment: " + proBedLine);
       } else {
         String[] fields = proBedLine.split("\\t");
-        if (fields.length!=(defaultBedColumnCount+proBedOptionalColumnsCount)) {
-          final int TOTAL_COLUMNS = defaultBedColumnCount+proBedOptionalColumnsCount;
+        if (fields.length != (defaultBedColumnCount + proBedOptionalColumnsCount)) {
+          final int TOTAL_COLUMNS = defaultBedColumnCount + proBedOptionalColumnsCount;
           logProbedError("Incorrect number of columns found. Expected " + TOTAL_COLUMNS + " instead have : " + fields.length + "." + LINE_CONTENT + proBedLine, errorMessages);
         } else {
           if (isInvalidAsqlTriple(asqlTriples.get(0), fields[0])) {
@@ -652,7 +660,7 @@ public class Validator extends FileCompression {
           } else {
             int chromStart = Integer.parseInt(fields[1]);
             int chromEnd = Integer.parseInt(fields[2]);
-            if (chromEnd<chromStart) {
+            if (chromEnd < chromStart) {
               logProbedError("2nd and 3rd columns 'chromStart' and 'chromEnd' fields must be in ascending order." + LINE_CONTENT + proBedLine, errorMessages);
             }
           }
@@ -670,7 +678,7 @@ public class Validator extends FileCompression {
             logProbedError("5th column 'score' " + FIELD_UNSIGNED_INTEGER + LINE_CONTENT + proBedLine, errorMessages);
           } else {
             int score = Integer.parseInt(fields[4]);
-            if (score<0 || score >1000) {
+            if (score < 0 || score > 1000) {
               logProbedError("5th column 'score' field must be between 0 - 1000 inclusive." + LINE_CONTENT + proBedLine, errorMessages);
             }
           }
@@ -685,7 +693,7 @@ public class Validator extends FileCompression {
           }
           int thickStart = Integer.parseInt(fields[6]);
           int thickEnd = Integer.parseInt(fields[7]);
-          if (thickEnd<thickStart) {
+          if (thickEnd < thickStart) {
             logProbedError("7th and 8th columns 'thickStart' and 'thickEnd' fields must be in ascending order." + LINE_CONTENT + proBedLine, errorMessages);
           }
           if (isInvalidAsqlTriple(asqlTriples.get(8), fields[8]) || (!fields[8].equals("0"))) {
@@ -700,7 +708,7 @@ public class Validator extends FileCompression {
           } else {
             String blockSizes = fields[10];
             String[] blockSizesSplit = blockSizes.split(",");
-            if (blockSizesSplit.length!=blockCount) {
+            if (blockSizesSplit.length != blockCount) {
               logProbedError("11th column 'blockSizes' field does not have the same amount of blocks as mentioned in 'blockCount'." + LINE_CONTENT + proBedLine, errorMessages);
             }
             for (String blockSizePart : blockSizesSplit) {
@@ -714,7 +722,7 @@ public class Validator extends FileCompression {
           } else {
             String chromStarts = fields[11];
             String[] chromStartsSplit = chromStarts.split(",");
-            if (chromStartsSplit.length!=blockCount) {
+            if (chromStartsSplit.length != blockCount) {
               logProbedError("12th column 'chromStarts' field does not have the same amount of blocks as mentioned in 'blockCount'." + LINE_CONTENT + proBedLine, errorMessages);
             }
             for (String chromStartsPart : chromStartsSplit) {
@@ -753,7 +761,7 @@ public class Validator extends FileCompression {
             String modifications = fields[18];
             if (!modifications.equals(".")) {
               String[] modificationsArray = modifications.split(",");
-              if (modificationsArray.length<1) {
+              if (modificationsArray.length < 1) {
                 logProbedError("19th column 'modifications' field must either be '.' for no modifications, or contain modifications of the format like '5-UNIMOD:4'." + LINE_CONTENT + proBedLine, errorMessages);
               } else {
                 for (String modification : modificationsArray) {
@@ -790,8 +798,8 @@ public class Validator extends FileCompression {
 
   /**
    * This method starts the validation of a proBed file according to the input command line arguments.
+   *
    * @param cmd command line arguments.
-
    */
   private static void validateProBed(CommandLine cmd) {
     File proBed = new File(cmd.getOptionValue(ARG_PROBED));
@@ -820,8 +828,9 @@ public class Validator extends FileCompression {
 
   /**
    * This method logs the proBed errors to the error log, and to a Set for them to be iterated over.
+   *
    * @param errorMessage the proBed error message.
-   * @param errors the Set of errors for the message to be added to.
+   * @param errors       the Set of errors for the message to be added to.
    */
   private static void logProbedError(String errorMessage, Set<String> errors) {
     log.error(errorMessage);
@@ -830,7 +839,8 @@ public class Validator extends FileCompression {
 
   /**
    * This method writes the proBed report to a file.
-   * @param report the proBed report
+   *
+   * @param report     the proBed report
    * @param reportFile the file to write the report to.
    */
   private static void writeProbedReport(Report report, File reportFile) {
@@ -843,16 +853,18 @@ public class Validator extends FileCompression {
 
   /**
    * This method checks if a field is allowed to be null or not.
-   * @param field the field to check.
+   *
+   * @param field    the field to check.
    * @param nullable if the field is allowed to be null.
    * @return true if nullable, flase otherwise.
    */
   private static boolean validProbedFieldNullable(String field, boolean nullable) {
-    return (field!=null && !field.equalsIgnoreCase(".")) || nullable;
+    return (field != null && !field.equalsIgnoreCase(".")) || nullable;
   }
 
   /**
    * This method checks if a field is a non-empty String.
+   *
    * @param field the field to check.
    * @return true if the field is not null or empty, false otherwise
    */
@@ -862,6 +874,7 @@ public class Validator extends FileCompression {
 
   /**
    * This method checks if a field is an integer.
+   *
    * @param field the field to check.
    * @return true if the field is an integer, false otherwise.
    */
@@ -880,8 +893,10 @@ public class Validator extends FileCompression {
     }
     return result;
   }
+
   /**
    * This method checks if a field is an unsigned integer.
+   *
    * @param field the field to check.
    * @return true if the field is an unsigned integer, false otherwise.
    */
@@ -891,6 +906,7 @@ public class Validator extends FileCompression {
 
   /**
    * This method checks if a field is a double.
+   *
    * @param field the field to check.
    * @return true if the field is a double, false otherwise.
    */
@@ -912,15 +928,17 @@ public class Validator extends FileCompression {
 
   /**
    * This method checks if a field is a character.
+   *
    * @param field the field to check.
    * @return true if the field is a character, false otherwise.
    */
   private static boolean validProbedFieldCharacter(String field) {
-    return field.length()==1;
+    return field.length() == 1;
   }
 
   /**
    * This method extracts all the data type information from an ASQL file.
+   *
    * @param asqlFile The input .as file.
    * @return A List of AsqlTriple objects of BED field information, in the order they were specified in the .as file.
    */
@@ -932,19 +950,19 @@ public class Validator extends FileCompression {
       AsqlDataType asqlDataType = null;
       String asqlName;
       String asqlDesc;
-      if (lines.size()>4) {
-        for (int i=3; i<lines.size()-1; i++) {
+      if (lines.size() > 4) {
+        for (int i = 3; i < lines.size() - 1; i++) {
           line = lines.get(i);
           line = line.replace(";", "");
           String[] parts = line.split(" {2}", 3);
-          if (parts.length==3) {
+          if (parts.length == 3) {
             for (AsqlDataType asqlDataTypeToCheck : AsqlDataType.values()) {
               if (asqlDataTypeToCheck.toString().equals(parts[0])) {
                 asqlDataType = asqlDataTypeToCheck;
                 break;
               }
             }
-            if (asqlDataType==null) {
+            if (asqlDataType == null) {
               log.error("ASQL data type has not been set! " + line);
             }
             asqlName = parts[1];
@@ -966,8 +984,9 @@ public class Validator extends FileCompression {
 
   /**
    * This method validates a field's value according to the AsqlTriple information for the data type.
+   *
    * @param asqlTriple the information about the data type.
-   * @param value the value to be checked.
+   * @param value      the value to be checked.
    * @return true if the value is OK, false otherwise.
    */
   private static boolean isInvalidAsqlTriple(AsqlTriple asqlTriple, String value) {

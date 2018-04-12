@@ -13,10 +13,7 @@ import uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl.PrideXmlCon
 
 import static uk.ac.ebi.pride.utilities.data.controller.tools.utils.Utility.*;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.SortedMap;
 
 /**
@@ -308,12 +305,17 @@ public class MzTabConverterTool {
     }
   }
 
-  public static void printErrorCode(CommandLine cmd) {
+  public static void printErrorCode(CommandLine cmd) throws Exception {
     MZTabErrorTypeMap typeMap = new MZTabErrorTypeMap();
-    if (cmd.hasOption(ARG_MESSAGE)) {
-      String[] values = cmd.getOptionValues(ARG_MESSAGE);
-      Integer code = new Integer(values[1]);
-      MZTabErrorType type = typeMap.getType(code);
+    MZTabErrorType type = null;
+    if (cmd.hasOption(ARG_CODE)) {
+      String[] values = cmd.getOptionValues(ARG_CODE);
+      Integer code = new Integer(values[0]);
+      if(code != null) {
+        type = typeMap.getType(code);
+      }else{
+        throw new IllegalArgumentException("Please specify the Error code.");
+      }
 
       if (type == null) {
         System.out.println("Not found MZTabErrorType, the code is :" + code);
@@ -335,38 +337,36 @@ public class MzTabConverterTool {
       level = MZTabErrorType.findLevel(cmd.getOptionValue(ARG_LEVEL));
     }
 
-    String[] values = cmd.getOptionValues(ARG_CHECK);
-    if (values.length != 2) {
+    String inputFilePath = cmd.getOptionValue(ARG_INPUTFILE);
+    if (inputFilePath == null) {
       throw new IllegalArgumentException("Not setting input file!");
     }
-    File inFile = new File(values[1].trim());
+    File inFile = new File(inputFilePath.trim());
     System.out.println("Begin check mztab file: " + inFile.getAbsolutePath());
     new MZTabFileParser(inFile, out, level);
     out.close();
   }
 
   public static void convert(CommandLine cmd) throws Exception {
+    File inFile = null;
     File outFile = null;
     if (cmd.hasOption(ARG_OUTPUTFILE)) {
       outFile = new File(cmd.getOptionValue(ARG_OUTPUTFILE));
     }
     OutputStream out = (outFile == null) ? System.out : new BufferedOutputStream(new FileOutputStream(outFile));
 
-    String[] values = cmd.getOptionValues(ARG_CONVERT);
-    File inFile = null;
-    MassSpecFileFormat format = MassSpecFileFormat.PRIDE;
-    for (int i = 0; i < values.length; i++) {
-      String type = values[i++].trim();
-      String value = values[i].trim();
-      if (type.equals(ARG_INPUTFILE)) {
-        inFile = new File(value.trim());
-      } else if (type.equals(ARG_FORMAT)) {
-        format = getFormat(value.trim());
-      }
-    }
-    if (inFile == null) {
+    String inputFilePath = cmd.getOptionValue(ARG_INPUTFILE);
+    if (inputFilePath == null) {
       throw new IllegalArgumentException("Not setting input file!");
     }
+
+    String fileFormat = cmd.getOptionValue(ARG_FORMAT);
+    if (fileFormat == null) {
+      throw new IllegalArgumentException("Not setting format of the file!");
+    }
+    MassSpecFileFormat format = MassSpecFileFormat.PRIDE;
+    inFile = new File(inputFilePath.trim());
+    format = getFormat(fileFormat.trim());
 
     System.out.println("Begin converting " + inFile.getAbsolutePath() + " which format is " + format.name() + " to mztab file.");
     MZTabFile tabFile = convert(inFile, format);

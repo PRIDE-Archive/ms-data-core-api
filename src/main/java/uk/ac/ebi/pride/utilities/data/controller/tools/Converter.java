@@ -46,12 +46,12 @@ public class Converter {
     if (cmd.hasOption(ARG_INPUTFILE)) {
       inputFile = new File(cmd.getOptionValue(ARG_INPUTFILE));
     } else {
-      inputFile = cmd.hasOption(ARG_MZID)? new File(cmd.getOptionValue(ARG_MZID))
+      inputFile = cmd.hasOption(ARG_MZID) ? new File(cmd.getOptionValue(ARG_MZID))
               : cmd.hasOption(ARG_PRIDEXML) ? new File(cmd.getOptionValue(ARG_PRIDEXML))
               : cmd.hasOption(ARG_MZTAB) ? new File(cmd.getOptionValue(ARG_MZTAB))
               : null;
     }
-    if (inputFile==null || inputFile.isDirectory()) {
+    if (inputFile == null || inputFile.isDirectory()) {
       log.error("Unable to convert whole directory.");
     } else {
       inputFileType = FilenameUtils.getExtension(inputFile.getAbsolutePath()).toLowerCase();
@@ -65,7 +65,7 @@ public class Converter {
       outputFile = new File(cmd.getOptionValue(ARG_OUTPUTFILE));
       outputFormat = FilenameUtils.getExtension(outputFile.getAbsolutePath()).toLowerCase();
     } else if (cmd.hasOption(ARG_OUTPUTTFORMAT)) {
-      outputFormat =  cmd.getOptionValue(ARG_OUTPUTTFORMAT).toLowerCase();
+      outputFormat = cmd.getOptionValue(ARG_OUTPUTTFORMAT).toLowerCase();
       if (inputFile != null) {
         if (outputFormat.equalsIgnoreCase(ARG_PROBED)) {
           outputFile = new File(FilenameUtils.removeExtension(inputFile.getAbsolutePath()) + "." + FileType.PROBED.toString().toLowerCase());
@@ -78,7 +78,7 @@ public class Converter {
     } else {
       log.error("No output file or output format specified.");
     }
-    if (inputFile!=null && outputFile!=null) {
+    if (inputFile != null && outputFile != null) {
       switch (inputFileType != null ? inputFileType : "") {
         case ARG_MZID:
         case ARG_PRIDEXML:
@@ -120,7 +120,7 @@ public class Converter {
         case ARG_PROBED:
           if (outputFormat.equals(ARG_BIGBED)) {
             startProbedToBigbed(inputFile, cmd);
-          }  else {
+          } else {
             log.error("Unable to convert input probed into the target output format.");
           }
           break;
@@ -133,9 +133,9 @@ public class Converter {
   /**
    * This methid begins the conversion from an input mzTab file to proBed.
    *
-   * @param inputFile the input mzTab file.
+   * @param inputFile  the input mzTab file.
    * @param outputFile the output proBed file.
-   * @param cmd command line arguments
+   * @param cmd        command line arguments
    * @throws IOException if there are problems reading or writing to the file system.
    */
   private static void startMztabToProbed(File inputFile, File outputFile, CommandLine cmd) throws IOException {
@@ -158,10 +158,10 @@ public class Converter {
    * This method converts an input proBed file to bigBed.
    *
    * @param inputFile the input proBed file to convert.
-   * @param cmd command line arguments.
+   * @param cmd       command line arguments.
    * @throws IOException if there are problems reading or writing to the file system.
    */
-  private static void startProbedToBigbed (File inputFile, CommandLine cmd) throws IOException {
+  private static void startProbedToBigbed(File inputFile, CommandLine cmd) throws IOException {
     File aSQL = null;
     File chromSizes = null;
     File bigBedConverter = null;
@@ -172,12 +172,12 @@ public class Converter {
       MzTabBedConverter.createAsql(cmd.getOptionValue(ARG_ASQLNAME), aSQL.getAbsolutePath());
     }
     if (cmd.hasOption(ARG_CHROMSIZES)) {
-      chromSizes =  new File(cmd.getOptionValue(ARG_CHROMSIZES));
+      chromSizes = new File(cmd.getOptionValue(ARG_CHROMSIZES));
     }
     if (cmd.hasOption(ARG_BIGBEDCONVERTER)) {
-      bigBedConverter =  new File(cmd.getOptionValue(ARG_BIGBEDCONVERTER));
+      bigBedConverter = new File(cmd.getOptionValue(ARG_BIGBEDCONVERTER));
     }
-    if (aSQL!=null && chromSizes!=null && bigBedConverter!=null) {
+    if (aSQL != null && chromSizes != null && bigBedConverter != null) {
       convertProbedToBigbed(inputFile, aSQL, chromSizes, bigBedConverter);
     } else {
       log.error("All supporting files have not been set correctly. Please double check the following have been provided properly:\n" +
@@ -187,12 +187,13 @@ public class Converter {
 
   /**
    * This method converts an input mzIdentML or PRIDE XML file to mzTab.
-   * @param inputFile the input file.
+   *
+   * @param inputFile       the input file.
    * @param outputMztabFile the output mzTab file.
-   * @param inputFormat the input file format.
+   * @param inputFormat     the input file format.
    * @throws IOException if there are problems reading or writing to the file system.
    */
-  private static void convertToMztab(File inputFile, File outputMztabFile, String inputFormat) throws IOException{
+  private static void convertToMztab(File inputFile, File outputMztabFile, String inputFormat) throws IOException {
     log.info("About to convert input file: " + inputFile.getAbsolutePath() + " to: " + outputMztabFile.getAbsolutePath());
     List<File> filesToConvert = new ArrayList<>();
     filesToConvert.add(inputFile);
@@ -225,11 +226,11 @@ public class Converter {
   /**
    * This method converts an input mzTab file (.mztab) to proBed (.pro.bed).
    *
-   * @param inputFile the input mzTab file.
+   * @param inputFile  the input mzTab file.
    * @param outputFile the output proBed file.
    * @throws IOException if there are problems reading or writing to the file system.
    */
-  private static void convertMztabToProbed(File inputFile, File outputFile) throws IOException{
+  private static void convertMztabToProbed(File inputFile, File outputFile) throws IOException {
     try {
       log.info("Converting to bed: " + inputFile.getAbsolutePath());
       MzTabControllerImpl mzTabController = new MzTabControllerImpl(inputFile);
@@ -246,7 +247,7 @@ public class Converter {
       mzTabController.close();
       log.info("Finished processing " + outputFile.getAbsolutePath());
       File mzTabDirectory = inputFile.getParentFile();
-      if (mzTabDirectory!=null) {
+      if (mzTabDirectory != null) {
         File[] files = mzTabDirectory.listFiles();
         if (files != null) {
           for (File file : files) {
@@ -266,9 +267,10 @@ public class Converter {
 
   /**
    * This method converts a proBed file to bigBed using the UCSC converter tool.
-   * @param proBed the input proBed file to be converted (.pro.bed).
-   * @param aSQL the supporting aSQL file (.as).
-   * @param chromSizes the supporting chromosome sizes text file.
+   *
+   * @param proBed          the input proBed file to be converted (.pro.bed).
+   * @param aSQL            the supporting aSQL file (.as).
+   * @param chromSizes      the supporting chromosome sizes text file.
    * @param bigBedConverter the UCSC bedToBigBed tool.
    */
   private static void convertProbedToBigbed(File proBed, File aSQL, File chromSizes, File bigBedConverter) {
@@ -281,7 +283,7 @@ public class Converter {
               bigBedConverter
       );
       log.info("Generated output bigBed file:" + outputBigBed.toPath());
-    } catch (IOException|URISyntaxException|InterruptedException e) {
+    } catch (IOException | URISyntaxException | InterruptedException e) {
       log.error("Error when converting to bigBed: ", e);
     }
   }

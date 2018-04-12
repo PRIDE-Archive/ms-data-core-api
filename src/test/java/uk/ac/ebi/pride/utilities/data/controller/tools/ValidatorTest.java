@@ -3,6 +3,7 @@ package uk.ac.ebi.pride.utilities.data.controller.tools;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import static uk.ac.ebi.pride.utilities.data.controller.tools.utils.Utility.*;
 
 import java.io.File;
@@ -49,7 +50,7 @@ public class ValidatorTest {
             "-" + ARG_MZID, inputMzidFile.getPath(),
             "-" + ARG_PEAK, inputMgfFile.getPath(),
             "-" + ARG_SKIP_SERIALIZATION,
-            "-" + ARG_REPORTFILE , reportFile.getPath()
+            "-" + ARG_REPORTFILE, reportFile.getPath()
     };
     Validator.startValidation(PGConverter.parseArgs(args));
     assertTrue("No errors reported during the validation of the mzIdentML file", reportStatus(reportFile));
@@ -79,7 +80,7 @@ public class ValidatorTest {
             "-" + ARG_MZID, inputMzidFile.getPath(),
             "-" + ARG_PEAK, inputMgfFile.getPath(),
             "-" + ARG_SKIP_SERIALIZATION,
-            "-" + ARG_REPORTFILE , reportFile.getPath()
+            "-" + ARG_REPORTFILE, reportFile.getPath()
     };
     Validator.startValidation(PGConverter.parseArgs(args));
     assertTrue("No errors reported during the validation of the mzIdentML file", reportStatus(reportFile));
@@ -97,7 +98,7 @@ public class ValidatorTest {
             "-" + ARG_MZID, inputMzidFile.getPath(),
             "-" + ARG_PEAK, inputMgfFile.getPath(),
             "-" + ARG_SKIP_SERIALIZATION,
-            "-" + ARG_REPORTFILE , reportFile.getPath()
+            "-" + ARG_REPORTFILE, reportFile.getPath()
     };
     Validator.startValidation(PGConverter.parseArgs(args));
     try {
@@ -124,7 +125,7 @@ public class ValidatorTest {
             "-" + ARG_VALIDATION,
             "-" + ARG_PRIDEXML, inputPridexmlFile.getPath(),
             "-" + ARG_SKIP_SERIALIZATION,
-            "-" + ARG_REPORTFILE , reportFile.getPath()};
+            "-" + ARG_REPORTFILE, reportFile.getPath()};
     Validator.startValidation(PGConverter.parseArgs(args));
     assertTrue("No errors reported during the validation of the PRIDE XML", reportStatus(reportFile));
   }
@@ -147,7 +148,7 @@ public class ValidatorTest {
             "-" + ARG_SCHEMA_ONLY_VALIDATION,
             "-" + ARG_PRIDEXML, inputPridexmlFile.getPath(),
             "-" + ARG_SKIP_SERIALIZATION,
-            "-" + ARG_REPORTFILE , reportFile.getPath()};
+            "-" + ARG_REPORTFILE, reportFile.getPath()};
     Validator.startValidation(PGConverter.parseArgs(args));
     assertTrue("No errors reported during the validation of the PRIDE XML", reportStatus(reportFile));
   }
@@ -175,7 +176,7 @@ public class ValidatorTest {
             "-" + ARG_MZTAB, inputMztabFile.getPath(),
             "-" + ARG_PEAK, inputMgfFile.getPath(),
             "-" + ARG_SKIP_SERIALIZATION,
-            "-" + ARG_REPORTFILE , reportFile.getPath()};
+            "-" + ARG_REPORTFILE, reportFile.getPath()};
     Validator.startValidation(PGConverter.parseArgs(args));
     assertTrue("No errors reported during the validation of the mzTab file", reportStatus(reportFile));
   }
@@ -187,11 +188,11 @@ public class ValidatorTest {
     stream.forEach(reportLines::add);
     for (String reportLine : reportLines) {
       String[] parts = reportLine.split(": ");
-      if (parts.length>0) {
+      if (parts.length > 0) {
         String key = parts[0];
-        String content = parts.length>1 ? parts[1] : "";
+        String content = parts.length > 1 ? parts[1] : "";
         switch (key) {
-          case "Status" :
+          case "Status":
             if (content.contains("ERROR")) {
               //result = false;
               throw new IOException(content);
@@ -219,7 +220,7 @@ public class ValidatorTest {
             "-" + ARG_VALIDATION,
             "-" + ARG_PROBED, inputProbedFile.getPath(),
             "-" + ARG_SKIP_SERIALIZATION,
-            "-" + ARG_REPORTFILE , reportFile.getPath()};
+            "-" + ARG_REPORTFILE, reportFile.getPath()};
     Validator.startValidation(PGConverter.parseArgs(args));
     assertTrue("No errors reported during the validation of the mzTab file", reportStatus(reportFile));
   }
@@ -247,7 +248,7 @@ public class ValidatorTest {
             "-" + ARG_MZID, inputMzidFile.getPath(),
             "-" + ARG_PEAK, inputMgfFile.getPath(),
             "-" + ARG_SKIP_SERIALIZATION,
-            "-" + ARG_REPORTFILE , reportFile.getPath()
+            "-" + ARG_REPORTFILE, reportFile.getPath()
     };
     Validator.startValidation(PGConverter.parseArgs(args));
     Exception e = null;
@@ -256,7 +257,7 @@ public class ValidatorTest {
     } catch (IOException ioe) {
       e = ioe;
     }
-    assertTrue("Errors correctly reported during the validation of the mzIdentML file", e!=null);
+    assertTrue("Errors correctly reported during the validation of the mzIdentML file", e != null);
   }
 
   /**
@@ -283,7 +284,7 @@ public class ValidatorTest {
             "-" + ARG_MZID, inputMzidFile.getPath(),
             "-" + ARG_PEAK, inputMgfFile.getPath(),
             "-" + ARG_SKIP_SERIALIZATION,
-            "-" + ARG_REPORTFILE , reportFile.getPath()
+            "-" + ARG_REPORTFILE, reportFile.getPath()
     };
     Validator.startValidation(PGConverter.parseArgs(args));
     Exception exception = null;
@@ -292,7 +293,7 @@ public class ValidatorTest {
     } catch (IOException ioException) {
       exception = ioException;
     }
-    assertTrue("Errors correctly reported during the validation of the mzIdentML file", exception!=null);
+    assertTrue("Errors correctly reported during the validation of the mzIdentML file", exception != null);
   }
 }
 

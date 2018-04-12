@@ -30,7 +30,7 @@ public class PGConverter {
       if (args.length > 0) {
         if (cmd.hasOption(ARG_HELP)) {
           printHelpHack();
-        }else  if (cmd.hasOption(ARG_CODE)) {
+        }else  if (cmd.hasOption(ARG_ERROR_CODE)) {
           MzTabConverterTool.printErrorCode(cmd);
         }else if (cmd.hasOption(ARG_VALIDATION)) {
           Validator.startValidation(cmd);
@@ -62,9 +62,16 @@ public class PGConverter {
    */
   public static CommandLine parseArgs(String[] args) throws ParseException{
     Options options = new Options();
+    // main functionality
     options.addOption(ARG_VALIDATION, false, "start to validate a file");
     options.addOption(ARG_CONVERSION, false, "start to convert a file");
     options.addOption(ARG_MESSAGE, false, "start to message redis");
+    options.addOption(ARG_CHECK, false,"start to check a file");
+    options.addOption(ARG_CONVERT, false, "start to convert a file to MzTab");
+    options.addOption(ARG_HELP, false, "print help message");
+    options.addOption(ARG_ERROR_CODE, false, "print Error/Warn detail message based on code number.");
+    // parameters
+    options.addOption(ARG_CODE, true, "print Error/Warn detail message based on code number.");
     options.addOption(ARG_MZID, true, "mzid file");
     options.addOption(ARG_PEAK, true, "peak file");
     options.addOption(ARG_PEAKS, true, "peak files");
@@ -86,26 +93,82 @@ public class PGConverter {
     options.addOption(ARG_SCHEMA_VALIDATION, false, "XML Schema validation");
     options.addOption(ARG_SCHEMA_ONLY_VALIDATION, false, "XML Schema-only validation");
     options.addOption(ARG_BED_COLUMN_FORMAT, true, "BED column format");
-    options.addOption(ARG_HELP, false, "print help message");
-    options.addOption(ARG_CODE, false, "print Error/Warn detail message based on code number.");
     options.addOption(ARG_LEVEL, true, "Choose validate level(Info, Warn, Error), default level is Error!");
+    options.addOption(ARG_FORMAT, true, "MZIDENTML or PRIDEXML");
     CommandLineParser parser = new DefaultParser();
     return parser.parse(options, args);
   }
 
-
-  //TODO: Complete this
   private static void printHelpHack() {
-    System.out.println("usage: java -cp ms-data-core-api.jar uk.ac.ebi.pride.utilities.data.exporters.MzTabConverterTool\n" +
-            " -check inputfile=<inputfile>                     Choose a file from input directory. This\n" +
-            "                                                  parameter should not be null!\n" +
-            " -convert inputfile=<inputfile> " +
-            "          format=<format>   Converts the given format file (PRIDE or MZIDENTML) to an mztab\n" +
-            "                                            file.\n" +
-            " -h,--help                                  print help message\n" +
-            " -message code=<code>                       print Error/Warn detail message based on code\n" +
-            "                                            number.\n" +
-            " -outputFile <arg>                          Dump output data to the given file. If\n" +
-            "                                            not set, output data will be dumped on stdout");
+    System.out.println("usage: java -jar ms-data-core-api<version>.jar \n\n" +
+    "### File conversion\n\n" +
+
+    "-c -mzid <input.mzid>                         Convert from mzIdentML to mzTab,\n" +
+    "   -outputfile <output.mztab>                 specifying an output file name\n" +
+
+
+    "-c -pridexml <pride.xml>                      Convert from PRIDE XML to mzTab,\n" +
+    "   -outputformat <output.mztab>               specifying an output format\n" +
+
+    "-c -mztab <input.mztab>                       Convert from annotated mzTab to\n" +
+    "   -chromsizes <chrom.txt>                    (sorted, filtered*) proBed\n" +
+    "   -outputformat probed\n" +
+
+    "-c -mzid <input.mztab>                        Convert from annotated mzIdentML to (sorted, filtered*) proBed\n" +
+    "   -chromsizes <chrom.txt>\n" +
+    "   -outputformat probed\n" +
+
+    "-c -mztab <input.pro.bed>                     Convert from (sorted, filtered*) proBed to bigBed\n" +
+    "   -chromsizes <chrom.txt>\n" +
+    "   -asqlfile <aSQL.as>\n" +
+    "   -bigbedconverter <bedToBigBed>\n" +
+
+    "-v -mzid <sample.mzid>                        MzIdentML validation\n" +
+    "   -peak <spectra.mgf>\n" +
+    "   -skipserialization\n" +
+    "   -reportfile <outputReport.txt>\n" +
+
+    "-v -mztab <input.mztab>                       mzTab validation\n" +
+    "   -peaks <spectra1.mgf>##<spectra2.mgf>\n" +
+    "   -skipserialization\n" +
+    "   -reportfile <outputReport.txt>\n" +
+
+    "-v -pridexml <input.pride.xml>                PRIDE XML validation\n" +
+    "   -skipserialization\n" +
+    "   -reportfile <outputReport.txt>\n\n" +
+
+    "### XML schema validation\n\n" +
+
+    "-v -mzid <input.mzid>                         mzIdentML schema validation and normal validation\n" +
+    "   -peak <spectra.mgf>\n" +
+    "   -scehma\n" +
+    "   -skipserialization\n" +
+    "    -reportfile <outputReport.txt>\n" +
+
+    "-v -pridexml <input.pride.xml>                PRIDE XML schema validation only, without normal validation\n" +
+    "   -schemaonly\n" +
+    "   -skipserialization\n" +
+    "   -reportfile <outputReport.txt>\n\n" +
+
+    "### ProBed validation\n\n" +
+
+    "-v -proBed <input.pro.bed>                    proBed validation with the default schema\n" +
+    "   -reportfile <outputReport.txt>\n" +
+
+    "-v -proBed                                    proBed validation with a custom schema\n" +
+    "   -proBed <input.pro.bed>\n" +
+    "   -asqlfile <input.as>\n" +
+    "   -reportfile <outputReport.txt>\n\n" +
+
+    "### Miscellaneous\n\n" +
+
+    "-check -inputfile <inputfile>                  Check Results Files\n" +
+
+    "-convert -inputfile <inputfile>                Convert PRIDE or MZIDENTML file to MzTab\n" +
+    "         -format <format>\n" +
+
+    "-error -code <code>                            print Error/Warn detail message based on code\n" +
+
+    "-h,--help                                     Help\n");
   }
 }

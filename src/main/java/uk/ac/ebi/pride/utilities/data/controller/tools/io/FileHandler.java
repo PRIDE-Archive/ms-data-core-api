@@ -22,6 +22,7 @@ import static uk.ac.ebi.pride.utilities.data.controller.tools.utils.Utility.*;
 public class FileHandler {
 
   private static final Logger log = LoggerFactory.getLogger(FileHandler.class);
+
   /**
    * This method gets all the input file ready for validation, if it is extracted.
    *
@@ -41,7 +42,8 @@ public class FileHandler {
 
   /**
    * Creates temp data access controller files.
-   * @param dataAccessControllerFiles the input data access controller files
+   *
+   * @param dataAccessControllerFiles     the input data access controller files
    * @param tempDataAccessControllerFiles the temp data acceess controller files that get created
    * @return true if all the temp files were created OK, false otherwise
    */
@@ -50,12 +52,12 @@ public class FileHandler {
     if (CollectionUtils.isNotEmpty(dataAccessControllerFiles)) {
       for (File dataAccessControllerFile : dataAccessControllerFiles) {
         File tempDataAccessControllerFile = createNewTempFile(dataAccessControllerFile);
-        if (tempDataAccessControllerFile!=null && 0<tempDataAccessControllerFile.length()) {
+        if (tempDataAccessControllerFile != null && 0 < tempDataAccessControllerFile.length()) {
           tempDataAccessControllerFiles.add(tempDataAccessControllerFile);
         }
       }
       badtempDataAccessControllerFiles = CollectionUtils.isEmpty(tempDataAccessControllerFiles) ||
-              tempDataAccessControllerFiles.size()!=dataAccessControllerFiles.size();
+              tempDataAccessControllerFiles.size() != dataAccessControllerFiles.size();
     }
     return badtempDataAccessControllerFiles;
   }
@@ -85,7 +87,8 @@ public class FileHandler {
 
   /**
    * Deletes all the temporary files (assay file, data access controller files).
-   * @param tempAssayFile the temp assay file to be deleted
+   *
+   * @param tempAssayFile                 the temp assay file to be deleted
    * @param tempDataAccessControllerFiles the temp data access controller files to be deleted
    */
   public static void deleteAllTempFiles(File tempAssayFile, List<File> tempDataAccessControllerFiles) {
@@ -101,6 +104,7 @@ public class FileHandler {
 
   /**
    * Deletes a temporary file
+   *
    * @param tempFile the temp file to be deleted.
    */
   public static void deleteTempFile(File tempFile) {
@@ -117,12 +121,12 @@ public class FileHandler {
     List<File> peakFiles = new ArrayList<>();
     if (cmd.hasOption(ARG_PEAK) || cmd.hasOption(ARG_PEAKS)) {
       String[] peakFilesString = cmd.hasOption(ARG_PEAK) ? cmd.getOptionValues(ARG_PEAK)
-              : cmd.hasOption(ARG_PEAKS) ?  cmd.getOptionValue(ARG_PEAKS).split(STRING_SEPARATOR) : new String[0];
+              : cmd.hasOption(ARG_PEAKS) ? cmd.getOptionValue(ARG_PEAKS).split(STRING_SEPARATOR) : new String[0];
       for (String aPeakFilesString : peakFilesString) {
         File peakFile = new File(aPeakFilesString);
         if (peakFile.isDirectory()) {
           File[] listFiles = peakFile.listFiles(File::isFile);
-          if (listFiles!=null) {
+          if (listFiles != null) {
             peakFiles.addAll(Arrays.asList(listFiles));
           }
         } else {

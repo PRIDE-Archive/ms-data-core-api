@@ -27,8 +27,8 @@ public class Utility {
   public static final String ARG_MESSAGE = "m";
   public static final String ARG_CHECK = "check";
   public static final String ARG_CONVERT= "convert";
+  public static final String ARG_ERROR_CODE = "error";
   public static final String ARG_HELP = "h";
-  public static final String ARG_CODE = "code";
   //Command line arguments arguments
   public static final String ARG_MZID = "mzid";
   public static final String ARG_PEAK = "peak";
@@ -57,6 +57,7 @@ public class Utility {
   public static final String ARG_BED_COLUMN_FORMAT = "columnformat";
   public static final String ARG_LEVEL = "level";
   public static final String ARG_FORMAT = "format";
+  public static final String ARG_CODE = "code";
   // Other constants
   public static final String MS_INSTRUMENT_MODEL_NAME = "instrument model";
   public static final String MS_INSTRUMENT_MODEL_AC = "MS:1000031";
