@@ -15,10 +15,10 @@ import java.util.*;
 /**
  * Created by tobias on 20/10/2016.
  */
-public class AssayFileController extends CachedDataAccessController {
-  private static final Logger logger = LoggerFactory.getLogger(AssayFileController.class);
+public class ResultFileController extends CachedDataAccessController {
+  private static final Logger logger = LoggerFactory.getLogger(ResultFileController.class);
 
-  public AssayFileController(File file, DataAccessMode mode) {
+  public ResultFileController(File file, DataAccessMode mode) {
     super(file, mode);
   }
 
