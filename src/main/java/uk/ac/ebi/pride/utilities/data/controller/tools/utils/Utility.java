@@ -1,8 +1,6 @@
 package uk.ac.ebi.pride.utilities.data.controller.tools.utils;
 
-import com.google.common.io.Files;
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,14 +8,12 @@ import redis.clients.jedis.*;
 import uk.ac.ebi.pride.utilities.data.controller.cache.CacheEntry;
 import uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl.CachedDataAccessController;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.*;
 
 import static redis.clients.jedis.Protocol.DEFAULT_TIMEOUT;
 
 /**
- * This class provides general utitilies for the PGConverter tool, such as:
+ * This class provides general utilities for the PGConverter tool, such as:
  * arguments, supported file types, Redis messaging, and handling exiting the application.
  *
  * @author Tobias Ternent
@@ -25,9 +21,15 @@ import static redis.clients.jedis.Protocol.DEFAULT_TIMEOUT;
 public class Utility {
     private static final Logger log = LoggerFactory.getLogger(Utility.class);
 
+    // Main functionality
     public static final String ARG_VALIDATION = "v";
     public static final String ARG_CONVERSION = "c";
     public static final String ARG_MESSAGE = "m";
+    public static final String ARG_CHECK = "check";
+    public static final String ARG_CONVERT= "convert";
+    public static final String ARG_HELP = "h";
+    public static final String ARG_CODE = "code";
+    //Command line arguments arguments
     public static final String ARG_MZID = "mzid";
     public static final String ARG_PEAK = "peak";
     public static final String ARG_PEAKS = "peaks";
@@ -50,14 +52,17 @@ public class Utility {
     public static final String ARG_REDIS_CHANNEL = "redischannel";
     public static final String ARG_REDIS_MESSAGE = "redismessage";
     public static final String ARG_SKIP_SERIALIZATION = "skipserialization";
+    public static final String ARG_SCHEMA_VALIDATION = "schema";
+    public static final String ARG_SCHEMA_ONLY_VALIDATION = "schemaonly";
+    public static final String ARG_BED_COLUMN_FORMAT = "columnformat";
+    public static final String ARG_LEVEL = "level";
+    public static final String ARG_FORMAT = "format";
+    // Other constants
+    public static final String MS_INSTRUMENT_MODEL_NAME = "instrument model";
     public static final String MS_INSTRUMENT_MODEL_AC = "MS:1000031";
     public static final String MS_SOFTWARE_AC = "MS:1000531";
     public static final String MS_CONTACT_EMAIL_AC = "MS:1000589";
     public static final String MS_SOFTWARE_NAME = "software";
-    public static final String MS_INSTRUMENT_MODEL_NAME = "instrument model";
-    public static final String ARG_SCHEMA_VALIDATION = "schema";
-    public static final String ARG_SCHEMA_ONLY_VALIDATION = "schemaonly";
-    public static final String ARG_BED_COLUMN_FORMAT = "columnformat";
     public static final String STRING_SEPARATOR = "##";
 
     /**
@@ -87,7 +92,13 @@ public class Utility {
      * The supported BED Data types in an ASQL file
      */
     public enum AsqlDataType {
-        STRING("string"), INT("int"), UINT("uint"), CHAR_ONE("char[1]"), INT_BLOCKCOUNT("int[blockCount]"), DOUBLE("double");
+        STRING("string"),
+        INT("int"),
+        UINT("uint"),
+        CHAR_ONE("char[1]"),
+        INT_BLOCKCOUNT("int[blockCount]"),
+        DOUBLE("double");
+
         private String format;
 
         AsqlDataType(String format) {
@@ -106,8 +117,11 @@ public class Utility {
      */
     public static void exitCleanly(CommandLine cmd) {
         if (cmd.hasOption(ARG_REDIS)) {
-            notifyRedisChannel(cmd.getOptionValue(ARG_REDIS_SERVER), cmd.getOptionValue(ARG_REDIS_PORT),
-                    cmd.hasOption(ARG_REDIS_PASSWORD) ? cmd.getOptionValue(ARG_REDIS_PASSWORD) : "", cmd.getOptionValue(ARG_REDIS_CHANNEL), cmd.getOptionValue(ARG_REDIS_MESSAGE));
+            notifyRedisChannel(
+                    cmd.getOptionValue(ARG_REDIS_SERVER),
+                    cmd.getOptionValue(ARG_REDIS_PORT),
+                    cmd.hasOption(ARG_REDIS_PASSWORD) ? cmd.getOptionValue(ARG_REDIS_PASSWORD) : "",
+                    cmd.getOptionValue(ARG_REDIS_CHANNEL), cmd.getOptionValue(ARG_REDIS_MESSAGE));
         }
         log.info("Exiting application.");
     }
@@ -167,28 +181,6 @@ public class Utility {
         } catch (Exception e) {
             log.error("Exception while publishing message to Redis channel.", e);
         }
-    }
-
-    /**
-     * Creates a new temporary file, as a copy of an input file. DeleteOnExit() is set.
-     *
-     * @param file the source input file to copy from.
-     * @return the new temporary file. This may be null if it was not created successfully.
-     */
-    public static File createNewTempFile(File file) {
-        File tempFile = null;
-        try {
-            tempFile = new File(Files.createTempDir(), file.getName());
-            File tempParentFile = tempFile.getParentFile();
-            tempFile.deleteOnExit();
-            tempParentFile.deleteOnExit();
-            FileUtils.copyFile(file, tempFile);
-        } catch (IOException e) {
-            log.error("Problem creating temp fle for: " + file.getPath());
-            log.error("Deleting temp file " + tempFile.getName() + ": " + tempFile.delete());
-            tempFile = null;
-        }
-        return tempFile;
     }
 
     /**

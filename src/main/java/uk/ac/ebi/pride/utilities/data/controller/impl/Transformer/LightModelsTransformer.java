@@ -18,7 +18,8 @@ import java.util.List;
 @Slf4j
 public class LightModelsTransformer{
 
-    // TODO: This method should be removed.
+    // TODO: This method should be removed later. Instead if converting Light model object to jmzidml model objects,
+    // I need to override the existing method to support light model objects
     public static uk.ac.ebi.jmzidml.model.mzidml.SpectraData transformSpectraDataToJmzidml(SpectraData spectraData) {
 
         try {
@@ -87,19 +88,8 @@ public class LightModelsTransformer{
                 List<CvParam> cvParams = transformToCvParams(sourceFileLight.getCvParam());
                 List<UserParam> userParams = transformToUserParams(sourceFileLight.getUserParam());
                 sourceFiles.add(new SourceFile(new ParamGroup(cvParams, userParams), id, name, location, format, formatDocumentation));
-
-
-
-//        ParamGroup params = sourceFileLight.getParamGroup();
-//        List<CvParam> cvParams = new ArrayList<>();
-//        for (uk.ac.ebi.pride.utilities.data.lightModel.CvParam cvParam: sourceFileLight.getCvParam()){
-//            cvParams.add(transformToCvParam(cvParam));
-//        }
-//        CvParam fileFormat = ;
-//                String externalFormatDocumentationURI = sourceFileLight.get;
-//                sourceFiles.add(new SourceFile());
             }
-        }/**/
+        }
         return sourceFiles;
     }
 

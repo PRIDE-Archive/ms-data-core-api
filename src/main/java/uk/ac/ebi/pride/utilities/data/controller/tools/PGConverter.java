@@ -3,7 +3,7 @@ package uk.ac.ebi.pride.utilities.data.controller.tools;
 import org.apache.commons.cli.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.ac.ebi.pride.utilities.data.controller.tools.utils.Utility;
+import uk.ac.ebi.pride.utilities.data.exporters.MzTabConverterTool;
 
 import java.util.*;
 
@@ -28,26 +28,28 @@ public class PGConverter {
         try {
             CommandLine cmd = PGConverter.parseArgs(args);
             if (args.length > 0) {
-                if (cmd.hasOption(ARG_VALIDATION)) {
+                if (cmd.hasOption(ARG_HELP)) {
+                    printHelpHack();
+                }else  if (cmd.hasOption(ARG_CODE)) {
+                  MzTabConverterTool.printErrorCode(cmd);
+                }else if (cmd.hasOption(ARG_VALIDATION)) {
                     Validator.startValidation(cmd);
                 } else if (cmd.hasOption(ARG_CONVERSION)) {
                     Converter.startConversion(cmd);
                 } else if (cmd.hasOption(ARG_MESSAGE)) {
-                    if (cmd.hasOption(ARG_REDIS) && cmd.hasOption(ARG_REDIS_SERVER) && cmd.hasOption(ARG_REDIS_PORT) && cmd.hasOption(ARG_REDIS_CHANNEL) && cmd.hasOption(ARG_REDIS_MESSAGE)) {
-                        Utility.notifyRedisChannel(cmd.getOptionValue(ARG_REDIS_SERVER), cmd.getOptionValue(ARG_REDIS_PORT),
-                                cmd.hasOption(ARG_REDIS_PASSWORD) ? cmd.getOptionValue(ARG_REDIS_PASSWORD) : "", cmd.getOptionValue(ARG_REDIS_CHANNEL), cmd.getOptionValue(ARG_REDIS_MESSAGE));
-                    } else {
-                        log.error("Insufficient parameters provided for sending Redis message.");
-                        Arrays.stream(args).forEach(log::error);
-                    }
+                    Messenger.handleMessages(cmd);
+                } else if (cmd.hasOption(ARG_CHECK)) { // // TODO: later, better to integrate this into ARG_VALIDATION option
+                    MzTabConverterTool.check(cmd);
+                } else if (cmd.hasOption(ARG_CONVERT)) { // TODO: later, better to integrate this into ARG_CONVERSION option
+                    MzTabConverterTool.convert(cmd);
                 } else {
                     log.error("Did not find validation, conversion, or messaging mode arguments.");
                     Arrays.stream(args).forEach(log::error);
                 }
             }
-            Utility.exitCleanly(cmd);
-        } catch (Exception e) {
-            exitedUnexpectedly(e);
+            exitCleanly(cmd);
+        } catch (Exception exception) {
+            exitedUnexpectedly(exception);
         }
     }
 
@@ -84,7 +86,26 @@ public class PGConverter {
         options.addOption(ARG_SCHEMA_VALIDATION, false, "XML Schema validation");
         options.addOption(ARG_SCHEMA_ONLY_VALIDATION, false, "XML Schema-only validation");
         options.addOption(ARG_BED_COLUMN_FORMAT, true, "BED column format");
+        options.addOption(ARG_HELP, false, "print help message");
+        options.addOption(ARG_CODE, false, "print Error/Warn detail message based on code number.");
+        options.addOption(ARG_LEVEL, true, "Choose validate level(Info, Warn, Error), default level is Error!");
         CommandLineParser parser = new DefaultParser();
         return parser.parse(options, args);
+    }
+
+
+    //TODO: Complete this
+        private static void printHelpHack() {
+        System.out.println("usage: java -cp ms-data-core-api.jar uk.ac.ebi.pride.utilities.data.exporters.MzTabConverterTool\n" +
+                " -check inputfile=<inputfile>                     Choose a file from input directory. This\n" +
+                "                                                  parameter should not be null!\n" +
+                " -convert inputfile=<inputfile> " +
+                "          format=<format>   Converts the given format file (PRIDE or MZIDENTML) to an mztab\n" +
+                "                                            file.\n" +
+                " -h,--help                                  print help message\n" +
+                " -message code=<code>                       print Error/Warn detail message based on code\n" +
+                "                                            number.\n" +
+                " -outputFile <arg>                          Dump output data to the given file. If\n" +
+                "                                            not set, output data will be dumped on stdout");
     }
 }

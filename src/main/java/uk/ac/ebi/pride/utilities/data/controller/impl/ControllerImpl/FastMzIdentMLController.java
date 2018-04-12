@@ -2,11 +2,11 @@ package uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl;
 
 import lombok.extern.slf4j.Slf4j;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessController;
-import uk.ac.ebi.pride.utilities.data.controller.DataAccessException;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessMode;
 import uk.ac.ebi.pride.utilities.data.controller.cache.strategy.FastMzIdentMLCachingStrategy;
 import uk.ac.ebi.pride.utilities.data.controller.impl.Transformer.LightModelsTransformer;
 import uk.ac.ebi.pride.utilities.data.core.*;
+import uk.ac.ebi.pride.utilities.data.core.SourceFile;
 import uk.ac.ebi.pride.utilities.data.io.file.FastMzIdentMLUnmarshallerAdaptor;
 import uk.ac.ebi.pride.utilities.data.lightModel.*;
 import uk.ac.ebi.pride.utilities.data.lightModel.CvParam;
@@ -378,63 +378,58 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
     }
 
     /**
-     * Get meta data related to this experiment
+     * Get Version of the MzIdentML
      *
-     * @return MetaData meta data object
+     * @return Version in the format of "Major.Minor.Revision"
      */
-    @Override
-    public ExperimentMetaData getExperimentMetaData() {
-        ExperimentMetaData metaData = super.getExperimentMetaData();
+    public String getVersion(){
+        // TODO: check the version by a regular expression
+        return unmarshaller.getVersion();
+    }
 
-        if (metaData == null) {
-            try {
-                String accession = unmarshaller.getMzIdentMLId();
-                String version = unmarshaller.getVersion();
-                String experimentTitle = unmarshaller.getMzIdentMLName();
-                String shortLabel = null; // in case of mzidentml, this is not provided.
-                List<Software> softwares = unmarshaller.getSoftwares();
+    /**
+     * Get the name attribute of the MzIdentML
+     *
+     * @return Name attribute of the MzIdentML tag
+     */
+    public String getMzIdentMLName(){
+        return unmarshaller.getMzIdentMLName();
+    }
 
-//                // Get Source File List
-//                List<SourceFile> sources = unmarshaller.getSourceFiles();
-//
-//                //Get Sample List
-//                List<Sample> samples = unmarshaller.getSamples();
+    /**
+     * In case of MzIdentML, this is not provided.
+     *
+     * @return "Not Available"
+     */
+    public String getShortLabel(){
+        return "Not Available";
+    }
 
-//                // Get Contact Persons
-//                List<Person> persons = getPersonContacts();
+    /**
+     * Get the Software reported in the MzIdentML
+     *
+     * @return List of Software
+     */
+    public  List<Software> getSoftwares(){
+        return unmarshaller.getSoftwares();
+    }
 
-//                // Get the Contact Organization
-//                List<Organization> organizations = getOrganizationContacts();
+    /**
+     * Get the Software reported in the MzIdentML
+     *
+     * @return List of Software
+     */
+    public  List<SourceFile> getSourceFile(){
+        return unmarshaller.getSourceFiles();
+    }
 
-//                // Get Additional Information Related with the Project
-//                ParamGroup additional = getAdditional();
-
-
-//                //Get Experiment Protocol in case of mzidentml Experiment Protocol is empty.
-//                ExperimentProtocol protocol = null;
-
-//                // Get References From the Experiment
-//                List<Reference> references = getReferences();
-
-//                // Get the provider object of the MzIdentMl file
-//                Provider provider = getProvider();
-//                //Get Creation Date
-//                Date creationDate = unmarshaller.getCreationDate();
-//                //Get SpectraData Files
-//                List<SpectraData> spectraData = getSpectraDataFiles();
-
-                //Create the ExperimentMetaData Object
-//                metaData = new ExperimentMetaData(additional, accession, title, version, shortLabel, samples, softwares,
-//                        persons, sources, provider, organizations, references, creationDate, null, protocol, spectraData);
-//                // store it in the cache
-//                getCache().store(CacheEntry.EXPERIMENT_METADATA, metaData);
-            } catch (Exception ex) {
-                throw new DataAccessException("Failed to retrieve meta data", ex);
-            }
-        }
-        //System.out.println("Protein Ids: " + getProteinIds().size());
-        //System.out.println("Peptide Ids: " + getNumberOfPeptides());
-        return metaData;
+    /**
+     * In case of MzIdentML Experiment Protocol is empty.
+     *
+     * @return ExperimentProtocol
+     */
+    public ExperimentProtocol getExperimentProtocol(){
+        return null;
     }
 
     /**

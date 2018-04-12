@@ -283,9 +283,8 @@ public class FastMzIdentMLUnmarshallerAdaptor {
 //    public List<Sample> getSamples() {
 //
 //    }
-//
+
     public List<SourceFile> getSourceFiles() {
        return LightModelsTransformer.transformToSourceFiles(fastMzIdentMLUnmarshaller.getMzIdentML().getDataCollection().getInputs().getSourceFile());
-
     }
 }

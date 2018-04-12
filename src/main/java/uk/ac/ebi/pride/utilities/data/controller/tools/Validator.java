@@ -110,11 +110,6 @@ public class Validator extends FileCompression {
     outputReport(assayFileSummary, report, outputFile, cmd.hasOption(ARG_SKIP_SERIALIZATION));
   }
 
-  /**
-   * This method validates a PRIDE XML file.
-   *
-   * @param cmd the command line arguments.
-   */
   private static void validatePrideXML(CommandLine cmd) {
     List<File> filesToValidate = new ArrayList<>();
     File file = new File(cmd.getOptionValue(ARG_PRIDEXML));
@@ -259,11 +254,9 @@ public class Validator extends FileCompression {
     log.info("Started scanning for general metadata.");
     String title = dataAccessController.getExperimentMetaData().getName();
     assayFileSummary.setName(StringUtils.isEmpty(title) || title.contains("no assay title provided") ?
-        dataAccessController.getName() :
-        title);
+        dataAccessController.getName() : title);
     assayFileSummary.setShortLabel(StringUtils.isEmpty(dataAccessController.getExperimentMetaData().getShortLabel()) ?
-        "" :
-        dataAccessController.getExperimentMetaData().getShortLabel());
+        "" : dataAccessController.getExperimentMetaData().getShortLabel());
     assayFileSummary.addContacts(DataConversionUtil.convertContact(dataAccessController.getExperimentMetaData().getPersons()));
     ParamGroup additional = dataAccessController.getExperimentMetaData().getAdditional();
     assayFileSummary.addCvParams(DataConversionUtil.convertAssayGroupCvParams(additional));
