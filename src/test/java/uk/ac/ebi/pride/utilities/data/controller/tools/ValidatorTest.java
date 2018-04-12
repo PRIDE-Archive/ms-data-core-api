@@ -4,8 +4,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static uk.ac.ebi.pride.utilities.data.controller.tools.utils.Utility.*;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -14,6 +12,8 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
+
+import static uk.ac.ebi.pride.utilities.data.controller.tools.utils.Utility.*;
 
 import static org.junit.Assert.assertTrue;
 
