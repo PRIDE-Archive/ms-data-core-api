@@ -8,8 +8,6 @@ import static uk.ac.ebi.pride.utilities.data.controller.tools.utils.Utility.*;
 
 /**
  * This class create for handling methods related with redis messages.
- *
- * @author Suresh Hewapathirana
  */
 public class Messenger {
 

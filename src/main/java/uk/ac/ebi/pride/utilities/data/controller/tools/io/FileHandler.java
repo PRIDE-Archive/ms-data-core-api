@@ -1,6 +1,5 @@
 package uk.ac.ebi.pride.utilities.data.controller.tools.io;
 
-
 import com.google.common.io.Files;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.collections.CollectionUtils;
@@ -83,7 +82,6 @@ public class FileHandler {
     }
     return tempFile;
   }
-
 
   /**
    * Deletes all the temporary files (assay file, data access controller files).
