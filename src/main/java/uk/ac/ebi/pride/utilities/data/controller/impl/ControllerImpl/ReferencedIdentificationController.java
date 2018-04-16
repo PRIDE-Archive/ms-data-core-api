@@ -10,7 +10,6 @@ import uk.ac.ebi.pride.utilities.data.controller.cache.CacheEntry;
 import uk.ac.ebi.pride.utilities.data.core.*;
 import uk.ac.ebi.pride.utilities.data.utils.Constants;
 import uk.ac.ebi.pride.utilities.data.utils.MzIdentMLUtils;
-import uk.ac.ebi.pride.utilities.mol.MoleculeUtilities;
 import uk.ac.ebi.pride.utilities.util.Tuple;
 
 import java.io.File;
@@ -23,7 +22,7 @@ import java.util.*;
  * @author Yasset Perez-Riverol
  * @author Rui Wang
  */
-public abstract class ReferencedIdentificationController extends AssayFileController {
+public abstract class ReferencedIdentificationController extends ResultFileController {
 
     // Logger property to trace the Errors
     private static final Logger logger = LoggerFactory.getLogger(ReferencedIdentificationController.class);

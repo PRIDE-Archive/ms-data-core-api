@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>uk.ac.ebi.pride.utilities</groupId>
@@ -8,7 +9,9 @@
 
     <name>Open-source Data Model for computational proteomics</name>
     <url>http://github.com/PRIDE-Utilities/ms-data-core-api</url>
-    <description>Open-source java library to handle different file format standards for proteomics. Specially ms-data-core-api is good for MetaData representation.</description>
+    <description>Open-source java library to handle different file format standards for proteomics. Specially
+        ms-data-core-api is good for MetaData representation.
+    </description>
 
     <parent>
         <groupId>uk.ac.ebi.pride.architectural</groupId>
@@ -94,6 +97,7 @@
         <uk.ac.ebi.pride.utilities-pride-utilities.version>2.0.18</uk.ac.ebi.pride.utilities-pride-utilities.version>
         <uk.ac.ebi.pride.utilities-pride-mod.version>2.1.8</uk.ac.ebi.pride.utilities-pride-mod.version>
         <commons-cli.version>1.3.1</commons-cli.version>
+        <archive.repo.version>1.0.1</archive.repo.version>
     </properties>
 
     <dependencies>
@@ -128,6 +132,10 @@
                     <groupId>lennart</groupId>
                     <artifactId>lmjunit</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-core</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
         <!-- End -->
@@ -154,11 +162,31 @@
             <groupId>uk.ac.ebi.pride</groupId>
             <artifactId>jmztab-modular-model</artifactId>
             <version>${uk.ac.ebi.pride-jmztab-modular-model.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-core</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>uk.ac.ebi.pride</groupId>
             <artifactId>jmztab-modular-util</artifactId>
             <version>${uk.ac.ebi.pride-jmztab-modular-util.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-core</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>uk.ac.ebi.pride</groupId>
@@ -172,6 +200,14 @@
                 <exclusion>
                     <groupId>uk.ac.ebi.pride.utilities</groupId>
                     <artifactId>pride-utilities</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-core</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -219,8 +255,71 @@
             <version>${commons-cli.version}</version>
         </dependency>
 
-    </dependencies>
+        <!-- pride.archive repo -->
+        <dependency>
+            <groupId>uk.ac.ebi.pride.archive</groupId>
+            <artifactId>archive-repo</artifactId>
+            <version>${archive.repo.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-core</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-log4j12</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 
+        <!-- For File handling -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>r05</version>
+        </dependency>
+
+        <!-- Java version of Redis -->
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <version>2.9.0</version>
+            <type>jar</type>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- Java Performance Monitoring Library -->
+        <dependency>
+            <groupId>com.jamonapi</groupId>
+            <artifactId>jamon</artifactId>
+            <version>2.81</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Lombok -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.16.20</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Redis for Unit Testing -->
+        <dependency>
+            <groupId>net.ishiis.redis</groupId>
+            <artifactId>redis-unit</artifactId>
+            <version>1.0.3</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
     <build>
         <resources>
@@ -249,7 +348,7 @@
                     <overWriteReleases>true</overWriteReleases>
                     <overWriteSnapshots>true</overWriteSnapshots>
                     <excludeTransitive>false</excludeTransitive>
-                    <artifactItems />
+                    <artifactItems/>
                 </configuration>
             </plugin>
 
@@ -273,7 +372,8 @@
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
                             <!-- Configures the main class of the application -->
-                            <mainClass>uk.ac.ebi.pride.utilities.data.exporters.MzTabConverterTool</mainClass>
+                            <!--<mainClass>uk.ac.ebi.pride.utilities.data.exporters.MzTabConverterTool</mainClass>-->
+                            <mainClass>uk.ac.ebi.pride.utilities.data.controller.tools.PGConverter</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -352,7 +452,7 @@
         </repository>
     </repositories>
 
-    <!-- PluginRepositores -->
+    <!-- Plugin Repositories -->
     <pluginRepositories>
         <pluginRepository>
             <id>maven2-repository.dev.java.net</id>

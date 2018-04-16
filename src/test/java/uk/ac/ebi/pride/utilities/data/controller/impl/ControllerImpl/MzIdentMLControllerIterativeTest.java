@@ -137,7 +137,7 @@ public class MzIdentMLControllerIterativeTest {
         long count = 0;
 
         // TODO - Address this random spectra test with better quality data
-        //assertTrue("Check Random Spectra", ((AssayFileController) dataAccessController).checkRandomSpectraByDeltaMassThreshold(1, 4.0));
+        //assertTrue("Check Random Spectra", ((ResultFileController) dataAccessController).checkRandomSpectraByDeltaMassThreshold(1, 4.0));
         Collection<Comparable> proteinIds = dataAccessController.getProteinIds();
         for (Comparable proteinId : proteinIds) {
             count ++;
