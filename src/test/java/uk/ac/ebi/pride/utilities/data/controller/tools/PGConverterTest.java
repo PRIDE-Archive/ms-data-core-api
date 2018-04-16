@@ -1,6 +1,9 @@
 package uk.ac.ebi.pride.utilities.data.controller.tools;
 
+import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.URL;
@@ -8,42 +11,41 @@ import java.net.URL;
 import static uk.ac.ebi.pride.utilities.data.controller.tools.utils.Utility.*;
 
 /**
- * This class tests few possible command-line commands just to make sure
- * integration of PGConverter and MzTabConverterTool works fine
+ * This class tests few possible command-line commands just to make sure integration of PGConverter
+ * and MzTabConverterTool works fine
  *
  * @author Suresh Hewapathirana
  */
 public class PGConverterTest {
+  private static final Logger log = LoggerFactory.getLogger(PGConverterTest.class);
 
   /**
    * Test printing error code used in the API
-   * <p>
-   * This should print
-   * "Cause:	A URI pointing to the unit's source data, (e.g. a PRIDE experiment or a PeptideAtlas build).
-   * For example, "MTD  PRIDE_1234-uri  http://www.ebi.ac.uk/pride/url/to/experiment".
+   *
+   * <p>This should print "Cause: A URI pointing to the unit's source data, (e.g. a PRIDE experiment
+   * or a PeptideAtlas build). For example, "MTD PRIDE_1234-uri
+   * http://www.ebi.ac.uk/pride/url/to/experiment".
    */
   @Test
   public void PrintErrorCodeTest() {
 
-    String[] args = new String[]{
-            "-" + ARG_ERROR_CODE,
-            "-" + ARG_CODE, "1015"
-    };
+    String[] args = new String[] {"-" + ARG_ERROR_CODE, "-" + ARG_CODE, "1015"};
     PGConverter.main(args);
   }
 
   /**
-   * This method should print the Help menu. This can be used to quickly check the commands and
-   * also check the formatting of the help menu
+   * This method should print the Help menu. This can be used to quickly check the commands and also
+   * check the formatting of the help menu
    */
   @Test
   public void PrintHelpTest() {
-    String[] args = new String[]{"-h"};
+    String[] args = new String[] {"-h"};
     PGConverter.main(args);
   }
 
   /**
-   * This test validates one example mzIdentML file which is related to a single peak .mgf file (without schema validation).
+   * This test validates one example mzIdentML file which is related to a single peak .mgf file
+   * (without schema validation).
    *
    * @throws Exception if there are problems opening the example file.
    */
@@ -60,13 +62,17 @@ public class PGConverterTest {
     }
     File inputMgfFile = new File(url.toURI());
     File reportFile = File.createTempFile("testMzid", ".log");
-    String[] args = new String[]{
-            "-" + ARG_VALIDATION,
-            "-" + ARG_MZID, inputMzidFile.getPath(),
-            "-" + ARG_PEAK, inputMgfFile.getPath(),
-            "-" + ARG_SKIP_SERIALIZATION,
-            "-" + ARG_REPORTFILE, reportFile.getPath()
-    };
+    String[] args =
+        new String[] {
+          "-" + ARG_VALIDATION,
+          "-" + ARG_MZID,
+          inputMzidFile.getPath(),
+          "-" + ARG_PEAK,
+          inputMgfFile.getPath(),
+          "-" + ARG_SKIP_SERIALIZATION,
+          "-" + ARG_REPORTFILE,
+          reportFile.getPath()
+        };
     PGConverter.main(args);
   }
 
@@ -82,16 +88,13 @@ public class PGConverterTest {
       throw new IllegalStateException("no file for input found!");
     }
     File inputMzidFile = new File(url.toURI());
-    String[] args = new String[]{
-            "-" + ARG_CHECK,
-            "-" + ARG_INPUTFILE, inputMzidFile.getPath()
-    };
+    String[] args = new String[] {"-" + ARG_CHECK, "-" + ARG_INPUTFILE, inputMzidFile.getPath()};
     PGConverter.main(args);
   }
 
   /**
-   * Convert the MzIdentML to MzTab format using MzTabConverterTool implementation
-   * Here, no High Quality Filters will be applied while converting the input result file
+   * Convert the MzIdentML to MzTab format using MzTabConverterTool implementation Here, no High
+   * Quality Filters will be applied while converting the input result file
    *
    * @throws Exception
    */
@@ -102,11 +105,14 @@ public class PGConverterTest {
       throw new IllegalStateException("no file for input found!");
     }
     File inputMzidFile = new File(url.toURI());
-    String[] args = new String[]{
-            "-" + ARG_CONVERT,
-            "-" + ARG_INPUTFILE, inputMzidFile.getPath(),
-            "-" + ARG_FORMAT, "MZIDENTML"
-    };
+    String[] args =
+        new String[] {
+          "-" + ARG_CONVERT,
+          "-" + ARG_INPUTFILE,
+          inputMzidFile.getPath(),
+          "-" + ARG_FORMAT,
+          "MZIDENTML"
+        };
     PGConverter.main(args);
   }
 }
