@@ -29,6 +29,10 @@ public final class Constants {
      * integer expression
      */
     public static final String INTEGER = SIGN + "?\\d+";
+    /**
+     * Regular Expression to check the MIdentML version
+     */
+    public static final String VERSION_NUMBER = "^(\\d+\\.)(\\d+\\.)(\\d+)$";
 
     private Constants() {
     }
