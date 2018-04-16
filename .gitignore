@@ -51,6 +51,7 @@ Thumbs.db
 log/
 target/
 .idea/
+.redis
 
 pom.xml.releaseBackup
 release.properties
