@@ -18,6 +18,7 @@ import java.util.List;
                 "analysisSoftwareList",
                 "provider",
                 "auditCollection",
+                "analysisSampleCollection",
                 "sequenceCollection",
                 "analysisProtocolCollection",
                 "dataCollection",
@@ -37,6 +38,8 @@ public class MzIdentML extends Identifiable implements Serializable {
     protected Provider provider;
     @XmlElement(name = "AuditCollection")
     protected AuditCollection auditCollection;
+    @XmlElement(name = "AnalysisSampleCollection")
+    protected AnalysisSampleCollection analysisSampleCollection;
     @XmlElement(name = "SequenceCollection")
     protected SequenceCollection sequenceCollection;
     @XmlElement(name = "AnalysisProtocolCollection", required = true)

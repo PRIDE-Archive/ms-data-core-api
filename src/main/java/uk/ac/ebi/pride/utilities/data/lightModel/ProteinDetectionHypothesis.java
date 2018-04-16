@@ -1,5 +1,7 @@
 package uk.ac.ebi.pride.utilities.data.lightModel;
 
+import lombok.Getter;
+import lombok.Setter;
 import uk.ac.ebi.jmzidml.model.utils.FacadeList;
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;
@@ -32,6 +34,8 @@ import java.util.List;
 @XmlType(name = "ProteinDetectionHypothesisType", propOrder = {
         "paramGroup"
 })
+@Getter
+@Setter
 public class ProteinDetectionHypothesis extends Identifiable implements Serializable, ParamGroupCapable {
 
     private final static long serialVersionUID = 100L;
@@ -82,25 +86,6 @@ public class ProteinDetectionHypothesis extends Identifiable implements Serializ
      */
     public String getDBSequenceRef() {
         return dbSequenceRef;
-    }
-
-    /**
-     * Gets the value of the passThreshold property.
-     */
-    public boolean isPassThreshold() {
-        return passThreshold;
-    }
-
-    /**
-     * Sets the value of the passThreshold property.
-     */
-    public void setPassThreshold(boolean value) {
-        this.passThreshold = value;
-    }
-
-
-    public DBSequence getDBSequence() {
-        return dbSequence;
     }
 
     public void setDBSequence(DBSequence dbSequence) {
