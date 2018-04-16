@@ -1,5 +1,8 @@
 package uk.ac.ebi.pride.utilities.data.lightModel;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -34,10 +37,9 @@ import java.util.List;
 @XmlType(name = "ModificationType", propOrder = {
         "cvParam"
 })
-public class Modification
-        extends MzIdentMLObject
-        implements Serializable, CvParamListCapable
-{
+@Getter
+@Setter
+public class Modification extends MzIdentMLObject implements Serializable, CvParamListCapable {
 
     private final static long serialVersionUID = 100L;
     @XmlElement(required = true)
@@ -81,30 +83,6 @@ public class Modification
     }
 
     /**
-     * Gets the value of the location property.
-     *
-     * @return
-     *     possible object is
-     *     {@link Integer }
-     *
-     */
-    public Integer getLocation() {
-        return location;
-    }
-
-    /**
-     * Sets the value of the location property.
-     *
-     * @param value
-     *     allowed object is
-     *     {@link Integer }
-     *
-     */
-    public void setLocation(Integer value) {
-        this.location = value;
-    }
-
-    /**
      * Gets the value of the residues property.
      *
      * <p>
@@ -131,53 +109,5 @@ public class Modification
             residues = new ArrayList<String>();
         }
         return this.residues;
-    }
-
-    /**
-     * Gets the value of the avgMassDelta property.
-     *
-     * @return
-     *     possible object is
-     *     {@link Double }
-     *
-     */
-    public Double getAvgMassDelta() {
-        return avgMassDelta;
-    }
-
-    /**
-     * Sets the value of the avgMassDelta property.
-     *
-     * @param value
-     *     allowed object is
-     *     {@link Double }
-     *
-     */
-    public void setAvgMassDelta(Double value) {
-        this.avgMassDelta = value;
-    }
-
-    /**
-     * Gets the value of the monoisotopicMassDelta property.
-     *
-     * @return
-     *     possible object is
-     *     {@link Double }
-     *
-     */
-    public Double getMonoisotopicMassDelta() {
-        return monoisotopicMassDelta;
-    }
-
-    /**
-     * Sets the value of the monoisotopicMassDelta property.
-     *
-     * @param value
-     *     allowed object is
-     *     {@link Double }
-     *
-     */
-    public void setMonoisotopicMassDelta(Double value) {
-        this.monoisotopicMassDelta = value;
     }
 }

@@ -1,7 +1,6 @@
 package uk.ac.ebi.pride.utilities.data.lightModel;
 
 import uk.ac.ebi.jmzidml.model.utils.FacadeList;
-
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -33,9 +32,7 @@ import java.util.List;
 @XmlType(name = "ProteinDetectionHypothesisType", propOrder = {
         "paramGroup"
 })
-public class ProteinDetectionHypothesis
-        extends Identifiable
-        implements Serializable, ParamGroupCapable {
+public class ProteinDetectionHypothesis extends Identifiable implements Serializable, ParamGroupCapable {
 
     private final static long serialVersionUID = 100L;
     @XmlElements({

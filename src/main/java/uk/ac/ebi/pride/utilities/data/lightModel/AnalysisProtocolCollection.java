@@ -1,6 +1,5 @@
 package uk.ac.ebi.pride.utilities.data.lightModel;
 
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -28,50 +27,45 @@ import java.util.List;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "AnalysisProtocolCollectionType",
         propOrder = {
-        "spectrumIdentificationProtocol"
-}
-)
-public class AnalysisProtocolCollection
-        extends MzIdentMLObject
-        implements Serializable
-{
-
-    private final static long serialVersionUID = 100L;
-    @XmlElement(name = "SpectrumIdentificationProtocol", required = true)
-    protected List<SpectrumIdentificationProtocol> spectrumIdentificationProtocol;
-
-    /**
-     * Gets the value of the spectrumIdentificationProtocol property.
-     *
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the spectrumIdentificationProtocol property.
-     *
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getSpectrumIdentificationProtocol().add(newItem);
-     * </pre>
-     *
-     *
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link SpectrumIdentificationProtocol }
-     *
-     *  @return spectrumIdentificationProtocol
-     */
-    public List<SpectrumIdentificationProtocol> getSpectrumIdentificationProtocol() {
-        if (spectrumIdentificationProtocol == null) {
-            spectrumIdentificationProtocol = new ArrayList<SpectrumIdentificationProtocol>();
+                "spectrumIdentificationProtocol"
         }
-        return this.spectrumIdentificationProtocol;
+)
+public class AnalysisProtocolCollection extends MzIdentMLObject implements Serializable {
+
+  private final static long serialVersionUID = 100L;
+  @XmlElement(name = "SpectrumIdentificationProtocol", required = true)
+  protected List<SpectrumIdentificationProtocol> spectrumIdentificationProtocol;
+
+  /**
+   * Gets the value of the spectrumIdentificationProtocol property.
+   * <p>
+   * <p>
+   * This accessor method returns a reference to the live list,
+   * not a snapshot. Therefore any modification you make to the
+   * returned list will be present inside the JAXB object.
+   * This is why there is not a <CODE>set</CODE> method for the spectrumIdentificationProtocol property.
+   * <p>
+   * <p>
+   * For example, to add a new item, do as follows:
+   * <pre>
+   *    getSpectrumIdentificationProtocol().add(newItem);
+   * </pre>
+   * <p>
+   * <p>
+   * <p>
+   * Objects of the following type(s) are allowed in the list
+   * {@link SpectrumIdentificationProtocol }
+   *
+   * @return spectrumIdentificationProtocol
+   */
+  public List<SpectrumIdentificationProtocol> getSpectrumIdentificationProtocol() {
+    if (spectrumIdentificationProtocol == null) {
+      spectrumIdentificationProtocol = new ArrayList<SpectrumIdentificationProtocol>();
     }
+    return this.spectrumIdentificationProtocol;
+  }
 }

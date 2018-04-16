@@ -1,7 +1,8 @@
 package uk.ac.ebi.pride.utilities.data.lightModel;
 
+import lombok.Getter;
+import lombok.Setter;
 import uk.ac.ebi.jmzidml.model.ParamCapable;
-
 import java.io.Serializable;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -37,117 +38,23 @@ import javax.xml.bind.annotation.XmlType;
 @XmlType(
   name = "AnalysisSoftwareType",
   propOrder = {
-    //          "contactRole",
     "softwareName",
     "customizations"
   }
 )
+@Getter
+@Setter
 public class AnalysisSoftware extends Identifiable implements Serializable, ParamCapable {
 
   private static final long serialVersionUID = 100L;
-  //
-  //  @XmlElement(name = "ContactRole")
-  //  protected ContactRole contactRole;
 
   @XmlElement(name = "SoftwareName", required = true)
   protected Param softwareName;
-
   @XmlElement(name = "Customizations")
   protected String customizations;
-
-  @XmlAttribute protected String version;
-
+  @XmlAttribute protected
+  String version;
   @XmlAttribute
   @XmlSchemaType(name = "anyURI")
   protected String uri;
-
-  //  /**
-  //   * Gets the value of the contactRole property.
-  //   *
-  //   * @return possible object is {@link ContactRole }
-  //   */
-  //  public ContactRole getContactRole() {
-  //    return contactRole;
-  //  }
-  //
-  //  /**
-  //   * Sets the value of the contactRole property.
-  //   *
-  //   * @param value allowed object is {@link ContactRole }
-  //   */
-  //  public void setContactRole(ContactRole value) {
-  //    this.contactRole = value;
-  //  }
-
-  /**
-   * Gets the value of the softwareName property.
-   *
-   * @return possible object is {@link Param }
-   */
-  public Param getSoftwareName() {
-    return softwareName;
-  }
-
-  /**
-   * Sets the value of the softwareName property.
-   *
-   * @param value allowed object is {@link Param }
-   */
-  public void setSoftwareName(Param value) {
-    this.softwareName = value;
-  }
-
-  /**
-   * Gets the value of the customizations property.
-   *
-   * @return possible object is {@link String }
-   */
-  public String getCustomizations() {
-    return customizations;
-  }
-
-  /**
-   * Sets the value of the customizations property.
-   *
-   * @param value allowed object is {@link String }
-   */
-  public void setCustomizations(String value) {
-    this.customizations = value;
-  }
-
-  /**
-   * Gets the value of the version property.
-   *
-   * @return possible object is {@link String }
-   */
-  public String getVersion() {
-    return version;
-  }
-
-  /**
-   * Sets the value of the version property.
-   *
-   * @param value allowed object is {@link String }
-   */
-  public void setVersion(String value) {
-    this.version = value;
-  }
-
-  /**
-   * Gets the value of the uri property.
-   *
-   * @return possible object is {@link String }
-   */
-  public String getUri() {
-    return uri;
-  }
-
-  /**
-   * Sets the value of the uri property.
-   *
-   * @param value allowed object is {@link String }
-   */
-  public void setUri(String value) {
-    this.uri = value;
-  }
 }

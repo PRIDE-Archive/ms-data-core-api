@@ -1,5 +1,7 @@
 package uk.ac.ebi.pride.utilities.data.lightModel;
 
+import lombok.Getter;
+import lombok.Setter;
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 
@@ -25,24 +27,17 @@ import java.io.Serializable;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "CVParamType")
-public class CvParam
-    extends AbstractParam
-        implements Serializable
-{
+@Getter
+@Setter
+public class CvParam extends AbstractParam implements Serializable {
 
     private final static long serialVersionUID = 100L;
     @XmlAttribute(required = true)
     protected String accession;
     @XmlAttribute(required = true)
     protected String cvRef;
-
     @XmlTransient
     protected Cv cv;
-
-
-    public Cv getCv() {
-        return cv;
-    }
 
     public void setCv(Cv cv) {
         if (cv == null) {
@@ -53,53 +48,5 @@ public class CvParam
             this.cvRef = refId;
         }
         this.cv = cv;
-
-    }
-
-    /**
-     * Gets the value of the accession property.
-     *
-     * @return
-     *     possible object is
-     *     {@link String }
-     *
-     */
-    public String getAccession() {
-        return accession;
-    }
-
-    /**
-     * Sets the value of the accession property.
-     *
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *
-     */
-    public void setAccession(String value) {
-        this.accession = value;
-    }
-
-    /**
-     * Gets the value of the cvRef property.
-     *
-     * @return
-     *     possible object is
-     *     {@link String }
-     *
-     */
-    public String getCvRef() {
-        return cvRef;
-    }
-
-    @Override
-    public String toString() {
-        return "CvParam{" +
-                "accession='" + accession + '\'' +
-                ", cv=" + cv +
-                ", name='" + name + '\'' +
-                ", value='" + value + '\'' +
-                ", cvRef='" + cvRef + '\'' +
-                '}';
     }
 }

@@ -1,5 +1,7 @@
 package uk.ac.ebi.pride.utilities.data.lightModel;
 
+import lombok.Getter;
+import lombok.Setter;
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -32,9 +34,9 @@ import java.util.List;
 @XmlType(name = "SearchModificationType", propOrder = {
         "cvParam"
 })
-public class SearchModification
-        extends MzIdentMLObject
-        implements Serializable {
+@Getter
+@Setter
+public class SearchModification extends MzIdentMLObject implements Serializable {
 
     private final static long serialVersionUID = 100L;
     @XmlElement(required = true)
@@ -72,36 +74,8 @@ public class SearchModification
         }
         return this.cvParam;
     }
-
     /**
-     * Gets the value of the fixedMod property.
-     */
-    public boolean isFixedMod() {
-        return fixedMod;
-    }
 
-    /**
-     * Sets the value of the fixedMod property.
-     */
-    public void setFixedMod(boolean value) {
-        this.fixedMod = value;
-    }
-
-    /**
-     * Gets the value of the massDelta property.
-     */
-    public float getMassDelta() {
-        return massDelta;
-    }
-
-    /**
-     * Sets the value of the massDelta property.
-     */
-    public void setMassDelta(float value) {
-        this.massDelta = value;
-    }
-
-    /**
      * Gets the value of the residues property.
      * <p>
      * <p>
@@ -127,5 +101,4 @@ public class SearchModification
         }
         return this.residues;
     }
-
 }

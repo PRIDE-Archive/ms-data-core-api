@@ -1,5 +1,7 @@
 package uk.ac.ebi.pride.utilities.data.lightModel;
 
+import lombok.Getter;
+import lombok.Setter;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -10,11 +12,11 @@ import java.util.List;
 
 /**
  * One (poly)peptide (a sequence with modifications). The combination of Peptide sequence and modifications must be unique in the file.
- * <p>
+ *
  * <p>Java class for PeptideType complex type.
- * <p>
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * <p>
+ *
  * <pre>
  * &lt;complexType name="PeptideType"&gt;
  *   &lt;complexContent&gt;
@@ -35,62 +37,41 @@ import java.util.List;
         "peptideSequence",
         "modification"
 })
-public class Peptide
-        extends Identifiable
-        implements Serializable {
+@Getter
+@Setter
+public class Peptide extends Identifiable implements Serializable {
 
-    private final static long serialVersionUID = 100L;
+  private final static long serialVersionUID = 100L;
 
-    @XmlElement(name = "PeptideSequence", required = true)
-    protected String peptideSequence;
-    @XmlElement(name = "Modification")
-    protected List<Modification> modification;
+  @XmlElement(name = "PeptideSequence", required = true)
+  protected String peptideSequence;
+  @XmlElement(name = "Modification")
+  protected List<Modification> modification;
 
-    /**
-     * Gets the value of the peptideSequence property.
-     *
-     * @return possible object is
-     * {@link String }
-     */
-    public String getPeptideSequence() {
-        return peptideSequence;
+  /**
+   * Gets the value of the modification property.
+   * <p>
+   * <p>
+   * This accessor method returns a reference to the live list,
+   * not a snapshot. Therefore any modification you make to the
+   * returned list will be present inside the JAXB object.
+   * This is why there is not a <CODE>set</CODE> method for the modification property.
+   * <p>
+   * <p>
+   * For example, to add a new item, do as follows:
+   * <pre>
+   *    getModification().add(newItem);
+   * </pre>
+   * <p>
+   * <p>
+   * <p>
+   * Objects of the following type(s) are allowed in the list
+   * {@link Modification }
+   */
+  public List<Modification> getModification() {
+    if (modification == null) {
+      modification = new ArrayList<Modification>();
     }
-
-    /**
-     * Sets the value of the peptideSequence property.
-     *
-     * @param value allowed object is
-     *              {@link String }
-     */
-    public void setPeptideSequence(String value) {
-        this.peptideSequence = value;
-    }
-
-    /**
-     * Gets the value of the modification property.
-     * <p>
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the modification property.
-     * <p>
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getModification().add(newItem);
-     * </pre>
-     * <p>
-     * <p>
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link Modification }
-     */
-    public List<Modification> getModification() {
-        if (modification == null) {
-            modification = new ArrayList<Modification>();
-        }
-        return this.modification;
-    }
-
+    return this.modification;
+  }
 }

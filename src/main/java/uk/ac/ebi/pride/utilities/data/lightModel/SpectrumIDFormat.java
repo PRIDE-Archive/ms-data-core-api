@@ -1,5 +1,7 @@
 package uk.ac.ebi.pride.utilities.data.lightModel;
 
+import lombok.Getter;
+import lombok.Setter;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -29,31 +31,11 @@ import java.io.Serializable;
 @XmlType(name = "SpectrumIDFormatType", propOrder = {
         "cvParam"
 })
-public class SpectrumIDFormat
-        extends MzIdentMLObject
-        implements Serializable, CvParamCapable {
+@Getter
+@Setter
+public class SpectrumIDFormat extends MzIdentMLObject implements Serializable, CvParamCapable {
 
     private final static long serialVersionUID = 100L;
     @XmlElement(required = true)
     protected CvParam cvParam;
-
-    /**
-     * Gets the value of the cvParam property.
-     *
-     * @return possible object is
-     * {@link CvParam }
-     */
-    public CvParam getCvParam() {
-        return cvParam;
-    }
-
-    /**
-     * Sets the value of the cvParam property.
-     *
-     * @param value allowed object is
-     *              {@link CvParam }
-     */
-    public void setCvParam(CvParam value) {
-        this.cvParam = value;
-    }
 }

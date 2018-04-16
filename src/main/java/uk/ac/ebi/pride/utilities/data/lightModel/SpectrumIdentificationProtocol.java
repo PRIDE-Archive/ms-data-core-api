@@ -1,9 +1,9 @@
 package uk.ac.ebi.pride.utilities.data.lightModel;
 
+import lombok.Getter;
+import lombok.Setter;
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * The parameters and settings of a SpectrumIdentification analysis.
@@ -38,31 +38,11 @@ import java.util.List;
 @XmlType(name = "SpectrumIdentificationProtocolType", propOrder = {
         "modificationParams"
 })
-public class SpectrumIdentificationProtocol
-        extends Identifiable
-        implements Serializable {
+@Getter
+@Setter
+public class SpectrumIdentificationProtocol extends Identifiable implements Serializable {
 
     private final static long serialVersionUID = 100L;
     @XmlElement(name = "ModificationParams")
     protected ModificationParams modificationParams;
-
-    /**
-     * Gets the value of the modificationParams property.
-     *
-     * @return possible object is
-     * {@link ModificationParams }
-     */
-    public ModificationParams getModificationParams() {
-        return modificationParams;
-    }
-
-    /**
-     * Sets the value of the modificationParams property.
-     *
-     * @param value allowed object is
-     *              {@link ModificationParams }
-     */
-    public void setModificationParams(ModificationParams value) {
-        this.modificationParams = value;
-    }
 }

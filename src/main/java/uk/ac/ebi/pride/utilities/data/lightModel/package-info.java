@@ -12,5 +12,4 @@
 package uk.ac.ebi.pride.utilities.data.lightModel;
 
 import uk.ac.ebi.pride.utilities.data.utils.Constants;
-
 import javax.xml.bind.annotation.*;

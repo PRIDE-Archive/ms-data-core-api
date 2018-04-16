@@ -6,6 +6,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlType;
+import lombok.Setter;
 import uk.ac.ebi.jmzidml.model.MzIdentMLObject;
 
 /**
@@ -30,6 +31,7 @@ import uk.ac.ebi.jmzidml.model.MzIdentMLObject;
   name = "ParamType",
   propOrder = {"paramGroup"}
 )
+@Setter
 public class Param extends MzIdentMLObject implements Serializable {
 
   private static final long serialVersionUID = 100L;
@@ -39,15 +41,6 @@ public class Param extends MzIdentMLObject implements Serializable {
     @XmlElement(name = "cvParam", type = CvParam.class)
   })
   protected AbstractParam paramGroup;
-
-  /**
-   * Sets the value of the paramGroup property.
-   *
-   * @param value allowed object is {@link UserParam } {@link CvParam }
-   */
-  public void setParam(AbstractParam value) {
-    this.paramGroup = value;
-  }
 
   public CvParam getCvParam() {
     if (paramGroup instanceof CvParam) {

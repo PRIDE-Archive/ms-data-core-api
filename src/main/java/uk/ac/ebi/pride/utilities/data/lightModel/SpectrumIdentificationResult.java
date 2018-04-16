@@ -1,5 +1,7 @@
 package uk.ac.ebi.pride.utilities.data.lightModel;
 
+import lombok.Getter;
+import lombok.Setter;
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -7,11 +9,11 @@ import java.util.List;
 
 /**
  * All identifications made from searching one spectrum. For PMF data, all peptide identifications will be listed underneath as SpectrumIdentificationItems. For MS/MS data, there will be ranked SpectrumIdentificationItems corresponding to possible different peptide IDs.
- * <p>
+ *
  * <p>Java class for SpectrumIdentificationResultType complex type.
- * <p>
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * <p>
+ *
  * <pre>
  * &lt;complexType name="SpectrumIdentificationResultType"&gt;
  *   &lt;complexContent&gt;
@@ -31,94 +33,45 @@ import java.util.List;
 @XmlType(name = "SpectrumIdentificationResultType", propOrder = {
         "spectrumIdentificationItem"
 })
-public class SpectrumIdentificationResult
-        extends Identifiable
-        implements Serializable {
+@Getter
+@Setter
+public class SpectrumIdentificationResult extends Identifiable implements Serializable {
 
-    private final static long serialVersionUID = 100L;
+  private final static long serialVersionUID = 100L;
 
-    @XmlElement(name = "SpectrumIdentificationItem", required = true)
-    protected List<SpectrumIdentificationItem> spectrumIdentificationItem;
-    @XmlAttribute(required = true)
-    protected String spectrumID;
-    @XmlAttribute(name = "spectraData_ref", required = true)
-    protected String spectraDataRef;
-    @XmlTransient
-    protected String formattedSpectrumID;
+  @XmlElement(name = "SpectrumIdentificationItem", required = true)
+  protected List<SpectrumIdentificationItem> spectrumIdentificationItem;
+  @XmlAttribute(required = true)
+  protected String spectrumID;
+  @XmlAttribute(name = "spectraData_ref", required = true)
+  protected String spectraDataRef;
+  @XmlTransient
+  protected String formattedSpectrumID;
 
-    /**
-     * Gets the value of the spectrumIdentificationItem property.
-     * <p>
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the spectrumIdentificationItem property.
-     * <p>
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getSpectrumIdentificationItem().add(newItem);
-     * </pre>
-     * <p>
-     * <p>
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link SpectrumIdentificationItem }
-     */
-    public List<SpectrumIdentificationItem> getSpectrumIdentificationItem() {
-        if (spectrumIdentificationItem == null) {
-            spectrumIdentificationItem = new ArrayList<SpectrumIdentificationItem>();
-        }
-        return this.spectrumIdentificationItem;
+  /**
+   * Gets the value of the spectrumIdentificationItem property.
+   * <p>
+   * <p>
+   * This accessor method returns a reference to the live list,
+   * not a snapshot. Therefore any modification you make to the
+   * returned list will be present inside the JAXB object.
+   * This is why there is not a <CODE>set</CODE> method for the spectrumIdentificationItem property.
+   * <p>
+   * <p>
+   * For example, to add a new item, do as follows:
+   * <pre>
+   *    getSpectrumIdentificationItem().add(newItem);
+   * </pre>
+   * <p>
+   * <p>
+   * <p>
+   * Objects of the following type(s) are allowed in the list
+   * {@link SpectrumIdentificationItem }
+   */
+  public List<SpectrumIdentificationItem> getSpectrumIdentificationItem() {
+    if (spectrumIdentificationItem == null) {
+      spectrumIdentificationItem = new ArrayList<SpectrumIdentificationItem>();
     }
-
-    /**
-     * Gets the value of the spectrumID property.
-     *
-     * @return possible object is
-     * {@link String }
-     */
-    public String getSpectrumID() {
-        return spectrumID;
-    }
-
-    /**
-     * Sets the value of the spectrumID property.
-     *
-     * @param value allowed object is
-     *              {@link String }
-     */
-    public void setSpectrumID(String value) {
-        this.spectrumID = value;
-    }
-
-    /**
-     * Gets the value of the spectraDataRef property.
-     *
-     * @return possible object is
-     * {@link String }
-     */
-    public String getSpectraDataRef() {
-        return spectraDataRef;
-    }
-
-    /**
-     * Gets the formattedSpectrumID property.
-     *
-     * @return
-     */
-    public String getFormattedSpectrumID() {
-        return formattedSpectrumID;
-    }
-
-    /**
-     * Sets the formattedSpectrumID property.
-     *
-     * @param formattedSpectrumID allowed object is
-     *                            {@link String }
-     */
-    public void setFormattedSpectrumID(String formattedSpectrumID) {
-        this.formattedSpectrumID = formattedSpectrumID;
-    }
+    return this.spectrumIdentificationItem;
+  }
 }

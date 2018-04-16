@@ -1,6 +1,7 @@
 package uk.ac.ebi.pride.utilities.data.lightModel;
 
-
+import lombok.Getter;
+import lombok.Setter;
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 
@@ -35,10 +36,9 @@ import java.io.Serializable;
 @XmlSeeAlso({
         CvParam.class
 })
-public abstract class AbstractParam
-        extends MzIdentMLObject
-        implements Serializable
-{
+@Getter
+@Setter
+public abstract class AbstractParam extends MzIdentMLObject implements Serializable {
 
     private final static long serialVersionUID = 100L;
     @XmlAttribute(required = true)
@@ -54,118 +54,6 @@ public abstract class AbstractParam
     @XmlTransient
     protected Cv unitCv;
 
-    /**
-     * Gets the value of the name property.
-     *
-     * @return
-     *     possible object is
-     *     {@link String }
-     *
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * Sets the value of the name property.
-     *
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *
-     */
-    public void setName(String value) {
-        this.name = value;
-    }
-
-    /**
-     * Gets the value of the value property.
-     *
-     * @return
-     *     possible object is
-     *     {@link String }
-     *
-     */
-    public String getValue() {
-        return value;
-    }
-
-    /**
-     * Sets the value of the value property.
-     *
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *
-     */
-    public void setValue(String value) {
-        this.value = value;
-    }
-
-    /**
-     * Gets the value of the unitAccession property.
-     *
-     * @return
-     *     possible object is
-     *     {@link String }
-     *
-     */
-    public String getUnitAccession() {
-        return unitAccession;
-    }
-
-    /**
-     * Sets the value of the unitAccession property.
-     *
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *
-     */
-    public void setUnitAccession(String value) {
-        this.unitAccession = value;
-    }
-
-    /**
-     * Gets the value of the unitName property.
-     *
-     * @return
-     *     possible object is
-     *     {@link String }
-     *
-     */
-    public String getUnitName() {
-        return unitName;
-    }
-
-    /**
-     * Sets the value of the unitName property.
-     *
-     * @param value
-     *     allowed object is
-     *     {@link String }
-     *
-     */
-    public void setUnitName(String value) {
-        this.unitName = value;
-    }
-
-    /**
-     * Gets the value of the unitCvRef property.
-     *
-     * @return
-     *     possible object is
-     *     {@link String }
-     *
-     */
-    public String getUnitCvRef() {
-        return unitCvRef;
-    }
-
-    public Cv getUnitCv() {
-        return unitCv;
-    }
-
     public void setUnitCv(Cv unitCv) {
         if (unitCv == null) {
             this.unitCvRef = null;
@@ -176,5 +64,4 @@ public abstract class AbstractParam
         }
         this.unitCv = unitCv;
     }
-
 }

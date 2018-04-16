@@ -1,5 +1,7 @@
 package uk.ac.ebi.pride.utilities.data.lightModel;
 
+import lombok.Getter;
+import lombok.Setter;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -8,11 +10,11 @@ import java.io.Serializable;
 
 /**
  * A single user-defined parameter.
- * <p>
+ *
  * <p>Java class for UserParamType complex type.
- * <p>
+ *
  * <p>The following schema fragment specifies the expected content contained within this class.
- * <p>
+ *
  * <pre>
  * &lt;complexType name="UserParamType"&gt;
  *   &lt;complexContent&gt;
@@ -25,31 +27,11 @@ import java.io.Serializable;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "UserParamType")
-public class UserParam
-        extends AbstractParam
-        implements Serializable {
+@Getter
+@Setter
+public class UserParam extends AbstractParam implements Serializable {
 
-    private final static long serialVersionUID = 100L;
-    @XmlAttribute
-    protected String type;
-
-    /**
-     * Gets the value of the type property.
-     *
-     * @return possible object is
-     * {@link String }
-     */
-    public String getType() {
-        return type;
-    }
-
-    /**
-     * Sets the value of the type property.
-     *
-     * @param value allowed object is
-     *              {@link String }
-     */
-    public void setType(String value) {
-        this.type = value;
-    }
+  private final static long serialVersionUID = 100L;
+  @XmlAttribute
+  protected String type;
 }

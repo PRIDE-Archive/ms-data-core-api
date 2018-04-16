@@ -2,7 +2,6 @@ package uk.ac.ebi.pride.utilities.data.lightModel;
 
 import lombok.Getter;
 import lombok.Setter;
-
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 

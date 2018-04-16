@@ -7,13 +7,6 @@ import java.util.List;
  * a List&lt;Param&gt; into respective List&lt;CvParam&gt; and List&lt;UserParam&gt; and
  * methods used to replace the CvParam/UserParam classes with their
  * respective subclasses.
- *
- * @see uk.ac.ebi.jmzidml.model.utils.ParamUpdater
- * @see uk.ac.ebi.jmzidml.xml.jaxb.unmarshaller.listeners.RawXMLListener
- * @see uk.ac.ebi.jmzidml.xml.jaxb.marshaller.listeners.ObjectClassListener
- * @author Florian Reisinger
- *         Date: 09-Nov-2010
- * @since 1.0
  */
 public interface ParamGroupCapable extends CvParamListCapable {
 

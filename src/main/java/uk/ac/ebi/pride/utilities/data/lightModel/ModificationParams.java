@@ -1,7 +1,6 @@
 package uk.ac.ebi.pride.utilities.data.lightModel;
 
 import uk.ac.ebi.jmzidml.model.MzIdentMLObject;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -33,9 +32,7 @@ import java.util.List;
 @XmlType(name = "ModificationParamsType", propOrder = {
         "searchModification"
 })
-public class ModificationParams
-        extends MzIdentMLObject
-        implements Serializable {
+public class ModificationParams extends MzIdentMLObject implements Serializable {
 
     private final static long serialVersionUID = 100L;
     @XmlElement(name = "SearchModification", required = true)

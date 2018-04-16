@@ -34,6 +34,7 @@ import java.util.List;
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "InputsType", propOrder = {
         "sourceFile",
+        "searchDatabase",
         "spectraData"
 })
 public class Inputs
@@ -45,6 +46,8 @@ public class Inputs
 
     @XmlElement(name = "SourceFile")
     protected List<SourceFile> sourceFile;
+    @XmlElement(name = "SearchDatabase")
+    protected List<SearchDatabase> searchDatabase;
     @XmlElement(name = "SpectraData", required = true)
     protected List<SpectraData> spectraData;
 
@@ -75,6 +78,35 @@ public class Inputs
             sourceFile = new ArrayList<SourceFile>();
         }
         return this.sourceFile;
+    }
+
+    /**
+     * Gets the value of the searchDatabase property.
+     *
+     * <p>
+     * This accessor method returns a reference to the live list,
+     * not a snapshot. Therefore any modification you make to the
+     * returned list will be present inside the JAXB object.
+     * This is why there is not a <CODE>set</CODE> method for the searchDatabase property.
+     *
+     * <p>
+     * For example, to add a new item, do as follows:
+     * <pre>
+     *    getSearchDatabase().add(newItem);
+     * </pre>
+     *
+     *
+     * <p>
+     * Objects of the following type(s) are allowed in the list
+     * {@link SearchDatabase }
+     *
+     *
+     */
+    public List<SearchDatabase> getSearchDatabase() {
+        if (searchDatabase == null) {
+            searchDatabase = new ArrayList<SearchDatabase>();
+        }
+        return this.searchDatabase;
     }
 
     /**

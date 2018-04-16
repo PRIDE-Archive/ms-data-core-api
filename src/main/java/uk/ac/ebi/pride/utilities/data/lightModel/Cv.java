@@ -2,8 +2,6 @@ package uk.ac.ebi.pride.utilities.data.lightModel;
 
 import lombok.Getter;
 import lombok.Setter;
-import lombok.ToString;
-
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 
@@ -31,7 +29,6 @@ import java.io.Serializable;
  */
 @Getter
 @Setter
-@ToString
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "cvType")
 public class Cv extends MzIdentMLObject implements Serializable {

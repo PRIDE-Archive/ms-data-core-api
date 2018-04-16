@@ -1,6 +1,5 @@
 package uk.ac.ebi.pride.utilities.data.lightModel;
 
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +7,6 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
-
 
 /**
  * The software packages used to perform the analyses.
@@ -29,48 +27,41 @@ import javax.xml.bind.annotation.XmlType;
  *   &lt;/complexContent&gt;
  * &lt;/complexType&gt;
  * </pre>
- *
- *
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "AnalysisSoftwareListType", propOrder = {
         "analysisSoftware"
 })
-public class AnalysisSoftwareList
-        extends MzIdentMLObject
-        implements Serializable
-{
+public class AnalysisSoftwareList extends MzIdentMLObject implements Serializable {
 
-    private final static long serialVersionUID = 100L;
-    @XmlElement(name = "AnalysisSoftware", required = true)
-    protected List<AnalysisSoftware> analysisSoftware;
+  private final static long serialVersionUID = 100L;
+  @XmlElement(name = "AnalysisSoftware", required = true)
+  protected List<AnalysisSoftware> analysisSoftware;
 
-    /**
-     * Gets the value of the analysisSoftware property.
-     *
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the analysisSoftware property.
-     *
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getAnalysisSoftware().add(newItem);
-     * </pre>
-     *
-     *
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link AnalysisSoftware }
-     *
-     *
-     */
-    public List<AnalysisSoftware> getAnalysisSoftware() {
-        if (analysisSoftware == null) {
-            analysisSoftware = new ArrayList<AnalysisSoftware>();
-        }
-        return this.analysisSoftware;
+  /**
+   * Gets the value of the analysisSoftware property.
+   * <p>
+   * <p>
+   * This accessor method returns a reference to the live list,
+   * not a snapshot. Therefore any modification you make to the
+   * returned list will be present inside the JAXB object.
+   * This is why there is not a <CODE>set</CODE> method for the analysisSoftware property.
+   * <p>
+   * <p>
+   * For example, to add a new item, do as follows:
+   * <pre>
+   *    getAnalysisSoftware().add(newItem);
+   * </pre>
+   * <p>
+   * <p>
+   * <p>
+   * Objects of the following type(s) are allowed in the list
+   * {@link AnalysisSoftware }
+   */
+  public List<AnalysisSoftware> getAnalysisSoftware() {
+    if (analysisSoftware == null) {
+      analysisSoftware = new ArrayList<AnalysisSoftware>();
     }
+    return this.analysisSoftware;
+  }
 }
