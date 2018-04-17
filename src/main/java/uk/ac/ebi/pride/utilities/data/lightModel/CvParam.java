@@ -2,6 +2,8 @@ package uk.ac.ebi.pride.utilities.data.lightModel;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
+
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 
@@ -29,6 +31,7 @@ import java.io.Serializable;
 @XmlType(name = "CVParamType")
 @Getter
 @Setter
+@ToString
 public class CvParam extends AbstractParam implements Serializable {
 
     private final static long serialVersionUID = 100L;

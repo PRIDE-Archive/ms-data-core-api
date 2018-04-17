@@ -688,7 +688,7 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
         String shortLabel = getShortLabel();
         ExperimentProtocol protocol = getExperimentProtocol();
         List<SourceFile> sources = getSourceFiles();
-        List<Software> softwares = getSoftwares();
+        List<Software> software = getSoftwares();
         List<Person> persons = getPersonContacts();
         List<Organization> organizations = getOrganizationContacts();
         Provider provider = getProvider();
@@ -697,7 +697,7 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
         List<uk.ac.ebi.pride.utilities.data.core.SpectraData> spectraData = getSpectraDataFiles();
         List<Sample> samples = getSamples();
         ParamGroup additional = getAdditional(); // Get Additional Information Related with the Project
-        metaData = new ExperimentMetaData(additional, accession, title, version, shortLabel, samples, softwares,
+        metaData = new ExperimentMetaData(additional, accession, title, version, shortLabel, samples, software,
                 persons, sources, provider, organizations, references, creationDate,
                 null, protocol, spectraData);
         // store it in the cache

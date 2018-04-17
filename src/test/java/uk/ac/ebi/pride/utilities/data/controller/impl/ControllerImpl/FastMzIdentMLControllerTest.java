@@ -54,17 +54,17 @@ public class FastMzIdentMLControllerTest {
    */
   @Test
   public void printValidationsResults() {
-    log.info("Protein Counts: " + fastMzIdentMLController.getNumberOfProteins());
-    log.info("Peptide Counts: " + fastMzIdentMLController.getNumberOfPeptides());
-    log.info("PeptidoForms Counts: " + fastMzIdentMLController.getNumberOfPeptidoForms());
-    log.info("Unique Peptide Counts: " + fastMzIdentMLController.getNumberOfUniquePeptides());
-    log.info("Spectrum Count: " + fastMzIdentMLController.getNumberOfSpectra());
-    log.info("Missing Spectrum Count: " + fastMzIdentMLController.getNumberOfMissingSpectra());
-    log.info("Missing Spectra ID List: " + fastMzIdentMLController.getMissingIdentifiedSpectraIds().toString());
+    log.info("Protein Counts          : " + fastMzIdentMLController.getNumberOfProteins());
+    log.info("Peptide Counts          : " + fastMzIdentMLController.getNumberOfPeptides());
+    log.info("PeptidoForms Counts     : " + fastMzIdentMLController.getNumberOfPeptidoForms());
+    log.info("Unique Peptide Counts   : " + fastMzIdentMLController.getNumberOfUniquePeptides());
+    log.info("Spectrum Count          : " + fastMzIdentMLController.getNumberOfSpectra());
+    log.info("Missing Spectrum Count  : " + fastMzIdentMLController.getNumberOfMissingSpectra());
+    log.info("Missing Spectra ID List : " + fastMzIdentMLController.getMissingIdentifiedSpectraIds().toString());
     log.info("Identified Spectrum Count: " + fastMzIdentMLController.getNumberOfIdentifiedSpectra());
-    log.info("DeltaMz Error Rate: " + fastMzIdentMLController.getSampleDeltaMzErrorRate(100, 4.0));
-    log.info("Identified Unique PTMs: " + fastMzIdentMLController.getIdentifiedUniquePTMs().toString());
-    log.info("Search Modifications: " + fastMzIdentMLController.getSearchModifications().toString());
+    log.info("DeltaMz Error Rate      : " + fastMzIdentMLController.getSampleDeltaMzErrorRate(100, 4.0));
+    log.info("Identified Unique PTMs  : " + fastMzIdentMLController.getIdentifiedUniquePTMs().toString());
+    log.info("Search Modifications    : " + fastMzIdentMLController.getSearchModifications().toString());
   }
 
   /**
@@ -196,21 +196,21 @@ public class FastMzIdentMLControllerTest {
   private void scanForGeneralMetadata(DataAccessController dataAccessController) {
     ExperimentMetaData experimentMetaData = dataAccessController.getExperimentMetaData();
 
-    System.out.println("accession    : " + experimentMetaData.getId());
-    System.out.println("title        : " + experimentMetaData.getName());
-    System.out.println("version      : " + experimentMetaData.getVersion());
-    System.out.println("shortLabel   : " + experimentMetaData.getShortLabel());
-    System.out.println("protocol     : " + experimentMetaData.getProtocol());
-    System.out.println("sources      : " + experimentMetaData.getSourceFiles().toString());
-    System.out.println("software     : " + experimentMetaData.getSoftwares().toString());
-    System.out.println("persons      : " + experimentMetaData.getPersons().toString());
-    System.out.println("organizations: " + experimentMetaData.getOrganizations().toString());
-    System.out.println("provider     : " + experimentMetaData.getProvider());
-    System.out.println("creationDate : " + experimentMetaData.getCreationDate().toString());
-    System.out.println("references   : " + experimentMetaData.getReferences().toString());
-    System.out.println("spectraData  : " + experimentMetaData.getSpectraDatas().toString());
-    System.out.println("samples      : " + experimentMetaData.getSamples());
-    System.out.println("additional   : " + experimentMetaData.getAdditional());
+    System.out.println("MzIdentML Version : " + experimentMetaData.getVersion());
+    System.out.println("Experiment Id     : " + experimentMetaData.getId());
+    System.out.println("Experiment Name   : " + experimentMetaData.getName());
+    System.out.println("Experiment Title  : " + experimentMetaData.getShortLabel());
+    System.out.println("Protocol          : " + experimentMetaData.getProtocol());
+    System.out.println("Sources           : " + experimentMetaData.getSourceFiles().toString());
+    System.out.println("Software          : " + experimentMetaData.getSoftwares().toString());
+    System.out.println("Contact Person    : " + experimentMetaData.getPersons().toString());
+    System.out.println("Organizations     : " + experimentMetaData.getOrganizations().toString());
+    System.out.println("Provider          : " + experimentMetaData.getProvider().toString());
+    System.out.println("CreationDate      : " + experimentMetaData.getCreationDate().toString());
+    System.out.println("References        : " + experimentMetaData.getReferences().toString());
+    System.out.println("SpectraData       : " + experimentMetaData.getSpectraDatas().toString());
+    System.out.println("Samples           : " + experimentMetaData.getSamples());
+    System.out.println("Additional        : " + experimentMetaData.getAdditional().toString());
 
     System.out.println("Enzymes      : " + fastMzIdentMLController.getFormattedEnzymes());
   }
