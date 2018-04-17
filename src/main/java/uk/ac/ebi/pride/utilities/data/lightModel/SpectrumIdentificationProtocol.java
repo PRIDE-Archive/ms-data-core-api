@@ -36,7 +36,8 @@ import java.io.Serializable;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "SpectrumIdentificationProtocolType", propOrder = {
-        "modificationParams"
+        "modificationParams",
+        "enzymes"
 })
 @Getter
 @Setter
@@ -45,4 +46,18 @@ public class SpectrumIdentificationProtocol extends Identifiable implements Seri
     private final static long serialVersionUID = 100L;
     @XmlElement(name = "ModificationParams")
     protected ModificationParams modificationParams;
+    @XmlElement(name = "Enzymes")
+    protected Enzymes enzymes;
+
+  /**
+   * Gets the value of the enzymes property.
+   *
+   * @return
+   *     possible object is
+   *     {@link Enzymes }
+   *
+   */
+  public Enzymes getEnzymes() {
+    return enzymes;
+  }
 }

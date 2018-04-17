@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.pride.utilities.data.controller.cache.CacheEntry;
 import uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl.FastMzIdentMLController;
-import uk.ac.ebi.pride.utilities.data.controller.impl.Transformer.MzIdentMLTransformer;
 import uk.ac.ebi.pride.utilities.data.controller.impl.Transformer.LightModelsTransformer;
 import uk.ac.ebi.pride.utilities.data.io.file.FastMzIdentMLUnmarshallerAdaptor;
 import uk.ac.ebi.pride.utilities.data.lightModel.SpectraData;
@@ -43,8 +42,7 @@ public class FastMzIdentMLCachingStrategy extends AbstractCachingStrategy {
             while (iterator.hasNext()) {
                 Map.Entry mapEntry = (Map.Entry) iterator.next();
                 SpectraData spectraDataValue = (SpectraData) mapEntry.getValue();
-                uk.ac.ebi.jmzidml.model.mzidml.SpectraData spectraDataValueJmzidml = LightModelsTransformer.transformSpectraDataToJmzidml(spectraDataValue);
-                uk.ac.ebi.pride.utilities.data.core.SpectraData spectraData = MzIdentMLTransformer.transformToSpectraData(spectraDataValueJmzidml, listSpectraData.contains(spectraDataValueJmzidml.getId()));
+                uk.ac.ebi.pride.utilities.data.core.SpectraData spectraData = LightModelsTransformer.transformToSpectraData(spectraDataValue, listSpectraData.contains(spectraDataValue.getId()));
                 spectraDataMapResult.put((Comparable) mapEntry.getKey(), spectraData);
             }
             cache.clear(CacheEntry.SPECTRA_DATA);

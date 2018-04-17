@@ -33,7 +33,6 @@ public final class MzIdentMLUtils {
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(MzIdentMLUtils.class);
     private static CvParam spectrumIdFormatMGFTitle;
 
-
     /**
      * This parameter is a hack to allow in mzIdentML version 1.1 to convert the modification unambiguity position from
      * proteome discoverer values.
@@ -49,6 +48,10 @@ public final class MzIdentMLUtils {
 
     public static Constants.SpecIdFormat getSpectraDataIdFormat(uk.ac.ebi.jmzidml.model.mzidml.SpectraData spectraData) {
         uk.ac.ebi.jmzidml.model.mzidml.CvParam specIdFormat = spectraData.getSpectrumIDFormat().getCvParam();
+        return Constants.getSpectraDataIdFormat(specIdFormat.getAccession());
+
+    } public static Constants.SpecIdFormat getSpectraDataIdFormat( uk.ac.ebi.pride.utilities.data.lightModel.SpectraData spectraData) {
+        uk.ac.ebi.pride.utilities.data.lightModel.CvParam specIdFormat = spectraData.getSpectrumIDFormat().getCvParam();
         return Constants.getSpectraDataIdFormat(specIdFormat.getAccession());
     }
 
@@ -81,6 +84,36 @@ public final class MzIdentMLUtils {
             return spectrumID;
         }
     }
+// TODO: CODE GET DUPLICATED. NEED TO FIND HOW TO HAVE A COMMON METHOD
+    public static String getSpectrumId( uk.ac.ebi.pride.utilities.data.lightModel.SpectraData spectraData, String spectrumID) {
+        Constants.SpecIdFormat fileIdFormat = getSpectraDataIdFormat(spectraData);
+
+        if (fileIdFormat == Constants.SpecIdFormat.MASCOT_QUERY_NUM) {
+            String rValueStr = spectrumID.replaceAll("query=", "");
+            String id = null;
+            if(rValueStr.matches(Constants.INTEGER)){
+                id = Integer.toString(Integer.parseInt(rValueStr) + 1);
+            }
+            return id;
+        } else if (fileIdFormat == Constants.SpecIdFormat.MULTI_PEAK_LIST_NATIVE_ID) {
+            String rValueStr = spectrumID.replaceAll("index=", "");
+            String id;
+            if(rValueStr.matches(Constants.INTEGER)){
+                id = Integer.toString(Integer.parseInt(rValueStr) + 1);
+                return id;
+            }
+            return spectrumID;
+        } else if (fileIdFormat == Constants.SpecIdFormat.SINGLE_PEAK_LIST_NATIVE_ID) {
+            return spectrumID.replaceAll("file=", "");
+        } else if (fileIdFormat == Constants.SpecIdFormat.MZML_ID) {
+            return spectrumID.replaceAll("mzMLid=", "");
+        } else if (fileIdFormat == Constants.SpecIdFormat.SCAN_NUMBER_NATIVE_ID) {
+            return spectrumID.replaceAll("scan=", "");
+        } else {
+            return spectrumID;
+        }
+    }
+
 
     public static List<String> validateMzIdentMLSchema(File resultFile) {
         List<String> errorMessages = null;

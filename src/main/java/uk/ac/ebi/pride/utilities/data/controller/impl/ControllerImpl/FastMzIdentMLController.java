@@ -8,6 +8,7 @@ import uk.ac.ebi.pride.utilities.data.controller.cache.CacheEntry;
 import uk.ac.ebi.pride.utilities.data.controller.cache.strategy.FastMzIdentMLCachingStrategy;
 import uk.ac.ebi.pride.utilities.data.controller.impl.Transformer.LightModelsTransformer;
 import uk.ac.ebi.pride.utilities.data.core.*;
+import uk.ac.ebi.pride.utilities.data.core.Enzyme;
 import uk.ac.ebi.pride.utilities.data.core.Organization;
 import uk.ac.ebi.pride.utilities.data.core.Person;
 import uk.ac.ebi.pride.utilities.data.core.Provider;
@@ -92,7 +93,8 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
         String spectrumDataRef = spectrumIdentificationResult.getSpectraDataRef(); // eg: spectraData_ref="SD_1"
         String spectrumID = spectrumIdentificationResult.getSpectrumID(); // eg: spectrumID="index=35"
         SpectraData spectraData = spectraDataIds.get(spectrumDataRef); // eg: mgf file location, file format etc
-        String formattedSpectrumID = MzIdentMLUtils.getSpectrumId(LightModelsTransformer.transformSpectraDataToJmzidml(spectraData), spectrumID); // eg: 35
+
+        String formattedSpectrumID = MzIdentMLUtils.getSpectrumId(spectraData, spectrumID); // eg: 35
         spectrumIdentificationResult.setFormattedSpectrumID(formattedSpectrumID);
         SpectrumIdentResultsGroupedBySpectraIDs.computeIfAbsent(spectrumDataRef, value -> new ArrayList<>()).add(spectrumIdentificationResult);
         // check the spectra referenced in the mzIdentML also available in the peak files
@@ -286,7 +288,7 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
         if (!result) errorPSMCount++;
       }
       deltaMzErrorRate =
-              new BigDecimal(((double) errorPSMCount / numberOfChecks)).setScale(2, RoundingMode.HALF_UP).doubleValue();
+              new BigDecimal(((double) errorPSMCount / numberOfChecks)).setScale(4, RoundingMode.HALF_UP).doubleValue();
     }
     return deltaMzErrorRate;
   }
@@ -573,14 +575,14 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
         }
         //Get spectra information as additional
         if (!spectraDataList.isEmpty()) {
-          Set<uk.ac.ebi.pride.utilities.data.core.CvParam> cvParamList = new HashSet<uk.ac.ebi.pride.utilities.data.core.CvParam>();
+          Set<uk.ac.ebi.pride.utilities.data.core.CvParam> cvParamList = new HashSet<>();
           for (uk.ac.ebi.pride.utilities.data.core.SpectraData spectraData : spectraDataList) {
             if (spectraData.getSpectrumIdFormat() != null)
               cvParamList.add(spectraData.getSpectrumIdFormat());
             if (spectraData.getFileFormat() != null)
               cvParamList.add(spectraData.getFileFormat());
           }
-          List<uk.ac.ebi.pride.utilities.data.core.CvParam> list = new ArrayList<uk.ac.ebi.pride.utilities.data.core.CvParam>(cvParamList);
+          List<uk.ac.ebi.pride.utilities.data.core.CvParam> list = new ArrayList<>(cvParamList);
           additionals.addCvParams(list);
         }
       }
@@ -598,7 +600,7 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
    */
   @Override
   public List<Sample> getSamples() {
-    List<Sample> samples = null;
+    List<Sample> samples;
     ExperimentMetaData metaData = super.getExperimentMetaData();
 
     if (metaData == null) {
@@ -624,6 +626,47 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
       return LightModelsTransformer.transformToSearchDataBase(unmarshaller.getSearchDatabases());
     }
     return identificationMetaData.getSearchDataBases();
+  }
+
+  /**
+   * Get the List of Enzyme used in the Experiment
+   *
+   * @return List<Enzyme> List of Enzymes
+   */
+  public List<Enzyme> getEnzymes() {
+
+    List<Enzyme> enzymes = LightModelsTransformer.transformToEnzyme(unmarshaller.getEnzymes());
+    return  enzymes;
+  }
+
+  /**
+   * Get the List of Enzyme used in the Experiment formatted for printing purpose
+   *
+   * @return List<Enzyme> List of Enzymes
+   */
+  public String getFormattedEnzymes() {
+
+    List<uk.ac.ebi.pride.utilities.data.lightModel.Enzyme> enzymes = unmarshaller.getEnzymes();
+    StringBuilder enzymeBuilder = new StringBuilder();
+    if (enzymes == null) {
+      return "Information not available";
+    }
+    for (uk.ac.ebi.pride.utilities.data.lightModel.Enzyme enzymeList : enzymes) {
+      ParamList enzymeName = enzymeList.getEnzymeName();
+      if (enzymeName == null) {
+        continue;
+      }
+      List<CvParam> enzymeParam = enzymeName.getCvParam();
+      for (int i = 0; i < enzymeParam.size(); i++) {
+        enzymeBuilder.append(enzymeParam.get(i).getName());
+        enzymeBuilder.append(" ");
+      }
+    }
+    if (enzymeBuilder.length() == 0) {//no enzyme name available
+      return "Information not available";
+    }
+    enzymeBuilder.deleteCharAt(enzymeBuilder.length() - 1);
+    return enzymeBuilder.toString();
   }
 
   /**
@@ -687,10 +730,9 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
   public boolean hasProteinAmbiguityGroup() {
     return hasProteinAmbiguityGroup;
   }
+
   /**
-   * Check of the mzIdentML object contains any protein ambiguity groups and return a boolean value
-   *
-   * @return boolean value
+   * Check of the mzIdentML object contains any protein ambiguity groups and set the value to a static variable
    */
   private void setHasProteinAmbiguityGroup() {
     AnalysisData analysisData = unmarshaller.getMzIdentML().getDataCollection().getAnalysisData();

@@ -9,48 +9,32 @@ import uk.ac.ebi.pride.utilities.term.CvTermReference;
 import java.util.*;
 
 /**
- * This class is responsible for converting light modules (that are used for fast validation) into other model objects or vice versa
+ * This class is responsible for converting light modules (that are used for fast validation) into
+ * other model objects or vice versa
+ *
+ * <p>Other Model objects used:
+ *
+ * <p>1. uk.ac.ebi.jmzidml.model.mzidml
+ *
+ * <p>2.uk.ac.ebi.pride.utilities.data.core
+ *
+ * <p>3. uk.ac.ebi.pride.archive.repo.assay
+ *
  * <p>
- * Other Model objects used:
- * 1. uk.ac.ebi.jmzidml.model.mzidml
- * 2. uk.ac.ebi.pride.utilities.data.core
- * 3. uk.ac.ebi.pride.archive.repo.assay
  */
 @Slf4j
 public class LightModelsTransformer {
 
-  // TODO: This method should be removed later. Instead if converting Light model object to jmzidml model objects,
-  // I need to override the existing method to support light model objects
-  public static uk.ac.ebi.jmzidml.model.mzidml.SpectraData transformSpectraDataToJmzidml(uk.ac.ebi.pride.utilities.data.lightModel.SpectraData spectraData) {
-
-    try {
-      uk.ac.ebi.jmzidml.model.mzidml.SpectraData spectraDataJmzidml = new uk.ac.ebi.jmzidml.model.mzidml.SpectraData();
-      uk.ac.ebi.jmzidml.model.mzidml.SpectrumIDFormat spectrumIDFormatJmzidml = new uk.ac.ebi.jmzidml.model.mzidml.SpectrumIDFormat();
-      uk.ac.ebi.jmzidml.model.mzidml.CvParam CVParamJmzidml = new uk.ac.ebi.jmzidml.model.mzidml.CvParam();
-
-      CVParamJmzidml.setAccession(spectraData.getSpectrumIDFormat().getCvParam().getAccession());
-      spectrumIDFormatJmzidml.setCvParam(CVParamJmzidml);
-
-      spectraDataJmzidml.setSpectrumIDFormat(spectrumIDFormatJmzidml);
-      spectraDataJmzidml.setLocation(spectraData.getLocation());
-      spectraDataJmzidml.setId(spectraData.getId());
-
-      return spectraDataJmzidml;
-    } catch (Exception ex) {
-      log.error("Error occurred while converting uk.ac.ebi.pride.utilities.data.lightModel.SpectraData " +
-              "to uk.ac.ebi.jmzidml.model.mzidml.SpectraData");
-    }
-    return null;
-  }
-
   /**
-   * This method converts the Software from uk.ac.ebi.pride.utilities.data.lightModel.AnalysisSoftware
-   * to uk.ac.ebi.pride.utilities.data.core.Software object
+   * This method converts the Software from
+   * uk.ac.ebi.pride.utilities.data.lightModel.AnalysisSoftware to
+   * uk.ac.ebi.pride.utilities.data.core.Software object
    *
    * @param analysisSoftware uk.ac.ebi.pride.utilities.data.lightModel.AnalysisSoftware object
    * @return uk.ac.ebi.pride.utilities.data.core.Software object
    */
-  public static Software transformToSoftware(uk.ac.ebi.pride.utilities.data.lightModel.AnalysisSoftware analysisSoftware) {
+  public static Software transformToSoftware(
+      uk.ac.ebi.pride.utilities.data.lightModel.AnalysisSoftware analysisSoftware) {
     try {
       Comparable id = analysisSoftware.getId();
       String name = analysisSoftware.getName();
@@ -60,65 +44,92 @@ public class LightModelsTransformer {
       String version = analysisSoftware.getVersion();
       return new Software(id, name, contact, customization, uri, version);
     } catch (Exception ex) {
-      log.error("Error occurred while converting uk.ac.ebi.pride.utilities.data.lightModel.AnalysisSoftware " +
-              "to uk.ac.ebi.pride.utilities.data.core.Software");
+      log.error(
+          "Error occurred while converting uk.ac.ebi.pride.utilities.data.lightModel.AnalysisSoftware "
+              + "to uk.ac.ebi.pride.utilities.data.core.Software");
       return null;
     }
   }
 
   /**
-   * This method converts list of SourceFile from uk.ac.ebi.pride.utilities.data.lightModel.SourceFile
-   * to uk.ac.ebi.pride.utilities.data.core.SourceFile objects
+   * This method converts list of SourceFile from
+   * uk.ac.ebi.pride.utilities.data.lightModel.SourceFile to
+   * uk.ac.ebi.pride.utilities.data.core.SourceFile objects
    *
    * @param sourceFilesLight List of uk.ac.ebi.pride.utilities.data.lightModel.SourceFile objects
    * @return List of uk.ac.ebi.pride.utilities.data.core.SourceFile objects
    */
-  public static List<SourceFile> transformToSourceFiles(List<uk.ac.ebi.pride.utilities.data.lightModel.SourceFile> sourceFilesLight) {
+  public static List<SourceFile> transformToSourceFiles(
+      List<uk.ac.ebi.pride.utilities.data.lightModel.SourceFile> sourceFilesLight) {
     List<SourceFile> sourceFiles = null;
+    try {
+      if (sourceFilesLight != null) {
+        sourceFiles = new ArrayList<>();
+        for (uk.ac.ebi.pride.utilities.data.lightModel.SourceFile sourceFileLight :
+            sourceFilesLight) {
+          String id = sourceFileLight.getId();
+          String name = sourceFileLight.getName();
+          String location = sourceFileLight.getLocation();
+          uk.ac.ebi.pride.utilities.data.lightModel.CvParam fileFormat =
+              (sourceFileLight.getFileFormat() != null)
+                  ? sourceFileLight.getFileFormat().getCvParam()
+                  : null;
+          CvParam format = transformToCvParam(fileFormat);
+          String formatDocumentation = sourceFileLight.getExternalFormatDocumentation();
 
-    if (sourceFilesLight != null) {
-      sourceFiles = new ArrayList<>();
-      for (uk.ac.ebi.pride.utilities.data.lightModel.SourceFile sourceFileLight : sourceFilesLight) {
-        String id = sourceFileLight.getId();
-        String name = sourceFileLight.getName();
-        String location = sourceFileLight.getLocation();
-        uk.ac.ebi.pride.utilities.data.lightModel.CvParam fileFormat = (sourceFileLight.getFileFormat() != null) ? sourceFileLight.getFileFormat().getCvParam() : null;
-        CvParam format = transformToCvParam(fileFormat);
-        String formatDocumentation = sourceFileLight.getExternalFormatDocumentation();
-
-        List<CvParam> cvParams = transformToCvParam(sourceFileLight.getCvParam());
-        List<UserParam> userParams = transformToUserParam(sourceFileLight.getUserParam());
-        sourceFiles.add(new SourceFile(new ParamGroup(cvParams, userParams), id, name, location, format, formatDocumentation));
+          List<CvParam> cvParams = transformToCvParam(sourceFileLight.getCvParam());
+          List<UserParam> userParams = transformToUserParam(sourceFileLight.getUserParam());
+          sourceFiles.add(
+              new SourceFile(
+                  new ParamGroup(cvParams, userParams),
+                  id,
+                  name,
+                  location,
+                  format,
+                  formatDocumentation));
+        }
       }
+    } catch (Exception ex) {
+      log.error(
+          "Error occurred while converting uk.ac.ebi.pride.utilities.data.lightModel.SourceFile "
+              + "to uk.ac.ebi.pride.utilities.data.core.SourceFile");
     }
     return sourceFiles;
   }
 
   /**
-   * This method converts list of CvParams from uk.ac.ebi.pride.utilities.data.lightModel.CvParam
-   * to uk.ac.ebi.pride.utilities.data.core.CvParam object
+   * This method converts list of CvParams from uk.ac.ebi.pride.utilities.data.lightModel.CvParam to
+   * uk.ac.ebi.pride.utilities.data.core.CvParam object
    *
    * @param cvParamsLight List of uk.ac.ebi.pride.utilities.data.lightModel.CvParam objects
    * @return List of uk.ac.ebi.pride.utilities.data.core.CvParam objects
    */
-  public static List<CvParam> transformToCvParam(List<uk.ac.ebi.pride.utilities.data.lightModel.CvParam> cvParamsLight) {
+  public static List<CvParam> transformToCvParam(
+      List<uk.ac.ebi.pride.utilities.data.lightModel.CvParam> cvParamsLight) {
     List<CvParam> cvParams = new ArrayList<>();
-    if (cvParamsLight != null && cvParamsLight.size() != 0) {
-      for (uk.ac.ebi.pride.utilities.data.lightModel.CvParam cvParamLight : cvParamsLight) {
-        cvParams.add(transformToCvParam(cvParamLight));
+    try {
+      if (cvParamsLight != null && cvParamsLight.size() != 0) {
+        for (uk.ac.ebi.pride.utilities.data.lightModel.CvParam cvParamLight : cvParamsLight) {
+          cvParams.add(transformToCvParam(cvParamLight));
+        }
       }
+    } catch (Exception ex) {
+      log.error(
+          "Error occurred while converting uk.ac.ebi.pride.utilities.data.lightModel.CvParam "
+              + "to uk.ac.ebi.pride.utilities.data.core.CvParam");
     }
     return cvParams;
   }
 
   /**
-   * This method converts uk.ac.ebi.pride.utilities.data.lightModel.CvParam object
-   * to uk.ac.ebi.pride.utilities.data.core.CvParam object
+   * This method converts uk.ac.ebi.pride.utilities.data.lightModel.CvParam object to
+   * uk.ac.ebi.pride.utilities.data.core.CvParam object
    *
    * @param cvParamLight uk.ac.ebi.pride.utilities.data.lightModel.CvParam cvParamLight
    * @return uk.ac.ebi.pride.utilities.data.core.CvParam object
    */
-  public static CvParam transformToCvParam(uk.ac.ebi.pride.utilities.data.lightModel.CvParam cvParamLight) {
+  public static CvParam transformToCvParam(
+      uk.ac.ebi.pride.utilities.data.lightModel.CvParam cvParamLight) {
     CvParam newParam = null;
     if (cvParamLight != null) {
       String cvLookupID = null;
@@ -127,14 +138,15 @@ public class LightModelsTransformer {
       if (cv != null) {
         cvLookupID = cv.getId();
       }
-      newParam = new CvParam(
+      newParam =
+          new CvParam(
               cvParamLight.getAccession(),
               cvParamLight.getName(),
               cvLookupID,
               cvParamLight.getValue(),
               cvParamLight.getUnitAccession(),
               cvParamLight.getUnitName(),
-              unitCVLookupID); //TODO: do we need this?
+              unitCVLookupID); // TODO: do we need this?
     }
     return newParam;
   }
@@ -146,7 +158,8 @@ public class LightModelsTransformer {
    * @param userParamsLight List of uk.ac.ebi.pride.utilities.data.lightModel.UserParam objects
    * @return List of uk.ac.ebi.pride.utilities.data.core.UserParam objects
    */
-  public static List<UserParam> transformToUserParam(List<uk.ac.ebi.pride.utilities.data.lightModel.UserParam> userParamsLight) {
+  public static List<UserParam> transformToUserParam(
+      List<uk.ac.ebi.pride.utilities.data.lightModel.UserParam> userParamsLight) {
     List<UserParam> userParams = null;
     if (userParamsLight != null) {
       userParams = new ArrayList<>();
@@ -158,19 +171,22 @@ public class LightModelsTransformer {
   }
 
   /**
-   * This method converts uk.ac.ebi.pride.utilities.data.lightModel.UserParam object
-   * to uk.ac.ebi.pride.utilities.data.core.UserParam object
+   * This method converts uk.ac.ebi.pride.utilities.data.lightModel.UserParam object to
+   * uk.ac.ebi.pride.utilities.data.core.UserParam object
    *
    * @param userParam uk.ac.ebi.pride.utilities.data.lightModel.UserParam object
    * @return uk.ac.ebi.pride.utilities.data.core.UserParam object
    */
-  public static UserParam transformToUserParam(uk.ac.ebi.pride.utilities.data.lightModel.UserParam userParam) {
+  public static UserParam transformToUserParam(
+      uk.ac.ebi.pride.utilities.data.lightModel.UserParam userParam) {
     UserParam newParam = null;
     if (userParam != null) {
       String unitCVLookupID = null;
       uk.ac.ebi.pride.utilities.data.lightModel.Cv cv = userParam.getUnitCv();
       if (cv != null) unitCVLookupID = cv.getId();
-      newParam = new UserParam(userParam.getName(),
+      newParam =
+          new UserParam(
+              userParam.getName(),
               userParam.getType(),
               userParam.getValue(),
               userParam.getUnitAccession(),
@@ -181,13 +197,14 @@ public class LightModelsTransformer {
   }
 
   /**
-   * This method converts List of uk.ac.ebi.pride.utilities.data.lightModel.Person object
-   * to List of uk.ac.ebi.pride.utilities.data.core.Person object
+   * This method converts List of uk.ac.ebi.pride.utilities.data.lightModel.Person object to List of
+   * uk.ac.ebi.pride.utilities.data.core.Person object
    *
    * @param personsLight list of uk.ac.ebi.pride.utilities.data.lightModel.Person object
    * @return list of uk.ac.ebi.pride.utilities.data.core.Person object
    */
-  public static List<Person> transformToPerson(List<uk.ac.ebi.pride.utilities.data.lightModel.Person> personsLight) {
+  public static List<Person> transformToPerson(
+      List<uk.ac.ebi.pride.utilities.data.lightModel.Person> personsLight) {
     List<Person> persons = null;
     if (personsLight != null && personsLight.size() != 0) {
       persons = new ArrayList<>();
@@ -199,59 +216,87 @@ public class LightModelsTransformer {
   }
 
   /**
-   * This method converts uk.ac.ebi.pride.utilities.data.lightModel.Person object
-   * to uk.ac.ebi.pride.utilities.data.core.Person object
+   * This method converts uk.ac.ebi.pride.utilities.data.lightModel.Person object to
+   * uk.ac.ebi.pride.utilities.data.core.Person object
    *
    * @param lightPerson uk.ac.ebi.pride.utilities.data.lightModel.Person object
    * @return uk.ac.ebi.pride.utilities.data.core.Person object
    */
-  public static Person transformToPerson(uk.ac.ebi.pride.utilities.data.lightModel.Person lightPerson) {
+  public static Person transformToPerson(
+      uk.ac.ebi.pride.utilities.data.lightModel.Person lightPerson) {
 
     if (lightPerson != null) {
       List<CvParam> cvParams = new ArrayList<>();
-      // TODO: Person -> Afflilication -> Organization can be null while parsing MIdentML. I need to investigate this
-      List<Organization> affiliation = transformAffiliationToOrganization(lightPerson.getAffiliation());
+      // TODO: Person -> Afflilication -> Organization can be null while parsing MIdentML. I need to
+      // investigate this
+      List<Organization> affiliation =
+          transformAffiliationToOrganization(lightPerson.getAffiliation());
       CvTermReference contactTerm = CvTermReference.CONTACT_NAME;
       String firstName = (lightPerson.getFirstName() != null) ? lightPerson.getFirstName() : "";
       String lastName = (lightPerson.getLastName() != null) ? lightPerson.getLastName() : "";
-      cvParams.add(new CvParam(contactTerm.getAccession(), contactTerm.getName(), contactTerm.getCvLabel(), firstName + " " + lastName, null, null, null));
+      cvParams.add(
+          new CvParam(
+              contactTerm.getAccession(),
+              contactTerm.getName(),
+              contactTerm.getCvLabel(),
+              firstName + " " + lastName,
+              null,
+              null,
+              null));
       CvTermReference contactOrg = CvTermReference.CONTACT_ORG;
       StringBuilder organizationStr = new StringBuilder();
       // TODO: Change this - may be there is a performance hit with Streams
-      if (affiliation != null && affiliation.size() > 0 && affiliation.stream().anyMatch(Objects::nonNull)) {
+      if (affiliation != null
+          && affiliation.size() > 0
+          && affiliation.stream().anyMatch(Objects::nonNull)) {
         for (Organization organization : affiliation) {
-          organizationStr.append((organization.getName() != null) ? organization.getName() + " " : "");
+          organizationStr.append(
+              (organization.getName() != null) ? organization.getName() + " " : "");
         }
       }
       if (organizationStr.length() != 0)
-        cvParams.add(new CvParam(contactOrg.getAccession(), contactOrg.getName(), contactOrg.getCvLabel(), organizationStr.toString(), null, null, null));
-      ParamGroup paramGroup = new ParamGroup(transformToCvParam(lightPerson.getCvParam()), transformToUserParam(lightPerson.getUserParam()));
+        cvParams.add(
+            new CvParam(
+                contactOrg.getAccession(),
+                contactOrg.getName(),
+                contactOrg.getCvLabel(),
+                organizationStr.toString(),
+                null,
+                null,
+                null));
+      ParamGroup paramGroup =
+          new ParamGroup(
+              transformToCvParam(lightPerson.getCvParam()),
+              transformToUserParam(lightPerson.getUserParam()));
       paramGroup.addCvParams(cvParams);
-      return new Person(paramGroup,
-              lightPerson.getId(),
-              lightPerson.getName(),
-              lightPerson.getLastName(),
-              lightPerson.getFirstName(),
-              lightPerson.getMidInitials(),
-              affiliation,
-              null);
+      return new Person(
+          paramGroup,
+          lightPerson.getId(),
+          lightPerson.getName(),
+          lightPerson.getLastName(),
+          lightPerson.getFirstName(),
+          lightPerson.getMidInitials(),
+          affiliation,
+          null);
     }
     return null;
   }
 
   /**
-   * This method converts List of uk.ac.ebi.pride.utilities.data.lightModel.Organization object
-   * to List of uk.ac.ebi.pride.utilities.data.core.Organization object
+   * This method converts List of uk.ac.ebi.pride.utilities.data.lightModel.Organization object to
+   * List of uk.ac.ebi.pride.utilities.data.core.Organization object
    *
    * @param lightOrganizations list of uk.ac.ebi.pride.utilities.data.lightModel.Organization object
    * @return list of uk.ac.ebi.pride.utilities.data.core.Organization object
    */
-  public static List<Organization> transformToOrganization(List<uk.ac.ebi.pride.utilities.data.lightModel.Organization> lightOrganizations) {
+  public static List<Organization> transformToOrganization(
+      List<uk.ac.ebi.pride.utilities.data.lightModel.Organization> lightOrganizations) {
     List<Organization> organizations = null;
-    if (lightOrganizations != null  && lightOrganizations.size() != 0) {
+    if (lightOrganizations != null && lightOrganizations.size() != 0) {
       organizations = new ArrayList<>();
-      for (uk.ac.ebi.pride.utilities.data.lightModel.Organization lightOrganization : lightOrganizations) {
-        //Todo: I need to solve the problem with mail and the parent organization
+      for (uk.ac.ebi.pride.utilities.data.lightModel.Organization lightOrganization :
+          lightOrganizations) {
+        // Todo: I need to solve the problem with mail and the parent organization
         organizations.add(transformToOrganization(lightOrganization));
       }
     }
@@ -259,41 +304,50 @@ public class LightModelsTransformer {
   }
 
   /**
-   * This method converts uk.ac.ebi.pride.utilities.data.lightModel.Organization object
-   * to uk.ac.ebi.pride.utilities.data.core.Organization object
+   * This method converts uk.ac.ebi.pride.utilities.data.lightModel.Organization object to
+   * uk.ac.ebi.pride.utilities.data.core.Organization object
    *
    * @param lightOrganization uk.ac.ebi.pride.utilities.data.lightModel.Organization object
    * @return uk.ac.ebi.pride.utilities.data.core.Organization object
    */
-  public static Organization transformToOrganization(uk.ac.ebi.pride.utilities.data.lightModel.Organization lightOrganization) {
+  public static Organization transformToOrganization(
+      uk.ac.ebi.pride.utilities.data.lightModel.Organization lightOrganization) {
     Organization organization = null;
     if (lightOrganization != null) {
       Organization parentOrganization = null;
       if (lightOrganization.getParent() != null) {
-        parentOrganization = transformToOrganization(lightOrganization.getParent().getOrganization());
+        parentOrganization =
+            transformToOrganization(lightOrganization.getParent().getOrganization());
       }
-      organization = new Organization(new ParamGroup(
-              transformToCvParam(lightOrganization.getCvParam()),
-              transformToUserParam(lightOrganization.getUserParam())),
-              lightOrganization.getId(), lightOrganization.getName(),
-              parentOrganization, null);
+      organization =
+          new Organization(
+              new ParamGroup(
+                  transformToCvParam(lightOrganization.getCvParam()),
+                  transformToUserParam(lightOrganization.getUserParam())),
+              lightOrganization.getId(),
+              lightOrganization.getName(),
+              parentOrganization,
+              null);
     }
     return organization;
   }
 
   /**
-   * This method converts List of uk.ac.ebi.pride.utilities.data.lightModel.Affiliation object
-   * to List of uk.ac.ebi.pride.utilities.data.core.Affiliation object
+   * This method converts List of uk.ac.ebi.pride.utilities.data.lightModel.Affiliation object to
+   * List of uk.ac.ebi.pride.utilities.data.core.Affiliation object
    *
    * @param lightAffiliations list of uk.ac.ebi.pride.utilities.data.lightModel.Affiliation object
    * @return list of uk.ac.ebi.pride.utilities.data.core.Affiliation object
    */
-  public static List<Organization> transformAffiliationToOrganization(List<uk.ac.ebi.pride.utilities.data.lightModel.Affiliation> lightAffiliations) {
+  public static List<Organization> transformAffiliationToOrganization(
+      List<uk.ac.ebi.pride.utilities.data.lightModel.Affiliation> lightAffiliations) {
     List<Organization> organizations = null;
     if (lightAffiliations != null && lightAffiliations.size() != 0) {
       organizations = new ArrayList<>();
-      for (uk.ac.ebi.pride.utilities.data.lightModel.Affiliation lightAffiliation : lightAffiliations) {
-        uk.ac.ebi.pride.utilities.data.lightModel.Organization lightOrganization = lightAffiliation.getOrganization();
+      for (uk.ac.ebi.pride.utilities.data.lightModel.Affiliation lightAffiliation :
+          lightAffiliations) {
+        uk.ac.ebi.pride.utilities.data.lightModel.Organization lightOrganization =
+            lightAffiliation.getOrganization();
         organizations.add(transformToOrganization(lightOrganization));
       }
     }
@@ -301,13 +355,14 @@ public class LightModelsTransformer {
   }
 
   /**
-   * This method converts uk.ac.ebi.pride.utilities.data.lightModel.Provider object
-   * to uk.ac.ebi.pride.utilities.data.core.Provider object
+   * This method converts uk.ac.ebi.pride.utilities.data.lightModel.Provider object to
+   * uk.ac.ebi.pride.utilities.data.core.Provider object
    *
    * @param lightProvider uk.ac.ebi.pride.utilities.data.lightModel.Provider object
    * @return uk.ac.ebi.pride.utilities.data.core.Provider object
    */
-  public static Provider transformToProvider(uk.ac.ebi.pride.utilities.data.lightModel.Provider lightProvider) {
+  public static Provider transformToProvider(
+      uk.ac.ebi.pride.utilities.data.lightModel.Provider lightProvider) {
     Provider provider = null;
     Contact contact = null;
     CvParam role = null;
@@ -321,81 +376,137 @@ public class LightModelsTransformer {
         role = transformToCvParam(lightProvider.getContactRole().getRole().getCvParam());
       }
       Software software = transformToSoftware(lightProvider.getSoftware());
-      provider = new Provider(lightProvider.getId(), lightProvider.getName(), software, contact, role);
+      provider =
+          new Provider(lightProvider.getId(), lightProvider.getName(), software, contact, role);
     }
     return provider;
   }
 
   /**
-   * This method converts List of uk.ac.ebi.pride.utilities.data.lightModel.BibliographicReference object
-   * to List of uk.ac.ebi.pride.utilities.data.core.BibliographicReference object
+   * This method converts List of uk.ac.ebi.pride.utilities.data.lightModel.BibliographicReference
+   * object to List of uk.ac.ebi.pride.utilities.data.core.BibliographicReference object
    *
    * @param iterator list of uk.ac.ebi.pride.utilities.data.lightModel.BibliographicReference object
    * @return list of uk.ac.ebi.pride.utilities.data.core.BibliographicReference object
    */
-  public static List<Reference> transformToReference(Iterator<uk.ac.ebi.pride.utilities.data.lightModel.BibliographicReference> iterator) {
+  public static List<Reference> transformToReference(
+      Iterator<uk.ac.ebi.pride.utilities.data.lightModel.BibliographicReference> iterator) {
     List<Reference> references = new ArrayList<>();
     while (iterator.hasNext()) {
       uk.ac.ebi.pride.utilities.data.lightModel.BibliographicReference ref = iterator.next();
       // RefLine Trying to use the same approach of pride converter
-      String refLine = ((ref.getAuthors() != null) ? ref.getAuthors() + ". " : "") +
-              ((ref.getYear() != null) ? "(" + ref.getYear().toString() + "). " : "") +
-              ((ref.getTitle() != null) ? ref.getTitle() + " " : "") +
-              ((ref.getPublication() != null) ? ref.getPublication() + " " : "") +
-              ((ref.getVolume() != null) ? ref.getVolume() + "" : "") +
-              ((ref.getIssue() != null) ? "(" + ref.getIssue() + ")" : "") +
-              ((ref.getPages() != null) ? ":" + ref.getPages() + "." : "");
+      String refLine =
+          ((ref.getAuthors() != null) ? ref.getAuthors() + ". " : "")
+              + ((ref.getYear() != null) ? "(" + ref.getYear().toString() + "). " : "")
+              + ((ref.getTitle() != null) ? ref.getTitle() + " " : "")
+              + ((ref.getPublication() != null) ? ref.getPublication() + " " : "")
+              + ((ref.getVolume() != null) ? ref.getVolume() + "" : "")
+              + ((ref.getIssue() != null) ? "(" + ref.getIssue() + ")" : "")
+              + ((ref.getPages() != null) ? ":" + ref.getPages() + "." : "");
       // create the ref
-      //Todo: Set the References ParamGroup for references
+      // Todo: Set the References ParamGroup for references
       String year = (ref.getYear() == null) ? null : ref.getYear().toString();
-      Reference reference = new Reference(ref.getId(), ref.getName(), ref.getDoi(), ref.getTitle(), ref.getPages(),
-              ref.getIssue(), ref.getVolume(), year, ref.getEditor(), ref.getPublisher(), ref.getPublication(),
-              ref.getAuthors(), refLine);
+      Reference reference =
+          new Reference(
+              ref.getId(),
+              ref.getName(),
+              ref.getDoi(),
+              ref.getTitle(),
+              ref.getPages(),
+              ref.getIssue(),
+              ref.getVolume(),
+              year,
+              ref.getEditor(),
+              ref.getPublisher(),
+              ref.getPublication(),
+              ref.getAuthors(),
+              refLine);
       references.add(reference);
     }
     return references;
   }
 
   /**
-   * This method converts uk.ac.ebi.pride.utilities.data.lightModel.SpectraData object
-   * to uk.ac.ebi.pride.utilities.data.core.SpectraData object
+   * This method converts uk.ac.ebi.pride.utilities.data.lightModel.SpectraData object to
+   * uk.ac.ebi.pride.utilities.data.core.SpectraData object
    *
    * @param lightSpectraData uk.ac.ebi.pride.utilities.data.lightModel.SpectraData object
-   * @param mgfTitle         Boolean value - If the Spectra refer by title instead of referred by the index
+   * @param mgfTitle Boolean value - If the Spectra refer by title instead of referred by the index
    * @return uk.ac.ebi.pride.utilities.data.core.SpectraData object
    */
-  public static SpectraData transformToSpectraData(uk.ac.ebi.pride.utilities.data.lightModel.SpectraData lightSpectraData, boolean mgfTitle) {
+  public static SpectraData transformToSpectraData(
+      uk.ac.ebi.pride.utilities.data.lightModel.SpectraData lightSpectraData, boolean mgfTitle) {
     SpectraData spectraData = null;
+    CvParam fileFormat = null;
+    CvParam spectrumId = null;
+    String location = null;
+    String name = null;
+
     if (lightSpectraData != null) {
       if (!mgfTitle) {
-        CvParam fileFormat = (lightSpectraData.getFileFormat() == null) ? null : transformToCvParam(lightSpectraData.getFileFormat().getCvParam());
-        CvParam spectrumId = (lightSpectraData.getSpectrumIDFormat().getCvParam() == null) ? null : transformToCvParam(lightSpectraData.getSpectrumIDFormat().getCvParam());
-        spectraData = new SpectraData(lightSpectraData.getId(), lightSpectraData.getName(), lightSpectraData.getLocation(), fileFormat, lightSpectraData.getExternalFormatDocumentation(), spectrumId);
+        if (lightSpectraData.getFileFormat() != null) {
+          fileFormat = transformToCvParam(lightSpectraData.getFileFormat().getCvParam());
+        }
+        if (lightSpectraData.getSpectrumIDFormat().getCvParam() != null) {
+          spectrumId = transformToCvParam(lightSpectraData.getSpectrumIDFormat().getCvParam());
+        }
+        spectraData =
+            new SpectraData(
+                lightSpectraData.getId(),
+                lightSpectraData.getName(),
+                lightSpectraData.getLocation(),
+                fileFormat,
+                lightSpectraData.getExternalFormatDocumentation(),
+                spectrumId);
       } else {
-        CvParam fileFormat = (lightSpectraData.getFileFormat() == null) ? null : MzIdentMLUtils.getFileFormatMGFTitle();
-        CvParam spectrumId = (lightSpectraData.getSpectrumIDFormat().getCvParam() == null) ? null : MzIdentMLUtils.getSpectrumIdFormatMGFTitle();
-        String location = (lightSpectraData.getLocation() != null) ? lightSpectraData.getLocation().replaceAll("(?i)" + Constants.WIFF_EXT, Constants.MGF_EXT) : null;
-        String name = (lightSpectraData.getName() != null) ? lightSpectraData.getName().replaceAll("(?i)" + Constants.WIFF_EXT, Constants.MGF_EXT) : null;
-        spectraData = new SpectraData(lightSpectraData.getId(), name, location, fileFormat, lightSpectraData.getExternalFormatDocumentation(), spectrumId);
+        if (lightSpectraData.getFileFormat() != null) {
+          fileFormat = MzIdentMLUtils.getFileFormatMGFTitle();
+        }
+        if (lightSpectraData.getSpectrumIDFormat().getCvParam() != null) {
+          spectrumId = MzIdentMLUtils.getSpectrumIdFormatMGFTitle();
+        }
+        if (lightSpectraData.getLocation() != null) {
+          location =
+              lightSpectraData
+                  .getLocation()
+                  .replaceAll("(?i)" + Constants.WIFF_EXT, Constants.MGF_EXT);
+        }
+        if (lightSpectraData.getName() != null) {
+          name =
+              lightSpectraData.getName().replaceAll("(?i)" + Constants.WIFF_EXT, Constants.MGF_EXT);
+        }
+        spectraData =
+            new SpectraData(
+                lightSpectraData.getId(),
+                name,
+                location,
+                fileFormat,
+                lightSpectraData.getExternalFormatDocumentation(),
+                spectrumId);
       }
     }
     return spectraData;
   }
 
   /**
-   * This method converts uk.ac.ebi.pride.utilities.data.lightModel.SpectraData object
-   * to uk.ac.ebi.pride.utilities.data.core.SpectraData object
+   * This method converts uk.ac.ebi.pride.utilities.data.lightModel.SpectraData object to
+   * uk.ac.ebi.pride.utilities.data.core.SpectraData object
    *
-   * @param lightSpectraDataList list of uk.ac.ebi.pride.utilities.data.lightModel.SpectraData object
-   * @param usedTitle            Boolean value - If the Spectra refer by title instead of referred by the index
+   * @param lightSpectraDataList list of uk.ac.ebi.pride.utilities.data.lightModel.SpectraData
+   *     object
+   * @param usedTitle Boolean value - If the Spectra refer by title instead of referred by the index
    * @return uk.ac.ebi.pride.utilities.data.core.SpectraData object
    */
-  public static List<SpectraData> transformToSpectraData(List<uk.ac.ebi.pride.utilities.data.lightModel.SpectraData> lightSpectraDataList, List<Comparable> usedTitle) {
+  public static List<SpectraData> transformToSpectraData(
+      List<uk.ac.ebi.pride.utilities.data.lightModel.SpectraData> lightSpectraDataList,
+      List<Comparable> usedTitle) {
     List<SpectraData> spectraDatas = null;
     if (lightSpectraDataList != null && lightSpectraDataList.size() != 0) {
       spectraDatas = new ArrayList<>();
-      for (uk.ac.ebi.pride.utilities.data.lightModel.SpectraData lightSpectraData : lightSpectraDataList) {
-        spectraDatas.add(transformToSpectraData(lightSpectraData, usedTitle.contains(lightSpectraData.getId())));
+      for (uk.ac.ebi.pride.utilities.data.lightModel.SpectraData lightSpectraData :
+          lightSpectraDataList) {
+        spectraDatas.add(
+            transformToSpectraData(lightSpectraData, usedTitle.contains(lightSpectraData.getId())));
       }
     }
     return spectraDatas;
@@ -409,22 +520,31 @@ public class LightModelsTransformer {
    */
   public static CvParam transformDateToCvParam(Date creationDate) {
     CvTermReference cvTerm = CvTermReference.EXPERIMENT_GLOBAL_CREATIONDATE;
-    return new CvParam(cvTerm.getAccession(), cvTerm.getName(), cvTerm.getCvLabel(), creationDate.toString(),
-            null, null, null);
+    return new CvParam(
+        cvTerm.getAccession(),
+        cvTerm.getName(),
+        cvTerm.getCvLabel(),
+        creationDate.toString(),
+        null,
+        null,
+        null);
   }
 
   /**
-   * This method converts List of uk.ac.ebi.pride.utilities.data.lightModel.SearchDatabase object
-   * to List of uk.ac.ebi.pride.utilities.data.core.SearchDatabase object
+   * This method converts List of uk.ac.ebi.pride.utilities.data.lightModel.SearchDatabase object to
+   * List of uk.ac.ebi.pride.utilities.data.core.SearchDatabase object
    *
-   * @param lightSearchDatabases list of uk.ac.ebi.pride.utilities.data.lightModel.SearchDatabase object
+   * @param lightSearchDatabases list of uk.ac.ebi.pride.utilities.data.lightModel.SearchDatabase
+   *     object
    * @return list of uk.ac.ebi.pride.utilities.data.core.SearchDatabase object
    */
-  public static List<SearchDataBase> transformToSearchDataBase(List<uk.ac.ebi.pride.utilities.data.lightModel.SearchDatabase> lightSearchDatabases) {
+  public static List<SearchDataBase> transformToSearchDataBase(
+      List<uk.ac.ebi.pride.utilities.data.lightModel.SearchDatabase> lightSearchDatabases) {
     List<SearchDataBase> searchDataBases = null;
     if (lightSearchDatabases != null) {
       searchDataBases = new ArrayList<>();
-      for (uk.ac.ebi.pride.utilities.data.lightModel.SearchDatabase lightSearchDatabase : lightSearchDatabases) {
+      for (uk.ac.ebi.pride.utilities.data.lightModel.SearchDatabase lightSearchDatabase :
+          lightSearchDatabases) {
         searchDataBases.add(transformToSeachDatabase(lightSearchDatabase));
       }
     }
@@ -432,22 +552,37 @@ public class LightModelsTransformer {
   }
 
   /**
-   * This method converts uk.ac.ebi.pride.utilities.data.lightModel.SearchDatabase object
-   * to uk.ac.ebi.pride.utilities.data.core.SearchDatabase object
+   * This method converts uk.ac.ebi.pride.utilities.data.lightModel.SearchDatabase object to
+   * uk.ac.ebi.pride.utilities.data.core.SearchDatabase object
    *
    * @param lightDatabase uk.ac.ebi.pride.utilities.data.lightModel.SearchDatabase object
    * @return uk.ac.ebi.pride.utilities.data.core.SearchDatabase object
    */
-  public static SearchDataBase transformToSeachDatabase(uk.ac.ebi.pride.utilities.data.lightModel.SearchDatabase lightDatabase) {
+  public static SearchDataBase transformToSeachDatabase(
+      uk.ac.ebi.pride.utilities.data.lightModel.SearchDatabase lightDatabase) {
+    CvParam fileFormat = null;
+    String releaseDate = null;
+    int dataBaseSeq = -1;
+    int dataBaseRes = -1;
 
     String name = (lightDatabase != null) ? lightDatabase.getName() : null;
-    CvParam fileFormat = ((lightDatabase != null ? lightDatabase.getFileFormat() : null) == null) ? null : transformToCvParam(lightDatabase.getFileFormat().getCvParam());
-    String releaseDate = (lightDatabase.getReleaseDate() == null) ? null : lightDatabase.getReleaseDate().toString();
-    int dataBaseSeq = (lightDatabase.getNumDatabaseSequences() == null) ? -1 : lightDatabase.getNumDatabaseSequences().intValue();
-    int dataBaseRes = (lightDatabase.getNumResidues() == null) ? -1 : lightDatabase.getNumResidues().intValue();
+    if ((lightDatabase != null ? lightDatabase.getFileFormat() : null) != null) {
+      fileFormat = transformToCvParam(lightDatabase.getFileFormat().getCvParam());
+    }
+    if (lightDatabase.getReleaseDate() != null) {
+      releaseDate = lightDatabase.getReleaseDate().toString();
+    }
+    if (lightDatabase.getNumDatabaseSequences() != null) {
+      dataBaseSeq = lightDatabase.getNumDatabaseSequences().intValue();
+    }
+    if (lightDatabase.getNumResidues() != null) {
+      dataBaseRes = lightDatabase.getNumResidues().intValue();
+    }
     ParamGroup nameOfDatabase = null;
     if (lightDatabase.getDatabaseName() != null) {
-      nameOfDatabase = new ParamGroup(transformToCvParam(lightDatabase.getDatabaseName().getCvParam()),
+      nameOfDatabase =
+          new ParamGroup(
+              transformToCvParam(lightDatabase.getDatabaseName().getCvParam()),
               transformToUserParam(lightDatabase.getDatabaseName().getUserParam()));
     }
     if (name == null) {
@@ -461,18 +596,26 @@ public class LightModelsTransformer {
         name = lightDatabase.getId();
       }
     }
-    return new SearchDataBase(lightDatabase.getId(),
-            name, lightDatabase.getLocation(), fileFormat, lightDatabase.getExternalFormatDocumentation(),
-            lightDatabase.getVersion(), releaseDate, dataBaseSeq, dataBaseRes, nameOfDatabase,
-            transformToCvParam(lightDatabase.getCvParam()));
+    return new SearchDataBase(
+        lightDatabase.getId(),
+        name,
+        lightDatabase.getLocation(),
+        fileFormat,
+        lightDatabase.getExternalFormatDocumentation(),
+        lightDatabase.getVersion(),
+        releaseDate,
+        dataBaseSeq,
+        dataBaseRes,
+        nameOfDatabase,
+        transformToCvParam(lightDatabase.getCvParam()));
   }
 
   /**
    * To get the information of a cvterm or user param and put in an String we normally take firstly
-   * the value of the Parameter and if is not provided we take the name. This function is important when
-   * information like the name of the object is not provide and the writers use only CvTerms.
+   * the value of the Parameter and if is not provided we take the name. This function is important
+   * when information like the name of the object is not provide and the writers use only CvTerms.
    *
-   * @param cvTerm        The CVTerm
+   * @param cvTerm The CVTerm
    * @return An String with the Value
    */
   public static String getValueFromCvTerm(Parameter cvTerm) {
@@ -491,10 +634,10 @@ public class LightModelsTransformer {
    * @param lightSamples light uk.ac.ebi.pride.utilities.data.lightModel.Sample Objects
    * @return List of uk.ac.ebi.pride.utilities.data.core.Samples objects
    */
-
-  public static List<Sample> transformToSample(List<uk.ac.ebi.pride.utilities.data.lightModel.Sample> lightSamples) {
+  public static List<Sample> transformToSample(
+      List<uk.ac.ebi.pride.utilities.data.lightModel.Sample> lightSamples) {
     List<Sample> samples = null;
-    if (lightSamples != null  && lightSamples.size() != 0) {
+    if (lightSamples != null && lightSamples.size() != 0) {
       samples = new ArrayList<>();
       for (uk.ac.ebi.pride.utilities.data.lightModel.Sample lightSample : lightSamples) {
         samples.add(transformToSample(lightSample));
@@ -504,13 +647,14 @@ public class LightModelsTransformer {
   }
 
   /**
-   * This method converts List of uk.ac.ebi.pride.utilities.data.lightModel.SubSample object
-   * to List of uk.ac.ebi.pride.utilities.data.core.SubSample object
+   * This method converts List of uk.ac.ebi.pride.utilities.data.lightModel.SubSample object to List
+   * of uk.ac.ebi.pride.utilities.data.core.SubSample object
    *
    * @param lightSamples list of uk.ac.ebi.pride.utilities.data.lightModel.SubSample object
    * @return list of uk.ac.ebi.pride.utilities.data.core.SubSample object
    */
-  public static List<Sample> transformSubSampleToSample(List<uk.ac.ebi.pride.utilities.data.lightModel.SubSample> lightSamples) {
+  public static List<Sample> transformSubSampleToSample(
+      List<uk.ac.ebi.pride.utilities.data.lightModel.SubSample> lightSamples) {
     List<Sample> samples = null;
     if (lightSamples != null && lightSamples.size() != 0) {
       samples = new ArrayList<>();
@@ -522,13 +666,14 @@ public class LightModelsTransformer {
   }
 
   /**
-   * This method converts uk.ac.ebi.pride.utilities.data.lightModel.Sample object
-   * to uk.ac.ebi.pride.utilities.data.core.Sample object
+   * This method converts uk.ac.ebi.pride.utilities.data.lightModel.Sample object to
+   * uk.ac.ebi.pride.utilities.data.core.Sample object
    *
    * @param lightSample uk.ac.ebi.pride.utilities.data.lightModel.Sample object
    * @return uk.ac.ebi.pride.utilities.data.core.Sample object
    */
-  public static Sample transformToSample(uk.ac.ebi.pride.utilities.data.lightModel.Sample lightSample) {
+  public static Sample transformToSample(
+      uk.ac.ebi.pride.utilities.data.lightModel.Sample lightSample) {
     Sample sample = null;
     if (lightSample != null) {
       Map<Contact, CvParam> role = transformToRoleList(lightSample.getContactRole());
@@ -536,21 +681,28 @@ public class LightModelsTransformer {
       if ((lightSample.getSubSample() != null) && (!lightSample.getSubSample().isEmpty())) {
         subSamples = transformSubSampleToSample(lightSample.getSubSample());
       }
-      sample = new Sample(new ParamGroup(transformToCvParam(lightSample.getCvParam()),
-              transformToUserParam(lightSample.getUserParam())),
-              lightSample.getId(), lightSample.getName(), subSamples, role);
+      sample =
+          new Sample(
+              new ParamGroup(
+                  transformToCvParam(lightSample.getCvParam()),
+                  transformToUserParam(lightSample.getUserParam())),
+              lightSample.getId(),
+              lightSample.getName(),
+              subSamples,
+              role);
     }
     return sample;
   }
 
   /**
-   * This method converts List of uk.ac.ebi.pride.utilities.data.lightModel.ContactRole object
-   * to List of uk.ac.ebi.pride.utilities.data.core.ContactRole object
+   * This method converts List of uk.ac.ebi.pride.utilities.data.lightModel.ContactRole object to
+   * List of uk.ac.ebi.pride.utilities.data.core.ContactRole object
    *
    * @param contactRoles list of uk.ac.ebi.pride.utilities.data.lightModel.ContactRole object
    * @return list of uk.ac.ebi.pride.utilities.data.core.ContactRole object
    */
-  public static Map<Contact, CvParam> transformToRoleList(List<uk.ac.ebi.pride.utilities.data.lightModel.ContactRole> contactRoles) {
+  public static Map<Contact, CvParam> transformToRoleList(
+      List<uk.ac.ebi.pride.utilities.data.lightModel.ContactRole> contactRoles) {
     Map<Contact, CvParam> contacts = null;
     if (contactRoles != null) {
       contacts = new HashMap<>();
@@ -566,5 +718,49 @@ public class LightModelsTransformer {
       }
     }
     return contacts;
+  }
+
+  /**
+   * This method converts List of uk.ac.ebi.pride.utilities.data.lightModel.Enzyme object to
+   * List of uk.ac.ebi.pride.utilities.data.core.Enzyme object
+   *
+   * @param oldEnzymes list of uk.ac.ebi.pride.utilities.data.lightModel.Enzyme object
+   * @return list of uk.ac.ebi.pride.utilities.data.core.Enzyme object
+   */
+  public static List<Enzyme> transformToEnzyme(List<uk.ac.ebi.pride.utilities.data.lightModel.Enzyme> oldEnzymes) {
+    List<Enzyme> enzymes = null;
+    if (oldEnzymes != null) {
+      enzymes = new ArrayList<>();
+      for (uk.ac.ebi.pride.utilities.data.lightModel.Enzyme oldEnzyme : oldEnzymes) {
+        enzymes.add(transformToEnzyme(oldEnzyme));
+      }
+    }
+    return enzymes;
+  }
+
+  /**
+   * This method converts uk.ac.ebi.pride.utilities.data.lightModel.Enzyme object to
+   * uk.ac.ebi.pride.utilities.data.core.Enzyme object
+   *
+   * @param oldEnzyme uk.ac.ebi.pride.utilities.data.lightModel.Enzyme object
+   * @return uk.ac.ebi.pride.utilities.data.core.Enzyme object
+   */
+  private static Enzyme transformToEnzyme(uk.ac.ebi.pride.utilities.data.lightModel.Enzyme oldEnzyme) {
+    Enzyme newEnzyme = null;
+    if (oldEnzyme != null) {
+      boolean specific = false;
+      int misscleavage = 0;
+      int mindistance = -1 ;
+      List<CvParam> cvParams = (oldEnzyme.getEnzymeName() != null) ? transformToCvParam(oldEnzyme.getEnzymeName().getCvParam()) : null;
+      List<UserParam> userParams = (oldEnzyme.getEnzymeName() != null) ? transformToUserParam(oldEnzyme.getEnzymeName().getUserParam()) : null;
+      newEnzyme = new Enzyme(oldEnzyme.getId(),
+              oldEnzyme.getName(),
+              specific,
+              misscleavage,
+              mindistance,
+              new ParamGroup(cvParams, userParams),
+             null);
+    }
+    return newEnzyme;
   }
 }

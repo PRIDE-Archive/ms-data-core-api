@@ -11,9 +11,7 @@ import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * @author Suresh Hewapathirana
- */
+/** @author Suresh Hewapathirana */
 public class FastMzIdentMLUnmarshallerAdaptor {
 
   private FastMzIdentMLUnmarshaller fastMzIdentMLUnmarshaller;
@@ -45,10 +43,13 @@ public class FastMzIdentMLUnmarshallerAdaptor {
    * @return Collection of Protein Ids
    */
   public Collection<Comparable> getProteinIds() {
-    return fastMzIdentMLUnmarshaller.getMzIdentML().getSequenceCollection().getDBSequence()
-            .parallelStream()
-            .map(DBSequence::getId)
-            .collect(Collectors.toList());
+    return fastMzIdentMLUnmarshaller
+        .getMzIdentML()
+        .getSequenceCollection()
+        .getDBSequence()
+        .parallelStream()
+        .map(DBSequence::getId)
+        .collect(Collectors.toList());
   }
 
   /**
@@ -57,29 +58,35 @@ public class FastMzIdentMLUnmarshallerAdaptor {
    * @return Collection of Peptide Ids
    */
   public Collection<Comparable> getPeptideIds() {
-    return fastMzIdentMLUnmarshaller.getMzIdentML().getSequenceCollection().getPeptide()
-            .parallelStream()
-            .map(Peptide::getId)
-            .collect(Collectors.toList());
+    return fastMzIdentMLUnmarshaller
+        .getMzIdentML()
+        .getSequenceCollection()
+        .getPeptide()
+        .parallelStream()
+        .map(Peptide::getId)
+        .collect(Collectors.toList());
   }
 
   /**
-   * Get all unique Peptide Ids reported in the MzIdentML.
-   * Peptides that map uniquely to a Protein ID are considered as unique peptides.
+   * Get all unique Peptide Ids reported in the MzIdentML. Peptides that map uniquely to a Protein
+   * ID are considered as unique peptides.
    *
    * @return Collection of Peptide Ids
    */
   public Collection<Comparable> getUniquePeptideIds() {
-    return fastMzIdentMLUnmarshaller.getMzIdentML().getSequenceCollection().getPeptide()
-            .parallelStream()
-            .map(Peptide::getId)
-            .distinct()
-            .collect(Collectors.toList());
+    return fastMzIdentMLUnmarshaller
+        .getMzIdentML()
+        .getSequenceCollection()
+        .getPeptide()
+        .parallelStream()
+        .map(Peptide::getId)
+        .distinct()
+        .collect(Collectors.toList());
   }
 
   /**
-   * Get PeptidoForms. PeptidoForms are different peptide forms that a peptide can have due to various modifications.
-   * and various position(s) of the modification(s).
+   * Get PeptidoForms. PeptidoForms are different peptide forms that a peptide can have due to
+   * various modifications. and various position(s) of the modification(s).
    *
    * @return Number of PeptidoForms
    */
@@ -87,7 +94,8 @@ public class FastMzIdentMLUnmarshallerAdaptor {
     int peptideCounts = 0;
     int modificationCounts = 0;
 
-    List<Peptide> peptides = fastMzIdentMLUnmarshaller.getMzIdentML().getSequenceCollection().getPeptide();
+    List<Peptide> peptides =
+        fastMzIdentMLUnmarshaller.getMzIdentML().getSequenceCollection().getPeptide();
     for (Peptide peptide : peptides) {
       peptideCounts++;
       for (Modification modification : peptide.getModification()) {
@@ -108,11 +116,14 @@ public class FastMzIdentMLUnmarshallerAdaptor {
    * @return Peptide if matching peptide exists, otherwise return a null
    */
   public Peptide getPeptideById(Comparable peptideID) {
-    return fastMzIdentMLUnmarshaller.getMzIdentML().getSequenceCollection().getPeptide()
-            .stream()
-            .filter(p -> p.getId().equals(peptideID))
-            .findFirst()
-            .orElse(null);
+    return fastMzIdentMLUnmarshaller
+        .getMzIdentML()
+        .getSequenceCollection()
+        .getPeptide()
+        .stream()
+        .filter(p -> p.getId().equals(peptideID))
+        .findFirst()
+        .orElse(null);
   }
 
   /**
@@ -121,16 +132,22 @@ public class FastMzIdentMLUnmarshallerAdaptor {
    * @return List of SpectrumIdentificationList
    */
   public List<SpectrumIdentificationList> getSpectrumIdentificationList() {
-    return fastMzIdentMLUnmarshaller.getMzIdentML().getDataCollection().getAnalysisData().getSpectrumIdentificationList();
+    return fastMzIdentMLUnmarshaller
+        .getMzIdentML()
+        .getDataCollection()
+        .getAnalysisData()
+        .getSpectrumIdentificationList();
   }
 
   /**
-   * Get all the Peptide modifications actually identified. Not the one that was used as search parameter(s) for the identification
+   * Get all the Peptide modifications actually identified. Not the one that was used as search
+   * parameter(s) for the identification
    *
    * @return Set of unique PTMs
    */
   public Collection<CvParam> getIdentifiedUniquePTMs() {
-    List<Peptide> peptideList = fastMzIdentMLUnmarshaller.getMzIdentML().getSequenceCollection().getPeptide();
+    List<Peptide> peptideList =
+        fastMzIdentMLUnmarshaller.getMzIdentML().getSequenceCollection().getPeptide();
     Map<String, CvParam> modifications = new HashMap<>();
     for (Peptide peptide : peptideList) {
       for (Modification modification : peptide.getModification()) {
@@ -145,15 +162,22 @@ public class FastMzIdentMLUnmarshallerAdaptor {
   }
 
   /**
-   * Get all the Search modifications used as search parameter(s) for the identification, they may differ than the identified peptide modifications
+   * Get all the Search modifications used as search parameter(s) for the identification, they may
+   * differ than the identified peptide modifications
    *
    * @return Set of unique Search Modifications
    */
   public Collection<CvParam> getSearchModifications() {
-    List<SpectrumIdentificationProtocol> spectrumIdentificationProtocolList = fastMzIdentMLUnmarshaller.getMzIdentML().getAnalysisProtocolCollection().getSpectrumIdentificationProtocol();
+    List<SpectrumIdentificationProtocol> spectrumIdentificationProtocolList =
+        fastMzIdentMLUnmarshaller
+            .getMzIdentML()
+            .getAnalysisProtocolCollection()
+            .getSpectrumIdentificationProtocol();
     Map<String, CvParam> modifications = new HashMap<>();
-    for (SpectrumIdentificationProtocol spectrumIdentificationProtocol : spectrumIdentificationProtocolList) {
-      for (SearchModification searchModification : spectrumIdentificationProtocol.getModificationParams().getSearchModification()) {
+    for (SpectrumIdentificationProtocol spectrumIdentificationProtocol :
+        spectrumIdentificationProtocolList) {
+      for (SearchModification searchModification :
+          spectrumIdentificationProtocol.getModificationParams().getSearchModification()) {
         for (CvParam cvParam : searchModification.getCvParam()) {
           if (checkCvParam(cvParam)) {
             modifications.put(cvParam.getAccession(), cvParam);
@@ -191,15 +215,17 @@ public class FastMzIdentMLUnmarshallerAdaptor {
    */
   private boolean checkCvParam(CvParam cvParam) {
     if (modReader.getPTMbyAccession(cvParam.getAccession()) == null) {
-      throw new IllegalStateException("Invalid CV term " + cvParam.getAccession() + " found! Only PSI-MOD and UNIMOD are permitted!");
+      throw new IllegalStateException(
+          "Invalid CV term "
+              + cvParam.getAccession()
+              + " found! Only PSI-MOD and UNIMOD are permitted!");
     }
     return true;
   }
 
   /**
-   * This method extract the Inputs from the MzIdentML object and
-   * for each input file, it retrieves the Spectra Data such as
-   * file location, file format etc.
+   * This method extract the Inputs from the MzIdentML object and for each input file, it retrieves
+   * the Spectra Data such as file location, file format etc.
    *
    * @return Map of SpectraData grouped by SpectraData ID
    */
@@ -223,11 +249,11 @@ public class FastMzIdentMLUnmarshallerAdaptor {
    */
   public List<ProteinAmbiguityGroup> getProteinAmbiguityGroups() {
     return fastMzIdentMLUnmarshaller
-            .getMzIdentML()
-            .getDataCollection()
-            .getAnalysisData()
-            .getProteinDetectionList()
-            .getProteinAmbiguityGroup();
+        .getMzIdentML()
+        .getDataCollection()
+        .getAnalysisData()
+        .getProteinDetectionList()
+        .getProteinAmbiguityGroup();
   }
 
   /**
@@ -299,7 +325,8 @@ public class FastMzIdentMLUnmarshallerAdaptor {
    */
   public List<uk.ac.ebi.pride.utilities.data.core.Software> getSoftwares() {
     List<uk.ac.ebi.pride.utilities.data.core.Software> softwareList = new ArrayList<>();
-    for (AnalysisSoftware analysisSoftware : fastMzIdentMLUnmarshaller.getMzIdentML().getAnalysisSoftwareList().getAnalysisSoftware()) {
+    for (AnalysisSoftware analysisSoftware :
+        fastMzIdentMLUnmarshaller.getMzIdentML().getAnalysisSoftwareList().getAnalysisSoftware()) {
       softwareList.add(LightModelsTransformer.transformToSoftware(analysisSoftware));
     }
     return softwareList;
@@ -328,7 +355,8 @@ public class FastMzIdentMLUnmarshallerAdaptor {
   }
 
   public List<SourceFile> getSourceFiles() {
-    return LightModelsTransformer.transformToSourceFiles(fastMzIdentMLUnmarshaller.getMzIdentML().getDataCollection().getInputs().getSourceFile());
+    return LightModelsTransformer.transformToSourceFiles(
+        fastMzIdentMLUnmarshaller.getMzIdentML().getDataCollection().getInputs().getSourceFile());
   }
 
   public Iterator<BibliographicReference> getReferences() {
@@ -336,13 +364,26 @@ public class FastMzIdentMLUnmarshallerAdaptor {
   }
 
   public boolean isSpectraDataReferencedByTitle(SpectraData spectraData) {
-    return spectraData.getSpectrumIDFormat() != null &&
-            spectraData.getSpectrumIDFormat().getCvParam().getAccession().equalsIgnoreCase(CvTermReference.MS_ID_FORMAT_WIFF.getAccession()) &&
-            spectraData.getFileFormat() != null && spectraData.getFileFormat().getCvParam().getAccession().equalsIgnoreCase(CvTermReference.MS_FILE_FORMAT_WIFF.getAccession());
+    return spectraData.getSpectrumIDFormat() != null
+        && spectraData
+            .getSpectrumIDFormat()
+            .getCvParam()
+            .getAccession()
+            .equalsIgnoreCase(CvTermReference.MS_ID_FORMAT_WIFF.getAccession())
+        && spectraData.getFileFormat() != null
+        && spectraData
+            .getFileFormat()
+            .getCvParam()
+            .getAccession()
+            .equalsIgnoreCase(CvTermReference.MS_FILE_FORMAT_WIFF.getAccession());
   }
 
   public List<SearchDatabase> getSearchDatabases() {
-    return fastMzIdentMLUnmarshaller.getMzIdentML().getDataCollection().getInputs().getSearchDatabase();
+    return fastMzIdentMLUnmarshaller
+        .getMzIdentML()
+        .getDataCollection()
+        .getInputs()
+        .getSearchDatabase();
   }
 
   public List<Sample> getSampleList() {
@@ -353,10 +394,20 @@ public class FastMzIdentMLUnmarshallerAdaptor {
     return samples;
   }
 
+  public List<Enzyme> getEnzymes() {
+    List<Enzyme> enzymesList = new ArrayList<>();
+    fastMzIdentMLUnmarshaller
+        .getMzIdentML()
+        .getAnalysisProtocolCollection()
+        .getSpectrumIdentificationProtocol()
+        .forEach(sip -> sip.getEnzymes().getEnzyme().forEach(enzyme -> enzymesList.add(enzyme)));
+    return enzymesList;
+  }
+
   /**
    * Close FastMzIdentMLUnmarshallerAdaptor by clearing the entire mzIdentML Object.
-   * <p>
-   * Warning: This should be carefully used only after performing all the data access operations.
+   *
+   * <p>Warning: This should be carefully used only after performing all the data access operations.
    * If not, fastMzIdentMLUnmarshaller has to unmarshall MzIdentML file again, which is
    * computationally expensive.
    */

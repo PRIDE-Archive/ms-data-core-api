@@ -185,6 +185,13 @@ public class FastMzIdentMLControllerTest {
     fastMzIdentMLController.getExperimentMetaData();
   }
 
+  /**
+   * Test retrieving enzyme
+   */
+  @Test
+  public void getEnzymes() {
+    System.out.println(fastMzIdentMLController.getEnzymes());
+  }
 
   private void scanForGeneralMetadata(DataAccessController dataAccessController) {
     ExperimentMetaData experimentMetaData = dataAccessController.getExperimentMetaData();
@@ -204,6 +211,8 @@ public class FastMzIdentMLControllerTest {
     System.out.println("spectraData  : " + experimentMetaData.getSpectraDatas().toString());
     System.out.println("samples      : " + experimentMetaData.getSamples());
     System.out.println("additional   : " + experimentMetaData.getAdditional());
+
+    System.out.println("Enzymes      : " + fastMzIdentMLController.getFormattedEnzymes());
   }
 
   private void scanForSoftware(DataAccessController dataAccessController) {
