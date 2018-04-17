@@ -39,8 +39,8 @@ public class LightModelsTransformer {
     } catch (Exception ex) {
       log.error("Error occurred while converting uk.ac.ebi.pride.utilities.data.lightModel.SpectraData " +
               "to uk.ac.ebi.jmzidml.model.mzidml.SpectraData");
-      return null;
     }
+    return null;
   }
 
   /**
@@ -102,8 +102,8 @@ public class LightModelsTransformer {
    * @return List of uk.ac.ebi.pride.utilities.data.core.CvParam objects
    */
   public static List<CvParam> transformToCvParam(List<uk.ac.ebi.pride.utilities.data.lightModel.CvParam> cvParamsLight) {
-    List<CvParam> cvParams = null;
-    if (cvParams != null) {
+    List<CvParam> cvParams = new ArrayList<>();
+    if (cvParamsLight != null && cvParamsLight.size() != 0) {
       for (uk.ac.ebi.pride.utilities.data.lightModel.CvParam cvParamLight : cvParamsLight) {
         cvParams.add(transformToCvParam(cvParamLight));
       }
@@ -146,7 +146,7 @@ public class LightModelsTransformer {
    * @param userParamsLight List of uk.ac.ebi.pride.utilities.data.lightModel.UserParam objects
    * @return List of uk.ac.ebi.pride.utilities.data.core.UserParam objects
    */
-  private static List<UserParam> transformToUserParam(List<uk.ac.ebi.pride.utilities.data.lightModel.UserParam> userParamsLight) {
+  public static List<UserParam> transformToUserParam(List<uk.ac.ebi.pride.utilities.data.lightModel.UserParam> userParamsLight) {
     List<UserParam> userParams = null;
     if (userParamsLight != null) {
       userParams = new ArrayList<>();
@@ -164,7 +164,7 @@ public class LightModelsTransformer {
    * @param userParam uk.ac.ebi.pride.utilities.data.lightModel.UserParam object
    * @return uk.ac.ebi.pride.utilities.data.core.UserParam object
    */
-  private static UserParam transformToUserParam(uk.ac.ebi.pride.utilities.data.lightModel.UserParam userParam) {
+  public static UserParam transformToUserParam(uk.ac.ebi.pride.utilities.data.lightModel.UserParam userParam) {
     UserParam newParam = null;
     if (userParam != null) {
       String unitCVLookupID = null;
@@ -189,8 +189,8 @@ public class LightModelsTransformer {
    */
   public static List<Person> transformToPerson(List<uk.ac.ebi.pride.utilities.data.lightModel.Person> personsLight) {
     List<Person> persons = null;
-    if (personsLight != null) {
-      persons = new ArrayList<Person>();
+    if (personsLight != null && personsLight.size() != 0) {
+      persons = new ArrayList<>();
       for (uk.ac.ebi.pride.utilities.data.lightModel.Person personLight : personsLight) {
         persons.add(transformToPerson(personLight));
       }
@@ -208,23 +208,23 @@ public class LightModelsTransformer {
   public static Person transformToPerson(uk.ac.ebi.pride.utilities.data.lightModel.Person lightPerson) {
 
     if (lightPerson != null) {
-      List<CvParam> cvParams = new ArrayList<CvParam>();
-      // TODO: Person -> Afflilication -> Oganization can be null while parsing MIdentML. I need to investigate this
+      List<CvParam> cvParams = new ArrayList<>();
+      // TODO: Person -> Afflilication -> Organization can be null while parsing MIdentML. I need to investigate this
       List<Organization> affiliation = transformAffiliationToOrganization(lightPerson.getAffiliation());
       CvTermReference contactTerm = CvTermReference.CONTACT_NAME;
       String firstName = (lightPerson.getFirstName() != null) ? lightPerson.getFirstName() : "";
       String lastName = (lightPerson.getLastName() != null) ? lightPerson.getLastName() : "";
       cvParams.add(new CvParam(contactTerm.getAccession(), contactTerm.getName(), contactTerm.getCvLabel(), firstName + " " + lastName, null, null, null));
       CvTermReference contactOrg = CvTermReference.CONTACT_ORG;
-      String organizationStr = "";
-      // TODO: Change this: there is a performance hit with Streams
-      if (affiliation != null && affiliation.size() > 0 && !affiliation.stream().noneMatch(Objects::nonNull)) {
+      StringBuilder organizationStr = new StringBuilder();
+      // TODO: Change this - may be there is a performance hit with Streams
+      if (affiliation != null && affiliation.size() > 0 && affiliation.stream().anyMatch(Objects::nonNull)) {
         for (Organization organization : affiliation) {
-          organizationStr += (organization.getName() != null) ? organization.getName() + " " : "";
+          organizationStr.append((organization.getName() != null) ? organization.getName() + " " : "");
         }
       }
       if (organizationStr.length() != 0)
-        cvParams.add(new CvParam(contactOrg.getAccession(), contactOrg.getName(), contactOrg.getCvLabel(), organizationStr, null, null, null));
+        cvParams.add(new CvParam(contactOrg.getAccession(), contactOrg.getName(), contactOrg.getCvLabel(), organizationStr.toString(), null, null, null));
       ParamGroup paramGroup = new ParamGroup(transformToCvParam(lightPerson.getCvParam()), transformToUserParam(lightPerson.getUserParam()));
       paramGroup.addCvParams(cvParams);
       return new Person(paramGroup,
@@ -248,8 +248,8 @@ public class LightModelsTransformer {
    */
   public static List<Organization> transformToOrganization(List<uk.ac.ebi.pride.utilities.data.lightModel.Organization> lightOrganizations) {
     List<Organization> organizations = null;
-    if (lightOrganizations != null) {
-      organizations = new ArrayList<Organization>();
+    if (lightOrganizations != null  && lightOrganizations.size() != 0) {
+      organizations = new ArrayList<>();
       for (uk.ac.ebi.pride.utilities.data.lightModel.Organization lightOrganization : lightOrganizations) {
         //Todo: I need to solve the problem with mail and the parent organization
         organizations.add(transformToOrganization(lightOrganization));
@@ -290,8 +290,8 @@ public class LightModelsTransformer {
    */
   public static List<Organization> transformAffiliationToOrganization(List<uk.ac.ebi.pride.utilities.data.lightModel.Affiliation> lightAffiliations) {
     List<Organization> organizations = null;
-    if (lightAffiliations != null) {
-      organizations = new ArrayList<Organization>();
+    if (lightAffiliations != null && lightAffiliations.size() != 0) {
+      organizations = new ArrayList<>();
       for (uk.ac.ebi.pride.utilities.data.lightModel.Affiliation lightAffiliation : lightAffiliations) {
         uk.ac.ebi.pride.utilities.data.lightModel.Organization lightOrganization = lightAffiliation.getOrganization();
         organizations.add(transformToOrganization(lightOrganization));
@@ -334,7 +334,7 @@ public class LightModelsTransformer {
    * @return list of uk.ac.ebi.pride.utilities.data.core.BibliographicReference object
    */
   public static List<Reference> transformToReference(Iterator<uk.ac.ebi.pride.utilities.data.lightModel.BibliographicReference> iterator) {
-    List<Reference> references = new ArrayList<Reference>();
+    List<Reference> references = new ArrayList<>();
     while (iterator.hasNext()) {
       uk.ac.ebi.pride.utilities.data.lightModel.BibliographicReference ref = iterator.next();
       // RefLine Trying to use the same approach of pride converter
@@ -392,7 +392,7 @@ public class LightModelsTransformer {
    */
   public static List<SpectraData> transformToSpectraData(List<uk.ac.ebi.pride.utilities.data.lightModel.SpectraData> lightSpectraDataList, List<Comparable> usedTitle) {
     List<SpectraData> spectraDatas = null;
-    if (lightSpectraDataList != null) {
+    if (lightSpectraDataList != null && lightSpectraDataList.size() != 0) {
       spectraDatas = new ArrayList<>();
       for (uk.ac.ebi.pride.utilities.data.lightModel.SpectraData lightSpectraData : lightSpectraDataList) {
         spectraDatas.add(transformToSpectraData(lightSpectraData, usedTitle.contains(lightSpectraData.getId())));
@@ -423,7 +423,7 @@ public class LightModelsTransformer {
   public static List<SearchDataBase> transformToSearchDataBase(List<uk.ac.ebi.pride.utilities.data.lightModel.SearchDatabase> lightSearchDatabases) {
     List<SearchDataBase> searchDataBases = null;
     if (lightSearchDatabases != null) {
-      searchDataBases = new ArrayList<SearchDataBase>();
+      searchDataBases = new ArrayList<>();
       for (uk.ac.ebi.pride.utilities.data.lightModel.SearchDatabase lightSearchDatabase : lightSearchDatabases) {
         searchDataBases.add(transformToSeachDatabase(lightSearchDatabase));
       }
@@ -438,13 +438,9 @@ public class LightModelsTransformer {
    * @param lightDatabase uk.ac.ebi.pride.utilities.data.lightModel.SearchDatabase object
    * @return uk.ac.ebi.pride.utilities.data.core.SearchDatabase object
    */
-  private static SearchDataBase transformToSeachDatabase(uk.ac.ebi.pride.utilities.data.lightModel.SearchDatabase lightDatabase) {
+  public static SearchDataBase transformToSeachDatabase(uk.ac.ebi.pride.utilities.data.lightModel.SearchDatabase lightDatabase) {
 
     String name = (lightDatabase != null) ? lightDatabase.getName() : null;
-    /** Software writers sometimes don't annotate the software name and
-     * we construct this value using the CVparams or Userparams. In case
-     * that no CvParams or Userparms is present we use the Id information*/
-
     CvParam fileFormat = ((lightDatabase != null ? lightDatabase.getFileFormat() : null) == null) ? null : transformToCvParam(lightDatabase.getFileFormat().getCvParam());
     String releaseDate = (lightDatabase.getReleaseDate() == null) ? null : lightDatabase.getReleaseDate().toString();
     int dataBaseSeq = (lightDatabase.getNumDatabaseSequences() == null) ? -1 : lightDatabase.getNumDatabaseSequences().intValue();
@@ -456,10 +452,10 @@ public class LightModelsTransformer {
     }
     if (name == null) {
       if (!(nameOfDatabase != null && nameOfDatabase.getCvParams().isEmpty())) {
-        name = getValueFromCvTerm(null, nameOfDatabase.getCvParams().get(0));
+        name = getValueFromCvTerm(nameOfDatabase.getCvParams().get(0));
       }
       if (name == null && !nameOfDatabase.getUserParams().isEmpty()) {
-        name = getValueFromCvTerm(null, nameOfDatabase.getUserParams().get(0));
+        name = getValueFromCvTerm(nameOfDatabase.getUserParams().get(0));
       }
       if (name == null) {
         name = lightDatabase.getId();
@@ -476,12 +472,11 @@ public class LightModelsTransformer {
    * the value of the Parameter and if is not provided we take the name. This function is important when
    * information like the name of the object is not provide and the writers use only CvTerms.
    *
-   * @param originalValue The Original String value of the CvTerm
    * @param cvTerm        The CVTerm
    * @return An String with the Value
    */
-  private static String getValueFromCvTerm(String originalValue, Parameter cvTerm) {
-
+  public static String getValueFromCvTerm(Parameter cvTerm) {
+    String originalValue = null;
     if (cvTerm.getValue() != null && cvTerm.getValue().length() > 0) {
       originalValue = cvTerm.getValue();
     } else if (cvTerm.getName() != null && cvTerm.getName().length() > 0) {
@@ -499,7 +494,7 @@ public class LightModelsTransformer {
 
   public static List<Sample> transformToSample(List<uk.ac.ebi.pride.utilities.data.lightModel.Sample> lightSamples) {
     List<Sample> samples = null;
-    if (lightSamples != null) {
+    if (lightSamples != null  && lightSamples.size() != 0) {
       samples = new ArrayList<>();
       for (uk.ac.ebi.pride.utilities.data.lightModel.Sample lightSample : lightSamples) {
         samples.add(transformToSample(lightSample));
@@ -517,7 +512,7 @@ public class LightModelsTransformer {
    */
   public static List<Sample> transformSubSampleToSample(List<uk.ac.ebi.pride.utilities.data.lightModel.SubSample> lightSamples) {
     List<Sample> samples = null;
-    if (lightSamples != null) {
+    if (lightSamples != null && lightSamples.size() != 0) {
       samples = new ArrayList<>();
       for (uk.ac.ebi.pride.utilities.data.lightModel.SubSample lightSubSample : lightSamples) {
         samples.add(transformToSample(lightSubSample.getSample()));
@@ -555,10 +550,10 @@ public class LightModelsTransformer {
    * @param contactRoles list of uk.ac.ebi.pride.utilities.data.lightModel.ContactRole object
    * @return list of uk.ac.ebi.pride.utilities.data.core.ContactRole object
    */
-  private static Map<Contact, CvParam> transformToRoleList(List<uk.ac.ebi.pride.utilities.data.lightModel.ContactRole> contactRoles) {
+  public static Map<Contact, CvParam> transformToRoleList(List<uk.ac.ebi.pride.utilities.data.lightModel.ContactRole> contactRoles) {
     Map<Contact, CvParam> contacts = null;
     if (contactRoles != null) {
-      contacts = new HashMap<Contact, CvParam>();
+      contacts = new HashMap<>();
       for (uk.ac.ebi.pride.utilities.data.lightModel.ContactRole lightRole : contactRoles) {
         Contact contact = null;
         if (lightRole.getOrganization() != null) {
