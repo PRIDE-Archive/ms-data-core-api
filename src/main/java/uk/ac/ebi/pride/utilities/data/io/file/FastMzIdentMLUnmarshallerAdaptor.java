@@ -1,5 +1,6 @@
 package uk.ac.ebi.pride.utilities.data.io.file;
 
+import lombok.extern.slf4j.Slf4j;
 import uk.ac.ebi.pride.utilities.data.controller.impl.Transformer.LightModelsTransformer;
 import uk.ac.ebi.pride.utilities.data.core.SourceFile;
 import uk.ac.ebi.pride.utilities.data.lightModel.*;
@@ -12,6 +13,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /** @author Suresh Hewapathirana */
+@Slf4j
 public class FastMzIdentMLUnmarshallerAdaptor {
 
   private FastMzIdentMLUnmarshaller fastMzIdentMLUnmarshaller;
@@ -262,7 +264,12 @@ public class FastMzIdentMLUnmarshallerAdaptor {
    * @return MzIdentML Id
    */
   public String getMzIdentMLId() {
-    return fastMzIdentMLUnmarshaller.getMzIdentML().getId();
+
+    String id = fastMzIdentMLUnmarshaller.getMzIdentML().getId();
+    if (!id.matches(Constants.MZIDENTML_ID_PATTERN)) {
+      log.warn("MzIdentML ID contains special characters which may lead to errors!");
+    }
+    return id;
   }
 
   /**
@@ -350,17 +357,31 @@ public class FastMzIdentMLUnmarshallerAdaptor {
     return fastMzIdentMLUnmarshaller.getMzIdentML().getAuditCollection().getOrganization();
   }
 
+  /**
+   * Get Provider
+   *
+   * @return Provider object
+   */
   public Provider getProvider() {
     return fastMzIdentMLUnmarshaller.getMzIdentML().getProvider();
   }
 
+  /**
+   * Get list of Source files including spectra references(peak files) with the file format
+   *
+    * @return List of SourceFile objects
+   */
   public List<SourceFile> getSourceFiles() {
     return LightModelsTransformer.transformToSourceFiles(
         fastMzIdentMLUnmarshaller.getMzIdentML().getDataCollection().getInputs().getSourceFile());
   }
 
-  public Iterator<BibliographicReference> getReferences() {
-    return fastMzIdentMLUnmarshaller.getMzIdentML().getBibliographicReference().iterator();
+  /**
+   * Get the BibliographicReference
+   * @return BibliographicReference object
+   */
+  public List<BibliographicReference> getReferences() {
+    return fastMzIdentMLUnmarshaller.getMzIdentML().getBibliographicReference();
   }
 
   public boolean isSpectraDataReferencedByTitle(SpectraData spectraData) {

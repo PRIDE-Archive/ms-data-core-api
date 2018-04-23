@@ -2,6 +2,7 @@ package uk.ac.ebi.pride.utilities.data.controller.impl.Transformer;
 
 import lombok.extern.slf4j.Slf4j;
 import uk.ac.ebi.pride.utilities.data.core.*;
+import uk.ac.ebi.pride.utilities.data.lightModel.BibliographicReference;
 import uk.ac.ebi.pride.utilities.data.utils.Constants;
 import uk.ac.ebi.pride.utilities.data.utils.MzIdentMLUtils;
 import uk.ac.ebi.pride.utilities.term.CvTermReference;
@@ -35,20 +36,29 @@ public class LightModelsTransformer {
    */
   public static Software transformToSoftware(
       uk.ac.ebi.pride.utilities.data.lightModel.AnalysisSoftware analysisSoftware) {
-    try {
-      Comparable id = analysisSoftware.getId();
-      String name = analysisSoftware.getName();
-      Contact contact = null;
-      String customization = analysisSoftware.getCustomizations();
-      String uri = analysisSoftware.getUri();
-      String version = analysisSoftware.getVersion();
-      return new Software(id, name, contact, customization, uri, version);
-    } catch (Exception ex) {
-      log.error(
-          "Error occurred while converting uk.ac.ebi.pride.utilities.data.lightModel.AnalysisSoftware "
-              + "to uk.ac.ebi.pride.utilities.data.core.Software");
-      return null;
+    Software software = null;
+    if (analysisSoftware != null) {
+      try {
+        Comparable id = analysisSoftware.getId();
+        String nameFromCV = null;
+        if (analysisSoftware.getSoftwareName() != null
+            && analysisSoftware.getSoftwareName().getCvParam() != null) {
+          nameFromCV = analysisSoftware.getSoftwareName().getCvParam().getName();
+        }
+        String name = (nameFromCV != null) ? nameFromCV : analysisSoftware.getName();
+        analysisSoftware.getSoftwareName().getCvParam().getName();
+        Contact contact = null;
+        String customization = analysisSoftware.getCustomizations();
+        String uri = analysisSoftware.getUri();
+        String version = analysisSoftware.getVersion();
+        software = new Software(id, name, contact, customization, uri, version);
+      } catch (Exception ex) {
+        log.error(
+            "Error occurred while converting uk.ac.ebi.pride.utilities.data.lightModel.AnalysisSoftware "
+                + "to uk.ac.ebi.pride.utilities.data.core.Software");
+      }
     }
+    return software;
   }
 
   /**
@@ -227,7 +237,7 @@ public class LightModelsTransformer {
 
     if (lightPerson != null) {
       List<CvParam> cvParams = new ArrayList<>();
-      // TODO: Person -> Afflilication -> Organization can be null while parsing MIdentML. I need to
+      // TODO: Person -> Affiliation -> Organization can be null while parsing MIdentML. I need to
       // investigate this
       List<Organization> affiliation =
           transformAffiliationToOrganization(lightPerson.getAffiliation());
@@ -386,12 +396,15 @@ public class LightModelsTransformer {
    * This method converts List of uk.ac.ebi.pride.utilities.data.lightModel.BibliographicReference
    * object to List of uk.ac.ebi.pride.utilities.data.core.BibliographicReference object
    *
-   * @param iterator list of uk.ac.ebi.pride.utilities.data.lightModel.BibliographicReference object
+   * @param bibliographicReference list of
+   *     uk.ac.ebi.pride.utilities.data.lightModel.BibliographicReference object
    * @return list of uk.ac.ebi.pride.utilities.data.core.BibliographicReference object
    */
   public static List<Reference> transformToReference(
-      Iterator<uk.ac.ebi.pride.utilities.data.lightModel.BibliographicReference> iterator) {
+      List<uk.ac.ebi.pride.utilities.data.lightModel.BibliographicReference>
+          bibliographicReference) {
     List<Reference> references = new ArrayList<>();
+    Iterator<BibliographicReference> iterator = bibliographicReference.iterator();
     while (iterator.hasNext()) {
       uk.ac.ebi.pride.utilities.data.lightModel.BibliographicReference ref = iterator.next();
       // RefLine Trying to use the same approach of pride converter
@@ -721,13 +734,14 @@ public class LightModelsTransformer {
   }
 
   /**
-   * This method converts List of uk.ac.ebi.pride.utilities.data.lightModel.Enzyme object to
-   * List of uk.ac.ebi.pride.utilities.data.core.Enzyme object
+   * This method converts List of uk.ac.ebi.pride.utilities.data.lightModel.Enzyme object to List of
+   * uk.ac.ebi.pride.utilities.data.core.Enzyme object
    *
    * @param oldEnzymes list of uk.ac.ebi.pride.utilities.data.lightModel.Enzyme object
    * @return list of uk.ac.ebi.pride.utilities.data.core.Enzyme object
    */
-  public static List<Enzyme> transformToEnzyme(List<uk.ac.ebi.pride.utilities.data.lightModel.Enzyme> oldEnzymes) {
+  public static List<Enzyme> transformToEnzyme(
+      List<uk.ac.ebi.pride.utilities.data.lightModel.Enzyme> oldEnzymes) {
     List<Enzyme> enzymes = null;
     if (oldEnzymes != null) {
       enzymes = new ArrayList<>();
@@ -745,21 +759,31 @@ public class LightModelsTransformer {
    * @param oldEnzyme uk.ac.ebi.pride.utilities.data.lightModel.Enzyme object
    * @return uk.ac.ebi.pride.utilities.data.core.Enzyme object
    */
-  private static Enzyme transformToEnzyme(uk.ac.ebi.pride.utilities.data.lightModel.Enzyme oldEnzyme) {
+  private static Enzyme transformToEnzyme(
+      uk.ac.ebi.pride.utilities.data.lightModel.Enzyme oldEnzyme) {
     Enzyme newEnzyme = null;
+    List<CvParam> cvParams = null;
+    List<UserParam> userParams = null;
+
     if (oldEnzyme != null) {
       boolean specific = false;
       int misscleavage = 0;
-      int mindistance = -1 ;
-      List<CvParam> cvParams = (oldEnzyme.getEnzymeName() != null) ? transformToCvParam(oldEnzyme.getEnzymeName().getCvParam()) : null;
-      List<UserParam> userParams = (oldEnzyme.getEnzymeName() != null) ? transformToUserParam(oldEnzyme.getEnzymeName().getUserParam()) : null;
-      newEnzyme = new Enzyme(oldEnzyme.getId(),
+      int mindistance = -1;
+      if (oldEnzyme.getEnzymeName() != null) {
+        cvParams = transformToCvParam(oldEnzyme.getEnzymeName().getCvParam());
+      }
+      if (oldEnzyme.getEnzymeName() != null) {
+        userParams = transformToUserParam(oldEnzyme.getEnzymeName().getUserParam());
+      }
+      newEnzyme =
+          new Enzyme(
+              oldEnzyme.getId(),
               oldEnzyme.getName(),
               specific,
               misscleavage,
               mindistance,
               new ParamGroup(cvParams, userParams),
-             null);
+              null);
     }
     return newEnzyme;
   }

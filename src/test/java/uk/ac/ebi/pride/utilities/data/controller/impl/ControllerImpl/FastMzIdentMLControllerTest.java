@@ -15,7 +15,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Most of the public methods of FastMzIdentMLController required for the validation are tested by FastMzIdentMLControllerTest class.
+ * Most of the public methods of FastMzIdentMLController required for the validation are tested by
+ * FastMzIdentMLControllerTest class.
  *
  * @author Suresh Hewapathirana
  */
@@ -25,15 +26,16 @@ public class FastMzIdentMLControllerTest {
   private FastMzIdentMLController fastMzIdentMLController;
 
   /**
-   * This is the initial method which instantiates FastMzIdentMLController and spectra file(s) to the controller.
-   * This will make sure to populate any cache data that are required for the fast validation.
+   * This is the initial method which instantiates FastMzIdentMLController and spectra file(s) to
+   * the controller. This will make sure to populate any cache data that are required for the fast
+   * validation.
    *
    * @throws Exception Any Exception
    */
   @Before
   public void setUp() throws Exception {
     URL url = FastMzIdentMLControllerTest.class.getClassLoader().getResource("small.mzid");
-    URL urlMgf = MzIdentMLControllerIterativeTest.class.getClassLoader().getResource("small.mgf");
+    URL urlMgf = MzIdentMLControllerIterativeTest.class.getClassLoader().getResource("small-silac.mgf");
 
     if (url == null || urlMgf == null) {
       throw new IllegalStateException("no file for input found!");
@@ -60,37 +62,44 @@ public class FastMzIdentMLControllerTest {
     log.info("Unique Peptide Counts   : " + fastMzIdentMLController.getNumberOfUniquePeptides());
     log.info("Spectrum Count          : " + fastMzIdentMLController.getNumberOfSpectra());
     log.info("Missing Spectrum Count  : " + fastMzIdentMLController.getNumberOfMissingSpectra());
-    log.info("Missing Spectra ID List : " + fastMzIdentMLController.getMissingIdentifiedSpectraIds().toString());
-    log.info("Identified Spectrum Count: " + fastMzIdentMLController.getNumberOfIdentifiedSpectra());
-    log.info("DeltaMz Error Rate      : " + fastMzIdentMLController.getSampleDeltaMzErrorRate(100, 4.0));
-    log.info("Identified Unique PTMs  : " + fastMzIdentMLController.getIdentifiedUniquePTMs().toString());
-    log.info("Search Modifications    : " + fastMzIdentMLController.getSearchModifications().toString());
+    log.info(
+        "Missing Spectra ID List : "
+            + fastMzIdentMLController.getMissingIdentifiedSpectraIds().toString());
+    log.info(
+        "Identified Spectrum Count: " + fastMzIdentMLController.getNumberOfIdentifiedSpectra());
+    log.info(
+        "DeltaMz Error Rate      : " + fastMzIdentMLController.getSampleDeltaMzErrorRate(100, 4.0));
+    log.info(
+        "Identified Unique PTMs  : "
+            + fastMzIdentMLController.getIdentifiedUniquePTMs().toString());
+    log.info(
+        "Search Modifications    : " + fastMzIdentMLController.getSearchModifications().toString());
   }
 
-  /**
-   * A common method to run all the mata data test methods
-   */
+  /** A common method to run all the mata data test methods */
   @Test
-  public void scanMetadata(){
+  public void scanMetadata() {
     scanForGeneralMetadata(fastMzIdentMLController);
     scanForSoftware(fastMzIdentMLController);
     scanForSearchDetails(fastMzIdentMLController);
   }
 
-  /**
-   * Test Number of Identified proteins
-   */
+  /** Test Number of Identified proteins */
   @Test
   public void getNumberOfProteins() {
-    assertEquals("Total number of proteins in the MzIdentML file should be 327", 327, fastMzIdentMLController.getNumberOfProteins());
+    assertEquals(
+        "Total number of proteins in the MzIdentML file should be 327",
+        327,
+        fastMzIdentMLController.getNumberOfProteins());
   }
 
-  /**
-   *Test Number of Peptides identified: Total number of peptide Sequences identified.
-   */
+  /** Test Number of Peptides identified: Total number of peptide Sequences identified. */
   @Test
   public void getNumberOfPeptides() {
-    assertEquals("Total number of Peptide in the MzIdentML file should be 1956", 1956, fastMzIdentMLController.getNumberOfPeptides());
+    assertEquals(
+        "Total number of Peptide in the MzIdentML file should be 1956",
+        1956,
+        fastMzIdentMLController.getNumberOfPeptides());
   }
 
   /**
@@ -98,16 +107,23 @@ public class FastMzIdentMLControllerTest {
    */
   @Test
   public void getNumberOfPeptidoForms() {
-    assertEquals("Total number of PeptidoForms in the MzIdentML file should be 3757", 3757, fastMzIdentMLController.getNumberOfPeptidoForms());
-    assertTrue("Total number of PeptidoForms should be greater than or equal to number of peptides", fastMzIdentMLController.getNumberOfPeptides() >= fastMzIdentMLController.getNumberOfPeptides());
+    assertEquals(
+        "Total number of PeptidoForms in the MzIdentML file should be 3757",
+        3757,
+        fastMzIdentMLController.getNumberOfPeptidoForms());
+    assertTrue(
+        "Total number of PeptidoForms should be greater than or equal to number of peptides",
+        fastMzIdentMLController.getNumberOfPeptides()
+            >= fastMzIdentMLController.getNumberOfPeptides());
   }
 
-  /**
-   * Test Number of Unique Peptides: Peptides that map uniquely to a Protein ID.
-   */
+  /** Test Number of Unique Peptides: Peptides that map uniquely to a Protein ID. */
   @Test
   public void getNumberOfUniquePeptides() {
-    assertEquals("Total number of Peptide in the MzIdentML file should be 1956", 1956, fastMzIdentMLController.getNumberOfUniquePeptides());
+    assertEquals(
+        "Total number of Peptide in the MzIdentML file should be 1956",
+        1956,
+        fastMzIdentMLController.getNumberOfUniquePeptides());
   }
 
   /**
@@ -115,112 +131,141 @@ public class FastMzIdentMLControllerTest {
    */
   @Test
   public void getNumberOfSpectra() {
-    assertEquals("Total number of Spectra in the MzIdentML file should be 1001", 1001, fastMzIdentMLController.getNumberOfSpectra());
+    assertEquals(
+        "Total number of Spectra in the MzIdentML file should be 1001",
+        1001,
+        fastMzIdentMLController.getNumberOfSpectra());
   }
 
-  /**
-   * Test Number of PSMs reported in the MzIdentML, but not available in the peak file(s)
-   */
+  /** Test Number of PSMs reported in the MzIdentML, but not available in the peak file(s) */
   @Test
   public void getNumberOfMissingSpectra() {
-    assertEquals("Total number of missing spectra in the MzIdentML file should be 0", 0, fastMzIdentMLController.getNumberOfMissingSpectra());
+    assertEquals(
+        "Total number of missing spectra in the MzIdentML file should be 0",
+        0,
+        fastMzIdentMLController.getNumberOfMissingSpectra());
   }
 
-  /**
-   * Test Number of PSMs reported in the MzIdentML
-   */
+  /** Test Number of PSMs reported in the MzIdentML */
   @Test
   public void getNumberOfIdentifiedSpectra() {
-    assertEquals("Total number of identified spectra in the MzIdentML file should be 851", 851, fastMzIdentMLController.getNumberOfIdentifiedSpectra());
+    assertEquals(
+        "Total number of identified spectra in the MzIdentML file should be 851",
+        851,
+        fastMzIdentMLController.getNumberOfIdentifiedSpectra());
   }
 
-  /**
-   * Randomly check if the delta mass is within the threshold specified
-   */
+  /** Randomly check if the delta mass is within the threshold specified */
   @Test
   public void checkRandomSpectraByDeltaMassThreshold() {
     final double DELTA_MZ = 4.0;
-    assertTrue("DeltaMz Error Rate should be less than " + DELTA_MZ, fastMzIdentMLController.getSampleDeltaMzErrorRate(10, DELTA_MZ) < DELTA_MZ);
+    assertTrue(
+        "DeltaMz Error Rate should be less than " + DELTA_MZ,
+        fastMzIdentMLController.getSampleDeltaMzErrorRate(10, DELTA_MZ) < DELTA_MZ);
   }
 
-  /**
-   * Test Missing Spectra
-   */
+  /** Test Missing Spectra */
   @Test
   public void getMissingIdentifiedSpectraIds() {
-    assertEquals("Total number of missing spectra in the MzIdentML file should be 0", 0, fastMzIdentMLController.getMissingIdentifiedSpectraIds().size());
+    assertEquals(
+        "Total number of missing spectra in the MzIdentML file should be 0",
+        0,
+        fastMzIdentMLController.getMissingIdentifiedSpectraIds().size());
   }
 
-  /**
-   * Test Uniquely identified Post translational modifications
-   */
+  /** Test Uniquely identified Post translational modifications */
   @Test
   public void getIdentifiedUniquePTMs() {
-    assertEquals("Total number of identified unique PTMs should be 3", 3, fastMzIdentMLController.getIdentifiedUniquePTMs().size());
+    assertEquals(
+        "Total number of identified unique PTMs should be 3",
+        3,
+        fastMzIdentMLController.getIdentifiedUniquePTMs().size());
     log.info(fastMzIdentMLController.getIdentifiedUniquePTMs().toString());
   }
 
-  /**
-   * Test search modifications
-   */
+  /** Test search modifications */
   @Test
   public void getSearchModifications() {
-    assertEquals("Total number of search modifications should be 2", 2, fastMzIdentMLController.getSearchModifications().size());
+    assertEquals(
+        "Total number of search modifications should be 2",
+        2,
+        fastMzIdentMLController.getSearchModifications().size());
     log.info(fastMzIdentMLController.getSearchModifications().toString());
   }
 
   /**
-   * Test anchor proteins: Here we need to report only the proteins that are the anchor of the protein group in MzIdentML.
+   * Test anchor proteins: Here we need to report only the proteins that are the anchor of the
+   * protein group in MzIdentML.
    */
   @Test
   public void getAnchorProteinIds() {
-    assertEquals("Total number of protein ambiguity groups  should be 1", 1, fastMzIdentMLController.getAnchorProteinIds().size());
+    assertEquals(
+        "Total number of protein ambiguity groups  should be 1",
+        1,
+        fastMzIdentMLController.getAnchorProteinIds().size());
   }
 
-  /**
-   * Test experiment metadata
-   */
+  /** Test experiment metadata */
   @Test
   public void getExperimentMetaData() {
     fastMzIdentMLController.getExperimentMetaData();
   }
 
   /**
-   * Test retrieving enzyme
+   * Test retrieving enzymes. Enzyme names can be extracted from the CVParams under the Enzyme tag
    */
   @Test
   public void getEnzymes() {
-    System.out.println(fastMzIdentMLController.getEnzymes());
+    assertEquals(
+        "Enzyme should be trypsin ",
+        "trypsin",
+        fastMzIdentMLController
+            .getEnzymes()
+            .get(0)
+            .getEnzymeName()
+            .getCvParams()
+            .get(0)
+            .getName()
+            .toLowerCase());
   }
 
   private void scanForGeneralMetadata(DataAccessController dataAccessController) {
     ExperimentMetaData experimentMetaData = dataAccessController.getExperimentMetaData();
 
-    System.out.println("MzIdentML Version : " + experimentMetaData.getVersion());
-    System.out.println("Experiment Id     : " + experimentMetaData.getId());
-    System.out.println("Experiment Name   : " + experimentMetaData.getName());
-    System.out.println("Experiment Title  : " + experimentMetaData.getShortLabel());
-    System.out.println("Protocol          : " + experimentMetaData.getProtocol());
-    System.out.println("Sources           : " + experimentMetaData.getSourceFiles().toString());
-    System.out.println("Software          : " + experimentMetaData.getSoftwares().toString());
-    System.out.println("Contact Person    : " + experimentMetaData.getPersons().toString());
-    System.out.println("Organizations     : " + experimentMetaData.getOrganizations().toString());
-    System.out.println("Provider          : " + experimentMetaData.getProvider().toString());
-    System.out.println("CreationDate      : " + experimentMetaData.getCreationDate().toString());
-    System.out.println("References        : " + experimentMetaData.getReferences().toString());
-    System.out.println("SpectraData       : " + experimentMetaData.getSpectraDatas().toString());
-    System.out.println("Samples           : " + experimentMetaData.getSamples());
-    System.out.println("Additional        : " + experimentMetaData.getAdditional().toString());
-
-    System.out.println("Enzymes      : " + fastMzIdentMLController.getFormattedEnzymes());
+    log.info("MzIdentML Version : " + experimentMetaData.getVersion());
+    log.info("Experiment Id     : " + experimentMetaData.getId());
+    log.info("Experiment Name   : " + experimentMetaData.getName());
+    log.info("Experiment Title  : " + experimentMetaData.getShortLabel());
+    log.info("Protocol          : " + experimentMetaData.getProtocol());
+    log.info("Sources           : " + experimentMetaData.getSourceFiles().toString());
+    log.info("Software          : " + experimentMetaData.getSoftwares().toString());
+    log.info("Contact Person    : " + experimentMetaData.getPersons().toString());
+    log.info("Organizations     : " + experimentMetaData.getOrganizations().toString());
+    log.info("Provider          : " + experimentMetaData.getProvider().toString());
+    log.info("CreationDate      : " + experimentMetaData.getCreationDate().toString());
+    log.info("References        : " + experimentMetaData.getReferences().toString());
+    log.info("SpectraData       : " + experimentMetaData.getSpectraDatas().toString());
+    log.info("Samples           : " + experimentMetaData.getSamples());
+    log.info("Enzymes           : " + fastMzIdentMLController.getFormattedEnzymes());
+    log.info("Additional        : " + experimentMetaData.getAdditional().toString());
   }
 
+  /**
+   * Test extracting Software
+   *
+   * @param dataAccessController FastMzIdentMLController type object
+   */
   private void scanForSoftware(DataAccessController dataAccessController) {
     ExperimentMetaData experimentMetaData = dataAccessController.getExperimentMetaData();
-    Set<Software> softwares = new HashSet<>(experimentMetaData.getSoftwares());
-    log.info("Softwares: " + softwares);
+    Set<Software> software = new HashSet<>(experimentMetaData.getSoftwares());
+    log.info("Software: " + software);
   }
 
+  /**
+   * Text Search Details
+   *
+   * @param dataAccessController FastMzIdentMLController type object
+   */
   private void scanForSearchDetails(DataAccessController dataAccessController) {
     Collection<Comparable> proteinIds = dataAccessController.getProteinIds();
     if (proteinIds != null && !proteinIds.isEmpty()) {
@@ -234,9 +279,7 @@ public class FastMzIdentMLControllerTest {
     }
   }
 
-  /**
-   * clear the MzIdentML object which holds all the data in memory
-   */
+  /** clear the MzIdentML object which holds all the data in memory */
   @After
   public void tearDown() {
     fastMzIdentMLController.close();

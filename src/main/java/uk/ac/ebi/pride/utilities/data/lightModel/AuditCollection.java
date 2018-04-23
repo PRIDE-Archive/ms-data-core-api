@@ -68,7 +68,7 @@ public class AuditCollection extends MzIdentMLObject implements Serializable {
    */
   public List<AbstractContact> getPersonOrOrganization() {
     if (personOrOrganization == null) {
-      personOrOrganization = new ArrayList<AbstractContact>();
+      personOrOrganization = new ArrayList<>();
     }
     return this.personOrOrganization;
   }
@@ -79,15 +79,15 @@ public class AuditCollection extends MzIdentMLObject implements Serializable {
    * @return List&lt;Person&gt; The list of Person Contacts.
    */
   public List<Person> getPerson() {
-    return new FacadeList<Person>(this.getPersonOrOrganization(), Person.class);
+    return new FacadeList<>(this.getPersonOrOrganization(), Person.class);
   }
 
   /**
    * Returns a list of the Organization objects contained in list returned from getPersonOrOrganization.
    *
-   * @return
+   * @return list of organizations
    */
   public List<Organization> getOrganization() {
-    return new FacadeList<Organization>(this.getPersonOrOrganization(), Organization.class);
+    return new FacadeList<>(this.getPersonOrOrganization(), Organization.class);
   }
 }

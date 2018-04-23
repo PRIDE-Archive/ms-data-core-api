@@ -84,6 +84,19 @@ public class Enzyme extends Identifiable {
     }
 
     @Override
+    public String toString() {
+        return "Enzyme{" +
+                "cTermGain='" + cTermGain + '\'' +
+                ", enzymeName=" + enzymeName +
+                ", minDistance=" + minDistance +
+                ", missedCleavages=" + missedCleavages +
+                ", nTermGain='" + nTermGain + '\'' +
+                ", semiSpecific=" + semiSpecific +
+                ", siteRegExp='" + siteRegExp + '\'' +
+                '}';
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Enzyme)) return false;

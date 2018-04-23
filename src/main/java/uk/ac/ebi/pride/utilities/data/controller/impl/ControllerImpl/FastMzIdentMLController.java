@@ -82,7 +82,7 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
 
     /* Spectra details extracted from MzIdentML -> DataCollection -> Inputs
     eg:  <SpectraData location="file:///Carbamoyl-phosphate synthase small chain-47029-41-G2-4-biotools.mgf" id="SD_1"></SpectraData> */
-    Map<Comparable, SpectraData> spectraDataIds = unmarshaller.getSpectraDataMap();
+    Map<Comparable, SpectraData> spectraDataMap = unmarshaller.getSpectraDataMap();
     List<SpectrumIdentificationList> spectrumIdentificationLists =
             unmarshaller.getSpectrumIdentificationList();
     for (SpectrumIdentificationList spectrumIdentificationList : spectrumIdentificationLists) {
@@ -92,8 +92,7 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
         numberOfIdentifiedSpectra++;
         String spectrumDataRef = spectrumIdentificationResult.getSpectraDataRef(); // eg: spectraData_ref="SD_1"
         String spectrumID = spectrumIdentificationResult.getSpectrumID(); // eg: spectrumID="index=35"
-        SpectraData spectraData = spectraDataIds.get(spectrumDataRef); // eg: mgf file location, file format etc
-
+        SpectraData spectraData = spectraDataMap.get(spectrumDataRef); // eg: mgf file location, file format etc
         String formattedSpectrumID = MzIdentMLUtils.getSpectrumId(spectraData, spectrumID); // eg: 35
         spectrumIdentificationResult.setFormattedSpectrumID(formattedSpectrumID);
         SpectrumIdentResultsGroupedBySpectraIDs.computeIfAbsent(spectrumDataRef, value -> new ArrayList<>()).add(spectrumIdentificationResult);
@@ -225,7 +224,7 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
    */
   @Override
   public List<uk.ac.ebi.pride.utilities.data.core.SpectraData> getSpectraDataFiles() {
-    List<Comparable> basedOnTitle = new ArrayList<Comparable>();
+    List<Comparable> basedOnTitle = new ArrayList<>();
     if (isSpectrumBasedOnTitle())
       basedOnTitle = getSpectraDataBasedOnTitle();
     return LightModelsTransformer.transformToSpectraData(unmarshaller.getSpectraData(), basedOnTitle);
@@ -287,6 +286,7 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
         Boolean result = checkDeltaMassThreshold(SpectrumIdentificationItem, deltaThreshold);
         if (!result) errorPSMCount++;
       }
+      //TODO: Format it to 4 or 6 decimal places
       deltaMzErrorRate =
               new BigDecimal(((double) errorPSMCount / numberOfChecks)).setScale(4, RoundingMode.HALF_UP).doubleValue();
     }
@@ -549,7 +549,7 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
    */
   @Override
   public ParamGroup getAdditional() {
-    ParamGroup additionals = null;
+    ParamGroup additional = null;
     ExperimentMetaData metaData = super.getExperimentMetaData();
 
     if (metaData == null) {
@@ -564,14 +564,14 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
       List<uk.ac.ebi.pride.utilities.data.core.SpectraData> spectraDataList = getSpectraDataFiles();
 
       if ((provider != null && provider.getSoftware() != null) || creationDate != null || !spectraDataList.isEmpty()) {
-        additionals = new ParamGroup();
+        additional = new ParamGroup();
         // Get information from last software that provide the file
         if (provider != null && provider.getSoftware() != null)
-          additionals.addCvParams(provider.getSoftware().getCvParams());
+          additional.addCvParams(provider.getSoftware().getCvParams());
 
         // Get the information of the creation file
         if (creationDate != null) {
-          additionals.addCvParam(LightModelsTransformer.transformDateToCvParam(creationDate));
+          additional.addCvParam(LightModelsTransformer.transformDateToCvParam(creationDate));
         }
         //Get spectra information as additional
         if (!spectraDataList.isEmpty()) {
@@ -583,13 +583,13 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
               cvParamList.add(spectraData.getFileFormat());
           }
           List<uk.ac.ebi.pride.utilities.data.core.CvParam> list = new ArrayList<>(cvParamList);
-          additionals.addCvParams(list);
+          additional.addCvParams(list);
         }
       }
     } else {
-      additionals = metaData.getAdditional();
+      additional = metaData.getAdditional();
     }
-    return additionals;
+    return additional;
   }
 
 

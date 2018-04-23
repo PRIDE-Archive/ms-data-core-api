@@ -121,6 +121,14 @@ public class ParamGroup implements MassSpecObject{
     }
 
     @Override
+    public String toString() {
+        return "ParamGroup{" +
+                "cvParams=" + cvParams +
+                ", userParams=" + userParams +
+                '}';
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof ParamGroup)) return false;

@@ -1,7 +1,5 @@
 package uk.ac.ebi.pride.utilities.data.controller.cache.strategy;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import uk.ac.ebi.pride.utilities.data.controller.cache.CacheEntry;
 import uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl.FastMzIdentMLController;
 import uk.ac.ebi.pride.utilities.data.controller.impl.Transformer.LightModelsTransformer;
@@ -17,8 +15,6 @@ import java.util.*;
  */
 public class FastMzIdentMLCachingStrategy extends AbstractCachingStrategy {
 
-    private static final Logger logger = LoggerFactory.getLogger(FastMzIdentMLCachingStrategy.class);
-
     /**
      * Spectrum ids and identification ids are cached.
      */
@@ -29,16 +25,16 @@ public class FastMzIdentMLCachingStrategy extends AbstractCachingStrategy {
     }
 
     protected void cacheSpectraData(FastMzIdentMLUnmarshallerAdaptor unmarshaller) {
+        // Map<"SD_1", SpectraData>
         Map<Comparable, SpectraData> oldSpectraDataMap = unmarshaller.getSpectraDataMap();
 
         if (oldSpectraDataMap != null && !oldSpectraDataMap.isEmpty()) {
-            Map<Comparable, uk.ac.ebi.pride.utilities.data.core.SpectraData> spectraDataMapResult = new HashMap<Comparable, uk.ac.ebi.pride.utilities.data.core.SpectraData>();
+            Map<Comparable, uk.ac.ebi.pride.utilities.data.core.SpectraData> spectraDataMapResult = new HashMap<>();
             Iterator iterator = oldSpectraDataMap.entrySet().iterator();
 
             List<Comparable> listSpectraData = (List<Comparable>) cache.get(CacheEntry.SPECTRA_DATA_MGF_TITLE);
             if (listSpectraData == null)
-                listSpectraData = new ArrayList<Comparable>();
-
+                listSpectraData = new ArrayList<>();
             while (iterator.hasNext()) {
                 Map.Entry mapEntry = (Map.Entry) iterator.next();
                 SpectraData spectraDataValue = (SpectraData) mapEntry.getValue();

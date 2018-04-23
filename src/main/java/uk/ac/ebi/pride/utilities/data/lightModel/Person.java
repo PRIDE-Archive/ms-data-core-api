@@ -12,7 +12,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 /**
- * A person's name and contact details. Any additional information such as the address, contact email etc. should be supplied using CV parameters or user parameters.
+ * A person's name and contact details. Any additional information such as the address, contact
+ * email etc. should be supplied using CV parameters or user parameters.
  *
  * <p>Java class for PersonType complex type.
  *
@@ -34,46 +35,42 @@ import javax.xml.bind.annotation.XmlType;
  * </pre>
  */
 @XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(name = "PersonType", propOrder = {
-        "affiliation"
-})
+@XmlType(
+  name = "PersonType",
+  propOrder = {"affiliation"}
+)
 @Getter
 @Setter
 public class Person extends AbstractContact implements Serializable {
 
-  private final static long serialVersionUID = 100L;
+  private static final long serialVersionUID = 100L;
+
   @XmlElement(name = "Affiliation")
   protected List<Affiliation> affiliation;
-  @XmlAttribute
-  protected String lastName;
-  @XmlAttribute
-  protected String firstName;
-  @XmlAttribute
-  protected String midInitials;
+
+  @XmlAttribute protected String lastName;
+  @XmlAttribute protected String firstName;
+  @XmlAttribute protected String midInitials;
 
   /**
    * Gets the value of the affiliation property.
+   *
    * <p>
-   * <p>
-   * This accessor method returns a reference to the live list,
-   * not a snapshot. Therefore any modification you make to the
-   * returned list will be present inside the JAXB object.
-   * This is why there is not a <CODE>set</CODE> method for the affiliation property.
-   * <p>
-   * <p>
-   * For example, to add a new item, do as follows:
+   *
+   * <p>This accessor method returns a reference to the live list, not a snapshot. Therefore any
+   * modification you make to the returned list will be present inside the JAXB object. This is why
+   * there is not a <CODE>set</CODE> method for the affiliation property. For example, to add a new
+   * item, do as follows:
+   *
    * <pre>
    *    getAffiliation().add(newItem);
    * </pre>
-   * <p>
-   * <p>
-   * <p>
-   * Objects of the following type(s) are allowed in the list
-   * {@link Affiliation }
+   *
+   * Objects of the following type(s) are allowed in the list {@link Affiliation }
    */
   public List<Affiliation> getAffiliation() {
     if (affiliation == null) {
-      affiliation = new ArrayList<Affiliation>();
+      affiliation = new ArrayList<>();
     }
     return this.affiliation;
   }
