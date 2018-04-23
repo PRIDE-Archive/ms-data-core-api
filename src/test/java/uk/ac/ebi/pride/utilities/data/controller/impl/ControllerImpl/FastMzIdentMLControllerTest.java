@@ -94,17 +94,18 @@ public class FastMzIdentMLControllerTest {
         fastMzIdentMLController.getNumberOfProteins());
   }
 
-
-  /** Test Number of decoy proteins
+  /**
+   * Test Number of decoy proteins
    *
-   *  Decoy proteins are proteins that are identified from decoy database sequences. Those proteins are not important for
-   *  the analysis because they are "fake" proteins. */
+   * <p>Decoy proteins are proteins that are identified from decoy database sequences. Those
+   * proteins are not important for the analysis because they are "fake" proteins.
+   */
   @Test
   public void getNumberOfDecoyProteins() {
     assertEquals(
-            "Total number of decoy proteins in the MzIdentML file should be 0",
-            0,
-            fastMzIdentMLController.getNumberOfDecoyProteins());
+        "Total number of decoy proteins in the MzIdentML file should be 0",
+        0,
+        fastMzIdentMLController.getNumberOfDecoyProteins());
   }
   /** Test Number of Peptides identified: Total number of peptide Sequences identified. */
   @Test
@@ -242,6 +243,10 @@ public class FastMzIdentMLControllerTest {
             .toLowerCase());
   }
 
+  /**
+   * A method to print general mate data extracted by fast MzIdentML reader
+   * @param dataAccessController
+   */
   private void scanForGeneralMetadata(DataAccessController dataAccessController) {
     ExperimentMetaData experimentMetaData = dataAccessController.getExperimentMetaData();
 

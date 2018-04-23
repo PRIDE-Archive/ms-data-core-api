@@ -35,8 +35,6 @@ public class MzIdentMLControllerIterativeTest {
     public void setUp() throws Exception {
         URL url = MzIdentMLControllerIterativeTest.class.getClassLoader().getResource("small.mzid");
         URL urlMgf = MzIdentMLControllerIterativeTest.class.getClassLoader().getResource("small.mgf");
-//        URL url = FastMzIdentMLControllerTest.class.getClassLoader().getResource("F238646.mzid");
-//        URL urlMgf = MzIdentMLControllerIterativeTest.class.getClassLoader().getResource("mascot_daemon_merge.mgf");
         if (url == null || urlMgf == null) {
             throw new IllegalStateException("no file for input found!");
         }

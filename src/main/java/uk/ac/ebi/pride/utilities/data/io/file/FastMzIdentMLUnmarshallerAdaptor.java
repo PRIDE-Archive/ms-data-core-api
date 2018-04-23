@@ -217,6 +217,7 @@ public class FastMzIdentMLUnmarshallerAdaptor {
    */
   private boolean checkCvParam(CvParam cvParam) {
     if (modReader.getPTMbyAccession(cvParam.getAccession()) == null) {
+      log.error("Found Invalid CV: " +  cvParam.toString());
       throw new IllegalStateException(
           "Invalid CV term "
               + cvParam.getAccession()
