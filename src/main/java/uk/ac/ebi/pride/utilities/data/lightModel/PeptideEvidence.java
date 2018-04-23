@@ -1,5 +1,8 @@
 package uk.ac.ebi.pride.utilities.data.lightModel;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 
@@ -45,6 +48,8 @@ import java.io.Serializable;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "PeptideEvidenceType")
+@Getter
+@Setter
 public class PeptideEvidence
         extends Identifiable
         implements Serializable {
@@ -57,6 +62,8 @@ public class PeptideEvidence
     protected String peptideRef;
     @XmlTransient
     protected DBSequence dbSequence;
+    @XmlAttribute
+    protected Boolean isDecoy;
     @XmlTransient
     protected Peptide peptide;
 

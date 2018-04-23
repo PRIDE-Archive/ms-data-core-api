@@ -92,6 +92,7 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
         numberOfIdentifiedSpectra++;
         String spectrumDataRef = spectrumIdentificationResult.getSpectraDataRef(); // eg: spectraData_ref="SD_1"
         String spectrumID = spectrumIdentificationResult.getSpectrumID(); // eg: spectrumID="index=35"
+
         SpectraData spectraData = spectraDataMap.get(spectrumDataRef); // eg: mgf file location, file format etc
         String formattedSpectrumID = MzIdentMLUtils.getSpectrumId(spectraData, spectrumID); // eg: 35
         spectrumIdentificationResult.setFormattedSpectrumID(formattedSpectrumID);
@@ -740,5 +741,13 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
             analysisData.getProteinDetectionList() != null &&
             analysisData.getProteinDetectionList().getProteinAmbiguityGroup() != null &&
             analysisData.getProteinDetectionList().getProteinAmbiguityGroup().size() > 0;
+  }
+
+  /**
+   * Get number of decoy proteins
+   * @return Number of decoy proteins identified
+   */
+  public int getNumberOfDecoyProteins() {
+    return (int)unmarshaller.getNumberOfDecoyProteins();
   }
 }

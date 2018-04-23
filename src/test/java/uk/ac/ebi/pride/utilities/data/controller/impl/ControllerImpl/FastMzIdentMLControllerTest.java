@@ -57,9 +57,10 @@ public class FastMzIdentMLControllerTest {
   @Test
   public void printValidationsResults() {
     log.info("Protein Counts          : " + fastMzIdentMLController.getNumberOfProteins());
+    log.info("Decoy Protein Counts    : " + fastMzIdentMLController.getNumberOfDecoyProteins());
     log.info("Peptide Counts          : " + fastMzIdentMLController.getNumberOfPeptides());
-    log.info("PeptidoForms Counts     : " + fastMzIdentMLController.getNumberOfPeptidoForms());
     log.info("Unique Peptide Counts   : " + fastMzIdentMLController.getNumberOfUniquePeptides());
+    log.info("PeptidoForms Counts     : " + fastMzIdentMLController.getNumberOfPeptidoForms());
     log.info("Spectrum Count          : " + fastMzIdentMLController.getNumberOfSpectra());
     log.info("Missing Spectrum Count  : " + fastMzIdentMLController.getNumberOfMissingSpectra());
     log.info(
@@ -93,6 +94,18 @@ public class FastMzIdentMLControllerTest {
         fastMzIdentMLController.getNumberOfProteins());
   }
 
+
+  /** Test Number of decoy proteins
+   *
+   *  Decoy proteins are proteins that are identified from decoy database sequences. Those proteins are not important for
+   *  the analysis because they are "fake" proteins. */
+  @Test
+  public void getNumberOfDecoyProteins() {
+    assertEquals(
+            "Total number of decoy proteins in the MzIdentML file should be 0",
+            0,
+            fastMzIdentMLController.getNumberOfDecoyProteins());
+  }
   /** Test Number of Peptides identified: Total number of peptide Sequences identified. */
   @Test
   public void getNumberOfPeptides() {

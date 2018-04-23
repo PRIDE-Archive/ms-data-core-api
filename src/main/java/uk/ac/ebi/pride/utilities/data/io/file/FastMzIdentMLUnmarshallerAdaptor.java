@@ -435,4 +435,14 @@ public class FastMzIdentMLUnmarshallerAdaptor {
   public void close() {
     fastMzIdentMLUnmarshaller.destroy();
   }
+
+  /**
+   * Get number of decoy proteins
+   * @return Number of decoy proteins identified
+   */
+  public long getNumberOfDecoyProteins() {
+    return fastMzIdentMLUnmarshaller
+            .getMzIdentML().getSequenceCollection().getPeptideEvidence().stream()
+            .filter(p -> p.getIsDecoy()).count();
+  }
 }
