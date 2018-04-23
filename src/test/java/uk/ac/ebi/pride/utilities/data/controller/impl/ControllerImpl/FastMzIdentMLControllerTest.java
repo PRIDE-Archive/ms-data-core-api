@@ -35,7 +35,7 @@ public class FastMzIdentMLControllerTest {
   @Before
   public void setUp() throws Exception {
     URL url = FastMzIdentMLControllerTest.class.getClassLoader().getResource("small.mzid");
-    URL urlMgf = MzIdentMLControllerIterativeTest.class.getClassLoader().getResource("small-silac.mgf");
+    URL urlMgf = MzIdentMLControllerIterativeTest.class.getClassLoader().getResource("small.mgf");
 
     if (url == null || urlMgf == null) {
       throw new IllegalStateException("no file for input found!");
