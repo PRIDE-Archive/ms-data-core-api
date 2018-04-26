@@ -85,15 +85,15 @@
         <json.version>20090211</json.version>
         <commonscode.version>1.7</commonscode.version>
         <c3p0.version>0.9.1.2</c3p0.version>
-        <uk.ac.ebi.jmzidml-jmzidentml.version>1.2.7</uk.ac.ebi.jmzidml-jmzidentml.version>
-        <uk.ac.ebi.jmzml-jmzml.version>1.7.9</uk.ac.ebi.jmzml-jmzml.version>
+        <uk.ac.ebi.jmzidml-jmzidentml.version>1.2.8</uk.ac.ebi.jmzidml-jmzidentml.version>
+        <uk.ac.ebi.jmzml-jmzml.version>1.7.10</uk.ac.ebi.jmzml-jmzml.version>
         <xmlschemavalidator.version>2.1</xmlschemavalidator.version>
         <uk.ac.ebi.pride-jmztab-modular-model.version>3.0.5</uk.ac.ebi.pride-jmztab-modular-model.version>
         <uk.ac.ebi.pride-jmztab-modular-util.version>3.0.5</uk.ac.ebi.pride-jmztab-modular-util.version>
         <uk.ac.ebi.pride-jmztab-modular-converters.version>3.0.5</uk.ac.ebi.pride-jmztab-modular-converters.version>
-        <uk.ac.ebi.pride.tools-jmzreader.version>2.0.3</uk.ac.ebi.pride.tools-jmzreader.version>
+        <uk.ac.ebi.pride.tools-jmzreader.version>2.0.4</uk.ac.ebi.pride.tools-jmzreader.version>
         <jnetCDF.version>0.0.2</jnetCDF.version>
-        <uk.ac.ebi.pride.jaxb-pride-jaxb.version>1.0.20</uk.ac.ebi.pride.jaxb-pride-jaxb.version>
+        <uk.ac.ebi.pride.jaxb-pride-jaxb.version>1.0.21</uk.ac.ebi.pride.jaxb-pride-jaxb.version>
         <uk.ac.ebi.pride.utilities-pride-utilities.version>2.0.18</uk.ac.ebi.pride.utilities-pride-utilities.version>
         <uk.ac.ebi.pride.utilities-pride-mod.version>2.1.8</uk.ac.ebi.pride.utilities-pride-mod.version>
         <commons-cli.version>1.3.1</commons-cli.version>
