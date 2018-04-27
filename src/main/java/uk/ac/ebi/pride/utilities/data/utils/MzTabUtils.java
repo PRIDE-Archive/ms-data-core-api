@@ -99,11 +99,13 @@ public class MzTabUtils {
      * @return List of SearchEngine Score params
      */
     public static List<SearchEngineScoreParam> getSearchEngineScoreTerm(Score score) {
-        List<SearchEngineScoreParam> scores = new ArrayList<SearchEngineScoreParam>();
+        List<SearchEngineScoreParam> scores = new ArrayList<>();
+        SearchEngineScoreParam searchEngineScoreParam = null;
         if (score != null)
             for (SearchEngineScoreCvTermReference term : score.getSearchEngineScoreCvTermReferenceWithValues())
-                if(SearchEngineScoreParam.getSearchEngineScoreParamByAccession(term.getAccession()) != null)
-                    scores.add(SearchEngineScoreParam.getSearchEngineScoreParamByAccession(term.getAccession()));
+                searchEngineScoreParam = SearchEngineScoreParam.getSearchEngineScoreParamByAccession(term.getAccession());
+                if(searchEngineScoreParam != null)
+                    scores.add(searchEngineScoreParam);
         return scores;
     }
 

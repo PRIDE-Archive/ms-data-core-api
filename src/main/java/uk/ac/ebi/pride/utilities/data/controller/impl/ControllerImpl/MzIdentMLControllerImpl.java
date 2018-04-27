@@ -22,6 +22,7 @@ import uk.ac.ebi.pride.utilities.data.core.SourceFile;
 import uk.ac.ebi.pride.utilities.data.core.SpectraData;
 import uk.ac.ebi.pride.utilities.data.core.SpectrumIdentificationProtocol;
 import uk.ac.ebi.pride.utilities.data.io.file.MzIdentMLUnmarshallerAdaptor;
+import uk.ac.ebi.pride.utilities.data.utils.Constants;
 import uk.ac.ebi.pride.utilities.data.utils.MD5Utils;
 
 import javax.naming.ConfigurationException;
@@ -54,7 +55,7 @@ public class MzIdentMLControllerImpl extends ReferencedIdentificationController 
     private MzIdentMLUnmarshallerAdaptor unmarshaller;
 
     // The Match pattern for a valid mzidentml file, its support now the version 1.1.
-    private static final Pattern mzIdentMLHeaderPattern = Pattern.compile("^[^<]*(<\\?xml [^>]*>\\s*(<!--[^>]*-->\\s*)*)?<(MzIdentML)|(indexedmzIdentML) xmlns=.*", Pattern.MULTILINE);
+    private static final Pattern mzIdentMLHeaderPattern = Pattern.compile(Constants.MZIDENTML_HEADER_PATTERN, Pattern.MULTILINE);
 
     public MzIdentMLControllerImpl(File file) {
         this(file, false);
@@ -86,7 +87,7 @@ public class MzIdentMLControllerImpl extends ReferencedIdentificationController 
         }
 
         // init ms data accession controller map
-        this.msDataAccessControllers = new HashMap<Comparable, DataAccessController>();
+        this.msDataAccessControllers = new HashMap<>();
 
         // set data source description
         this.setName(file.getName());
@@ -160,7 +161,7 @@ public class MzIdentMLControllerImpl extends ReferencedIdentificationController 
      * Get a list of source files.
      *
      * @return List<SourceFile> a list of source file objects.
-     * @throws uk.ac.ebi.pride.utilities.data.controller.DataAccessException
+     * @throws uk.ac.ebi.pride.utilities.data.controller.DataAccessException DataAccessException
      *
      */
     public List<SourceFile> getSourceFiles() {
@@ -286,36 +287,40 @@ public class MzIdentMLControllerImpl extends ReferencedIdentificationController 
      */
     @Override
     public ParamGroup getAdditional() {
-        ParamGroup additionals = null;
-        // Take information from provider !!!
-        Provider provider = getProvider();
-        Date date = unmarshaller.getCreationDate();
-        List<SpectraData> spectraDataList = getSpectraDataFiles();
+        ParamGroup additional = null;
+        try {
+            // Take information from provider !!!
+            Provider provider = getProvider();
+            Date date = unmarshaller.getCreationDate();
+            List<SpectraData> spectraDataList = getSpectraDataFiles();
 
-        if ((provider != null && provider.getSoftware() != null) || date != null || !spectraDataList.isEmpty()) {
-            additionals = new ParamGroup();
-            // Get information from last software that provide the file
-            if (provider != null && provider.getSoftware() != null)
-                additionals.addCvParams(provider.getSoftware().getCvParams());
+            if ((provider != null && provider.getSoftware() != null) || date != null || !spectraDataList.isEmpty()) {
+                additional = new ParamGroup();
+                // Get information from last software that provide the file
+                if (provider != null && provider.getSoftware() != null)
+                    additional.addCvParams(provider.getSoftware().getCvParams());
 
-            // Get the information of the creation file
-            if (unmarshaller.getCreationDate() != null) {
-                additionals.addCvParam(MzIdentMLTransformer.transformDateToCvParam(unmarshaller.getCreationDate()));
-            }
-            //Get spectra information as additional
-            if (!spectraDataList.isEmpty()) {
-                Set<CvParam> cvParamList = new HashSet<CvParam>();
-                for (SpectraData spectraData : spectraDataList) {
-                    if (spectraData.getSpectrumIdFormat() != null)
-                        cvParamList.add(spectraData.getSpectrumIdFormat());
-                    if (spectraData.getFileFormat() != null)
-                        cvParamList.add(spectraData.getFileFormat());
+                // Get the information of the creation file
+                if (unmarshaller.getCreationDate() != null) {
+                    additional.addCvParam(MzIdentMLTransformer.transformDateToCvParam(unmarshaller.getCreationDate()));
                 }
-                List<CvParam> list = new ArrayList<CvParam>(cvParamList);
-                additionals.addCvParams(list);
+                //Get spectra information as additional
+                if (spectraDataList != null && !spectraDataList.isEmpty()) {
+                    Set<CvParam> cvParamList = new HashSet<>();
+                    for (SpectraData spectraData : spectraDataList) {
+                        if (spectraData.getSpectrumIdFormat() != null)
+                            cvParamList.add(spectraData.getSpectrumIdFormat());
+                        if (spectraData.getFileFormat() != null)
+                            cvParamList.add(spectraData.getFileFormat());
+                    }
+                    List<CvParam> list = new ArrayList<>(cvParamList);
+                    additional.addCvParams(list);
+                }
             }
+        } catch (Exception ex) {
+            throw new DataAccessException("Failed to retrieve additional metadata", ex);
         }
-        return additionals;
+        return additional;
     }
 
     /**
@@ -339,38 +344,23 @@ public class MzIdentMLControllerImpl extends ReferencedIdentificationController 
 
         if (metaData == null) {
             try {
-                // Get Accession for MzIdentML Object
                 String accession = unmarshaller.getMzIdentMLId();
-                // Get the Version of the MzIdentML File.
                 String version = unmarshaller.getMzIdentMLVersion();
-                //Get Source File List
                 List<SourceFile> sources = getSourceFiles();
-                //Get Sample List
                 List<Sample> samples = getSamples();
-                // Get all the softwares related with the object
-                List<Software> softwares = getSoftwares();
-                // Get Contact Persons
+                List<Software> softwareList = getSoftwares();
                 List<Person> persons = getPersonContacts();
-                // Get the Contact Organization
                 List<Organization> organizations = getOrganizationContacts();
-                // Get Additional Information Related with the Project
                 ParamGroup additional = getAdditional();
-                // Get the Experiment Title
                 String title = unmarshaller.getMzIdentMLName();
-                // Get The Experiment Short Label, in case of mzidentml this date is not provided.
-                String shortLabel = null;
-                //Get Experiment Protocol in case of mzidentml Experiment Protocol is empty.
-                ExperimentProtocol protocol = null;
-                // Get References From the Experiment
+                String shortLabel = null; // in case of mzidentml this date is not provided.
+                ExperimentProtocol protocol = null; // in case of mzidentml Experiment Protocol is empty.
                 List<Reference> references = getReferences();
-                // Get the provider object of the MzIdentMl file
                 Provider provider = getProvider();
-                //Get Creation Date
                 Date creationDate = unmarshaller.getCreationDate();
-                //Get SpectraData Files
                 List<SpectraData> spectraData = getSpectraDataFiles();
-                //Create the ExperimentMetaData Object
-                metaData = new ExperimentMetaData(additional, accession, title, version, shortLabel, samples, softwares,
+
+                metaData = new ExperimentMetaData(additional, accession, title, version, shortLabel, samples, softwareList,
                         persons, sources, provider, organizations, references, creationDate, null, protocol, spectraData);
                 // store it in the cache
                 getCache().store(CacheEntry.EXPERIMENT_METADATA, metaData);
@@ -378,8 +368,6 @@ public class MzIdentMLControllerImpl extends ReferencedIdentificationController 
                 throw new DataAccessException("Failed to retrieve meta data", ex);
             }
         }
-        //System.out.println("Protein Ids: " + getProteinIds().size());
-        //System.out.println("Peptide Ids: " + getNumberOfPeptides());
         return metaData;
     }
 
@@ -451,7 +439,7 @@ public class MzIdentMLControllerImpl extends ReferencedIdentificationController 
      */
     public List<SpectraData> getSpectraDataFiles() {
         ExperimentMetaData metaData = super.getExperimentMetaData();
-        List<Comparable> basedOnTitle = new ArrayList<Comparable>();
+        List<Comparable> basedOnTitle = new ArrayList<>();
 
         if (metaData == null) {
             if(isSpectrumBasedOnTitle())
@@ -501,7 +489,7 @@ public class MzIdentMLControllerImpl extends ReferencedIdentificationController 
                     dbSequence = unmarshaller.getDBSequenceById(proteinId);
                     List<SpectrumIdentificationItem> spectrumIdentificationItems = getScannedSpectrumIdentificationItems(proteinId);
                     Iterator<SpectrumIdentificationItem> itSpec = spectrumIdentificationItems.iterator();
-                    List<Peptide> peptides = new ArrayList<Peptide>();
+                    List<Peptide> peptides = new ArrayList<>();
                     while(itSpec.hasNext()){
                         SpectrumIdentificationItem item = itSpec.next();
                         for(PeptideEvidenceRef ref: item.getPeptideEvidenceRef()){
@@ -514,7 +502,7 @@ public class MzIdentMLControllerImpl extends ReferencedIdentificationController 
 
                 } else {
 
-                    List<Peptide> peptides = new ArrayList<Peptide>();
+                    List<Peptide> peptides = new ArrayList<>();
                     uk.ac.ebi.jmzidml.model.mzidml.ProteinDetectionHypothesis proteinHypothesis = unmarshaller.getIdentificationById(proteinId);
                     // when protein groups are present
                     for(PeptideHypothesis peptideHypothesis: proteinHypothesis.getPeptideHypothesis()){

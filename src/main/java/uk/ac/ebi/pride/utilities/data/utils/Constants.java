@@ -10,21 +10,18 @@ import java.util.List;
 /**
  * Constants contain a set of functions for SpectraData validation and also the constants used by mzTab and mzIdentML
  * to reference the Ids and type file formats.
- *    
+ *
  * @author Yasset Perez-Riverol
  * @author Rui Wang
  */
 public final class Constants {
 
-    /** algebraic sign */
-    private static final String SIGN = "[+-]";
-
-    public static  final String TAB  = "\t";
-
-    public static  final String LINE_SEPARATOR = "\n";
-
-    /** integer expression */
-    public static final String INTEGER = SIGN + "?\\d+";
+    public static final String TAB  = "\t";
+    public static final String LINE_SEPARATOR = "\n";
+    public static final String INTEGER = "[+-]?\\d+";
+    public static final String SCORE_PSM_POSITION_PATTERN = "\\((.*?)\\)";
+    public static final String MULTIPLE_EMAILS_PATTERN = "[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-']+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})";
+    public static final String MZIDENTML_HEADER_PATTERN = "^[^<]*(<\\?xml [^>]*>\\s*(<!--[^>]*-->\\s*)*)?<(MzIdentML)|(indexedmzIdentML) xmlns=.*";
 
     private Constants() {
     }
@@ -42,12 +39,10 @@ public final class Constants {
     public static final String WIFF_EXT  = ".wiff";
     public static final String NETCDF_EXT = ".cdf";
 
-
-
     /**
      * Supported id format used in the spectrum file.
      */
-    public static enum SpecIdFormat {
+    public enum SpecIdFormat {
         MASCOT_QUERY_NUM,
         MULTI_PEAK_LIST_NATIVE_ID,
         SINGLE_PEAK_LIST_NATIVE_ID,
@@ -63,7 +58,7 @@ public final class Constants {
     /**
      * An enum of the supported spectra file types
      */
-    public static enum SpecFileFormat {
+    public enum SpecFileFormat {
         MZML,
         PKL,
         DTA,
@@ -151,8 +146,6 @@ public final class Constants {
         return getDataFormatFromFileExtension(spectraData);
     }
 
-
-
     /**
      * Spectrum Id format for an specific CVterm accession
      * @param accession CvTerm Accession
@@ -186,7 +179,7 @@ public final class Constants {
      * @return Set of file formats supported
      */
     public static List<SpecFileFormat> getFileTypeSupported(SpectraData spectraData) {
-        List<Constants.SpecFileFormat> fileFormats = new ArrayList<SpecFileFormat>();
+        List<Constants.SpecFileFormat> fileFormats = new ArrayList<>();
 
         Constants.SpecFileFormat spectraDataFormat = getSpectraDataFormat(spectraData);
 
@@ -238,7 +231,6 @@ public final class Constants {
      * @param file input file
      * @return Class    the class type of the data access controller
      */
-
     public static Class getFileType(File file) {
         Class classType = null;
 
