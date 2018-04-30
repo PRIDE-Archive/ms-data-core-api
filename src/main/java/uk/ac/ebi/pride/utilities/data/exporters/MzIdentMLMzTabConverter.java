@@ -1,8 +1,7 @@
 package uk.ac.ebi.pride.utilities.data.exporters;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import uk.ac.ebi.pride.jmztab.model.Assay;
 import uk.ac.ebi.pride.jmztab.model.*;
 import uk.ac.ebi.pride.jmztab.model.Modification;
@@ -30,6 +29,7 @@ import java.net.URL;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import static uk.ac.ebi.pride.utilities.data.utils.Constants.*;
 
 import static uk.ac.ebi.pride.utilities.data.utils.MzTabUtils.removeNewLineAndTab;
 
@@ -37,6 +37,7 @@ import static uk.ac.ebi.pride.utilities.data.utils.MzTabUtils.removeNewLineAndTa
  * @author Yasset Perez-Riverol
  * @author ntoro
  */
+@Slf4j
 public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
 
     //TODO: Move the parameters
@@ -48,14 +49,9 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
     public static final String CHEMMOD = "CHEMMOD";
     public static final String UNKNOWN_MODIFICATION = "unknown modification";
 
-    public static final Pattern SCORE_PSM_POSITION_PATTERN  = Pattern.compile("\\((.*?)\\)");
-
-    protected static Logger logger = LoggerFactory.getLogger(MzIdentMLMzTabConverter.class);
-
     protected Map<Comparable, Integer> spectraToRun;
 
-    protected Map<Param, Set<String>> variableModifications = new HashMap<Param, Set<String>>();
-    Map<Comparable, Integer> indexSpectrumID = new HashMap<Comparable, Integer>();
+    Map<Comparable, Integer> indexSpectrumID = new HashMap<>();
 
     private final MzIdentMLControllerImpl controller;
 
@@ -87,7 +83,7 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
     @Override
     protected void loadMsRun() {
         List<SpectraData> spectraDataList = source.getExperimentMetaData().getSpectraDatas();
-        spectraToRun = new HashMap<Comparable, Integer>(spectraDataList.size());
+        spectraToRun = new HashMap<>(spectraDataList.size());
         if(!spectraDataList.isEmpty()){
             int idRun = 1;
             for(SpectraData spectradata: spectraDataList){
@@ -185,7 +181,7 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
     @Override
     protected void fillData() {
         // Get a list of Identification ids
-        proteinIds = new HashSet<Comparable>();
+        proteinIds = new HashSet<>();
 
         try {
             if (!source.hasProteinAmbiguityGroup()) {
@@ -218,7 +214,6 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
             }
         } catch (JAXBException e) {
             throw new DataAccessException("Error try to retrieve the information for own Protein");
-
         }
 
         loadMetadataModifications();
@@ -241,9 +236,8 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
         protein.addAmbiguityMembers(membersString);
 
         //Loop for spectrum to get all the ms_run to repeat the score at protein level
-        Set<MsRun> msRuns = new HashSet<MsRun>();
+        Set<MsRun> msRuns = new HashSet<>();
         for (Peptide peptide : peptides) {
-//            Comparable id = source.getPeptideSpectrumId(firstProteinDetectionHypothesis.getId(), index);
             Comparable id = controller.getSpectrumIdBySpectrumIdentificationItemId(peptide.getSpectrumIdentification().getId());
 
             if (id != null) {
@@ -299,7 +293,7 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
 
                             if (param != null) {
 
-                                String site = null;
+                                StringBuilder site = null;
                                 String position = null;
 
                                 if(param.getAccession().equalsIgnoreCase(UNKNOWN_MOD)){
@@ -309,46 +303,45 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
 
                                 if (searchModification.getSpecificities() != null && !searchModification.getSpecificities().isEmpty()) {
 
-                                    site = searchModification.getSpecificities().get(0);
+                                    site = new StringBuilder(searchModification.getSpecificities().get(0));
 
                                     final int size = searchModification.getSpecificities().size();
                                     if (size > 1) {
                                         //We annotate only one site in mzTab
                                         logger.warn("More than one residue specify");
                                         for (int k = 1; k < size; k++) {
-                                            site = site + " " + searchModification.getSpecificities().get(k);
+                                            site.append(" ").append(searchModification.getSpecificities().get(k));
                                         }
                                     }
 
-                                    if (site.equalsIgnoreCase(".")) {
+                                    if (site.toString().equalsIgnoreCase(".")) {
                                         //We try to find a more specific site in the rules
                                         for (CvParam rule : searchModification.getSpecificityRules()) {
                                             if (rule.getAccession().equalsIgnoreCase(PEPTIDE_N_TERM)) {
-                                                site = "N-term";
+                                                site = new StringBuilder("N-term");
                                                 position = "Peptide N-term";
                                             } else if (rule.getAccession().equalsIgnoreCase(PROTEIN_N_TERM)) {
-                                                site = "N-term";
+                                                site = new StringBuilder("N-term");
                                                 position = "Protein N-term";
                                             } else if (rule.getAccession().equalsIgnoreCase(PEPTIDE_C_TERM)) {
-                                                site = "C-term";
+                                                site = new StringBuilder("C-term");
                                                 position = "Peptide C-term";
                                             } else if (rule.getAccession().equalsIgnoreCase(PROTEIN_C_TERM)) {
-                                                site = "C-term";
+                                                site = new StringBuilder("C-term");
                                                 position = "Protein C-term";
                                             } else {
                                                 logger.warn("Cv Term for Rule: " + rule.toString() + "is not recognized");
-                                                site = "C-term or N-term";
+                                                site = new StringBuilder("C-term or N-term");
                                             }
                                         }
                                     }
                                 }
 
-
                                 if(searchModification.isFixedMod()){
                                     FixedMod mod = new FixedMod(i++);
                                     mod.setParam(param);
                                     if(site!= null){
-                                        mod.setSite(site);
+                                        mod.setSite(site.toString());
                                     }
                                     if(position!= null) {
                                         mod.setPosition(position);
@@ -359,13 +352,12 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
                                     VariableMod mod = new VariableMod(j++);
                                     mod.setParam(param);
                                     if(site!= null){
-                                        mod.setSite(site);
+                                        mod.setSite(site.toString());
                                     }
                                     if(position!= null){
                                         mod.setPosition(position);
                                     }
                                     metadata.addVariableMod(mod);
-
                                 }
                             }
                         }
@@ -506,7 +498,7 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
     protected void loadExperimentParams() {
         String description = "";
         description = description + ("Spectrum Identification Protocol: ");
-        List<SpectrumIdentificationProtocol> psmProtocols = (source.getIdentificationMetaData() != null)?source.getIdentificationMetaData().getSpectrumIdentificationProtocols():new ArrayList<SpectrumIdentificationProtocol>();
+        List<SpectrumIdentificationProtocol> psmProtocols = (source.getIdentificationMetaData() != null)?source.getIdentificationMetaData().getSpectrumIdentificationProtocols():new ArrayList<>();
         for(SpectrumIdentificationProtocol protocol: psmProtocols){
             List<Enzyme> enzymes = protocol.getEnzymes();
             if(enzymes!= null && !enzymes.isEmpty()){
@@ -546,8 +538,6 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
     protected void loadSamples() {
         List<Sample> sampleList = source.getExperimentMetaData().getSamples();
         if(sampleList != null && !sampleList.isEmpty()){
-            int idSample = 1;
-
             for(Sample sample: sampleList){
                 int specieId = 1;
                 int tissueId = 1;
@@ -569,9 +559,6 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
                         diseaseId++;
                     }
                 }
-                idSample++;
-
-                //metadata.addSampleDescription(idSample, sample.getName());
             }
         }
     }
@@ -582,7 +569,7 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
     }
 
     protected List<PSM> loadPSMs(List<Comparable> ids) {
-        List<PSM> psmList = new ArrayList<PSM>();
+        List<PSM> psmList = new ArrayList<>();
         for(Comparable id: ids) {
             uk.ac.ebi.pride.utilities.data.core.Protein protein = source.getProteinById(id);
             psmList.addAll(loadPSMs(protein, protein.getPeptides()));
@@ -594,7 +581,7 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
      * Converts the passed Identification object into an MzTab PSM.
      */
     protected List<PSM> loadPSMs(uk.ac.ebi.pride.utilities.data.core.Protein protein, List<Peptide> peptides)  {
-        List<PSM> psmList = new ArrayList<PSM>();
+        List<PSM> psmList = new ArrayList<>();
         for (Peptide oldPSM : peptides) {
             PSM psm = new PSM(psmColumnFactory, metadata);
             psm.setSequence(oldPSM.getPeptideSequence().getSequence());
@@ -621,13 +608,10 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
             psm.setPre((pre == null || pre.isEmpty() || pre.equalsIgnoreCase(String.valueOf('\u0000'))) ? null : pre);
             psm.setPost((post == null || post.isEmpty() || pre.equalsIgnoreCase(String.valueOf('\u0000'))) ? null : post);
 
-            List<Modification> mods = new ArrayList<Modification>();
-
-            /**
-             * We have only one case of PTM scoring encoded into the an mzIdentML in PXD (PXD001428).
-             * The PTMs localization score is encoded into CVPArams at the PSM level in the way:
-             * <cvParam accession="MS:1001971" cvRef="PSI-MS" value="S(8): 100.0; T(12): 100.0" name="ProteomeDiscoverer:phosphoRS site probabilities"></cvParam>
-             */
+            List<Modification> mods = new ArrayList<>();
+            // We have only one case of PTM scoring encoded into the an mzIdentML in PXD (PXD001428).
+            // The PTMs localization score is encoded into CVParams at the PSM level in the way:
+            // <cvParam accession="MS:1001971" cvRef="PSI-MS" value="S(8): 100.0; T(12): 100.0" name="ProteomeDiscoverer:phosphoRS site probabilities"></cvParam>
 
             Map<Integer, CvParam> scores = new HashMap<>();
 
@@ -640,7 +624,7 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
                                 value = value.replaceAll("\\s+","");
                                 String[] atributes = value.split(":");
                                 Double score = (atributes.length > 1 && Utils.isParsableAsDouble((atributes[1])))? Double.parseDouble(atributes[1]):null;
-                                Matcher m = SCORE_PSM_POSITION_PATTERN.matcher(atributes[0]);
+                                Matcher m = Pattern.compile(SCORE_PSM_POSITION_PATTERN).matcher(atributes[0]);
                                 Integer position = null;
                                 if (m.find()) position = Integer.parseInt(m.group(1));
                                 if(position != null && score != null){
@@ -737,7 +721,7 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
             }
             //Set Search Engine
 
-            Set<SearchEngineParam> searchEngines = new HashSet<SearchEngineParam>();
+            Set<SearchEngineParam> searchEngines = new HashSet<>();
             List<SearchEngineParam> searchEngineParams = MzIdentMLUtils.getSearchEngineCvTermReferences(oldPSM.getSpectrumIdentification().getCvParams());
             searchEngines.addAll(searchEngineParams);
 
@@ -813,7 +797,6 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
 
     protected Protein loadProtein(uk.ac.ebi.pride.utilities.data.core.Protein msProtein, List<Peptide> peptides)  {
 
-
         DBSequence sequence = msProtein.getDbSequence();
 
         // create the protein object
@@ -836,10 +819,10 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
         // set protein species and taxid. We are not sure about the origin of the protein. So we keep this value as
         // null to avoid discrepancies
 
-        Map<Integer, Integer> totalPSM = new HashMap<Integer, Integer>();
-        Set<Integer> msRunForProtein = new HashSet<Integer>();
+        Map<Integer, Integer> totalPSM = new HashMap<>();
+        Set<Integer> msRunForProtein = new HashSet<>();
 
-        Set<SearchEngineParam> searchEngines = new HashSet<SearchEngineParam>();
+        Set<SearchEngineParam> searchEngines = new HashSet<>();
         List<SearchEngineParam> searchEngineParams;
 
         //TODO: Review
@@ -867,7 +850,6 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
             protein.addSearchEngineParam(searchEngineParam.getParam());
 
         //Scores for Proteins
-
 
         // set the modifications
         // is not necessary check by ambiguous modifications because they are not supported
@@ -918,13 +900,7 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
 
     private void loadModifications(PSM psm, PeptideEvidence peptideEvidence) {
 
-        //TODO simplify
-        Set<Modification> modifications = new TreeSet<Modification>(new Comparator<Modification>() {
-            @Override
-            public int compare(Modification o1, Modification o2) {
-                return o1.toString().compareToIgnoreCase(o2.toString());
-            }
-        });
+        Set<Modification> modifications = new TreeSet<>((o1, o2) -> o1.toString().compareToIgnoreCase(o2.toString()));
 
         for (uk.ac.ebi.pride.utilities.data.core.Modification ptm : peptideEvidence.getPeptideSequence().getModifications()) {
             // ignore modifications that can't be processed correctly (can not be mapped to the protein)
@@ -956,13 +932,7 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
 
     protected void loadModifications(Protein protein, List<uk.ac.ebi.pride.utilities.data.core.Peptide> items) {
 
-        //TODO simplify
-        Set<Modification> modifications = new TreeSet<Modification>(new Comparator<Modification>() {
-            @Override
-            public int compare(Modification o1, Modification o2) {
-                return o1.toString().compareToIgnoreCase(o2.toString());
-            }
-        });
+        Set<Modification> modifications = new TreeSet<>((o1, o2) -> o1.toString().compareToIgnoreCase(o2.toString()));
 
         for (uk.ac.ebi.pride.utilities.data.core.Peptide item : items) {
             PeptideEvidence peptideEvidence = null;
@@ -1097,5 +1067,4 @@ public class MzIdentMLMzTabConverter extends AbstractMzTabConverter {
         }
         return result;
     }
-
 }
