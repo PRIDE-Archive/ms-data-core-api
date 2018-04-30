@@ -11,6 +11,7 @@ import uk.ac.ebi.pride.utilities.data.core.CvParam;
 import uk.ac.ebi.pride.utilities.data.core.Person;
 import uk.ac.ebi.pride.utilities.data.core.Reference;
 import uk.ac.ebi.pride.utilities.data.core.SpectrumIdentification;
+import uk.ac.ebi.pride.utilities.data.utils.Constants;
 import uk.ac.ebi.pride.utilities.data.utils.CvUtilities;
 import uk.ac.ebi.pride.utilities.data.utils.MzTabUtils;
 import uk.ac.ebi.pride.utilities.pridemod.ModReader;
@@ -29,7 +30,7 @@ import static uk.ac.ebi.pride.utilities.data.utils.MzTabUtils.removeNewLineAndTa
 /**
  * ms-data-core api will plan to export all the data to mztab files using the jmzTab library.
  * At the very beginning we will support only the Identification exporter, but in the future we should be
- * able to support Quantitation export.
+ * able to support Quantification export.
  *
  * @author Yasset Perez-Riverol
  * @author Rui Wang
@@ -70,48 +71,23 @@ public abstract class AbstractMzTabConverter extends ConvertProvider<DataAccessC
 
         this.metadata = new Metadata();
 
-        /**
-         * It is a good practice to take the name of the file as the Ids because the writers never use proper IDs
-         * in the mzidentml files.
-         */
+         // It is a good practice to take the name of the file as the Ids because the writers never use proper IDs
+         // in the mzidentml files.
         String mzTabId = getFileNameWithoutExtension(source.getName());
         metadata.setMZTabID(mzTabId);
-
-        /**
-         *  Is really common that name of the mzidentml is not provided then we will use Ids if the name is not provided.
-         */
+        // Is really common that name of the mzidentml is not provided then we will use Ids if the name is not provided.
         String title = source.getExperimentMetaData().getName() != null? source.getExperimentMetaData().getName():source.getExperimentMetaData().getId().toString();
-
-        /**
-         * We need to remove the tab and other special characters for lines because they break the mzTab validator.
-         */
-
+        // We need to remove the tab and other special characters for lines because they break the mzTab validator.
         metadata.setTitle(removeNewLineAndTab(title));
 
-        //Get Software information from DataAccsessController
         loadSoftware();
-        // process the references
         loadReferences();
-        // process the contacts
         loadContacts();
-        // process the experiment params
         loadExperimentParams();
-        //process the sample processing information
         loadSampleProcessing();
-        // process the instrument information
         loadInstrument();
-
-        // process search engines. The information is in every identification, we assume that is going to be the same per
-        // protein and psm (constant number of scores in all the proteins and constant number of score per psm)
-        // They can not be added while processing proteins and psm identification because the initialization of the protein/psms
-        // need to know in advance all the columns for the factory, they can not grow dynamically inside (the values are
-        // not properly shifted)
         loadSearchEngineScores();
-
-        // set Ms Run
         loadMsRun();
-
-        // process samples
         loadSamples();
 
         // set mzTab- description
@@ -145,7 +121,7 @@ public abstract class AbstractMzTabConverter extends ConvertProvider<DataAccessC
     }
 
     /**
-     * Load software information
+     * Load software information from DataAccsessController
      */
     protected abstract void loadSoftware();
 
@@ -158,7 +134,7 @@ public abstract class AbstractMzTabConverter extends ConvertProvider<DataAccessC
         List<Reference> references = source.getExperimentMetaData().getReferences();
         int i = 1;
         for(Reference ref: references){
-            List<PublicationItem> items = new ArrayList<PublicationItem>();
+            List<PublicationItem> items = new ArrayList<>();
 
             //DOI
             String doi = ref.getDoi();
@@ -187,14 +163,12 @@ public abstract class AbstractMzTabConverter extends ConvertProvider<DataAccessC
         if (param == null || isEmpty(name)) {
             return null;
         }
-
         // this only makes sense if we have a list of params and an accession!
         for (CvParam p : param) {
             if (name.equalsIgnoreCase(p.getCvLookupID())) {   //At least in PRIDE XML the PubMed in the reference is in the CvLabel
                 return p.getAccession();
             }
         }
-
         return null;
     }
 
@@ -207,10 +181,7 @@ public abstract class AbstractMzTabConverter extends ConvertProvider<DataAccessC
         if (contactList == null || contactList.size() == 0) {
             return;
         }
-
-        String regexp = "[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-']+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})";
-
-        Pattern pattern = Pattern.compile(regexp);
+        Pattern pattern = Pattern.compile(Constants.MULTIPLE_EMAILS_PATTERN);
         Matcher matcher;
 
         // initialize the return variable
@@ -274,24 +245,25 @@ public abstract class AbstractMzTabConverter extends ConvertProvider<DataAccessC
      */
     protected abstract void loadInstrument();
 
-    /*
-     * Load Search Engines for from all proteins and psm.
-     *
-     * */
-    protected void loadSearchEngineScores(){
+  /**
+   * Load Search Engines for from all proteins and psm. The information is in every identification,
+   * we assume that is going to be the same per // protein and psm (constant number of scores in all
+   * the proteins and constant number of score per psm) // They can not be added while processing
+   * proteins and psm identification because the initialization of the protein/psms // need to know
+   * in advance all the columns for the factory, they can not grow dynamically inside (the values
+   * are // not properly shifted)
+   */
+  protected void loadSearchEngineScores() {
 
-        Map<SearchEngineScoreParam, Integer> psmScores = new HashMap<SearchEngineScoreParam, Integer>();
-        Map<SearchEngineScoreParam, Integer> proteinScores = new HashMap<SearchEngineScoreParam, Integer>();
-        proteinScoreToScoreIndex = new HashMap<String, Integer>();
-        psmScoreToScoreIndex = new HashMap<String, Integer>();
+        Map<SearchEngineScoreParam, Integer> psmScores = new HashMap<>();
+        Map<SearchEngineScoreParam, Integer> proteinScores = new HashMap<>();
+        proteinScoreToScoreIndex = new HashMap<>();
+        psmScoreToScoreIndex = new HashMap<>();
 
-        /**
-         * Look for all scores are protein level, PSM, and ProteinHypothesis, PeptideHypothesis. We should
-         * implement a way to keep track the order of Score in the mzTab related with the rank
-         */
-
+        // Look for all scores are protein level, PSM, and ProteinHypothesis, PeptideHypothesis. We should
+        // implement a way to keep track the order of Score in the mzTab related with the rank
         Collection<Comparable> proteinHypothesisIds = source.getProteinIds();
-        List<uk.ac.ebi.pride.utilities.data.core.Peptide> peptides = new ArrayList<uk.ac.ebi.pride.utilities.data.core.Peptide>();
+        List<uk.ac.ebi.pride.utilities.data.core.Peptide> peptides = new ArrayList<>();
         Iterator<Comparable> idProtein = proteinHypothesisIds.iterator();
         int iProtein =0;
         while(idProtein.hasNext()) {
@@ -302,7 +274,6 @@ public abstract class AbstractMzTabConverter extends ConvertProvider<DataAccessC
             for(SearchEngineScoreParam scoreCv: proteinParams){
                 proteinScores.put(scoreCv, iProtein);
             }
-
             iProtein++;
             peptides.addAll(protein.getPeptides());
         }
