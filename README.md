@@ -6,16 +6,6 @@ ms-data-core-api
 
 The primary purpose of ms-data-core-api library is to provide commonly used classes and Object Model for Proteomics Experiments. You may also find it useful for your own computational proteomics projects.
 
-# How to cite it:
-
- * Perez-Riverol Y, Uszkoreit J, Sanchez A, Ternent T, Del Toro N, Hermjakob H, Vizcaíno JA, Wang R. (2015). ms-data-core-api: An open-source, metadata-oriented library for computational proteomics. Bioinformatics. 2015 Apr 24. [PDF File](http://www.ncbi.nlm.nih.gov/pubmed/25910694) [Pubmed Record](http://www.ncbi.nlm.nih.gov/pubmed/25910694)
-
-
-# License
-
-ms-data-core-api is a PRIDE API licensed under [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt).
-
-
 # Main Features
 * Common Object Model for different proteomics experiments, with classes to represent proteins, peptides, psms, psectrums 
 * DataAccessControllers for mzTab, mzIdentML, PRIDE XML, PRIDE Database, mzML, mzXML, mgf, pkl, apl, ms2, dta files
@@ -56,17 +46,6 @@ PRIDE Utilities library can be used in Maven projects, you can include the follo
 Note: you need to change the version number to the latest version.
 
 For developers, the latest source code is available from our SVN repository.
-
-# Getting Help
-
-If you have questions or need additional help, please contact the PRIDE Helpdesk at the EBI: pride-support at ebi.ac.uk (replace at with @).
-
-Please send us your feedback, including error reports, improvement suggestions, new feature requests and any other things you might want to suggest to the PRIDE team.
-
-# This library has been used in:
-
-* Wang, R., Fabregat, A., Ríos, D., Ovelleiro, D., Foster, J. M., Côté, R. G., ... & Vizcaíno, J. A. (2012). PRIDE Inspector: a tool to visualize and validate MS proteomics data. Nature biotechnology, 30(2), 135-137. [PDF File](http://www.nature.com/nbt/journal/v30/n2/pdf/nbt.2112.pdf), [Pubmed Record](http://www.ncbi.nlm.nih.gov/pubmed/22318026)
-* Vizcaíno, J. A., Côté, R. G., Csordas, A., Dianes, J. A., Fabregat, A., Foster, J. M., ... & Hermjakob, H. (2013). The PRoteomics IDEntifications (PRIDE) database and associated tools: status in 2013. Nucleic acids research, 41(D1), D1063-D1069. [PRIDE-Archive](http://www.ebi.ac.uk/pride/archive/)
 
 How to use ms-data-core-api
 ===============
@@ -122,5 +101,118 @@ PrideXmlControllerImpl prideXMLController = new PrideXmlControllerImpl(inputFile
 List<Sample> samples = prideXMLController.getSamples();
 System.out.println(samples.size());
 ```
+
+
+### Using tools in ms-data-core-api:
+
+#### File format conversion
+
+Convert from mzIdentML to mzTab
+```java
+java -jar ms-data-core-api<version>.jar -c -mzid <input.mzid> -outputfile <output.mztab>
+```
+
+Convert from PRIDE XML to mzTab
+```java
+java -jar ms-data-core-api<version>.jar -c -pridexml <pride.xml> -outputformat <output.mztab>
+```
+
+Convert from annotated mzTab to (sorted, filtered*) proBed
+```java
+java -jar ms-data-core-api<version>.jar -c -mztab <input.mztab> -chromsizes <chrom.txt> -outputformat probed
+```
+
+Convert from annotated mzIdentML to (sorted, filtered*) proBed
+```java
+java -jar ms-data-core-api<version>.jar -c -mzid <input.mztab> -chromsizes <chrom.txt> -outputformat probed
+```
+
+Convert from (sorted, filtered*) proBed to bigBed
+```java
+java -jar ms-data-core-api<version>.jar -c -mztab <input.pro.bed> -chromsizes <chrom.txt> -asqlfile <aSQL.as> -bigbedconverter <bedToBigBed>
+```
+
+#### File Validation
+
+MzIdentML validation
+```java
+java -jar ms-data-core-api<version>.jar -v -mzid <sample.mzid> -peak <spectra.mgf> -skipserialization -reportfile <outputReport.txt>
+```
+
+MzTab validation
+```java
+java -jar ms-data-core-api<version>.jar -v -mztab <input.mztab> -peaks <spectra1.mgf>##<spectra2.mgf> -skipserialization -reportfile <outputReport.txt>
+```
+
+PRIDE XML validation
+```java
+java -jar ms-data-core-api<version>.jar -v -pridexml <input.pride.xml> -skipserialization -reportfile <outputReport.txt>
+```
+
+#### XML schema validation
+
+MzIdentML schema validation and normal validation
+```java
+java -jar ms-data-core-api<version>.jar -v -mzid <input.mzid> -peak <spectra.mgf> -scehma -skipserialization -reportfile <outputReport.txt>
+```
+
+PRIDE XML schema validation only, without normal validation
+```java
+java -jar ms-data-core-api<version>.jar -v -pridexml <input.pride.xml> -schemaonly -skipserialization -reportfile <outputReport.txt>
+```
+
+#### ProBed validation
+
+ProBed validation with the default schema
+```java
+java -jar ms-data-core-api<version>.jar -v -proBed <input.pro.bed> -reportfile <outputReport.txt>
+```
+
+ProBed validation with a custom schema
+```java
+java -jar ms-data-core-api<version>.jar -v -proBed -proBed <input.pro.bed> -asqlfile <input.as> -reportfile <outputReport.txt>
+```
+
+#### Miscellaneous
+
+Check Results Files
+```java
+java -jar ms-data-core-api<version>.jar -check -inputfile <inputfile>
+```
+
+Convert PRIDE or mzIdentML file to MzTab
+```java
+java -jar ms-data-core-api<version>.jar -convert -inputfile <inputfile> -format <format>
+```
+
+Print Error/Warn detail message based on code
+```java
+java -jar ms-data-core-api<version>.jar -error -code <code>
+```
+
+Help
+```java
+java -jar ms-data-core-api<version>.jar -h or --help 
+```
+
+# How to cite it:
+
+ * Perez-Riverol Y, Uszkoreit J, Sanchez A, Ternent T, Del Toro N, Hermjakob H, Vizcaíno JA, Wang R. (2015). ms-data-core-api: An open-source, metadata-oriented library for computational proteomics. Bioinformatics. 2015 Apr 24. [PDF File](http://www.ncbi.nlm.nih.gov/pubmed/25910694) [Pubmed Record](http://www.ncbi.nlm.nih.gov/pubmed/25910694)
+
+
+# This library has been used in:
+
+* Wang, R., Fabregat, A., Ríos, D., Ovelleiro, D., Foster, J. M., Côté, R. G., ... & Vizcaíno, J. A. (2012). PRIDE Inspector: a tool to visualize and validate MS proteomics data. Nature biotechnology, 30(2), 135-137. [PDF File](http://www.nature.com/nbt/journal/v30/n2/pdf/nbt.2112.pdf), [Pubmed Record](http://www.ncbi.nlm.nih.gov/pubmed/22318026)
+* Vizcaíno, J. A., Côté, R. G., Csordas, A., Dianes, J. A., Fabregat, A., Foster, J. M., ... & Hermjakob, H. (2013). The PRoteomics IDEntifications (PRIDE) database and associated tools: status in 2013. Nucleic acids research, 41(D1), D1063-D1069. [PRIDE-Archive](http://www.ebi.ac.uk/pride/archive/)
+
+# Getting Help
+
+If you have questions or need additional help, please contact the PRIDE Helpdesk at the EBI: pride-support at ebi.ac.uk (replace at with @).
+
+Please send us your feedback, including error reports, improvement suggestions, new feature requests and any other things you might want to suggest to the PRIDE team.
+
+# License
+
+ms-data-core-api is a PRIDE API licensed under [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0.txt).
 
 
