@@ -75,6 +75,42 @@ public class PGConverterTest {
     PGConverter.main(args);
   }
 
+
+
+  /**
+   * This test validates one example mzIdentML file which is related to a single peak .mgf file
+   * with FastMzIdentMLValidation approach (instead of random access file by xxindex)
+   *
+   * @throws Exception if there are problems opening the example file.
+   */
+  @Test
+  public void testMzidFastValidator() throws Exception {
+    URL url = ConverterTest.class.getClassLoader().getResource("small.mzid");
+    if (url == null) {
+      throw new IllegalStateException("no file for input found!");
+    }
+    File inputMzidFile = new File(url.toURI());
+    url = ConverterTest.class.getClassLoader().getResource("small.mgf");
+    if (url == null) {
+      throw new IllegalStateException("no file for input found!");
+    }
+    File inputMgfFile = new File(url.toURI());
+    File reportFile = File.createTempFile("testMzid", ".log");
+    String[] args =
+            new String[] {
+                    "-" + ARG_VALIDATION,
+                    "-" + ARG_MZID,
+                    inputMzidFile.getPath(),
+                    "-" + ARG_PEAK,
+                    inputMgfFile.getPath(),
+                    "-" + ARG_SKIP_SERIALIZATION,
+                    "-" + ARG_FAST_VALIDATION,
+                    "-" + ARG_REPORTFILE,
+                    reportFile.getPath()
+            };
+    PGConverter.main(args);
+  }
+
   /**
    * Check the validity of the mzTab file
    *
