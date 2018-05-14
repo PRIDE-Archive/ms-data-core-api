@@ -51,17 +51,18 @@ public class Validator extends FileCompression {
    *
    * @param cmd command line arguments.
    */
-  public static void startValidation(CommandLine cmd) {
+  public static Report startValidation(CommandLine cmd) {
     if (cmd.hasOption(ARG_MZID)) {
-      validateMzIdentML(cmd);
+      return validateMzIdentML(cmd);
     } else if (cmd.hasOption(ARG_PRIDEXML)) {
-      validatePrideXML(cmd);
+      return validatePrideXML(cmd);
     } else if (cmd.hasOption(ARG_MZTAB)) {
-      validateMzTab(cmd);
+      return validateMzTab(cmd);
     } else if (cmd.hasOption(ARG_PROBED)) {
-      validateProBed(cmd);
+      return validateProBed(cmd);
     } else {
       log.error("Unable to validate unknown input file type");
+      return null;
     }
   }
 
@@ -70,7 +71,7 @@ public class Validator extends FileCompression {
    *
    * @param cmd the command line arguments.
    */
-  private static void validateMzIdentML(CommandLine cmd) {
+  private static Report validateMzIdentML(CommandLine cmd) {
     File file = new File(cmd.getOptionValue(ARG_MZID));
     List<File> filesToValidate = FileHandler.getFilesToValidate(file);
     File mzid = filesToValidate.get(0);
@@ -108,9 +109,10 @@ public class Validator extends FileCompression {
       report.setStatus(message);
     }
     outputReport(assayFileSummary, report, outputFile, cmd.hasOption(ARG_SKIP_SERIALIZATION));
+    return report;
   }
 
-  private static void validatePrideXML(CommandLine cmd) {
+  private static Report validatePrideXML(CommandLine cmd) {
     List<File> filesToValidate = new ArrayList<>();
     File file = new File(cmd.getOptionValue(ARG_PRIDEXML));
     if (file.isDirectory()) {
@@ -152,6 +154,7 @@ public class Validator extends FileCompression {
       report.setStatus(message);
     }
     outputReport(assayFileSummary, report, outputFile, cmd.hasOption(ARG_SKIP_SERIALIZATION));
+    return report;
   }
 
   /**
@@ -159,7 +162,7 @@ public class Validator extends FileCompression {
    *
    * @param cmd the command line arguments.
    */
-  private static void validateMzTab(CommandLine cmd) {
+  private static Report validateMzTab(CommandLine cmd) {
     File file = new File(cmd.getOptionValue(ARG_MZTAB));
     List<File> filesToValidate = FileHandler.getFilesToValidate(file);
     List<File> peakFiles = FileHandler.getPeakFiles(cmd);
@@ -177,6 +180,7 @@ public class Validator extends FileCompression {
     }
     File outputFile = cmd.hasOption(ARG_REPORTFILE) ? new File(cmd.getOptionValue(ARG_REPORTFILE)) : null;
     outputReport(assayFileSummary, report, outputFile, cmd.hasOption(ARG_SKIP_SERIALIZATION));
+    return report;
   }
 
   /**
@@ -595,7 +599,7 @@ public class Validator extends FileCompression {
    * @param columnFormat the BED column format, e.g the default BED12+13.
    * @param reportFile   the file to save the output to.
    */
-  private static void validateProBed(File proBed, String columnFormat, File reportFile, File asqlFile) {
+  private static Report validateProBed(File proBed, String columnFormat, File reportFile, File asqlFile) {
     log.info("Validation proBed file: " + proBed.getPath() + " using column format: " + columnFormat);
     Report report = new Report();
     report.setFileName(proBed.getPath());
@@ -625,6 +629,7 @@ public class Validator extends FileCompression {
         writeProbedReport(report, reportFile);
       }
     }
+    return report;
   }
 
   /**
@@ -801,7 +806,7 @@ public class Validator extends FileCompression {
    *
    * @param cmd command line arguments.
    */
-  private static void validateProBed(CommandLine cmd) {
+  private static Report validateProBed(CommandLine cmd) {
     File proBed = new File(cmd.getOptionValue(ARG_PROBED));
     String COLUMN_FORMAT = cmd.hasOption(ARG_BED_COLUMN_FORMAT) ? cmd.getOptionValue(ARG_BED_COLUMN_FORMAT) : "BED12+13";
     File REPORT_FILE = cmd.hasOption(ARG_REPORTFILE) ? new File(cmd.getOptionValue(ARG_REPORTFILE)) : null;
@@ -823,7 +828,7 @@ public class Validator extends FileCompression {
         }
       }
     }
-    validateProBed(proBed, COLUMN_FORMAT, REPORT_FILE, ASQL_FILE);
+    return validateProBed(proBed, COLUMN_FORMAT, REPORT_FILE, ASQL_FILE);
   }
 
   /**
