@@ -84,19 +84,26 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
     eg:  <SpectraData location="file:///Carbamoyl-phosphate synthase small chain-47029-41-G2-4-biotools.mgf" id="SD_1"></SpectraData> */
     Map<Comparable, SpectraData> spectraDataMap = unmarshaller.getSpectraDataMap();
     List<SpectrumIdentificationList> spectrumIdentificationLists =
-            unmarshaller.getSpectrumIdentificationList();
+        unmarshaller.getSpectrumIdentificationList();
     for (SpectrumIdentificationList spectrumIdentificationList : spectrumIdentificationLists) {
       // eg: <SpectrumIdentificationResult id="SIR_12" spectrumID="index=35"
       // spectraData_ref="SD_1">...</SpectrumIdentificationResult>
-      for (SpectrumIdentificationResult spectrumIdentificationResult : spectrumIdentificationList.getSpectrumIdentificationResult()) {
+      for (SpectrumIdentificationResult spectrumIdentificationResult :
+          spectrumIdentificationList.getSpectrumIdentificationResult()) {
         numberOfIdentifiedSpectra++;
-        String spectrumDataRef = spectrumIdentificationResult.getSpectraDataRef(); // eg: spectraData_ref="SD_1"
-        String spectrumID = spectrumIdentificationResult.getSpectrumID(); // eg: spectrumID="index=35"
+        String spectrumDataRef =
+            spectrumIdentificationResult.getSpectraDataRef(); // eg: spectraData_ref="SD_1"
+        String spectrumID =
+            spectrumIdentificationResult.getSpectrumID(); // eg: spectrumID="index=35"
 
-        SpectraData spectraData = spectraDataMap.get(spectrumDataRef); // eg: mgf file location, file format etc
-        String formattedSpectrumID = MzIdentMLUtils.getSpectrumId(spectraData, spectrumID); // eg: 35
+        SpectraData spectraData =
+            spectraDataMap.get(spectrumDataRef); // eg: mgf file location, file format etc
+        String formattedSpectrumID =
+            MzIdentMLUtils.getSpectrumId(spectraData, spectrumID); // eg: 35
         spectrumIdentificationResult.setFormattedSpectrumID(formattedSpectrumID);
-        SpectrumIdentResultsGroupedBySpectraIDs.computeIfAbsent(spectrumDataRef, value -> new ArrayList<>()).add(spectrumIdentificationResult);
+        SpectrumIdentResultsGroupedBySpectraIDs.computeIfAbsent(
+                spectrumDataRef, value -> new ArrayList<>())
+            .add(spectrumIdentificationResult);
         // check the spectra referenced in the mzIdentML also available in the peak files
         dataAccessController = msDataAccessControllers.get(spectrumDataRef);
         if (!isSpectraInPeakFile(dataAccessController, formattedSpectrumID)) {
@@ -126,8 +133,8 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
   }
 
   /**
-   * Get the total number of Peptide Sequences identified in the MzIdentML. In other words,
-   * it counts how many <Peptide> elements are there in the MzIdentML file
+   * Get the total number of Peptide Sequences identified in the MzIdentML. In other words, it
+   * counts how many <Peptide> elements are there in the MzIdentML file
    *
    * @return Number of Peptides
    */
@@ -137,8 +144,8 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
   }
 
   /**
-   * Get PeptidoForms. PeptidoForms are different peptide forms that a peptide can have due to various modifications.
-   * and various position(s) of the modification(s).
+   * Get PeptidoForms. PeptidoForms are different peptide forms that a peptide can have due to
+   * various modifications. and various position(s) of the modification(s).
    *
    * @return Number of PeptidoForms
    */
@@ -146,9 +153,8 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
     return unmarshaller.getNumberOfPeptidoForms();
   }
 
-
   /**
-   * Get the total number of unique Peptides  identified in the MzIdentML.
+   * Get the total number of unique Peptides identified in the MzIdentML.
    *
    * @return Number of Peptides
    */
@@ -226,9 +232,9 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
   @Override
   public List<uk.ac.ebi.pride.utilities.data.core.SpectraData> getSpectraDataFiles() {
     List<Comparable> basedOnTitle = new ArrayList<>();
-    if (isSpectrumBasedOnTitle())
-      basedOnTitle = getSpectraDataBasedOnTitle();
-    return LightModelsTransformer.transformToSpectraData(unmarshaller.getSpectraData(), basedOnTitle);
+    if (isSpectrumBasedOnTitle()) basedOnTitle = getSpectraDataBasedOnTitle();
+    return LightModelsTransformer.transformToSpectraData(
+        unmarshaller.getSpectraData(), basedOnTitle);
   }
 
   /**
@@ -257,7 +263,7 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
     ProteinDetectionHypothesis anchorPDH = null;
 
     for (ProteinDetectionHypothesis proteinDetectionHypothesis :
-            proteinAmbiguityGroup.getProteinDetectionHypothesis()) {
+        proteinAmbiguityGroup.getProteinDetectionHypothesis()) {
       for (CvParam cvParam : proteinDetectionHypothesis.getCvParam()) {
         if (cvParam.getAccession().equals(Constants.ANCHOR_PROTEIN)) {
           anchorPDH = proteinDetectionHypothesis;
@@ -275,7 +281,7 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
    * @param numberOfChecks non negative integer
    * @param deltaThreshold double value
    * @return boolean value. If the delta mass error rate within the threshold, it returns true,
-   * otherwise false
+   *     otherwise false
    */
   public double getSampleDeltaMzErrorRate(final int numberOfChecks, final Double deltaThreshold) {
     if (numberOfChecks > 0) {
@@ -283,13 +289,18 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
       int errorPSMCount = 0;
 
       for (SpectrumIdentificationItem SpectrumIdentificationItem : PSMList) {
-        log.debug("SpectrumIdentificationItem  - " + SpectrumIdentificationItem.getId() + "has been selected for random checkup");
+        log.debug(
+            "SpectrumIdentificationItem  - "
+                + SpectrumIdentificationItem.getId()
+                + "has been selected for random checkup");
         Boolean result = checkDeltaMassThreshold(SpectrumIdentificationItem, deltaThreshold);
         if (!result) errorPSMCount++;
       }
-      //TODO: Format it to 4 or 6 decimal places
+      // TODO: Format it to 4 or 6 decimal places
       deltaMzErrorRate =
-              new BigDecimal(((double) errorPSMCount / numberOfChecks)).setScale(4, RoundingMode.HALF_UP).doubleValue();
+          new BigDecimal(((double) errorPSMCount / numberOfChecks))
+              .setScale(4, RoundingMode.HALF_UP)
+              .doubleValue();
     }
     return deltaMzErrorRate;
   }
@@ -310,17 +321,22 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
 
     while (selectedPSMs.size() < numberOfChecks) {
       for (Map.Entry PSMList : SpectrumIdentResultsGroupedBySpectraIDs.entrySet()) {
-        List<SpectrumIdentificationResult> psms = (List<SpectrumIdentificationResult>) PSMList.getValue();
+        List<SpectrumIdentificationResult> psms =
+            (List<SpectrumIdentificationResult>) PSMList.getValue();
         if (psms != null && !psms.isEmpty()) {
-          SpectrumIdentificationResult SpectrumIdentificationResult = psms.get(random.nextInt(psms.size()));
-          SpectrumIdentificationItem psm = SpectrumIdentificationResult.getSpectrumIdentificationItem().get(0);
+          SpectrumIdentificationResult SpectrumIdentificationResult =
+              psms.get(random.nextInt(psms.size()));
+          SpectrumIdentificationItem psm =
+              SpectrumIdentificationResult.getSpectrumIdentificationItem().get(0);
           psm.setFormattedSpectrumID(SpectrumIdentificationResult.getFormattedSpectrumID());
           selectedPSMs.add(psm);
         }
       }
       if (selectedPSMs.size() >= numberOfIdentifiedSpectra) {
-        log.warn("Number of checks specified is higher than the number of PSMs! Only "
-                + numberOfIdentifiedSpectra + " will be performed!");
+        log.warn(
+            "Number of checks specified is higher than the number of PSMs! Only "
+                + numberOfIdentifiedSpectra
+                + " will be performed!");
         break;
       }
     }
@@ -332,10 +348,11 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
    * modifications are also included for the calculations.
    *
    * @param spectrumIdentItem SpectrumIdentificationItem object from mzIdentML
-   * @param deltaThreshold    Non-negative Double value(eg: 4.0)
+   * @param deltaThreshold Non-negative Double value(eg: 4.0)
    * @return boolean
    */
-  private boolean checkDeltaMassThreshold(SpectrumIdentificationItem spectrumIdentItem, Double deltaThreshold) {
+  private boolean checkDeltaMassThreshold(
+      SpectrumIdentificationItem spectrumIdentItem, Double deltaThreshold) {
     boolean isDeltaMassThresholdPassed = true;
     Integer charge = spectrumIdentItem.getChargeState();
     double mz = spectrumIdentItem.getExperimentalMassToCharge();
@@ -344,7 +361,8 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
     if (peptide != null) {
       List<Double> ptmMasses = unmarshaller.getPTMMassesFromPeptide(peptide);
       if (mz == -1) {
-        Spectrum spectrum = dataAccessController.getSpectrumById(spectrumIdentItem.getFormattedSpectrumID());
+        Spectrum spectrum =
+            dataAccessController.getSpectrumById(spectrumIdentItem.getFormattedSpectrumID());
         if (spectrum != null) {
           // TODO: cover this part in the unit test
           charge = dataAccessController.getSpectrumPrecursorCharge(spectrum.getId());
@@ -360,7 +378,7 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
         isDeltaMassThresholdPassed = false;
       } else {
         Double deltaMass =
-                MoleculeUtilities.calculateDeltaMz(peptide.getPeptideSequence(), mz, charge, ptmMasses);
+            MoleculeUtilities.calculateDeltaMz(peptide.getPeptideSequence(), mz, charge, ptmMasses);
         if (deltaMass == null || Math.abs(deltaMass) > deltaThreshold) {
           isDeltaMassThresholdPassed = false;
         }
@@ -377,10 +395,11 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
    * will be collected to the assayFileValidationSummary.
    *
    * @param dataAccessController DataAccessController
-   * @param formattedSpectrumID  SpectrumID formatted based on the peak list file type
+   * @param formattedSpectrumID SpectrumID formatted based on the peak list file type
    * @return boolean value, false - if spectra cannot be found in the peak file
    */
-  private boolean isSpectraInPeakFile(DataAccessController dataAccessController, String formattedSpectrumID) {
+  private boolean isSpectraInPeakFile(
+      DataAccessController dataAccessController, String formattedSpectrumID) {
     boolean spectraFound = true;
     if (dataAccessController != null) {
       spectraFound = dataAccessController.getSpectrumIds().contains(formattedSpectrumID);
@@ -460,12 +479,17 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
    * @return List<Organization> A List of Organizations
    */
   public List<Organization> getOrganizationContacts() {
-    List<Organization> organizations;
+    List<Organization> organizations = null;
     ExperimentMetaData metaData = super.getExperimentMetaData();
 
     if (metaData == null) {
       try {
-        organizations = LightModelsTransformer.transformToOrganization(unmarshaller.getOrganizationContacts());
+        if (unmarshaller.getOrganizationContacts() != null
+            && unmarshaller.getOrganizationContacts().size() != 0) {
+          organizations =
+              LightModelsTransformer.transformToOrganization(
+                  unmarshaller.getOrganizationContacts());
+        }
       } catch (Exception ex) {
         throw new DataAccessException("Failed to retrieve organization contacts", ex);
       }
@@ -482,12 +506,15 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
    * @return List<Person> A list of Persons
    */
   public List<Person> getPersonContacts() {
-    List<Person> personList;
+    List<Person> personList = null;
     ExperimentMetaData metaData = super.getExperimentMetaData();
 
     if (metaData == null) {
       try {
-        personList = LightModelsTransformer.transformToPerson(unmarshaller.getPersonContacts());
+        if (unmarshaller.getPersonContacts() != null
+            && unmarshaller.getPersonContacts().size() != 0) {
+          personList = LightModelsTransformer.transformToPerson(unmarshaller.getPersonContacts());
+        }
       } catch (Exception ex) {
         throw new DataAccessException("Failed to retrieve person contacts", ex);
       }
@@ -503,12 +530,14 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
    * @return Provider - data provider
    */
   public Provider getProvider() {
-    Provider provider;
+    Provider provider = null;
     ExperimentMetaData metaData = super.getExperimentMetaData();
 
     if (metaData == null) {
       try {
-        provider = LightModelsTransformer.transformToProvider(unmarshaller.getProvider());
+        if (unmarshaller.getProvider() != null) {
+          provider = LightModelsTransformer.transformToProvider(unmarshaller.getProvider());
+        }
       } catch (Exception ex) {
         throw new DataAccessException("Failed to retrieve person contacts", ex);
       }
@@ -521,15 +550,17 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
   /**
    * Get a list of references
    *
-   * @return List<Reference>  a list of reference objects
+   * @return List<Reference> a list of reference objects
    */
   public List<Reference> getReferences() {
-    List<Reference> references;
+    List<Reference> references = null;
     ExperimentMetaData metaData = super.getExperimentMetaData();
 
     if (metaData == null) {
       try {
-        references = LightModelsTransformer.transformToReference(unmarshaller.getReferences());
+        if (unmarshaller.getReferences() != null) {
+          references = LightModelsTransformer.transformToReference(unmarshaller.getReferences());
+        }
       } catch (Exception ex) {
         throw new DataAccessException("Failed to retrieve references", ex);
       }
@@ -540,13 +571,12 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
   }
 
   /**
-   * Additional is a concept that comes from PRIDE XML Files. In the mzidentml
-   * all the concepts of the Additional comes inside different objects.
-   * This function construct an Additional Object a relation of
-   * creationDate, Original Spectra Data Files and finally the Original software
-   * that provide the MzIdentML file.
+   * Additional is a concept that comes from PRIDE XML Files. In the mzidentml all the concepts of
+   * the Additional comes inside different objects. This function construct an Additional Object a
+   * relation of creationDate, Original Spectra Data Files and finally the Original software that
+   * provide the MzIdentML file.
    *
-   * @return ParamGroup   a group of cv parameters and user parameters.
+   * @return ParamGroup a group of cv parameters and user parameters.
    */
   @Override
   public ParamGroup getAdditional() {
@@ -564,7 +594,9 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
       }
       List<uk.ac.ebi.pride.utilities.data.core.SpectraData> spectraDataList = getSpectraDataFiles();
 
-      if ((provider != null && provider.getSoftware() != null) || creationDate != null || !spectraDataList.isEmpty()) {
+      if ((provider != null && provider.getSoftware() != null)
+          || creationDate != null
+          || !spectraDataList.isEmpty()) {
         additional = new ParamGroup();
         // Get information from last software that provide the file
         if (provider != null && provider.getSoftware() != null)
@@ -574,14 +606,13 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
         if (creationDate != null) {
           additional.addCvParam(LightModelsTransformer.transformDateToCvParam(creationDate));
         }
-        //Get spectra information as additional
+        // Get spectra information as additional
         if (!spectraDataList.isEmpty()) {
           Set<uk.ac.ebi.pride.utilities.data.core.CvParam> cvParamList = new HashSet<>();
           for (uk.ac.ebi.pride.utilities.data.core.SpectraData spectraData : spectraDataList) {
             if (spectraData.getSpectrumIdFormat() != null)
               cvParamList.add(spectraData.getSpectrumIdFormat());
-            if (spectraData.getFileFormat() != null)
-              cvParamList.add(spectraData.getFileFormat());
+            if (spectraData.getFileFormat() != null) cvParamList.add(spectraData.getFileFormat());
           }
           List<uk.ac.ebi.pride.utilities.data.core.CvParam> list = new ArrayList<>(cvParamList);
           additional.addCvParams(list);
@@ -593,7 +624,6 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
     return additional;
   }
 
-
   /**
    * Get a list of samples
    *
@@ -601,12 +631,14 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
    */
   @Override
   public List<Sample> getSamples() {
-    List<Sample> samples;
+    List<Sample> samples = null;
     ExperimentMetaData metaData = super.getExperimentMetaData();
 
     if (metaData == null) {
       try {
-        samples = LightModelsTransformer.transformToSample(unmarshaller.getSampleList());
+        if (unmarshaller.getSampleList() != null && unmarshaller.getSampleList().size() != 0) {
+          samples = LightModelsTransformer.transformToSample(unmarshaller.getSampleList());
+        }
       } catch (Exception ex) {
         throw new DataAccessException("Failed to retrieve samples", ex);
       }
@@ -636,8 +668,11 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
    */
   public List<Enzyme> getEnzymes() {
 
-    List<Enzyme> enzymes = LightModelsTransformer.transformToEnzyme(unmarshaller.getEnzymes());
-    return  enzymes;
+    List<Enzyme> enzymes = null;
+    if (unmarshaller.getEnzymes() != null && unmarshaller.getEnzymes().size() != 0) {
+      enzymes = LightModelsTransformer.transformToEnzyme(unmarshaller.getEnzymes());
+    }
+    return enzymes;
   }
 
   /**
@@ -663,7 +698,7 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
         enzymeBuilder.append(" ");
       }
     }
-    if (enzymeBuilder.length() == 0) {//no enzyme name available
+    if (enzymeBuilder.length() == 0) { // no enzyme name available
       return "Information not available";
     }
     enzymeBuilder.deleteCharAt(enzymeBuilder.length() - 1);
@@ -671,9 +706,9 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
   }
 
   /**
-   * Extract the metadata of the MzIdentML file and make them available in the ExperimentMetaData object and
-   * save in the cache. This is also computationally expensive method, therefore before it extract data, it checks if
-   * the ExperimentMetaData object already available in the cache.
+   * Extract the metadata of the MzIdentML file and make them available in the ExperimentMetaData
+   * object and save in the cache. This is also computationally expensive method, therefore before
+   * it extract data, it checks if the ExperimentMetaData object already available in the cache.
    *
    * @return ExperimentMetaData
    */
@@ -697,10 +732,26 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
         List<Reference> references = getReferences();
         List<uk.ac.ebi.pride.utilities.data.core.SpectraData> spectraData = getSpectraDataFiles();
         List<Sample> samples = getSamples();
-        ParamGroup additional = getAdditional(); // Get Additional Information Related with the Project
-        metaData = new ExperimentMetaData(additional, accession, title, version, shortLabel, samples, software,
-                persons, sources, provider, organizations, references, creationDate,
-                null, protocol, spectraData);
+        ParamGroup additional =
+            getAdditional(); // Get Additional Information Related with the Project
+        metaData =
+            new ExperimentMetaData(
+                additional,
+                accession,
+                title,
+                version,
+                shortLabel,
+                samples,
+                software,
+                persons,
+                sources,
+                provider,
+                organizations,
+                references,
+                creationDate,
+                null,
+                protocol,
+                spectraData);
         // store it in the cache
         getCache().store(CacheEntry.EXPERIMENT_METADATA, metaData);
       } catch (Exception ex) {
@@ -711,8 +762,8 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
   }
 
   /**
-   * MzIdentML files will support in the future Spectra MetaData if is present
-   * PRIDE Objects, also by other file Formats.
+   * MzIdentML files will support in the future Spectra MetaData if is present PRIDE Objects, also
+   * by other file Formats.
    *
    * @return The metadata related with mz information
    */
@@ -722,8 +773,8 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
   }
 
   /**
-   * Returns false of mzIdentML object does not contains any protein ambiguity groups.
-   * This has been pre-calculated with the initiation of the class and it is available as a static variable
+   * Returns false of mzIdentML object does not contains any protein ambiguity groups. This has been
+   * pre-calculated with the initiation of the class and it is available as a static variable
    *
    * @return boolean value
    */
@@ -733,21 +784,24 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
   }
 
   /**
-   * Check of the mzIdentML object contains any protein ambiguity groups and set the value to a static variable
+   * Check of the mzIdentML object contains any protein ambiguity groups and set the value to a
+   * static variable
    */
   private void setHasProteinAmbiguityGroup() {
     AnalysisData analysisData = unmarshaller.getMzIdentML().getDataCollection().getAnalysisData();
-    hasProteinAmbiguityGroup = analysisData != null &&
-            analysisData.getProteinDetectionList() != null &&
-            analysisData.getProteinDetectionList().getProteinAmbiguityGroup() != null &&
-            analysisData.getProteinDetectionList().getProteinAmbiguityGroup().size() > 0;
+    hasProteinAmbiguityGroup =
+        analysisData != null
+            && analysisData.getProteinDetectionList() != null
+            && analysisData.getProteinDetectionList().getProteinAmbiguityGroup() != null
+            && analysisData.getProteinDetectionList().getProteinAmbiguityGroup().size() > 0;
   }
 
   /**
    * Get number of decoy proteins
+   *
    * @return Number of decoy proteins identified
    */
   public int getNumberOfDecoyProteins() {
-    return (int)unmarshaller.getNumberOfDecoyProteins();
+    return (int) unmarshaller.getNumberOfDecoyProteins();
   }
 }
