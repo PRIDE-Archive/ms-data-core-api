@@ -1,9 +1,7 @@
 package uk.ac.ebi.pride.utilities.data.controller.tools;
 
-import org.junit.Assert;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.net.URL;
@@ -16,8 +14,8 @@ import static uk.ac.ebi.pride.utilities.data.controller.tools.utils.Utility.*;
  *
  * @author Suresh Hewapathirana
  */
+@Slf4j
 public class PGConverterTest {
-  private static final Logger log = LoggerFactory.getLogger(PGConverterTest.class);
 
   /**
    * Test printing error code used in the API
@@ -70,6 +68,7 @@ public class PGConverterTest {
           "-" + ARG_PEAK,
           inputMgfFile.getPath(),
           "-" + ARG_SKIP_SERIALIZATION,
+//          "-" + ARG_SCHEMA_VALIDATION,
           "-" + ARG_REPORTFILE,
           reportFile.getPath()
         };
@@ -112,6 +111,27 @@ public class PGConverterTest {
           inputMzidFile.getPath(),
           "-" + ARG_FORMAT,
           "MZIDENTML"
+        };
+    PGConverter.main(args);
+  }
+
+  @Test
+  public void testPrideXMLValidator() throws Exception {
+    URL url = ConverterTest.class.getClassLoader().getResource("test-pride.xml");
+    if (url == null) {
+      throw new IllegalStateException("no file for input found!");
+    }
+
+    File inputPrideXMLFile = new File(url.toURI());
+    File reportFile = File.createTempFile("testpridexml", ".log");
+    String[] args =
+        new String[] {
+          "-" + ARG_VALIDATION,
+          "-" + ARG_PRIDEXML,
+          inputPrideXMLFile.getPath(),
+          "-" + ARG_SKIP_SERIALIZATION,
+          "-" + ARG_REPORTFILE,
+          reportFile.getPath()
         };
     PGConverter.main(args);
   }
