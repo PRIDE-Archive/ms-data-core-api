@@ -41,13 +41,10 @@ public class PeakControllerImplTest{
             if(spectrum != null)
                 System.out.println("Spectrum id: " + id + " Number of Peaks: " + spectrum.getMassIntensityMap().length);
         }
-
     }
 
     @After
     public void tearDown() throws Exception {
 
     }
-
-
 }

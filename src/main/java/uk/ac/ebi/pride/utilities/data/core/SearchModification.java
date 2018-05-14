@@ -8,7 +8,7 @@ import java.util.List;
 
 /**
  * Search Modification is the variable or fixed modification defined in the Identification Search
- * by the user. This modification is close related with the parameters of the Spectrum protocol
+ * by the user. This modification is destroy related with the parameters of the Spectrum protocol
  * Identification.
  * <p/>
  * <p/>

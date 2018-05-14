@@ -47,7 +47,7 @@ public abstract class AbstractDataAccessController implements DataAccessControll
     /**
      * the inferred protein groups, if they are not listed in the file but inferred by e.g. PIA
      * <p>
-     * the groups are rebuild by useing the mapping
+     * the groups are rebuild by using the mapping
      *    PAG_ID -> (Protein_ID -> [Peptide_IDs])
      * <p>
      * if the peptide_IDs-list is null, then all peptides are used of the protein (no filtering or all passed filtering)

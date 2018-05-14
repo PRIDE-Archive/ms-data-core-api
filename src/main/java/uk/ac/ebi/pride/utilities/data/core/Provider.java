@@ -87,6 +87,15 @@ public class Provider extends Identifiable {
         result = 31 * result + (software != null ? software.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "Provider{" +
+                "contact=" + contact +
+                ", role=" + role +
+                ", software=" + software +
+                '}';
+    }
 }
 
 
