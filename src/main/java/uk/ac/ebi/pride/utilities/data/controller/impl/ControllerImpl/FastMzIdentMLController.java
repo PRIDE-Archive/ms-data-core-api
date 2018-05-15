@@ -198,10 +198,10 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
    * Get list of Spectra Ids which have been referenced in the MzIdentML, but actually not available
    * in the Spectra/Peak list File
    *
-   * @return List of Spectra IDs
+   * @return List of UniquePTMs
    */
-  public Collection<CvParam> getIdentifiedUniquePTMs() {
-    return unmarshaller.getIdentifiedUniquePTMs();
+  public Set<CvParam> getIdentifiedUniquePTMs() {
+    return new HashSet<>(unmarshaller.getIdentifiedUniquePTMs());
   }
 
   /**
@@ -232,9 +232,10 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
   @Override
   public List<uk.ac.ebi.pride.utilities.data.core.SpectraData> getSpectraDataFiles() {
     List<Comparable> basedOnTitle = new ArrayList<>();
-    if (isSpectrumBasedOnTitle()) basedOnTitle = getSpectraDataBasedOnTitle();
-    return LightModelsTransformer.transformToSpectraData(
-        unmarshaller.getSpectraData(), basedOnTitle);
+    if (isSpectrumBasedOnTitle()){
+      basedOnTitle = getSpectraDataBasedOnTitle();
+    }
+    return LightModelsTransformer.transformToSpectraData(unmarshaller.getSpectraData(), basedOnTitle);
   }
 
   /**

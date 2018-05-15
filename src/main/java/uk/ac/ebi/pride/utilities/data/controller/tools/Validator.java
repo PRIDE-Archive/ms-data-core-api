@@ -3,6 +3,7 @@ package uk.ac.ebi.pride.utilities.data.controller.tools;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.ac.ebi.pride.archive.repo.assay.instrument.AnalyzerInstrumentComponent;
@@ -13,6 +14,7 @@ import uk.ac.ebi.pride.data.util.Constant;
 import uk.ac.ebi.pride.data.util.FileUtil;
 import uk.ac.ebi.pride.data.util.MassSpecFileFormat;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessController;
+import static uk.ac.ebi.pride.utilities.data.controller.impl.Transformer.LightModelsTransformer.*;
 import uk.ac.ebi.pride.utilities.data.controller.tools.io.FileCompression;
 import uk.ac.ebi.pride.utilities.data.controller.tools.io.FileHandler;
 import uk.ac.ebi.pride.utilities.data.controller.tools.utils.*;
@@ -553,7 +555,7 @@ public class Validator extends FileCompression {
       assayFileSummary.setNumberOfProteins(assayFileController.getNumberOfProteins());
       assayFileSummary.setNumberofMissingSpectra(assayFileController.getNumberOfMissingSpectra());
       assayFileSummary.setNumberOfSpectra(assayFileController.getNumberOfSpectra());
-      if (assayFileSummary.getNumberofMissingSpectra() < 1) {
+      if (assayFileSummary.getNumberofMissingSpectra() > 0) {
         validateProteinsAndPeptides(assayFile, assayFileSummary, assayFileController);
       } else {
         String message = "Missing spectra are present";
@@ -575,93 +577,66 @@ public class Validator extends FileCompression {
   }
 
   /**
-   * This method validates an input assay file.
+   * This method validates an input assay file. Based on isFastValidation flag, input files will get validated by one of the two approaches.
    *
    * @param assayFile the input assay file.
    * @return an array of objects[2]: a Report object and an AssayFileSummary, respectively.
    */
-  private static ValidationResult validateAssayFile(
-      File assayFile,
-      FileType type,
-      List<File> dataAccessControllerFiles,
-      boolean isFastValidation) {
-    File tempAssayFile = FileHandler.createNewTempFile(assayFile);
-    List<File> tempDataAccessControllerFiles = new ArrayList<>();
-    boolean badtempDataAccessControllerFiles =
-        FileHandler.createTempDataAccessControllerFiles(
-            dataAccessControllerFiles, tempDataAccessControllerFiles);
-    log.info("Validating assay file: " + assayFile.getAbsolutePath());
-    log.info("From temp file: " + tempAssayFile.getAbsolutePath());
-    AssayFileSummary assayFileSummary = new AssayFileSummary();
-    Report report = new Report();
-    try {
-      final ResultFileController assayFileController;
-      switch (type) {
-        case MZID:
-          if (isFastValidation) {
-            assayFileController = new FastMzIdentMLController(tempAssayFile);
-            ((FastMzIdentMLController) assayFileController).doSpectraValidation();
-            ((ReferencedIdentificationController) assayFileController)
-                .addMSController(
-                    badtempDataAccessControllerFiles
-                        ? dataAccessControllerFiles
-                        : tempDataAccessControllerFiles);
-          } else {
-            assayFileController = new MzIdentMLControllerImpl(tempAssayFile);
-            ((ReferencedIdentificationController) assayFileController)
-                .addMSController(
-                    badtempDataAccessControllerFiles
-                        ? dataAccessControllerFiles
-                        : tempDataAccessControllerFiles);
-          }
-          break;
-        case PRIDEXML:
-          assayFileController = new PrideXmlControllerImpl(tempAssayFile);
-          break;
-        case MZTAB:
-          assayFileController = new MzTabControllerImpl(tempAssayFile);
-          ((ReferencedIdentificationController) assayFileController)
-              .addMSController(
-                  badtempDataAccessControllerFiles
-                      ? dataAccessControllerFiles
-                      : tempDataAccessControllerFiles);
-          break;
-        default:
-          log.error("Unrecognized assay fle type: " + type);
-          assayFileController = new MzIdentMLControllerImpl(tempAssayFile);
-          break;
+  private static ValidationResult validateAssayFile(File assayFile, FileType type, List<File> dataAccessControllerFiles, boolean isFastValidation) {
+    if (isFastValidation) {
+      File tempAssayFile = FileHandler.createNewTempFile(assayFile);
+      List<File> tempDataAccessControllerFiles = new ArrayList<>();
+      boolean badtempDataAccessControllerFiles =
+          FileHandler.createTempDataAccessControllerFiles(
+              dataAccessControllerFiles, tempDataAccessControllerFiles);
+      AssayFileSummary assayFileSummary = new AssayFileSummary();
+      Report report = new Report();
+      final FastMzIdentMLController assayFileController;
+      log.info("Validating assay file: " + assayFile.getAbsolutePath());
+      log.info("From temp file: " + tempAssayFile.getAbsolutePath());
+
+      try {
+        if (type.equals(FileType.MZID)) {
+          assayFileController = new FastMzIdentMLController(tempAssayFile);
+          assayFileController.doSpectraValidation();
+          assayFileController.addMSController(badtempDataAccessControllerFiles ? dataAccessControllerFiles : tempDataAccessControllerFiles);
+        } else {
+          throw new NotImplementedException(
+              "No fast validation implementation for PRIDE XML or MzTAB");
+        }
+        report.setFileName(assayFile.getAbsolutePath());
+        assayFileSummary.setNumberOfIdentifiedSpectra(assayFileController.getNumberOfIdentifiedSpectra());
+        assayFileSummary.setNumberOfPeptides(assayFileController.getNumberOfPeptides());
+        assayFileSummary.setNumberOfProteins(assayFileController.getNumberOfProteins());
+        assayFileSummary.setNumberofMissingSpectra(assayFileController.getNumberOfMissingSpectra());
+        assayFileSummary.setNumberOfSpectra(assayFileController.getNumberOfSpectra());
+        assayFileSummary.setNumberOfUniquePeptides((assayFileController).getNumberOfUniquePeptides());
+        assayFileSummary.setDeltaMzErrorRate((assayFileController).getSampleDeltaMzErrorRate(10, 4.0));
+        assayFileSummary.addPtms(DataConversionUtil.convertAssayPTMs(transformToCvParam(assayFileController.getIdentifiedUniquePTMs())));
+        assayFileSummary.setSearchDatabase(assayFileController.getSearchDataBases().get(0).getName());
+        assayFileSummary.setExampleProteinAccession("Not Applicable");
+        assayFileSummary.setProteinGroupPresent(assayFileController.hasProteinAmbiguityGroup());
+        if (assayFileSummary.getNumberofMissingSpectra() > 0) {
+          String message = "Missing spectra are present";
+          log.error(message);
+          report.setStatusError(message);
+        }
+        scanForGeneralMetadata(assayFileController, assayFileSummary);
+        scanForInstrument(assayFileController, assayFileSummary);
+        scanForSoftware(assayFileController, assayFileSummary);
+        if (StringUtils.isEmpty(report.getStatus())) {
+          report.setStatusOK();
+        }
+      } catch (NullPointerException e) {
+        log.error("Null pointer Exception when scanning assay file", e);
+        report.setStatusError(e.getMessage());
+      } finally {
+        FileHandler.deleteAllTempFiles(tempAssayFile, tempDataAccessControllerFiles);
       }
-      if (isFastValidation) {
-        double detlaMass = ((FastMzIdentMLController) assayFileController).getSampleDeltaMzErrorRate(10, 4.0);
-        assayFileSummary.setDeltaMzErrorRate(detlaMass);
-      }else{
-        checkSampleDeltaMzErrorRate(assayFileSummary, assayFileController);
-      }
-      report.setFileName(assayFile.getAbsolutePath());
-      assayFileSummary.setNumberOfIdentifiedSpectra(assayFileController.getNumberOfIdentifiedSpectra());
-      assayFileSummary.setNumberOfPeptides(assayFileController.getNumberOfPeptides());
-      assayFileSummary.setNumberOfProteins(assayFileController.getNumberOfProteins());
-      assayFileSummary.setNumberofMissingSpectra(assayFileController.getNumberOfMissingSpectra());
-      assayFileSummary.setNumberOfSpectra(assayFileController.getNumberOfSpectra());
-      if (assayFileSummary.getNumberofMissingSpectra() < 1) {
-        validateProteinsAndPeptides(assayFile, assayFileSummary, assayFileController);
-      } else {
-        String message = "Missing spectra are present";
-        log.error(message);
-        report.setStatusError(message);
-      }
-      scanExtraMetadataDetails(
-          type, dataAccessControllerFiles, assayFileSummary, assayFileController);
-      if (StringUtils.isEmpty(report.getStatus())) {
-        report.setStatusOK();
-      }
-    } catch (NullPointerException e) {
-      log.error("Null pointer Exception when scanning assay file", e);
-      report.setStatusError(e.getMessage());
-    } finally {
-      FileHandler.deleteAllTempFiles(tempAssayFile, tempDataAccessControllerFiles);
+      return new ValidationResult(assayFileSummary, report);
+    } else {
+      return validateAssayFile(assayFile, type, dataAccessControllerFiles);
     }
-    return new ValidationResult(assayFileSummary, report);
   }
 
   /**
@@ -1377,7 +1352,7 @@ public class Validator extends FileCompression {
         result =
             validProbedFieldString(
                 value); // needs to be validated in relation to the 'blockcount' field's value,
-                        // handled elsewhere
+        // handled elsewhere
         break;
       case DOUBLE:
         result = validProbedFieldDouble(value);

@@ -131,6 +131,30 @@ public class LightModelsTransformer {
     return cvParams;
   }
 
+
+  /**
+   * This method converts set of CvParams from uk.ac.ebi.pride.utilities.data.lightModel.CvParam to
+   * uk.ac.ebi.pride.utilities.data.core.CvParam object
+   *
+   * @param cvParamsLight Set of uk.ac.ebi.pride.utilities.data.lightModel.CvParam objects
+   * @return Set of uk.ac.ebi.pride.utilities.data.core.CvParam objects
+   */
+  public static Set<CvParam> transformToCvParam(Set<uk.ac.ebi.pride.utilities.data.lightModel.CvParam> cvParamsLight) {
+    Set<CvParam> cvParams = new HashSet<>();
+    try {
+      if (cvParamsLight != null && cvParamsLight.size() != 0) {
+        for (uk.ac.ebi.pride.utilities.data.lightModel.CvParam cvParamLight : cvParamsLight) {
+          cvParams.add(transformToCvParam(cvParamLight));
+        }
+      }
+    } catch (Exception ex) {
+      log.error(
+              "Error occurred while converting uk.ac.ebi.pride.utilities.data.lightModel.CvParam "
+                      + "to uk.ac.ebi.pride.utilities.data.core.CvParam");
+    }
+    return cvParams;
+  }
+
   /**
    * This method converts uk.ac.ebi.pride.utilities.data.lightModel.CvParam object to
    * uk.ac.ebi.pride.utilities.data.core.CvParam object

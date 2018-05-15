@@ -49,12 +49,12 @@ public class PGConverterTest {
    */
   @Test
   public void testMzidValidator() throws Exception {
-    URL url = ConverterTest.class.getClassLoader().getResource("test.mzid");
+    URL url = ConverterTest.class.getClassLoader().getResource("small.mzid");
     if (url == null) {
       throw new IllegalStateException("no file for input found!");
     }
     File inputMzidFile = new File(url.toURI());
-    url = ConverterTest.class.getClassLoader().getResource("test.mgf");
+    url = ConverterTest.class.getClassLoader().getResource("small.mgf");
     if (url == null) {
       throw new IllegalStateException("no file for input found!");
     }

@@ -10,6 +10,7 @@ import uk.ac.ebi.pride.utilities.data.core.*;
 import java.io.File;
 import java.net.URL;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -82,7 +83,7 @@ public class FastMzIdentMLControllerTest {
   public void scanMetadata() {
     scanForGeneralMetadata(fastMzIdentMLController);
     scanForSoftware(fastMzIdentMLController);
-    scanForSearchDetails(fastMzIdentMLController);
+    scanForSearchDatabases();
   }
 
   /** Test Number of Identified proteins */
@@ -258,11 +259,11 @@ public class FastMzIdentMLControllerTest {
     log.info("Sources           : " + experimentMetaData.getSourceFiles().toString());
     log.info("Software          : " + experimentMetaData.getSoftwares().toString());
     log.info("Contact Person    : " + experimentMetaData.getPersons().toString());
-    log.info("Organizations     : " + experimentMetaData.getOrganizations().toString());
+    log.info("Organization     : " + experimentMetaData.getOrganizations().toString());
     log.info("Provider          : " + experimentMetaData.getProvider().toString());
     log.info("CreationDate      : " + experimentMetaData.getCreationDate().toString());
     log.info("References        : " + experimentMetaData.getReferences().toString());
-    log.info("SpectraData       : " + experimentMetaData.getSpectraDatas().toString());
+    log.info("SpectraData       : " + experimentMetaData.getSpectraDatas().stream().map(spectraData -> spectraData.getLocation()).collect(Collectors.joining()));
     log.info("Samples           : " + experimentMetaData.getSamples());
     log.info("Enzymes           : " + fastMzIdentMLController.getFormattedEnzymes());
     log.info("Additional        : " + experimentMetaData.getAdditional().toString());
@@ -280,21 +281,13 @@ public class FastMzIdentMLControllerTest {
   }
 
   /**
-   * Text Search Details
+   * Get Search databases
    *
-   * @param dataAccessController FastMzIdentMLController type object
    */
-  private void scanForSearchDetails(DataAccessController dataAccessController) {
-    Collection<Comparable> proteinIds = dataAccessController.getProteinIds();
-    if (proteinIds != null && !proteinIds.isEmpty()) {
-      Comparable firstProteinId = proteinIds.iterator().next();
-      String accession = dataAccessController.getProteinAccession(firstProteinId);
-      log.info("First Protein: " + accession);
-      SearchDataBase searchDatabase = dataAccessController.getSearchDatabase(firstProteinId);
-      if (searchDatabase != null) {
-        log.info("Search Database: " + searchDatabase.getName());
-      }
-    }
+  private void scanForSearchDatabases() {
+
+    List<SearchDataBase> searchDataBases = fastMzIdentMLController.getSearchDataBases();
+    log.info("Search Database   : " + searchDataBases.stream().map(searchDataBase -> searchDataBase.getName()).collect(Collectors.joining()));
   }
 
   /** clear the MzIdentML object which holds all the data in memory */
