@@ -389,12 +389,14 @@ public final class DataConversionUtil {
                 //affiliations
                 StringBuilder sb = new StringBuilder();
                 for (Organization org : person.getAffiliation()) {
+                  if (org != null) {
                     if (org.getName() != null) {
-                        sb.append(org.getName()).append(", ");
+                      sb.append(org.getName()).append(", ");
                     }
                     if (org.getMail() != null) {
-                        sb.append(org.getMail()).append(", ");
+                      sb.append(org.getMail()).append(", ");
                     }
+                  }
                 }
                 //remove last 2 chars
                 String affiliation = sb.toString().trim();
