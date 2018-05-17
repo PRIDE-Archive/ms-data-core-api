@@ -49,12 +49,12 @@ public class PGConverterTest {
    */
   @Test
   public void testMzidValidator() throws Exception {
-    URL url = ConverterTest.class.getClassLoader().getResource("small.mzid");
+    URL url = ConverterTest.class.getClassLoader().getResource("test.mzid");
     if (url == null) {
       throw new IllegalStateException("no file for input found!");
     }
     File inputMzidFile = new File(url.toURI());
-    url = ConverterTest.class.getClassLoader().getResource("small.mgf");
+    url = ConverterTest.class.getClassLoader().getResource("test.mgf");
     if (url == null) {
       throw new IllegalStateException("no file for input found!");
     }
@@ -72,6 +72,40 @@ public class PGConverterTest {
           "-" + ARG_REPORTFILE,
           reportFile.getPath()
         };
+    PGConverter.main(args);
+  }
+
+  /**
+   * This test validates one example MzTab file which is related to a single peak .mgf file
+   * (without schema validation).
+   *
+   * @throws Exception if there are problems opening the example file.
+   */
+  @Test
+  public void testMzTabValidator() throws Exception {
+    URL url = ConverterTest.class.getClassLoader().getResource("test.mztab");
+    if (url == null) {
+      throw new IllegalStateException("no file for input found!");
+    }
+    File inputMzidFile = new File(url.toURI());
+    url = ConverterTest.class.getClassLoader().getResource("test.mgf");
+    if (url == null) {
+      throw new IllegalStateException("no file for input found!");
+    }
+    File inputMgfFile = new File(url.toURI());
+    File reportFile = File.createTempFile("testMzid", ".log");
+    String[] args =
+            new String[] {
+                    "-" + ARG_VALIDATION,
+                    "-" + ARG_MZTAB,
+                    inputMzidFile.getPath(),
+                    "-" + ARG_PEAK,
+                    inputMgfFile.getPath(),
+                    "-" + ARG_SKIP_SERIALIZATION,
+//          "-" + ARG_SCHEMA_VALIDATION,
+                    "-" + ARG_REPORTFILE,
+                    reportFile.getPath()
+            };
     PGConverter.main(args);
   }
 
@@ -103,6 +137,7 @@ public class PGConverterTest {
                     inputMzidFile.getPath(),
                     "-" + ARG_PEAK,
                     inputMgfFile.getPath(),
+                    "-" + ARG_SCHEMA_VALIDATION,
                     "-" + ARG_SKIP_SERIALIZATION,
                     "-" + ARG_FAST_VALIDATION,
                     "-" + ARG_REPORTFILE,
