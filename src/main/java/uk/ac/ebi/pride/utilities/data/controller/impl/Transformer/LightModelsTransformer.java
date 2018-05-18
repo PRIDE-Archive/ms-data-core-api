@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import uk.ac.ebi.pride.utilities.data.core.*;
 import uk.ac.ebi.pride.utilities.data.lightModel.BibliographicReference;
 import uk.ac.ebi.pride.utilities.data.utils.Constants;
+import uk.ac.ebi.pride.utilities.data.utils.MapUtils;
 import uk.ac.ebi.pride.utilities.data.utils.MzIdentMLUtils;
 import uk.ac.ebi.pride.utilities.term.CvTermReference;
 
@@ -25,6 +26,12 @@ import java.util.*;
  */
 @Slf4j
 public class LightModelsTransformer {
+
+  private final static Map<String, CVLookup> cvLookupMap = new HashMap<>();
+
+  public static void setCvLookupMap(Map<String, CVLookup> cvLookupList) {
+    MapUtils.replaceValuesInMap(cvLookupList, cvLookupMap);
+  }
 
   /**
    * This method converts the Software from
@@ -165,12 +172,17 @@ public class LightModelsTransformer {
   public static CvParam transformToCvParam(
       uk.ac.ebi.pride.utilities.data.lightModel.CvParam cvParamLight) {
     CvParam newParam = null;
+    String unitCVLookupID = null;
+    String cvLookupID = null;
+
     if (cvParamLight != null) {
-      String cvLookupID = null;
-      String unitCVLookupID = null;
-      uk.ac.ebi.pride.utilities.data.lightModel.Cv cv = cvParamLight.getUnitCv();
-      if (cv != null) {
-        cvLookupID = cv.getId();
+      CVLookup cvLookup = cvLookupMap.get(cvParamLight.getCvRef());
+      if (cvLookup != null) {
+        cvLookupID = cvLookup.getCvLabel();
+      }
+      CVLookup unitCVLookup = cvLookupMap.get(cvParamLight.getUnitCvRef());
+      if (unitCVLookup != null) {
+        unitCVLookupID = unitCVLookup.getCvLabel();
       }
       newParam =
           new CvParam(
@@ -180,7 +192,7 @@ public class LightModelsTransformer {
               cvParamLight.getValue(),
               cvParamLight.getUnitAccession(),
               cvParamLight.getUnitName(),
-              unitCVLookupID); // TODO: do we need this?
+              unitCVLookupID);
     }
     return newParam;
   }
@@ -228,6 +240,40 @@ public class LightModelsTransformer {
               unitCVLookupID);
     }
     return newParam;
+  }
+
+  /**
+   * This method converts List of uk.ac.ebi.pride.utilities.data.lightModel.Cv object to List of
+   * uk.ac.ebi.pride.utilities.data.core.Cv object
+   *
+   * @param cvList list of uk.ac.ebi.pride.utilities.data.lightModel.Cv object
+   * @return list of uk.ac.ebi.pride.utilities.data.core.Cv object
+   */
+  public static List<CVLookup> transformCVList(List<uk.ac.ebi.pride.utilities.data.lightModel.Cv> cvList) {
+    List<CVLookup> cvLookups = null;
+    if (cvList != null) {
+      cvLookups = new ArrayList<>();
+      for (uk.ac.ebi.pride.utilities.data.lightModel.Cv cv : cvList) {
+        cvLookups.add(transformToCVLookup(cv));
+      }
+    }
+    return cvLookups;
+  }
+
+  /**
+   * This method converts uk.ac.ebi.pride.utilities.data.lightModel.Cv object to
+   * uk.ac.ebi.pride.utilities.data.core.Cv object
+   *
+   * @param CvLight uk.ac.ebi.pride.utilities.data.lightModel.Cv object
+   * @return uk.ac.ebi.pride.utilities.data.core.Cv object
+   */
+  public static CVLookup transformToCVLookup(uk.ac.ebi.pride.utilities.data.lightModel.Cv CvLight) {
+    CVLookup cvLookup = null;
+    if (CvLight != null) {
+      cvLookup = new CVLookup(CvLight.getId(), CvLight.getFullName(),
+              CvLight.getVersion(), CvLight.getUri());
+    }
+    return cvLookup;
   }
 
   /**

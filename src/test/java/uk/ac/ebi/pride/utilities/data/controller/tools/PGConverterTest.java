@@ -137,7 +137,7 @@ public class PGConverterTest {
                     inputMzidFile.getPath(),
                     "-" + ARG_PEAK,
                     inputMgfFile.getPath(),
-                    "-" + ARG_SCHEMA_VALIDATION,
+//                    "-" + ARG_SCHEMA_VALIDATION,
                     "-" + ARG_SKIP_SERIALIZATION,
                     "-" + ARG_FAST_VALIDATION,
                     "-" + ARG_REPORTFILE,

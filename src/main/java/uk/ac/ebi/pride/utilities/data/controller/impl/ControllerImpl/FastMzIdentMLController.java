@@ -68,6 +68,7 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
     setContentCategories(ContentCategory.SPECTRUM);
     setCachingStrategy(new FastMzIdentMLCachingStrategy());
     populateCache();
+    setCvlookupMap();
     setHasProteinAmbiguityGroup();
   }
 
@@ -109,6 +110,22 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
         if (!isSpectraInPeakFile(dataAccessController, formattedSpectrumID)) {
           missingIdentifiedSpectraIds.add(formattedSpectrumID);
         }
+      }
+    }
+  }
+
+  /**
+   * Load Cv from CvList from MzIdentML
+   */
+  private void setCvlookupMap() {
+    List<CVLookup> cvLookupList = LightModelsTransformer.transformCVList(unmarshaller.getCvList());
+    if (cvLookupList != null && !cvLookupList.isEmpty()) {
+      Map<String, CVLookup> cvLookupMap = new HashMap<>();
+      for (CVLookup cvLookup : cvLookupList) {
+        cvLookupMap.put(cvLookup.getCvLabel(), cvLookup);
+      }
+      if (cvLookupMap.size() > 0) {
+        LightModelsTransformer.setCvLookupMap(cvLookupMap);
       }
     }
   }

@@ -15,6 +15,7 @@ import java.util.List;
 @XmlType(
         name = "MzIdentMLType",
         propOrder = {
+                "cvList",
                 "analysisSoftwareList",
                 "provider",
                 "auditCollection",
@@ -32,6 +33,8 @@ public class MzIdentML extends Identifiable implements Serializable {
     protected String version;
     @XmlAttribute
     protected String creationDate;
+    @XmlElement(required = true)
+    protected CvList cvList;
     @XmlElement(name = "AnalysisSoftwareList")
     protected AnalysisSoftwareList analysisSoftwareList;
     @XmlElement(name = "Provider")

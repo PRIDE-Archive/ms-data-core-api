@@ -32,7 +32,7 @@ public class FastMzIdentMLUnmarshallerAdaptorTest {
 //    @Test
 //    public void doUnmarshell() {
 //            Monitor monitor= MonitorFactory.start("uk.ac.ebi.pride.utilities.data.io.file.doUnmarshell");
-//            this.fastValidateMzIdentMLUnmarshaller = new FastMzIdentMLUnmarshallerAdaptor(new File("/Users/hewapathirana/Downloads/F238646.mzid"));
+//            this.fastValidateMzIdentMLUnmarshaller = new FastMzIdentMLUnmarshallerAdaptor(new File("<File full path here>"));
 //            monitor.stop();
 //            System.out.println("Performance INFO: --------------  " + monitor);
 //    }
@@ -45,6 +45,12 @@ public class FastMzIdentMLUnmarshallerAdaptorTest {
   @Test
   public void getVersion() {
     Assert.assertEquals("MzIdentML Version should be 1.1.0","1.1.0", fastValidateMzIdentMLUnmarshaller.getVersion());
+  }
+
+
+  @Test
+  public void getCvList() {
+    Assert.assertEquals("small.mzid file first CV in the CvList should be PSI-MS","PSI-MS", fastValidateMzIdentMLUnmarshaller.getCvList().get(0).getId());
   }
 
   @After

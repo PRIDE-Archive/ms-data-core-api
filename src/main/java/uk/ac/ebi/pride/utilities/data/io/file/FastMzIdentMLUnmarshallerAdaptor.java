@@ -301,6 +301,16 @@ public class FastMzIdentMLUnmarshallerAdaptor {
     return version;
   }
 
+
+  /**
+   * Get all the Cv in the CvList in the MzIdentML
+   *
+   * @return Collection of Peptide Ids
+   */
+  public List<Cv> getCvList() {
+    return fastMzIdentMLUnmarshaller.getMzIdentML().getCvList().getCv();
+  }
+
   /**
    * Get creation date of the MzIdentML file. This is a optional attribute
    *
