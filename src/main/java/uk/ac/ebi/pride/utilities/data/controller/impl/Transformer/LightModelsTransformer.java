@@ -12,15 +12,11 @@ import java.util.*;
 
 /**
  * This class is responsible for converting light modules (that are used for fast validation) into
- * other model objects or vice versa
+ * other model objects or vice versa.
  *
- * <p>Other Model objects used:
- *
- * <p>1. uk.ac.ebi.jmzidml.model.mzidml
- *
- * <p>2.uk.ac.ebi.pride.utilities.data.core
- *
- * <p>3. uk.ac.ebi.pride.archive.repo.assay
+ * NOTE: There are some duplicate code found here because in some transformations of light models, same logic of MzIdentMLTransformer applies here as well.
+ * To avoid that, best way to make functions generic, but since both jmzIdentML and light models are not inherited from same parent class.
+ * This would be a major refactor, but it would reduce some duplicate code.
  *
  * <p>
  */
