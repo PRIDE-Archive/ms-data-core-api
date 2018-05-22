@@ -555,7 +555,7 @@ public class Validator extends FileCompression {
       assayFileSummary.setNumberOfProteins(assayFileController.getNumberOfProteins());
       assayFileSummary.setNumberofMissingSpectra(assayFileController.getNumberOfMissingSpectra());
       assayFileSummary.setNumberOfSpectra(assayFileController.getNumberOfSpectra());
-      if (assayFileSummary.getNumberofMissingSpectra() > 0) {
+      if (assayFileSummary.getNumberofMissingSpectra() <1) {
         validateProteinsAndPeptides(assayFile, assayFileSummary, assayFileController);
       } else {
         String message = "Missing spectra are present";
