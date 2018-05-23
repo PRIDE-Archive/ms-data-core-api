@@ -584,7 +584,7 @@ public class Validator extends FileCompression {
    */
   private static ValidationResult validateAssayFile(File assayFile, FileType type, List<File> dataAccessControllerFiles, boolean isFastValidation) {
     final int NUMBER_OF_CHECKS = 100;
-    final double DELTA_THREASHOLD = 4.0;
+    final double DELTA_THRESHOLD = 4.0;
 
     if (isFastValidation) {
       File tempAssayFile = FileHandler.createNewTempFile(assayFile);
@@ -614,7 +614,7 @@ public class Validator extends FileCompression {
         assayFileSummary.setNumberofMissingSpectra(assayFileController.getNumberOfMissingSpectra());
         assayFileSummary.setNumberOfSpectra(assayFileController.getNumberOfSpectra());
         assayFileSummary.setNumberOfUniquePeptides((assayFileController).getNumberOfUniquePeptides());
-        assayFileSummary.setDeltaMzErrorRate((assayFileController).getSampleDeltaMzErrorRate(NUMBER_OF_CHECKS, DELTA_THREASHOLD));
+        assayFileSummary.setDeltaMzErrorRate((assayFileController).getSampleDeltaMzErrorRate(NUMBER_OF_CHECKS, DELTA_THRESHOLD));
         assayFileSummary.addPtms(DataConversionUtil.convertAssayPTMs(transformToCvParam(assayFileController.getIdentifiedUniquePTMs())));
         assayFileSummary.setSearchDatabase(assayFileController.getSearchDataBases().get(0).getName());
         assayFileSummary.setExampleProteinAccession("Not Applicable");
