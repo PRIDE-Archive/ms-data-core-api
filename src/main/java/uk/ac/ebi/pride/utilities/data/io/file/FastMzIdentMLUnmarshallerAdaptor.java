@@ -356,7 +356,24 @@ public class FastMzIdentMLUnmarshallerAdaptor {
    * @return list of person
    */
   public List<Person> getPersonContacts() {
-    return fastMzIdentMLUnmarshaller.getMzIdentML().getAuditCollection().getPerson();
+    List<Organization> organizations = fastMzIdentMLUnmarshaller.getMzIdentML().getAuditCollection().getOrganization();
+    Map<String, Organization> organizationMap = new HashMap<>(organizations.size());
+    for (Organization organization: organizations) {
+      organizationMap.put(organization.getId(), organization);
+    }
+
+    List<Person> personList = fastMzIdentMLUnmarshaller.getMzIdentML().getAuditCollection().getPerson();
+    for (Person person : personList) {
+      List<Affiliation> affiliations = person.getAffiliation();
+      if(affiliations != null && affiliations.size() > 0){
+        for (Affiliation affiliation : affiliations) {
+          if((affiliation.getOrganization() == null) &&(organizationMap.containsKey(affiliation.getOrganizationRef()))){
+            affiliation.setOrganization(organizationMap.get(affiliation.getOrganizationRef()));
+          }
+        }
+      }
+    }
+    return personList;
   }
 
   /**

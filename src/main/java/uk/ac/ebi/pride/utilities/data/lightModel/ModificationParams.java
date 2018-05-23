@@ -1,6 +1,5 @@
 package uk.ac.ebi.pride.utilities.data.lightModel;
 
-import uk.ac.ebi.jmzidml.model.MzIdentMLObject;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -60,7 +59,7 @@ public class ModificationParams extends MzIdentMLObject implements Serializable 
      */
     public List<SearchModification> getSearchModification() {
         if (searchModification == null) {
-            searchModification = new ArrayList<SearchModification>();
+            searchModification = new ArrayList<>();
         }
         return this.searchModification;
     }

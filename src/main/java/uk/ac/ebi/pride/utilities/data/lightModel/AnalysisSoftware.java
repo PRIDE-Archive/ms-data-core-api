@@ -2,7 +2,6 @@ package uk.ac.ebi.pride.utilities.data.lightModel;
 
 import lombok.Getter;
 import lombok.Setter;
-import uk.ac.ebi.jmzidml.model.ParamCapable;
 import java.io.Serializable;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;

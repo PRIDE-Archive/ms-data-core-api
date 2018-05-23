@@ -7,7 +7,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlType;
 import lombok.Setter;
-import uk.ac.ebi.jmzidml.model.MzIdentMLObject;
 
 /**
  * Helper type to allow either a cvParam or a userParam to be provided for an element.

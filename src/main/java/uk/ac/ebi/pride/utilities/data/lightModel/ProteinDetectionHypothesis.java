@@ -2,7 +2,8 @@ package uk.ac.ebi.pride.utilities.data.lightModel;
 
 import lombok.Getter;
 import lombok.Setter;
-import uk.ac.ebi.jmzidml.model.utils.FacadeList;
+import uk.ac.ebi.pride.utilities.data.utils.FacadeList;
+
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -104,6 +105,6 @@ public class ProteinDetectionHypothesis extends Identifiable implements Serializ
     }
 
     public List<UserParam> getUserParam() {
-        return new FacadeList<UserParam>(this.getParamGroup(), UserParam.class);
+        return new FacadeList<>(this.getParamGroup(), UserParam.class);
     }
 }

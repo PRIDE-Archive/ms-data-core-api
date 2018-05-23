@@ -1,7 +1,5 @@
 package uk.ac.ebi.pride.utilities.data.lightModel;
 
-
-import uk.ac.ebi.jmzidml.model.MzIdentMLObject;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -63,7 +61,7 @@ public class AnalysisSampleCollection extends MzIdentMLObject implements Seriali
    */
   public List<Sample> getSample() {
     if (sample == null) {
-      sample = new ArrayList<Sample>();
+      sample = new ArrayList<>();
     }
     return this.sample;
   }

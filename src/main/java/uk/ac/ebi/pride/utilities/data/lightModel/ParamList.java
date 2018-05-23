@@ -66,7 +66,7 @@ public class ParamList
    */
   public List<AbstractParam> getParamGroup() {
     if (paramGroup == null) {
-      paramGroup = new ArrayList<AbstractParam>();
+      paramGroup = new ArrayList<>();
     }
     return this.paramGroup;
   }
@@ -75,7 +75,7 @@ public class ParamList
    * Gets the enzyme name cvparams
    *
    * @return possible object is
-   *         {@link uk.ac.ebi.jmzidml.model.utils.FacadeList }
+   *         {@link uk.ac.ebi.pride.utilities.data.utils.FacadeList }
    */
   public List<CvParam> getCvParam() {
     return new FacadeList<>(this.getParamGroup(), CvParam.class);
