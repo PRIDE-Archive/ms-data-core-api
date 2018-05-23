@@ -176,7 +176,7 @@ public class FastMzIdentMLControllerTest {
     final double DELTA_MZ = 4.0;
     assertTrue(
         "DeltaMz Error Rate should be less than " + DELTA_MZ,
-        fastMzIdentMLController.getSampleDeltaMzErrorRate(10, DELTA_MZ) < DELTA_MZ);
+        fastMzIdentMLController.getSampleDeltaMzErrorRate(100, DELTA_MZ) < DELTA_MZ);
   }
 
   /** Test Missing Spectra */

@@ -303,8 +303,8 @@ public class LightModelsTransformer {
 
     if (lightPerson != null) {
       List<CvParam> cvParams = new ArrayList<>();
-      // TODO: Person -> Affiliation -> Organization can be null while parsing MIdentML. I need to
-      // investigate this
+      // TODO: Person -> Affiliation -> Organization can be null while parsing MIdentML. As a workaround, they are
+//      manually filled in FastMzIdentMLUnmarshellerAdapter
       List<Organization> affiliation =
           transformAffiliationToOrganization(lightPerson.getAffiliation());
       CvTermReference contactTerm = CvTermReference.CONTACT_NAME;

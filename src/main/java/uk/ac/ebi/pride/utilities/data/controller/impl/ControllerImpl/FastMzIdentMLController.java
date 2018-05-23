@@ -1,5 +1,6 @@
 package uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl;
 
+import jdk.internal.org.objectweb.asm.TypeReference;
 import lombok.extern.slf4j.Slf4j;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessController;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessException;
@@ -114,9 +115,7 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
     }
   }
 
-  /**
-   * Load Cv from CvList from MzIdentML
-   */
+  /** Load Cv from CvList from MzIdentML */
   private void setCvlookupMap() {
     List<CVLookup> cvLookupList = LightModelsTransformer.transformCVList(unmarshaller.getCvList());
     if (cvLookupList != null && !cvLookupList.isEmpty()) {
@@ -249,10 +248,11 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
   @Override
   public List<uk.ac.ebi.pride.utilities.data.core.SpectraData> getSpectraDataFiles() {
     List<Comparable> basedOnTitle = new ArrayList<>();
-    if (isSpectrumBasedOnTitle()){
+    if (isSpectrumBasedOnTitle()) {
       basedOnTitle = getSpectraDataBasedOnTitle();
     }
-    return LightModelsTransformer.transformToSpectraData(unmarshaller.getSpectraData(), basedOnTitle);
+    return LightModelsTransformer.transformToSpectraData(
+        unmarshaller.getSpectraData(), basedOnTitle);
   }
 
   /**
@@ -302,23 +302,27 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
    *     otherwise false
    */
   public double getSampleDeltaMzErrorRate(final int numberOfChecks, final Double deltaThreshold) {
-    if (numberOfChecks > 0) {
-      List<SpectrumIdentificationItem> PSMList = getRandomPSMs(numberOfChecks);
-      int errorPSMCount = 0;
+    try {
+      if (numberOfChecks > 0) {
+        List<SpectrumIdentificationItem> PSMList = getRandomPSMs(numberOfChecks);
+        int errorPSMCount = 0;
 
-      for (SpectrumIdentificationItem SpectrumIdentificationItem : PSMList) {
-        log.debug(
-            "SpectrumIdentificationItem  - "
-                + SpectrumIdentificationItem.getId()
-                + "has been selected for random checkup");
-        Boolean result = checkDeltaMassThreshold(SpectrumIdentificationItem, deltaThreshold);
-        if (!result) errorPSMCount++;
+        for (SpectrumIdentificationItem SpectrumIdentificationItem : PSMList) {
+          log.debug("SpectrumIdentificationItem  - " + SpectrumIdentificationItem.getId() + "has been selected for random checkup");
+          Boolean isDeltaMassThresholdPassed = checkDeltaMassThreshold(SpectrumIdentificationItem, deltaThreshold);
+          if (!isDeltaMassThresholdPassed) {
+            errorPSMCount++;
+          }
+        }
+        errorPSMCount++;
+        // TODO: Format it to 4 or 6 decimal places
+        deltaMzErrorRate =
+            new BigDecimal(((double) errorPSMCount / numberOfChecks))
+                .setScale(4, RoundingMode.HALF_UP)
+                .doubleValue();
       }
-      // TODO: Format it to 4 or 6 decimal places
-      deltaMzErrorRate =
-          new BigDecimal(((double) errorPSMCount / numberOfChecks))
-              .setScale(4, RoundingMode.HALF_UP)
-              .doubleValue();
+    } catch (Exception e) {
+      log.error("Error in calculating Sample DeltaMz Error Rate: " + e.getMessage());
     }
     return deltaMzErrorRate;
   }
@@ -369,41 +373,28 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
    * @param deltaThreshold Non-negative Double value(eg: 4.0)
    * @return boolean
    */
-  private boolean checkDeltaMassThreshold(
-      SpectrumIdentificationItem spectrumIdentItem, Double deltaThreshold) {
+  private boolean checkDeltaMassThreshold(SpectrumIdentificationItem spectrumIdentItem, Double deltaThreshold) {
     boolean isDeltaMassThresholdPassed = true;
     Integer charge = spectrumIdentItem.getChargeState();
     double mz = spectrumIdentItem.getExperimentalMassToCharge();
     String peptideRef = spectrumIdentItem.getPeptideRef();
     Peptide peptide = unmarshaller.getPeptideById(peptideRef);
-    if (peptide != null) {
+    if (peptide == null) {
+      log.error("Random peptide is null! peptideRef:" + peptideRef);
+      isDeltaMassThresholdPassed = false;
+    } else {
       List<Double> ptmMasses = unmarshaller.getPTMMassesFromPeptide(peptide);
-      if (mz == -1) {
-        Spectrum spectrum =
-            dataAccessController.getSpectrumById(spectrumIdentItem.getFormattedSpectrumID());
-        if (spectrum != null) {
-          // TODO: cover this part in the unit test
-          charge = dataAccessController.getSpectrumPrecursorCharge(spectrum.getId());
-          mz = dataAccessController.getSpectrumPrecursorMz(spectrum.getId());
-        } else {
-          charge = null;
-        }
-        if (charge != null && charge == 0) {
-          charge = null;
-        }
-      }
-      if (charge == null) {
+      if ( mz == -1) {
         isDeltaMassThresholdPassed = false;
       } else {
-        Double deltaMass =
-            MoleculeUtilities.calculateDeltaMz(peptide.getPeptideSequence(), mz, charge, ptmMasses);
-        if (deltaMass == null || Math.abs(deltaMass) > deltaThreshold) {
+        Double deltaMass = MoleculeUtilities.calculateDeltaMz(peptide.getPeptideSequence(), mz, charge, ptmMasses);
+        if (Math.abs(deltaMass) > deltaThreshold) {
           isDeltaMassThresholdPassed = false;
         }
       }
-    } else {
-      log.error("Random peptide is null! peptideRef:" + peptideRef);
-      isDeltaMassThresholdPassed = false;
+    }
+    if(!isDeltaMassThresholdPassed){
+      log.warn("Delta mass threshold failed :" + spectrumIdentItem.getId());
     }
     return isDeltaMassThresholdPassed;
   }

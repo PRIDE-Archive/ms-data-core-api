@@ -74,7 +74,7 @@ public class ProteinDetectionHypothesis extends Identifiable implements Serializ
      */
     public List<AbstractParam> getParamGroup() {
         if (paramGroup == null) {
-            paramGroup = new ArrayList<AbstractParam>();
+            paramGroup = new ArrayList<>();
         }
         return this.paramGroup;
     }
