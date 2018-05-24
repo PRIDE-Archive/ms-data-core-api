@@ -1,6 +1,5 @@
 package uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl;
 
-import jdk.internal.org.objectweb.asm.TypeReference;
 import lombok.extern.slf4j.Slf4j;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessController;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessException;
