@@ -95,6 +95,7 @@ public class PGConverter {
     options.addOption(ARG_BED_COLUMN_FORMAT, true, "BED column format");
     options.addOption(ARG_LEVEL, true, "Choose validate level(Info, Warn, Error), default level is Error!");
     options.addOption(ARG_FORMAT, true, "MZIDENTML or PRIDEXML");
+    options.addOption(ARG_FAST_VALIDATION, false, "Fast Validation of MzIdentML files");
     CommandLineParser parser = new DefaultParser();
     return parser.parse(options, args);
   }
@@ -125,6 +126,12 @@ public class PGConverter {
 
     "-v -mzid <sample.mzid>                        MzIdentML validation\n" +
     "   -peak <spectra.mgf>\n" +
+    "   -skipserialization\n" +
+    "   -reportfile <outputReport.txt>\n" +
+
+    "-v -mzid <sample.mzid>                        Fast MzIdentML validation\n" +
+    "   -peak <spectra.mgf>\n" +
+    "   -fastvalidation\n" +
     "   -skipserialization\n" +
     "   -reportfile <outputReport.txt>\n" +
 

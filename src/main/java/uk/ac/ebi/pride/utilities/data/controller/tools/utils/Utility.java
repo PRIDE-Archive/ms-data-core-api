@@ -58,6 +58,7 @@ public class Utility {
   public static final String ARG_LEVEL = "level";
   public static final String ARG_FORMAT = "format";
   public static final String ARG_CODE = "code";
+  public static final String ARG_FAST_VALIDATION = "fastvalidation";
   // Other constants
   public static final String MS_INSTRUMENT_MODEL_NAME = "instrument model";
   public static final String MS_INSTRUMENT_MODEL_AC = "MS:1000031";

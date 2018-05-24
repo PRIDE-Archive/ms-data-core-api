@@ -536,7 +536,7 @@ public class AssayFileSummary implements Serializable {
    * @param software New software to add.
    */
   public void addSoftwares(Collection<Software> software) {
-    this.softwares.addAll(softwares);
+    this.softwares.addAll(software);
   }
 
   /**

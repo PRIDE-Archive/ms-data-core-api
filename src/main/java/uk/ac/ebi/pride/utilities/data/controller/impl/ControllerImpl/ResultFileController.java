@@ -128,5 +128,4 @@ public class ResultFileController extends CachedDataAccessController {
     }
     return allIdentifiedSpectrumIds.size() - existingIdentifiedSpectrumIds.size();
   }
-
 }

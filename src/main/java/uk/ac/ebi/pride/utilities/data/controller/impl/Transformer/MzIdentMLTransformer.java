@@ -1,6 +1,5 @@
 package uk.ac.ebi.pride.utilities.data.controller.impl.Transformer;
 
-
 import uk.ac.ebi.jmzidml.model.mzidml.*;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessUtilities;
 import uk.ac.ebi.pride.utilities.data.core.*;
@@ -27,7 +26,6 @@ import uk.ac.ebi.pride.utilities.data.utils.Constants;
 import uk.ac.ebi.pride.utilities.data.utils.MapUtils;
 import uk.ac.ebi.pride.utilities.data.utils.MzIdentMLUtils;
 import uk.ac.ebi.pride.utilities.term.CvTermReference;
-
 import java.util.*;
 
 /**

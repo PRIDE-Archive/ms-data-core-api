@@ -10,6 +10,7 @@ import uk.ac.ebi.pride.archive.repo.assay.software.Software;
 import uk.ac.ebi.pride.archive.repo.assay.software.SoftwareCvParam;
 import uk.ac.ebi.pride.archive.repo.assay.software.SoftwareUserParam;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -31,7 +32,7 @@ public class Report {
   private int totalPeptides = 0;
   private int totalSpecra = 0;
   private Set<AssayPTM> uniquePTMs = new HashSet<>();
-  private int deltaMzPercent = 0;
+  private double deltaMzPercent = 0.0;
   private int identifiedSpectra = 0;
   private int missingIdSpectra = 0;
   private boolean matchFragIons = false;
@@ -98,7 +99,7 @@ public class Report {
       sb.append('\n');
       sb.append("Total unique PTMs: ").append(uniquePTMstoString());
       sb.append('\n');
-      sb.append("Delta m/z: ").append(deltaMzPercent).append("%");
+      sb.append("Delta m/z: ").append(new DecimalFormat("#.0000").format(deltaMzPercent)).append("%");
       sb.append('\n');
       sb.append("Match fragment ions: ").append(matchFragIons);
       sb.append('\n');
@@ -527,7 +528,7 @@ public class Report {
    *
    * @return Value of deltaMzPercent.
    */
-  public int getDeltaMzPercent() {
+  public double getDeltaMzPercent() {
     return deltaMzPercent;
   }
 

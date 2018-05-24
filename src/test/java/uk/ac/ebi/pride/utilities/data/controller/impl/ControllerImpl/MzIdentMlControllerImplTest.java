@@ -27,6 +27,7 @@ public class MzIdentMlControllerImplTest {
     @Before
     public void setUp() throws Exception {
         URL url = MzIdentMlControllerImplTest.class.getClassLoader().getResource("55merge_mascot_full.mzid");
+//        URL url = MzIdentMlControllerImplTest.class.getClassLoader().getResource("small.mzid");
         if (url == null) {
             throw new IllegalStateException("no file for input found!");
         }
