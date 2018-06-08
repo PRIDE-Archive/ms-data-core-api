@@ -217,7 +217,7 @@ public class FastMzIdentMLUnmarshallerAdaptor {
    */
   private boolean checkCvParam(CvParam cvParam) {
     if (modReader.getPTMbyAccession(cvParam.getAccession()) == null) {
-      log.error("Found Invalid CV: " +  cvParam.toString());
+      log.error("Found Invalid CV: " + cvParam.toString());
       throw new IllegalStateException(
           "Invalid CV term "
               + cvParam.getAccession()
@@ -301,7 +301,6 @@ public class FastMzIdentMLUnmarshallerAdaptor {
     return version;
   }
 
-
   /**
    * Get all the Cv in the CvList in the MzIdentML
    *
@@ -356,19 +355,26 @@ public class FastMzIdentMLUnmarshallerAdaptor {
    * @return list of person
    */
   public List<Person> getPersonContacts() {
-    List<Organization> organizations = fastMzIdentMLUnmarshaller.getMzIdentML().getAuditCollection().getOrganization();
-    Map<String, Organization> organizationMap = new HashMap<>(organizations.size());
-    for (Organization organization: organizations) {
-      organizationMap.put(organization.getId(), organization);
-    }
+    List<Person> personList = null;
 
-    List<Person> personList = fastMzIdentMLUnmarshaller.getMzIdentML().getAuditCollection().getPerson();
-    for (Person person : personList) {
-      List<Affiliation> affiliations = person.getAffiliation();
-      if(affiliations != null && affiliations.size() > 0){
-        for (Affiliation affiliation : affiliations) {
-          if((affiliation.getOrganization() == null) &&(organizationMap.containsKey(affiliation.getOrganizationRef()))){
-            affiliation.setOrganization(organizationMap.get(affiliation.getOrganizationRef()));
+    AuditCollection auditCollection = fastMzIdentMLUnmarshaller.getMzIdentML().getAuditCollection();
+    if (auditCollection != null) {
+      List<Organization> organizations =
+          fastMzIdentMLUnmarshaller.getMzIdentML().getAuditCollection().getOrganization();
+      Map<String, Organization> organizationMap = new HashMap<>(organizations.size());
+      for (Organization organization : organizations) {
+        organizationMap.put(organization.getId(), organization);
+      }
+
+      personList = auditCollection.getPerson();
+      for (Person person : personList) {
+        List<Affiliation> affiliations = person.getAffiliation();
+        if (affiliations != null && affiliations.size() > 0) {
+          for (Affiliation affiliation : affiliations) {
+            if ((affiliation.getOrganization() == null)
+                && (organizationMap.containsKey(affiliation.getOrganizationRef()))) {
+              affiliation.setOrganization(organizationMap.get(affiliation.getOrganizationRef()));
+            }
           }
         }
       }
@@ -382,7 +388,8 @@ public class FastMzIdentMLUnmarshallerAdaptor {
    * @return list of organization
    */
   public List<Organization> getOrganizationContacts() {
-    return fastMzIdentMLUnmarshaller.getMzIdentML().getAuditCollection().getOrganization();
+    AuditCollection auditCollection = fastMzIdentMLUnmarshaller.getMzIdentML().getAuditCollection();
+    return (auditCollection != null) ? auditCollection.getOrganization() :  null;
   }
 
   /**
@@ -397,7 +404,7 @@ public class FastMzIdentMLUnmarshallerAdaptor {
   /**
    * Get list of Source files including spectra references(peak files) with the file format
    *
-    * @return List of SourceFile objects
+   * @return List of SourceFile objects
    */
   public List<SourceFile> getSourceFiles() {
     return LightModelsTransformer.transformToSourceFiles(
@@ -406,6 +413,7 @@ public class FastMzIdentMLUnmarshallerAdaptor {
 
   /**
    * Get the BibliographicReference
+   *
    * @return BibliographicReference object
    */
   public List<BibliographicReference> getReferences() {
@@ -466,11 +474,16 @@ public class FastMzIdentMLUnmarshallerAdaptor {
 
   /**
    * Get number of decoy proteins
+   *
    * @return Number of decoy proteins identified
    */
   public long getNumberOfDecoyProteins() {
     return fastMzIdentMLUnmarshaller
-            .getMzIdentML().getSequenceCollection().getPeptideEvidence().stream()
-            .filter(p -> p.getIsDecoy()).count();
+        .getMzIdentML()
+        .getSequenceCollection()
+        .getPeptideEvidence()
+        .stream()
+        .filter(p -> p.getIsDecoy())
+        .count();
   }
 }

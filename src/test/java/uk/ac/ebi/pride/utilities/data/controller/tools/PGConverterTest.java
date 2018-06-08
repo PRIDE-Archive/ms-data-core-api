@@ -25,7 +25,7 @@ public class PGConverterTest {
    * http://www.ebi.ac.uk/pride/url/to/experiment".
    */
   @Test
-  public void PrintErrorCodeTest() {
+  public void printErrorCodeTest() {
 
     String[] args = new String[] {"-" + ARG_ERROR_CODE, "-" + ARG_CODE, "1015"};
     PGConverter.main(args);
@@ -36,7 +36,7 @@ public class PGConverterTest {
    * check the formatting of the help menu
    */
   @Test
-  public void PrintHelpTest() {
+  public void printHelpTest() {
     String[] args = new String[] {"-h"};
     PGConverter.main(args);
   }
@@ -48,7 +48,7 @@ public class PGConverterTest {
    * @throws Exception if there are problems opening the example file.
    */
   @Test
-  public void testMzidValidator() throws Exception {
+  public void mzidValidatorTest() throws Exception {
     URL url = ConverterTest.class.getClassLoader().getResource("test.mzid");
     if (url == null) {
       throw new IllegalStateException("no file for input found!");
@@ -76,13 +76,48 @@ public class PGConverterTest {
   }
 
   /**
+   * This test validates one example mzIdentML file which is related to a single peak .mgf file
+   * with FastMzIdentMLValidation approach (instead of random access file by xxindex)
+   *
+   * @throws Exception if there are problems opening the example file.
+   */
+  @Test
+  public void mzidFastValidatorTest() throws Exception {
+    URL url = ConverterTest.class.getClassLoader().getResource("small.mzid");
+    if (url == null) {
+      throw new IllegalStateException("no file for input found!");
+    }
+    File inputMzidFile = new File(url.toURI());
+    url = ConverterTest.class.getClassLoader().getResource("small.mgf");
+    if (url == null) {
+      throw new IllegalStateException("no file for input found!");
+    }
+    File inputMgfFile = new File(url.toURI());
+    File reportFile = File.createTempFile("testMzid", ".log");
+    String[] args =
+            new String[] {
+                    "-" + ARG_VALIDATION,
+                    "-" + ARG_MZID,
+                    inputMzidFile.getPath(),
+                    "-" + ARG_PEAK,
+                    inputMgfFile.getPath(),
+                    "-" + ARG_SCHEMA_VALIDATION,
+                    "-" + ARG_SKIP_SERIALIZATION,
+//                    "-" + ARG_FAST_VALIDATION,
+                    "-" + ARG_REPORTFILE,
+                    reportFile.getPath()
+            };
+    PGConverter.main(args);
+  }
+
+  /**
    * This test validates one example MzTab file which is related to a single peak .mgf file
    * (without schema validation).
    *
    * @throws Exception if there are problems opening the example file.
    */
   @Test
-  public void testMzTabValidator() throws Exception {
+  public void mzTabValidatorTest() throws Exception {
     URL url = ConverterTest.class.getClassLoader().getResource("test.mztab");
     if (url == null) {
       throw new IllegalStateException("no file for input found!");
@@ -109,37 +144,21 @@ public class PGConverterTest {
     PGConverter.main(args);
   }
 
-
-
-  /**
-   * This test validates one example mzIdentML file which is related to a single peak .mgf file
-   * with FastMzIdentMLValidation approach (instead of random access file by xxindex)
-   *
-   * @throws Exception if there are problems opening the example file.
-   */
   @Test
-  public void testMzidFastValidator() throws Exception {
-    URL url = ConverterTest.class.getClassLoader().getResource("small.mzid");
+  public void prideXMLValidatorTest() throws Exception {
+    URL url = ConverterTest.class.getClassLoader().getResource("test-pride.xml");
     if (url == null) {
       throw new IllegalStateException("no file for input found!");
     }
-    File inputMzidFile = new File(url.toURI());
-    url = ConverterTest.class.getClassLoader().getResource("small.mgf");
-    if (url == null) {
-      throw new IllegalStateException("no file for input found!");
-    }
-    File inputMgfFile = new File(url.toURI());
-    File reportFile = File.createTempFile("testMzid", ".log");
+
+    File inputPrideXMLFile = new File(url.toURI());
+    File reportFile = File.createTempFile("testpridexml", ".log");
     String[] args =
             new String[] {
                     "-" + ARG_VALIDATION,
-                    "-" + ARG_MZID,
-                    inputMzidFile.getPath(),
-                    "-" + ARG_PEAK,
-                    inputMgfFile.getPath(),
-//                    "-" + ARG_SCHEMA_VALIDATION,
+                    "-" + ARG_PRIDEXML,
+                    inputPrideXMLFile.getPath(),
                     "-" + ARG_SKIP_SERIALIZATION,
-                    "-" + ARG_FAST_VALIDATION,
                     "-" + ARG_REPORTFILE,
                     reportFile.getPath()
             };
@@ -182,27 +201,6 @@ public class PGConverterTest {
           inputMzidFile.getPath(),
           "-" + ARG_FORMAT,
           "MZIDENTML"
-        };
-    PGConverter.main(args);
-  }
-
-  @Test
-  public void testPrideXMLValidator() throws Exception {
-    URL url = ConverterTest.class.getClassLoader().getResource("test-pride.xml");
-    if (url == null) {
-      throw new IllegalStateException("no file for input found!");
-    }
-
-    File inputPrideXMLFile = new File(url.toURI());
-    File reportFile = File.createTempFile("testpridexml", ".log");
-    String[] args =
-        new String[] {
-          "-" + ARG_VALIDATION,
-          "-" + ARG_PRIDEXML,
-          inputPrideXMLFile.getPath(),
-          "-" + ARG_SKIP_SERIALIZATION,
-          "-" + ARG_REPORTFILE,
-          reportFile.getPath()
         };
     PGConverter.main(args);
   }
