@@ -84,7 +84,7 @@
         <json.version>20090211</json.version>
         <commonscode.version>1.7</commonscode.version>
         <c3p0.version>0.9.1.2</c3p0.version>
-        <uk.ac.ebi.jmzidml-jmzidentml.version>1.2.8</uk.ac.ebi.jmzidml-jmzidentml.version>
+        <uk.ac.ebi.jmzidml-jmzidentml.version>1.2.9</uk.ac.ebi.jmzidml-jmzidentml.version>
         <uk.ac.ebi.jmzml-jmzml.version>1.7.10</uk.ac.ebi.jmzml-jmzml.version>
         <xmlschemavalidator.version>2.1</xmlschemavalidator.version>
         <uk.ac.ebi.pride-jmztab-modular-model.version>3.0.5</uk.ac.ebi.pride-jmztab-modular-model.version>
