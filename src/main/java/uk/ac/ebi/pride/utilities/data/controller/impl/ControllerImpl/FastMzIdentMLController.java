@@ -33,6 +33,8 @@ import java.util.*;
  * FastMzIdentMLController is a controller supporting for fast access of mzIdentML file designed for
  * EBI submission validation pipeline.
  *
+ * NOTE: Do not forget to call "doSpectraValidation" method before you retrieve any data from this class
+ *
  * @author Suresh Hewapathirana
  */
 @Slf4j
@@ -84,8 +86,8 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
     /* Spectra details extracted from MzIdentML -> DataCollection -> Inputs
     eg:  <SpectraData location="file:///Carbamoyl-phosphate synthase small chain-47029-41-G2-4-biotools.mgf" id="SD_1"></SpectraData> */
     Map<Comparable, SpectraData> spectraDataMap = unmarshaller.getSpectraDataMap();
-    List<SpectrumIdentificationList> spectrumIdentificationLists =
-        unmarshaller.getSpectrumIdentificationList();
+    List<SpectrumIdentificationList> spectrumIdentificationLists = unmarshaller.getSpectrumIdentificationList();
+
     for (SpectrumIdentificationList spectrumIdentificationList : spectrumIdentificationLists) {
       // eg: <SpectrumIdentificationResult id="SIR_12" spectrumID="index=35"
       // spectraData_ref="SD_1">...</SpectrumIdentificationResult>
@@ -792,16 +794,10 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
   }
 
   /**
-   * Check of the mzIdentML object contains any protein ambiguity groups and set the value to a
-   * static variable
+   * set the value to a static variable
    */
   private void setHasProteinAmbiguityGroup() {
-    AnalysisData analysisData = unmarshaller.getMzIdentML().getDataCollection().getAnalysisData();
-    hasProteinAmbiguityGroup =
-        analysisData != null
-            && analysisData.getProteinDetectionList() != null
-            && analysisData.getProteinDetectionList().getProteinAmbiguityGroup() != null
-            && analysisData.getProteinDetectionList().getProteinAmbiguityGroup().size() > 0;
+    hasProteinAmbiguityGroup = unmarshaller.isProteinAmbiguityGroupsAvailable();
   }
 
   /**
