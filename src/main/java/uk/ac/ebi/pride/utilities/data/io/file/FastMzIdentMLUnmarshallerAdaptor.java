@@ -1,6 +1,7 @@
 package uk.ac.ebi.pride.utilities.data.io.file;
 
 import lombok.extern.slf4j.Slf4j;
+import uk.ac.ebi.pride.data.util.Constant;
 import uk.ac.ebi.pride.utilities.data.controller.impl.Transformer.LightModelsTransformer;
 import uk.ac.ebi.pride.utilities.data.core.SourceFile;
 import uk.ac.ebi.pride.utilities.data.lightModel.*;
@@ -40,18 +41,43 @@ public class FastMzIdentMLUnmarshallerAdaptor {
   }
 
   /**
-   * Get all the Protein Ids reported in the MzIdentML
+   * Finding total number of protein in mzidentml is bit tricky because of protein ambiguity groups.
+   * When there is an ambiguity of proteins inference, they are grouped and the first protein is the
+   * “anchor” protein(which is the confident one), can can ignore other subset proteins.
+   *
+   * <p>Therefore, when counting number of total proteins we should count only the first protein of
+   * the ambiguity groups which are passing the threshold (passThreshold="true"). In the first version
+   * of mzIdentML passThreshold property can be missing. Therefore, here we are assume that by
+   * default it is true. In other words, we should count only the first protein of the ambiguity
+   * groups which are not passThreshold = false.
    *
    * @return Collection of Protein Ids
    */
   public Collection<Comparable> getProteinIds() {
-    return fastMzIdentMLUnmarshaller
-        .getMzIdentML()
-        .getSequenceCollection()
-        .getDBSequence()
-        .parallelStream()
-        .map(DBSequence::getId)
-        .collect(Collectors.toList());
+    List<Comparable> proteinIDs = new ArrayList<>();
+    // if protein inference exists
+    if(isProteinAmbiguityGroupsAvailable()){
+      for (ProteinAmbiguityGroup proteinAmbiguityGroup :
+          fastMzIdentMLUnmarshaller
+              .getMzIdentML()
+              .getDataCollection()
+              .getAnalysisData()
+              .getProteinDetectionList()
+              .getProteinAmbiguityGroup()) {
+        if(proteinAmbiguityGroup.getProteinDetectionHypothesis().get(0).isPassThreshold()){
+          proteinIDs.add(proteinAmbiguityGroup.getProteinDetectionHypothesis().get(0).getDBSequenceRef());
+        }
+      }
+    } else { // if no protein inference exists
+      proteinIDs = fastMzIdentMLUnmarshaller
+              .getMzIdentML()
+              .getSequenceCollection()
+              .getDBSequence()
+              .parallelStream()
+              .map(DBSequence::getId)
+              .collect(Collectors.toList());
+    }
+    return proteinIDs;
   }
 
   /**
@@ -60,13 +86,35 @@ public class FastMzIdentMLUnmarshallerAdaptor {
    * @return Collection of Peptide Ids
    */
   public Collection<Comparable> getPeptideIds() {
-    return fastMzIdentMLUnmarshaller
-        .getMzIdentML()
-        .getSequenceCollection()
-        .getPeptide()
-        .parallelStream()
-        .map(Peptide::getId)
-        .collect(Collectors.toList());
+    List<Comparable> peptideIDs = new ArrayList<>();
+    if(isProteinAmbiguityGroupsAvailable()){
+      for (ProteinAmbiguityGroup proteinAmbiguityGroup :
+              fastMzIdentMLUnmarshaller
+                      .getMzIdentML()
+                      .getDataCollection()
+                      .getAnalysisData()
+                      .getProteinDetectionList()
+                      .getProteinAmbiguityGroup()) {
+        for (ProteinDetectionHypothesis proteinDetectionHypothesis : proteinAmbiguityGroup.getProteinDetectionHypothesis()) {
+          if(proteinDetectionHypothesis != null){
+            for (PeptideHypothesis peptideHypothesis : proteinDetectionHypothesis.getPeptideHypothesis()) {
+              if(peptideHypothesis != null){
+                peptideIDs.add(getPeptideEvidenceById(peptideHypothesis.getPeptideEvidenceRef()).getPeptideRef());
+              }
+            }
+          }
+        }
+      }
+    } else {
+      peptideIDs = fastMzIdentMLUnmarshaller
+              .getMzIdentML()
+              .getSequenceCollection()
+              .getPeptide()
+              .parallelStream()
+              .map(Peptide::getId)
+              .collect(Collectors.toList());
+    }
+    return peptideIDs;
   }
 
   /**
@@ -76,14 +124,7 @@ public class FastMzIdentMLUnmarshallerAdaptor {
    * @return Collection of Peptide Ids
    */
   public Collection<Comparable> getUniquePeptideIds() {
-    return fastMzIdentMLUnmarshaller
-        .getMzIdentML()
-        .getSequenceCollection()
-        .getPeptide()
-        .parallelStream()
-        .map(Peptide::getId)
-        .distinct()
-        .collect(Collectors.toList());
+    return new HashSet<>(getPeptideIds());
   }
 
   /**
@@ -129,6 +170,23 @@ public class FastMzIdentMLUnmarshallerAdaptor {
   }
 
   /**
+   * Get PeptideEvidence by PeptideEvidence ID
+   *
+   * @param peptideEvidenceId PeptideEvidence ID
+   * @return PeptideEvidence if matching PeptideEvidence exists, otherwise return a null
+   */
+  public PeptideEvidence getPeptideEvidenceById(Comparable peptideEvidenceId) {
+    return fastMzIdentMLUnmarshaller
+            .getMzIdentML()
+            .getSequenceCollection()
+            .getPeptideEvidence()
+            .stream()
+            .filter(p -> p.getId().equals(peptideEvidenceId))
+            .findFirst()
+            .orElse(null);
+  }
+
+  /**
    * Get all the SpectrumIdentificationList from the MzIdentML
    *
    * @return List of SpectrumIdentificationList
@@ -155,12 +213,32 @@ public class FastMzIdentMLUnmarshallerAdaptor {
       for (Modification modification : peptide.getModification()) {
         for (CvParam cvParam : modification.getCvParam()) {
           if (checkCvParam(cvParam)) {
-            modifications.put(cvParam.getAccession(), cvParam);
+            if (cvParam.getCvRef().equalsIgnoreCase(Constant.PSI_MOD)
+                || cvParam.getCvRef().equalsIgnoreCase(Constant.UNIMOD)) {
+              modifications.put(cvParam.getAccession(), cvParam);
+            }
           }
         }
       }
     }
     return modifications.values();
+  }
+
+  /**
+   * Check if the CvParameter is valid. CvParam should be compliant with PSI-MOD or UNIMOD.
+   *
+   * @param cvParam Control vocabulary parameter
+   * @return boolean value. If CvParam is valid, it returns true.
+   */
+  private boolean checkCvParam(CvParam cvParam) {
+    if (modReader.getPTMbyAccession(cvParam.getAccession()) == null) {
+      log.error("Found Invalid CV: " + cvParam.toString());
+      throw new IllegalStateException(
+              "Invalid CV term "
+                      + cvParam.getAccession()
+                      + " found! Only PSI-MOD and UNIMOD are permitted!");
+    }
+    return true;
   }
 
   /**
@@ -207,23 +285,6 @@ public class FastMzIdentMLUnmarshallerAdaptor {
       ptmMasses.add(monoMasses);
     }
     return ptmMasses;
-  }
-
-  /**
-   * Check if the CvParameter is valid. CvParam should be compliant with PSI-MOD or UNIMOD.
-   *
-   * @param cvParam Control vocabulary parameter
-   * @return boolean value. If CvParam is valid, it returns true.
-   */
-  private boolean checkCvParam(CvParam cvParam) {
-    if (modReader.getPTMbyAccession(cvParam.getAccession()) == null) {
-      log.error("Found Invalid CV: " + cvParam.toString());
-      throw new IllegalStateException(
-          "Invalid CV term "
-              + cvParam.getAccession()
-              + " found! Only PSI-MOD and UNIMOD are permitted!");
-    }
-    return true;
   }
 
   /**
@@ -485,5 +546,18 @@ public class FastMzIdentMLUnmarshallerAdaptor {
         .stream()
         .filter(p -> p.getIsDecoy())
         .count();
+  }
+
+  /**
+   * Check of the mzIdentML object contains any protein ambiguity groups
+   * @return Return true if PGA is available
+   */
+  public boolean isProteinAmbiguityGroupsAvailable(){
+
+    AnalysisData analysisData = fastMzIdentMLUnmarshaller.getMzIdentML().getDataCollection().getAnalysisData();
+    return analysisData != null
+                    && analysisData.getProteinDetectionList() != null
+                    && analysisData.getProteinDetectionList().getProteinAmbiguityGroup() != null
+                    && analysisData.getProteinDetectionList().getProteinAmbiguityGroup().size() > 0;
   }
 }

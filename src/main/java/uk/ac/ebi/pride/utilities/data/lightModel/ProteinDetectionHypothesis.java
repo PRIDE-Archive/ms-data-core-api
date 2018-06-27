@@ -33,6 +33,7 @@ import java.util.List;
  */
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "ProteinDetectionHypothesisType", propOrder = {
+        "peptideHypothesis",
         "paramGroup"
 })
 @Getter
@@ -40,6 +41,8 @@ import java.util.List;
 public class ProteinDetectionHypothesis extends Identifiable implements Serializable, ParamGroupCapable {
 
     private final static long serialVersionUID = 100L;
+    @XmlElement(name = "PeptideHypothesis", required = true)
+    protected List<PeptideHypothesis> peptideHypothesis;
     @XmlElements({
             @XmlElement(name = "cvParam", type = CvParam.class)
     })

@@ -601,8 +601,8 @@ public class Validator extends FileCompression {
       try {
         if (type.equals(FileType.MZID)) {
           assayFileController = new FastMzIdentMLController(tempAssayFile);
-          assayFileController.doSpectraValidation();
           assayFileController.addMSController(badtempDataAccessControllerFiles ? dataAccessControllerFiles : tempDataAccessControllerFiles);
+          assayFileController.doSpectraValidation();
         } else {
           throw new NotImplementedException(
               "No fast validation implementation for PRIDE XML or MzTAB");
