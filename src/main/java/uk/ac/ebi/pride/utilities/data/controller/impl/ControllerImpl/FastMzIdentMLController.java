@@ -109,8 +109,8 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
             .add(spectrumIdentificationResult);
         // check the spectra referenced in the mzIdentML also available in the peak files
         dataAccessController = msDataAccessControllers.get(spectrumDataRef);
-        if (!isSpectraInPeakFile(dataAccessController, formattedSpectrumID)) {
-          missingIdentifiedSpectraIds.add(formattedSpectrumID);
+        if (!isSpectraInPeakFile(dataAccessController, spectrumID)) {
+          missingIdentifiedSpectraIds.add(spectrumID);
         }
       }
     }
@@ -176,7 +176,7 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
    * @return Number of Peptides
    */
   public int getNumberOfUniquePeptides() {
-    return unmarshaller.getUniquePeptideIds().size();
+    return unmarshaller.getNumberOfUniquePeptides();
   }
 
   /**

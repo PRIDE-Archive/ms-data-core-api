@@ -118,13 +118,22 @@ public class FastMzIdentMLUnmarshallerAdaptor {
   }
 
   /**
-   * Get all unique Peptide Ids reported in the MzIdentML. Peptides that map uniquely to a Protein
+   * Get number of unique Peptide Ids reported in the MzIdentML. Peptides that map uniquely to a Protein
    * ID are considered as unique peptides.
-   *
-   * @return Collection of Peptide Ids
+   * number of unique Peptides
    */
-  public Collection<Comparable> getUniquePeptideIds() {
-    return new HashSet<>(getPeptideIds());
+  public int getNumberOfUniquePeptides() {
+    Collection<Comparable> peptideIds = getPeptideIds();
+    HashSet<String> peptideSeq = new HashSet();
+    if(peptideIds != null && !peptideIds.isEmpty()){
+      for (Comparable peptideId : peptideIds) {
+        Peptide peptide = getPeptideById(peptideId);
+        if(peptide != null && peptide.getPeptideSequence() != null)
+        peptideSeq.add(peptide.getPeptideSequence());
+      }
+    }
+//    return new HashSet<>(getPeptideIds());
+    return peptideSeq.size();
   }
 
   /**
