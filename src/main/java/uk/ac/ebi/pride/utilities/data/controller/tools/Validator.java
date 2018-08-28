@@ -723,7 +723,7 @@ public class Validator extends FileCompression {
                 || StringUtils.isEmpty(cvParam.getName())) {
               String message =
                   "A PTM CV Param's ontology, accession, or name is not defined properly: "
-                      + cvParam.toString()
+                      + cvParam.toString() + " in peptide " + peptide.getSequence()
                       + " in file: "
                       + assayFile.getPath();
               log.error(message);

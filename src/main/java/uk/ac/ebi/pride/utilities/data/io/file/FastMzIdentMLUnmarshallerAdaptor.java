@@ -64,9 +64,9 @@ public class FastMzIdentMLUnmarshallerAdaptor {
               .getAnalysisData()
               .getProteinDetectionList()
               .getProteinAmbiguityGroup()) {
-        if(proteinAmbiguityGroup.getProteinDetectionHypothesis().get(0).isPassThreshold()){
+//        if(proteinAmbiguityGroup.getProteinDetectionHypothesis().get(0).isPassThreshold()){
           proteinIDs.add(proteinAmbiguityGroup.getProteinDetectionHypothesis().get(0).getDBSequenceRef());
-        }
+//        }
       }
     } else { // if no protein inference exists
       proteinIDs = fastMzIdentMLUnmarshaller
