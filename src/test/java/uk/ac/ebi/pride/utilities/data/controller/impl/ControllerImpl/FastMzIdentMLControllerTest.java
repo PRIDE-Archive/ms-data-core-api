@@ -3,6 +3,7 @@ package uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessController;
 import uk.ac.ebi.pride.utilities.data.core.*;
@@ -22,6 +23,7 @@ import static org.junit.Assert.assertTrue;
  * @author Suresh Hewapathirana
  */
 @Slf4j
+@Ignore
 public class FastMzIdentMLControllerTest {
 
   private FastMzIdentMLController fastMzIdentMLController;
