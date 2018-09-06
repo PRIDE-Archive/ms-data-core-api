@@ -132,7 +132,6 @@ public class FastMzIdentMLUnmarshallerAdaptor {
         peptideSeq.add(peptide.getPeptideSequence());
       }
     }
-//    return new HashSet<>(getPeptideIds());
     return peptideSeq.size();
   }
 

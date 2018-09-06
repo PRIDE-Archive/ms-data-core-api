@@ -90,8 +90,8 @@ public class FastMzIdentMLControllerTest {
   @Test
   public void getNumberOfProteins() {
     assertEquals(
-        "Total number of proteins in the MzIdentML file should be 327",
-        327,
+        "Total number of proteins in the MzIdentML file should be 326",
+        326,
         fastMzIdentMLController.getNumberOfProteins());
   }
 
@@ -112,8 +112,8 @@ public class FastMzIdentMLControllerTest {
   @Test
   public void getNumberOfPeptides() {
     assertEquals(
-        "Total number of Peptide in the MzIdentML file should be 1956",
-        1956,
+        "Total number of Peptide in the MzIdentML file should be 525",
+            525,
         fastMzIdentMLController.getNumberOfPeptides());
   }
 
@@ -136,8 +136,8 @@ public class FastMzIdentMLControllerTest {
   @Test
   public void getNumberOfUniquePeptides() {
     assertEquals(
-        "Total number of Peptide in the MzIdentML file should be 1956",
-        1956,
+        "Total number of Peptide in the MzIdentML file should be 480",
+            480,
         fastMzIdentMLController.getNumberOfUniquePeptides());
   }
 
@@ -192,8 +192,8 @@ public class FastMzIdentMLControllerTest {
   @Test
   public void getIdentifiedUniquePTMs() {
     assertEquals(
-        "Total number of identified unique PTMs should be 3",
-        3,
+        "Total number of identified unique PTMs should be 2",
+        2,
         fastMzIdentMLController.getIdentifiedUniquePTMs().size());
     log.info(fastMzIdentMLController.getIdentifiedUniquePTMs().toString());
   }
