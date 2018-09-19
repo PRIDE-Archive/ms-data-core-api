@@ -565,21 +565,31 @@ public class MzTabTransformer {
         List<FixedMod> fixedMods = new ArrayList<FixedMod>();
         for (FixedMod fixedmod : metadata.getFixedModMap().values()) {
             boolean contained = false;
-            for (FixedMod mod : fixedMods)
-                if (mod.getParam().getAccession().equalsIgnoreCase(fixedmod.getParam().getAccession()))
+            for (FixedMod mod : fixedMods){
+                if(mod.getParam().getAccession() == null || fixedmod.getParam().getAccession() == null){
+                    if(mod.getParam().getName() != null && fixedmod.getParam().getName() != null
+                            && mod.getParam().getName().equalsIgnoreCase(fixedmod.getParam().getName()))
+                        contained = true;
+                }else if(mod.getParam().getAccession() != null && fixedmod.getParam().getAccession() != null && mod.getParam().getAccession().equalsIgnoreCase(fixedmod.getParam().getAccession()))
                     contained = true;
+            }
             if (!contained)
                 fixedMods.add(fixedmod);
         }
 
-        List<VariableMod> varaibleMods = new ArrayList<VariableMod>();
+        List<VariableMod> variableMods = new ArrayList<VariableMod>();
         for (VariableMod variableMod : metadata.getVariableModMap().values()) {
             boolean contained = false;
-            for (VariableMod mod : varaibleMods)
-                if (mod.getParam().getAccession().equalsIgnoreCase(variableMod.getParam().getAccession()))
+            for (VariableMod mod : variableMods){
+                if(mod.getParam().getAccession() == null || variableMod.getParam().getAccession() == null){
+                    if(mod.getParam().getName() != null && variableMod.getParam().getName() != null
+                            && mod.getParam().getName().equalsIgnoreCase(variableMod.getParam().getName()))
+                        contained = true;
+                }else if(mod.getParam().getAccession() != null && variableMod.getParam().getAccession() != null && mod.getParam().getAccession().equalsIgnoreCase(variableMod.getParam().getAccession()))
                     contained = true;
+            }
             if (!contained)
-                varaibleMods.add(variableMod);
+                variableMods.add(variableMod);
         }
 
         //Look in Fixed Modifications
@@ -627,7 +637,7 @@ public class MzTabTransformer {
             }
         }
         // Look in variable modifications
-        for (VariableMod modVariable : varaibleMods) {
+        for (VariableMod modVariable : variableMods) {
 
             for (uk.ac.ebi.pride.jmztab.model.Modification rawMod : rawMods) {
                 String rawModAccession = getAccesion(rawMod);

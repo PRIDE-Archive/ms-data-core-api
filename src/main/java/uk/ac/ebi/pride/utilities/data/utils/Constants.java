@@ -73,6 +73,7 @@ public final class Constants {
     MZXML,
     MZDATA,
     MS2,
+    APL,
     NONE
   }
 
@@ -87,6 +88,7 @@ public final class Constants {
       if (SpecFileFormat.MZXML.toString().equalsIgnoreCase(fileFormat)) return SpecFileFormat.MZXML;
       if (SpecFileFormat.DTA.toString().equalsIgnoreCase(fileFormat)) return SpecFileFormat.DTA;
       if (SpecFileFormat.MGF.toString().equalsIgnoreCase(fileFormat)) return SpecFileFormat.MGF;
+      if (SpecFileFormat.APL.toString().equalsIgnoreCase(fileFormat)) return SpecFileFormat.APL;
       if (SpecFileFormat.MZDATA.toString().equalsIgnoreCase(fileFormat))
         return SpecFileFormat.MZDATA;
       if (SpecFileFormat.MZML.toString().equalsIgnoreCase(fileFormat)) return SpecFileFormat.MZML;
@@ -110,7 +112,7 @@ public final class Constants {
       if (path.toUpperCase().contains(MGF_EXT.toUpperCase())) return SpecFileFormat.MGF;
       if (path.toUpperCase().contains(XML_EXT.toUpperCase())) return SpecFileFormat.MZDATA;
       if (path.toUpperCase().contains(MZML_EXT.toUpperCase())) return SpecFileFormat.MZML;
-      if (path.toUpperCase().contains(PKL_EXT.toUpperCase())) return SpecFileFormat.PKL;
+      if (path.toUpperCase().contains(APL_EXT.toUpperCase())) return SpecFileFormat.APL;
       if (path.toUpperCase().contains(PKL_EXT.toUpperCase())) return SpecFileFormat.PKL;
       if (path.toUpperCase().contains(MS2_EXT.toUpperCase())) return SpecFileFormat.MS2;
     }
@@ -129,6 +131,7 @@ public final class Constants {
       if (specFileFormat.getAccession().equals("MS:1000613")) return Constants.SpecFileFormat.DTA;
       if (specFileFormat.getAccession().equals("MS:1001062")) return Constants.SpecFileFormat.MGF;
       if (specFileFormat.getAccession().equals("MS:1000565")) return Constants.SpecFileFormat.PKL;
+      if (specFileFormat.getAccession().equals("MS:1002996")) return SpecFileFormat.APL;
       if (specFileFormat.getAccession().equals("MS:1000584")
           || specFileFormat.getAccession().equals("MS:1000562"))
         return Constants.SpecFileFormat.MZML;

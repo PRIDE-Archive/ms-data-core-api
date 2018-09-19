@@ -222,10 +222,10 @@ public abstract class ReferencedIdentificationController extends ResultFileContr
             while (iterator.hasNext()) {
                 Map.Entry mapEntry = (Map.Entry) iterator.next();
                 SpectraData spectraData = (SpectraData) mapEntry.getValue();
-                if (spectraData.getLocation() != null && spectraData.getLocation().contains(file.getName())) {
+                if (spectraData.getLocation() != null && spectraData.getLocation().toLowerCase().contains(file.getName().toLowerCase())) {
                     spectraFileMap.put(spectraData, file);
                 }else if(file.getName().contains(spectraData.getId().toString())
-                        || (spectraData.getName() != null && file.getName().contains(spectraData.getName()))){
+                        || (spectraData.getName() != null && file.getName().toLowerCase().contains(spectraData.getName().toLowerCase()))){
                     spectraFileMap.put(spectraData, file);
                 }
             }
@@ -264,6 +264,10 @@ public abstract class ReferencedIdentificationController extends ResultFileContr
 
                     if (Constants.getSpectraDataFormat(spectraData) == Constants.SpecFileFormat.MS2)
                         msDataAccessControllers.put(spectraData.getId(), new PeakControllerImpl(spectraDataFileMap.get(spectraDataFile)));
+
+                    if (Constants.getSpectraDataFormat(spectraData) == Constants.SpecFileFormat.APL)
+                        msDataAccessControllers.put(spectraData.getId(), new PeakControllerImpl(spectraDataFileMap.get(spectraDataFile)));
+
                     //Todo: Need to check if changes
                 }
             }
