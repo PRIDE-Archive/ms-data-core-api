@@ -561,6 +561,7 @@ public class MzTabTransformer {
      * @return Modification modification in core data model.
      */
     private static List<Modification> transformModification(List<uk.ac.ebi.pride.jmztab.model.Modification> rawMods, Metadata metadata) {
+      logger.info("Transforming Modifications:" + rawMods.toString());
         List<Modification> modifications = new ArrayList<Modification>();
 
         List<FixedMod> fixedMods = new ArrayList<FixedMod>();
