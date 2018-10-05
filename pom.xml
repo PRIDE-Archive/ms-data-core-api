@@ -42,7 +42,6 @@
             </roles>
             <timezone>0</timezone>
         </developer>
-
         <developer>
             <id>tobias</id>
             <name>Tobias Ternent</name>
@@ -61,6 +60,17 @@
             <organizationUrl>http://www.ebi.ac.uk/pride</organizationUrl>
             <roles>
                 <role>developer</role>
+            </roles>
+            <timezone>Europe/London</timezone>
+        </developer>
+        <developer>
+            <id>Suresh Hewapathirana</id>
+            <name>Suresh Chanaka Hewapathirana</name>
+            <organization>Proteomics Services Team, EMBL-European Bioinformatics Institute</organization>
+            <organizationUrl>http://www.ebi.ac.uk/pride</organizationUrl>
+            <roles>
+                <role>developer</role>
+                <role>tester</role>
             </roles>
             <timezone>Europe/London</timezone>
         </developer>
