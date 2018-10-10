@@ -13,8 +13,6 @@ import uk.ac.ebi.pride.utilities.data.controller.DataAccessController;
 import uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl.MzIdentMLControllerImpl;
 import uk.ac.ebi.pride.utilities.data.controller.impl.ControllerImpl.PrideXmlControllerImpl;
 
-import static uk.ac.ebi.pride.utilities.data.controller.tools.utils.Utility.*;
-
 import java.io.*;
 import java.util.SortedMap;
 
@@ -38,6 +36,11 @@ public class MzTabConverterTool {
 
   private MZTabErrorList errorList = new MZTabErrorList();
   private ConvertProvider convertProvider;
+  public static final String ARG_OUTPUTFILE = "outputfile";
+  public static final String ARG_INPUTFILE = "inputfile";
+  public static final String ARG_FORMAT = "format";
+  public static final String ARG_CODE = "code";
+  public static final String ARG_LEVEL = "level";
 
   public MzTabConverterTool(File inFile, MassSpecFileFormat format) {
     this(inFile, format, true, true);
