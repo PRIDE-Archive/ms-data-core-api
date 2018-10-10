@@ -323,7 +323,7 @@
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
                             <!-- Configures the main class of the application -->
-                            <mainClass>uk.ac.ebi.pride.utilities.data.controller.tools.PGConverter</mainClass>
+                            <mainClass>uk.ac.ebi.pride.utilities.data.exporters.MzTabConverterTool</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
