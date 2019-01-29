@@ -1,6 +1,8 @@
 package uk.ac.ebi.pride.utilities.data.controller.impl.Transformer;
 
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.ac.ebi.pride.jmztab.model.*;
 import uk.ac.ebi.pride.jmztab.model.Contact;
 import uk.ac.ebi.pride.utilities.data.controller.DataAccessUtilities;
@@ -30,7 +32,7 @@ import java.util.stream.Collectors;
  * @author Rui Wang
  */
 public class MzTabTransformer {
-
+    private static final Logger logger = LoggerFactory.getLogger(MzTabTransformer.class);
     private final static String PROTOCOL_ID = "protocol1";
 
     public static List<SourceFile> transformSourceFiles(Map<Integer, uk.ac.ebi.pride.jmztab.model.MsRun> msRunMap) {
@@ -559,7 +561,7 @@ public class MzTabTransformer {
      * @return Modification modification in core data model.
      */
     private static List<Modification> transformModification(List<uk.ac.ebi.pride.jmztab.model.Modification> rawMods, Metadata metadata) {
-
+      logger.info("Transforming Modifications:" + rawMods.toString());
         List<Modification> modifications = new ArrayList<Modification>();
 
         List<FixedMod> fixedMods = new ArrayList<FixedMod>();

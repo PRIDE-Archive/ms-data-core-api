@@ -410,11 +410,13 @@ public class FastMzIdentMLController extends ReferencedIdentificationController 
    */
   private boolean isSpectraInPeakFile(
       DataAccessController dataAccessController, String formattedSpectrumID) {
-    boolean spectraFound = true;
+    boolean spectraFound = false;
     if (dataAccessController != null) {
-      spectraFound = dataAccessController.getSpectrumIds().contains(formattedSpectrumID);
-      if (!dataAccessController.getSpectrumIds().contains(formattedSpectrumID)) {
-        spectraFound = false;
+      for(Comparable id: dataAccessController.getSpectrumIds()){
+        if(id.toString().substring(id.toString().lastIndexOf("=") + 1).equals(formattedSpectrumID)){
+          spectraFound = true;
+          break;
+        }
       }
     }
     return spectraFound;

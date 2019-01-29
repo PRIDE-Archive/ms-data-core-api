@@ -4,7 +4,7 @@
 
     <groupId>uk.ac.ebi.pride.utilities</groupId>
     <artifactId>ms-data-core-api</artifactId>
-    <version>2.0.25-SNAPSHOT</version>
+    <version>2.0.31-SNAPSHOT</version>
 
     <name>Open-source Data Model for computational proteomics</name>
     <url>http://github.com/PRIDE-Utilities/ms-data-core-api</url>
@@ -42,7 +42,6 @@
             </roles>
             <timezone>0</timezone>
         </developer>
-
         <developer>
             <id>tobias</id>
             <name>Tobias Ternent</name>
@@ -61,6 +60,17 @@
             <organizationUrl>http://www.ebi.ac.uk/pride</organizationUrl>
             <roles>
                 <role>developer</role>
+            </roles>
+            <timezone>Europe/London</timezone>
+        </developer>
+        <developer>
+            <id>Suresh Hewapathirana</id>
+            <name>Suresh Chanaka Hewapathirana</name>
+            <organization>Proteomics Services Team, EMBL-European Bioinformatics Institute</organization>
+            <organizationUrl>http://www.ebi.ac.uk/pride</organizationUrl>
+            <roles>
+                <role>developer</role>
+                <role>tester</role>
             </roles>
             <timezone>Europe/London</timezone>
         </developer>
@@ -87,16 +97,15 @@
         <uk.ac.ebi.jmzidml-jmzidentml.version>1.2.11</uk.ac.ebi.jmzidml-jmzidentml.version>
         <uk.ac.ebi.jmzml-jmzml.version>1.7.11</uk.ac.ebi.jmzml-jmzml.version>
         <xmlschemavalidator.version>2.1</xmlschemavalidator.version>
-        <uk.ac.ebi.pride-jmztab-modular-model.version>3.0.5</uk.ac.ebi.pride-jmztab-modular-model.version>
-        <uk.ac.ebi.pride-jmztab-modular-util.version>3.0.5</uk.ac.ebi.pride-jmztab-modular-util.version>
-        <uk.ac.ebi.pride-jmztab-modular-converters.version>3.0.5</uk.ac.ebi.pride-jmztab-modular-converters.version>
+        <uk.ac.ebi.pride-jmztab-modular-model.version>3.0.8</uk.ac.ebi.pride-jmztab-modular-model.version>
+        <uk.ac.ebi.pride-jmztab-modular-util.version>3.0.8</uk.ac.ebi.pride-jmztab-modular-util.version>
+        <uk.ac.ebi.pride-jmztab-modular-converters.version>3.0.8</uk.ac.ebi.pride-jmztab-modular-converters.version>
         <uk.ac.ebi.pride.tools-jmzreader.version>2.0.6</uk.ac.ebi.pride.tools-jmzreader.version>
         <jnetCDF.version>0.0.2</jnetCDF.version>
         <uk.ac.ebi.pride.jaxb-pride-jaxb.version>1.0.22</uk.ac.ebi.pride.jaxb-pride-jaxb.version>
         <uk.ac.ebi.pride.utilities-pride-utilities.version>2.0.18</uk.ac.ebi.pride.utilities-pride-utilities.version>
         <uk.ac.ebi.pride.utilities-pride-mod.version>2.1.9</uk.ac.ebi.pride.utilities-pride-mod.version>
         <commons-cli.version>1.3.1</commons-cli.version>
-        <archive.repo.version>1.0.1</archive.repo.version>
     </properties>
 
     <dependencies>
@@ -254,31 +263,31 @@
             <version>${commons-cli.version}</version>
         </dependency>
 
-        <!-- pride.archive repo -->
-        <dependency>
-            <groupId>uk.ac.ebi.pride.archive</groupId>
-            <artifactId>archive-repo</artifactId>
-            <version>${archive.repo.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>ch.qos.logback</groupId>
-                    <artifactId>logback-classic</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>ch.qos.logback</groupId>
-                    <artifactId>logback-core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-log4j12</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-api</artifactId>
-                </exclusion>
-            </exclusions>
-            <scope>provided</scope>
-        </dependency>
+        <!--&lt;!&ndash; pride.archive repo &ndash;&gt;-->
+        <!--<dependency>-->
+            <!--<groupId>uk.ac.ebi.pride.archive</groupId>-->
+            <!--<artifactId>archive-repo</artifactId>-->
+            <!--<version>${archive.repo.version}</version>-->
+            <!--<exclusions>-->
+                <!--<exclusion>-->
+                    <!--<groupId>ch.qos.logback</groupId>-->
+                    <!--<artifactId>logback-classic</artifactId>-->
+                <!--</exclusion>-->
+                <!--<exclusion>-->
+                    <!--<groupId>ch.qos.logback</groupId>-->
+                    <!--<artifactId>logback-core</artifactId>-->
+                <!--</exclusion>-->
+                <!--<exclusion>-->
+                    <!--<groupId>org.slf4j</groupId>-->
+                    <!--<artifactId>slf4j-log4j12</artifactId>-->
+                <!--</exclusion>-->
+                <!--<exclusion>-->
+                    <!--<groupId>org.slf4j</groupId>-->
+                    <!--<artifactId>slf4j-api</artifactId>-->
+                <!--</exclusion>-->
+            <!--</exclusions>-->
+            <!--<scope>provided</scope>-->
+        <!--</dependency>-->
 
         <!-- For File handling -->
         <dependency>
@@ -310,14 +319,6 @@
             <artifactId>lombok</artifactId>
             <version>1.16.20</version>
             <scope>provided</scope>
-        </dependency>
-
-        <!-- Redis for Unit Testing -->
-        <dependency>
-            <groupId>net.ishiis.redis</groupId>
-            <artifactId>redis-unit</artifactId>
-            <version>1.0.3</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -372,8 +373,7 @@
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
                             <!-- Configures the main class of the application -->
-                            <!--<mainClass>uk.ac.ebi.pride.utilities.data.exporters.MzTabConverterTool</mainClass>-->
-                            <mainClass>uk.ac.ebi.pride.utilities.data.controller.tools.PGConverter</mainClass>
+                            <mainClass>uk.ac.ebi.pride.utilities.data.exporters.MzTabConverterTool</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
