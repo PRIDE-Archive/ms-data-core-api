@@ -126,7 +126,7 @@ public class MzIdentMlControllerImplTest {
     public void testGetIdentificationIDs() throws DataAccessException {
         List<Comparable> identifications = new ArrayList<Comparable>(mzIdentMlController.getProteinIds());
         assertTrue("The numer of Identification should be 2", identifications.size()==2);
-        assertEquals("The id of the first identification should be PDH_psu|NC_LIV_020800_0",identifications.get(0).toString(),"PDH_psu|NC_LIV_020800_0");
+        assertEquals("The id of the first identification should be PDH_psu|NC_LIV_020800_0",identifications.get(0).toString(),"PDH_psu|NC_LIV_105380_0");
    }
 
     @Test

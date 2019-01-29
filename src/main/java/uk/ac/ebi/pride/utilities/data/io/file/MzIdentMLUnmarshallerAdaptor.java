@@ -4,15 +4,6 @@ package uk.ac.ebi.pride.utilities.data.io.file;
 import psidev.psi.tools.xxindex.index.IndexElement;
 import uk.ac.ebi.jmzidml.MzIdentMLElement;
 import uk.ac.ebi.jmzidml.model.mzidml.*;
-import uk.ac.ebi.jmzidml.model.mzidml.DBSequence;
-import uk.ac.ebi.jmzidml.model.mzidml.Organization;
-import uk.ac.ebi.jmzidml.model.mzidml.PeptideEvidence;
-import uk.ac.ebi.jmzidml.model.mzidml.Person;
-import uk.ac.ebi.jmzidml.model.mzidml.Provider;
-import uk.ac.ebi.jmzidml.model.mzidml.Sample;
-import uk.ac.ebi.jmzidml.model.mzidml.SourceFile;
-import uk.ac.ebi.jmzidml.model.mzidml.SpectraData;
-import uk.ac.ebi.jmzidml.model.mzidml.SpectrumIdentificationProtocol;
 import uk.ac.ebi.jmzidml.xml.io.MzIdentMLUnmarshaller;
 import uk.ac.ebi.pride.utilities.data.utils.MzIdentMLUtils;
 
