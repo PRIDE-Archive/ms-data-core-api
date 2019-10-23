@@ -27,6 +27,7 @@ import uk.ac.ebi.pride.utilities.data.utils.MapUtils;
 import uk.ac.ebi.pride.utilities.data.utils.MzIdentMLUtils;
 import uk.ac.ebi.pride.utilities.term.CvTermReference;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * This class is the Transformer class from a jmzidml object to a core object.
@@ -448,10 +449,14 @@ public final class MzIdentMLTransformer {
             uk.ac.ebi.jmzidml.model.mzidml.Fragmentation fragmentation = oldSpectrumIdentification.getFragmentation();
             ParamGroup scoreParamGroup = new ParamGroup(transformToCvParam(oldSpectrumIdentification.getCvParam()), transformToUserParam(oldSpectrumIdentification.getUserParam()));
             Score score = DataAccessUtilities.getScore(scoreParamGroup);
-            peptide = new SpectrumIdentification(scoreParamGroup, id, name, chargeState, massToCharge, calcMassToCharge, pI,
-                    transformToPeptide(peptideSeq), rank, passThrehold, transformToMassTable(massTable),
-                    transformToSample(sample), transformToPeptideEvidence(peptideEvidence),
-                    transformToFragmentationIon(fragmentation), score, null, null);
+            try {
+                peptide = new SpectrumIdentification(scoreParamGroup, id, name, chargeState, massToCharge, calcMassToCharge, pI,
+                        transformToPeptide(peptideSeq), rank, passThrehold, transformToMassTable(massTable),
+                        transformToSample(sample), transformToPeptideEvidence(peptideEvidence),
+                        transformToFragmentationIon(fragmentation), score, null, null);
+            } catch (Exception e) {
+                System.out.println("Error in transforming to peptide identification: " + e.getMessage());
+            }
             peptide.setRetentionTime(retentionTime);
 
         }
@@ -495,53 +500,59 @@ public final class MzIdentMLTransformer {
                         listIds.add(ionType.getIndex().get(i));
                     }
                 }
-
-                for (Integer index = 0; index < listIds.size(); index++) {
-                    //FragmentIon fragmentIon = new FragmentIon();
-                    List<CvParam> cvParams = new ArrayList<CvParam>();
-                    // charge
-                    CvTermReference cvCharge = CvTermReference.PRODUCT_ION_CHARGE;
-                    cvParams.add(new CvParam(cvCharge.getAccession(), cvCharge.getName(), cvCharge.getCvLabel(), String.valueOf(ionType.getCharge()), null, null, null));
-                    //ion type
-                    cvParams.add(new CvParam(ionType.getCvParam().getAccession(), ionType.getCvParam().getName(), ionType.getCvParam().getCvRef(), listIds.get(index).toString(), null, null, null));
-                    //mz
-                    for (uk.ac.ebi.jmzidml.model.mzidml.FragmentArray fragArr : ionType.getFragmentArray()) {
-                        String measureRef = fragArr.getMeasureRef();
-                        //uk.ac.ebi.jmzidml.model.mzidml.Measure oldMeasure = fragArr.getMeasure();
-                        IdentifiableParamGroup oldMeasure = fragmentationTable.get(measureRef);
-                        CvParam cvParam;
-                        CvTermReference cvMz;
-                        cvMz = CvTermReference.PRODUCT_ION_MZ;
-                        cvParam = getCvParamByID(oldMeasure.getCvParams(), cvMz.getAccession(), fragArr.getValues().get(index).toString());
-                        if (cvParam == null) {
-                            cvMz = CvTermReference.MS_PRODUCT_ION_MZ;
+                try{
+                    for (Integer index = 0; index < listIds.size(); index++) {
+                        //FragmentIon fragmentIon = new FragmentIon();
+                        List<CvParam> cvParams = new ArrayList<CvParam>();
+                        // charge
+                        CvTermReference cvCharge = CvTermReference.PRODUCT_ION_CHARGE;
+                        cvParams.add(new CvParam(cvCharge.getAccession(), cvCharge.getName(), cvCharge.getCvLabel(), String.valueOf(ionType.getCharge()), null, null, null));
+                        //ion type
+                        cvParams.add(new CvParam(ionType.getCvParam().getAccession(), ionType.getCvParam().getName(), ionType.getCvParam().getCvRef(), listIds.get(index).toString(), null, null, null));
+                        //mz
+                        for (uk.ac.ebi.jmzidml.model.mzidml.FragmentArray fragArr : ionType.getFragmentArray()) {
+                            String measureRef = fragArr.getMeasureRef();
+                            //uk.ac.ebi.jmzidml.model.mzidml.Measure oldMeasure = fragArr.getMeasure();
+                            IdentifiableParamGroup oldMeasure = fragmentationTable.get(measureRef);
+                            CvParam cvParam;
+                            CvTermReference cvMz;
+                            cvMz = CvTermReference.PRODUCT_ION_MZ;
                             cvParam = getCvParamByID(oldMeasure.getCvParams(), cvMz.getAccession(), fragArr.getValues().get(index).toString());
                             if (cvParam == null) {
-                                cvMz = CvTermReference.PRODUCT_ION_INTENSITY;
+                                cvMz = CvTermReference.MS_PRODUCT_ION_MZ;
                                 cvParam = getCvParamByID(oldMeasure.getCvParams(), cvMz.getAccession(), fragArr.getValues().get(index).toString());
                                 if (cvParam == null) {
-                                    cvMz = CvTermReference.MS_PRODUCT_ION_INTENSITY;
+                                    cvMz = CvTermReference.PRODUCT_ION_INTENSITY;
                                     cvParam = getCvParamByID(oldMeasure.getCvParams(), cvMz.getAccession(), fragArr.getValues().get(index).toString());
                                     if (cvParam == null) {
-                                        cvMz = CvTermReference.PRODUCT_ION_MASS_ERROR;
+                                        cvMz = CvTermReference.MS_PRODUCT_ION_INTENSITY;
                                         cvParam = getCvParamByID(oldMeasure.getCvParams(), cvMz.getAccession(), fragArr.getValues().get(index).toString());
                                         if (cvParam == null) {
-                                            cvMz = CvTermReference.MS_PRODUCT_ION_MASS_ERROR;
+                                            cvMz = CvTermReference.PRODUCT_ION_MASS_ERROR;
                                             cvParam = getCvParamByID(oldMeasure.getCvParams(), cvMz.getAccession(), fragArr.getValues().get(index).toString());
                                             if (cvParam == null) {
-                                                cvMz = CvTermReference.PRODUCT_ION_RETENTION_TIME_ERROR;
+                                                cvMz = CvTermReference.MS_PRODUCT_ION_MASS_ERROR;
                                                 cvParam = getCvParamByID(oldMeasure.getCvParams(), cvMz.getAccession(), fragArr.getValues().get(index).toString());
+                                                if (cvParam == null) {
+                                                    cvMz = CvTermReference.PRODUCT_ION_RETENTION_TIME_ERROR;
+                                                    cvParam = getCvParamByID(oldMeasure.getCvParams(), cvMz.getAccession(), fragArr.getValues().get(index).toString());
+                                                }
                                             }
                                         }
                                     }
                                 }
                             }
+                            if (cvParam != null) {
+                                cvParams.add(cvParam);
+                            }
                         }
-                        if (cvParam != null) {
-                            cvParams.add(cvParam);
-                        }
+                        fragmentIons.add(new FragmentIon(new ParamGroup(cvParams, null)));
                     }
-                    fragmentIons.add(new FragmentIon(new ParamGroup(cvParams, null)));
+                } catch (Exception e) {
+                    System.out.println(ionType.getIndex().stream()
+                            .map(Object::toString)
+                            .collect(Collectors.joining(" ")));
+                    System.out.println("Error in transformToFragmentationIon : " + e.getMessage());
                 }
             }
         }
